@@ -10,6 +10,7 @@
     
     <modules>
         <module>sharding-orchestration-reg-native-zookeeper</module>
+        <module>sharding-transaction-saga-persisitence-jpa</module>
     </modules>
     
     <properties>
