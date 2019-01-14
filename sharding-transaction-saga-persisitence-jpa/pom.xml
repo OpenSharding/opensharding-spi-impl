@@ -17,6 +17,12 @@
     
     <dependencies>
         <dependency>
+            <groupId>io.shardingsphere</groupId>
+            <artifactId>sharding-transaction-saga</artifactId>
+            <version>4.0.0.M1-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.42</version>

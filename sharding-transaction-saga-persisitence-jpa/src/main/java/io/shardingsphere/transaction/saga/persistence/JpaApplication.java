@@ -17,7 +17,7 @@ import io.shardingsphere.transaction.saga.persistence.repository.SagaSnapshotRep
 public class JpaApplication {
     
     public static void main(String[] args) {
-//        snapshot();
+        snapshot();
         event();
     }
     
@@ -38,9 +38,9 @@ public class JpaApplication {
     private static void snapshot() {
         SagaSnapshotRepository repository = new SagaSnapshotRepository();
     
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 3; i++) {
             String uuid = UUID.randomUUID().toString();
-            for (int j = 1; j <= 10; j++) {
+            for (int j = 1; j <= 3; j++) {
                 SagaSnapshotEntity sagaSnapshotEntity = new SagaSnapshotEntity();
                 sagaSnapshotEntity.setTransactionId(uuid);
                 sagaSnapshotEntity.setSnapshotId(j);
@@ -55,7 +55,7 @@ public class JpaApplication {
                 System.out.println(each);
                 each.setRevertContext("{\"sql\":\"delete from t_order_id where order_id=?\",\"parameters\":[[1]]}");
                 each.setExecuteStatus("SUCCESS");
-                repository.update(each);
+                repository.update(each.getTransactionId(), each.getSnapshotId(), each.getExecuteStatus());
             }
         
             sagaSnapshotEntityList = repository.selectByTranscationId(uuid);
