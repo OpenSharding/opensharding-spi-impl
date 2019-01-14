@@ -1,0 +1,25 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+    version="2.0">
+    <!--<persistence-unit name="io.shardingsphere.transaction.saga.persistence" transaction-type="RESOURCE_LOCAL">-->
+        <!--<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>-->
+        <!--<class>io.shardingsphere.transaction.saga.persistence.entity.SagaSnapshotEntity</class>-->
+        <!--<class>io.shardingsphere.transaction.saga.persistence.entity.SagaEventEntity</class>-->
+        <!--<properties>-->
+            <!--<property name="javax.persistence.schema-generation.database.action" value="drop-and-create" />-->
+            <!--<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />-->
+            <!--<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/saga" />-->
+            <!--<property name="javax.persistence.jdbc.user" value="root" />-->
+            <!--<property name="javax.persistence.jdbc.password" value="" />-->
+            <!--<property name="hibernate.hikari.minimumIdle" value="5" />-->
+            <!--<property name="hibernate.hikari.maximumPoolSize" value="10" />-->
+            <!--<property name="hibernate.hikari.idleTimeout" value="30000" />-->
+            <!--<property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider" />-->
+    <!---->
+            <!--<property name="hibernate.show_sql" value="false" />-->
+            <!--<property name="hibernate.format_sql" value="true" />-->
+        <!--</properties>-->
+    <!--</persistence-unit>-->
+    <persistence-unit name="empty"/>
+</persistence>

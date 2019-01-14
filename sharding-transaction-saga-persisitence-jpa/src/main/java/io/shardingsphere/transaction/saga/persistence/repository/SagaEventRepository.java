@@ -1,0 +1,54 @@
+/*
+ * Copyright 2016-2018 shardingsphere.io.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * </p>
+ */
+
+package io.shardingsphere.transaction.saga.persistence.repository;
+
+import io.shardingsphere.transaction.saga.persistence.entity.SagaEventEntity;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.List;
+
+/**
+ * Saga event repository
+ *
+ * @author yangyi
+ */
+public class SagaEventRepository {
+    
+    private final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("io.shardingsphere.transaction.saga.persistence");
+    
+    public void insert(final SagaEventEntity sagaEventEntity) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.persist(sagaEventEntity);
+        entityManager.getTransaction().commit();
+    }
+    
+    public List<SagaEventEntity> findIncompleteSagaEventsGroupBySagaId() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        return entityManager.createNamedQuery("findIncompleteSagaEventsGroupBySagaId", SagaEventEntity.class).getResultList();
+    }
+    
+    public void deleteBySagaId(final String sagaId) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.createNativeQuery("DELETE FROM saga_event WHERE saga_id = ?").setParameter(1, sagaId).executeUpdate();
+        entityManager.getTransaction().commit();
+    }
+}
