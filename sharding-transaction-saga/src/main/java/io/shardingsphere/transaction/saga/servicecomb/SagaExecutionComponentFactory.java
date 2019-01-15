@@ -47,19 +47,20 @@ public final class SagaExecutionComponentFactory {
     /**
      * Create saga execution component.
      *
-     * @param sagaConfig saga configuration
+     * @param sagaConfiguration saga configuration
      * @param sagaPersistence saga persistence
      * @return saga execution component
      */
-    public static SagaExecutionComponent createSagaExecutionComponent(final SagaConfiguration sagaConfig, final SagaPersistence sagaPersistence) {
+    public static SagaExecutionComponent createSagaExecutionComponent(final SagaConfiguration sagaConfiguration, final SagaPersistence sagaPersistence) {
         FromJsonFormat<SagaDefinition> fromJsonFormat = new JacksonFromJsonFormat(ShardingTransportFactory.getInstance());
-        GraphBasedSagaFactory sagaFactory = new GraphBasedSagaFactory(sagaConfig.getCompensationRetryDelay(), sagaPersistence, new ChildrenExtractor(), createExecutorService(sagaConfig));
+        GraphBasedSagaFactory sagaFactory = new GraphBasedSagaFactory(
+                sagaConfiguration.getCompensationRetryDelay(), sagaPersistence, new ChildrenExtractor(), createExecutorService(sagaConfiguration.getExecutorSize()));
         return new SagaExecutionComponent(sagaPersistence, fromJsonFormat, null, sagaFactory);
     }
     
-    private static ExecutorService createExecutorService(final SagaConfiguration sagaConfig) {
+    private static ExecutorService createExecutorService(final int executorSize) {
         ThreadFactory threadFactory = ShardingThreadFactoryBuilder.build("Saga-%d");
-        ExecutorService result = sagaConfig.getExecutorSize() > 0 ? Executors.newFixedThreadPool(sagaConfig.getExecutorSize(), threadFactory) : Executors.newCachedThreadPool(threadFactory);
+        ExecutorService result = executorSize > 0 ? Executors.newFixedThreadPool(executorSize, threadFactory) : Executors.newCachedThreadPool(threadFactory);
         MoreExecutors.addDelayedShutdownHook(result, 60, TimeUnit.SECONDS);
         return result;
     }
