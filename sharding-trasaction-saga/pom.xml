@@ -13,6 +13,12 @@
     
     <dependencies>
         <dependency>
+            <groupId>io.shardingsphere</groupId>
+            <artifactId>sharding-transaction-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
             <groupId>org.apache.servicecomb.saga</groupId>
             <artifactId>saga-core</artifactId>
             <exclusions>
