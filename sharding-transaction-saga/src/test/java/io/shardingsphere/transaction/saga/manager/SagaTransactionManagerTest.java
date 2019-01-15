@@ -18,8 +18,8 @@
 package io.shardingsphere.transaction.saga.manager;
 
 import io.shardingsphere.core.executor.ShardingExecuteDataMap;
-import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingSQLTransport;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
@@ -35,7 +35,6 @@ import java.lang.reflect.Field;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -88,7 +87,7 @@ public final class SagaTransactionManagerTest {
         transactionManager.commit();
         verify(sagaExecutionComponent, never()).run(anyString());
         assertNull(transactionManager.getTransaction());
-        assertEquals(ShardingExecuteDataMap.getDataMap().size(), 0);
+        assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
     }
     
@@ -102,7 +101,7 @@ public final class SagaTransactionManagerTest {
     public void assertRollbackWithoutBegin() {
         transactionManager.rollback();
         assertNull(transactionManager.getTransaction());
-        assertEquals(ShardingExecuteDataMap.getDataMap().size(), 0);
+        assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
     }
     
@@ -111,7 +110,7 @@ public final class SagaTransactionManagerTest {
         transactionManager.begin();
         transactionManager.rollback();
         assertNull(transactionManager.getTransaction());
-        assertEquals(ShardingExecuteDataMap.getDataMap().size(), 0);
+        assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
     }
     
@@ -128,7 +127,7 @@ public final class SagaTransactionManagerTest {
         transactionManager.commit();
         verify(sagaExecutionComponent, never()).run(anyString());
         assertNull(transactionManager.getTransaction());
-        assertEquals(ShardingExecuteDataMap.getDataMap().size(), 0);
+        assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
     }
     
@@ -141,7 +140,7 @@ public final class SagaTransactionManagerTest {
         verify(resourceManager).getSagaExecutionComponent();
         verify(sagaExecutionComponent).run(anyString());
         assertNull(transactionManager.getTransaction());
-        assertEquals(ShardingExecuteDataMap.getDataMap().size(), 0);
+        assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
     }
 }

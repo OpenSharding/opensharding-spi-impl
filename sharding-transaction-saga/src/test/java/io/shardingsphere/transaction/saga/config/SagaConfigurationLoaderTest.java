@@ -20,19 +20,21 @@ package io.shardingsphere.transaction.saga.config;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class SagaConfigurationLoaderTest {
     
     @Test
     public void assertLoad() {
         SagaConfiguration sagaConfiguration = SagaConfigurationLoader.load();
-        assertEquals(sagaConfiguration.getExecutorSize(), 16);
-        assertEquals(sagaConfiguration.getTransactionMaxRetries(), 8);
-        assertEquals(sagaConfiguration.getCompensationMaxRetries(), 4);
-        assertEquals(sagaConfiguration.getTransactionRetryDelay(), 1000);
-        assertEquals(sagaConfiguration.getCompensationRetryDelay(), 2000);
-        assertEquals(sagaConfiguration.getRecoveryPolicy(), RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
-        assertEquals(sagaConfiguration.isEnablePersistence(), true);
+        assertThat(sagaConfiguration.getExecutorSize(), is(16));
+        assertThat(sagaConfiguration.getTransactionMaxRetries(), is(8));
+        assertThat(sagaConfiguration.getCompensationMaxRetries(), is(4));
+        assertThat(sagaConfiguration.getTransactionRetryDelay(), is(1000));
+        assertThat(sagaConfiguration.getCompensationRetryDelay(), is(2000));
+        assertThat(sagaConfiguration.getRecoveryPolicy(), is(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY));
+        assertTrue(sagaConfiguration.isEnablePersistence());
     }
 }

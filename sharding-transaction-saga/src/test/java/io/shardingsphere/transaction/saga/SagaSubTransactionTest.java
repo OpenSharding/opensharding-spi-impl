@@ -24,7 +24,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public class SagaSubTransactionTest {
+public final class SagaSubTransactionTest {
     
     private String ds = "ds";
     

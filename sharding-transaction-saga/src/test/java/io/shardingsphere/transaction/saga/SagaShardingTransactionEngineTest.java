@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -93,9 +93,9 @@ public final class SagaShardingTransactionEngineTest {
         dataSourceMap.put("ds", dataSource);
         when(dataSource.getConnection()).thenReturn(connection);
         when(sagaTransactionManager.getTransaction()).thenReturn(sagaTransaction);
-        assertEquals(handler.getConnection("ds"), connection);
-        assertEquals(sagaTransaction.getConnectionMap().size(), 1);
-        assertEquals(sagaTransaction.getConnectionMap().get("ds"), connection);
+        assertThat(handler.getConnection("ds"), is(connection));
+        assertThat(sagaTransaction.getConnectionMap().size(), is(1));
+        assertThat(sagaTransaction.getConnectionMap().get("ds"), is(connection));
     }
     
     @Test

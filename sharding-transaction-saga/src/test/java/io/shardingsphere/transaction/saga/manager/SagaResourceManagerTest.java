@@ -24,7 +24,9 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class SagaResourceManagerTest {
@@ -36,12 +38,12 @@ public class SagaResourceManagerTest {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds1", mock(DataSource.class));
         resourceManager.registerDataSourceMap(dataSourceMap);
-        assertEquals(resourceManager.getDataSourceMap().size(), 1);
+        assertThat(resourceManager.getDataSourceMap().size(), is(1));
         dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds2", mock(DataSource.class));
         dataSourceMap.put("ds3", mock(DataSource.class));
         resourceManager.registerDataSourceMap(dataSourceMap);
-        assertEquals(resourceManager.getDataSourceMap().size(), 3);
+        assertThat(resourceManager.getDataSourceMap().size(), is(3));
     }
     
     @Test(expected = ShardingException.class)
@@ -49,7 +51,7 @@ public class SagaResourceManagerTest {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds1", mock(DataSource.class));
         resourceManager.registerDataSourceMap(dataSourceMap);
-        assertEquals(resourceManager.getDataSourceMap().size(), 1);
+        assertThat(resourceManager.getDataSourceMap().size(), is(1));
         dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds2", mock(DataSource.class));
         dataSourceMap.put("ds1", mock(DataSource.class));
@@ -63,8 +65,8 @@ public class SagaResourceManagerTest {
         dataSourceMap.put("ds2", mock(DataSource.class));
         dataSourceMap.put("ds3", mock(DataSource.class));
         resourceManager.registerDataSourceMap(dataSourceMap);
-        assertEquals(resourceManager.getDataSourceMap().size(), 3);
+        assertThat(resourceManager.getDataSourceMap().size(), is(3));
         resourceManager.releaseDataSourceMap();
-        assertEquals(resourceManager.getDataSourceMap().size(), 0);
+        assertTrue(resourceManager.getDataSourceMap().isEmpty());
     }
 }

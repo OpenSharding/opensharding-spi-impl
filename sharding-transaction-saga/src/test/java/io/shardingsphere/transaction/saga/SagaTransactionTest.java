@@ -18,8 +18,8 @@
 package io.shardingsphere.transaction.saga;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
+import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import io.shardingsphere.transaction.saga.persistence.EmptySagaPersistence;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -51,9 +51,9 @@ public class SagaTransactionTest {
     public void assertNextLogicSQL() {
         sagaTransaction.nextLogicSQL();
         assertNotNull(sagaTransaction.getCurrentLogicSQL());
-        assertEquals(sagaTransaction.getLogicSQLs().size(), 1);
+        assertThat(sagaTransaction.getLogicSQLs().size(), is(1));
         sagaTransaction.nextLogicSQL();
-        assertEquals(sagaTransaction.getLogicSQLs().size(), 2);
+        assertThat(sagaTransaction.getLogicSQLs().size(), is(2));
     }
     
     @Test
@@ -61,23 +61,23 @@ public class SagaTransactionTest {
         sagaTransaction.nextLogicSQL();
         SagaSubTransaction sagaSubTransaction = mock(SagaSubTransaction.class);
         sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.EXECUTING);
-        assertEquals(sagaTransaction.getExecutionResultMap().size(), 1);
+        assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
         assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertEquals(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), ExecutionResult.EXECUTING);
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecutionResult.EXECUTING));
         assertFalse(sagaTransaction.isContainException());
-        assertEquals(sagaTransaction.getCurrentLogicSQL().size(), 1);
+        assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
         sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.SUCCESS);
-        assertEquals(sagaTransaction.getExecutionResultMap().size(), 1);
+        assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
         assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertEquals(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), ExecutionResult.SUCCESS);
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecutionResult.SUCCESS));
         assertFalse(sagaTransaction.isContainException());
-        assertEquals(sagaTransaction.getCurrentLogicSQL().size(), 1);
+        assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
         sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.FAILURE);
-        assertEquals(sagaTransaction.getExecutionResultMap().size(), 1);
+        assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
         assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertEquals(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), ExecutionResult.FAILURE);
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecutionResult.FAILURE));
         assertTrue(sagaTransaction.isContainException());
-        assertEquals(sagaTransaction.getCurrentLogicSQL().size(), 1);
+        assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
     }
     
     @SuppressWarnings("unchecked")
@@ -90,13 +90,13 @@ public class SagaTransactionTest {
         SagaDefinitionBuilder builder = sagaTransaction.getSagaDefinitionBuilder();
         ObjectMapper jacksonObjectMapper = new ObjectMapper();
         Map sagaDefinitionMap = jacksonObjectMapper.readValue(builder.build(), Map.class);
-        assertEquals(sagaDefinitionMap.get("policy"), RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY);
+        assertThat(sagaDefinitionMap.get("policy").toString(), is(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY));
         assertThat(sagaDefinitionMap.get("requests"), instanceOf(List.class));
         List<Object> requests = (List<Object>) sagaDefinitionMap.get("requests");
-        assertEquals(requests.size(), 1);
+        assertThat(requests.size(), is(1));
         assertThat(requests.get(0), instanceOf(Map.class));
         Map<String, Object> request = (Map<String, Object>) requests.get(0);
-        assertEquals(request.size(), 7);
+        assertThat(request.size(), is(7));
         assertTrue(request.containsKey("id"));
         assertTrue(request.containsKey("datasource"));
         assertTrue(request.containsKey("type"));

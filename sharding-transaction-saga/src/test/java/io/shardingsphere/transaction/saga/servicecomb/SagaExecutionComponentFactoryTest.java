@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SagaExecutionComponentFactoryTest {
@@ -43,8 +43,8 @@ public class SagaExecutionComponentFactoryTest {
         SagaExecutionComponent sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, new EmptySagaPersistence());
         assertThat(sagaExecutionComponent, instanceOf(SagaExecutionComponent.class));
         ThreadPoolExecutor threadPoolExecutor = getExecutorFromComponent(sagaExecutionComponent);
-        assertEquals(threadPoolExecutor.getCorePoolSize(), sagaConfiguration.getExecutorSize());
-        assertEquals(threadPoolExecutor.getMaximumPoolSize(), sagaConfiguration.getExecutorSize());
+        assertThat(threadPoolExecutor.getCorePoolSize(), is(sagaConfiguration.getExecutorSize()));
+        assertThat(threadPoolExecutor.getMaximumPoolSize(), is(sagaConfiguration.getExecutorSize()));
     }
     
     private void assertCreateWithCachedExecutors() throws NoSuchFieldException, IllegalAccessException {
@@ -53,8 +53,8 @@ public class SagaExecutionComponentFactoryTest {
         SagaExecutionComponent sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, new EmptySagaPersistence());
         assertThat(sagaExecutionComponent, instanceOf(SagaExecutionComponent.class));
         ThreadPoolExecutor threadPoolExecutor = getExecutorFromComponent(sagaExecutionComponent);
-        assertEquals(threadPoolExecutor.getCorePoolSize(), 0);
-        assertEquals(threadPoolExecutor.getMaximumPoolSize(), Integer.MAX_VALUE);
+        assertThat(threadPoolExecutor.getCorePoolSize(), is(0));
+        assertThat(threadPoolExecutor.getMaximumPoolSize(), is(Integer.MAX_VALUE));
     }
     
     private ThreadPoolExecutor getExecutorFromComponent(final SagaExecutionComponent sagaExecutionComponent) throws NoSuchFieldException, IllegalAccessException {
