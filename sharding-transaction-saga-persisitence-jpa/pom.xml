@@ -6,7 +6,7 @@
     <parent>
         <artifactId>ShardingSphere-experimental</artifactId>
         <groupId>io.shardingsphere</groupId>
-        <version>3.0.0</version>
+        <version>4.0.0.M1-SNAPSHOT</version>
     </parent>
     <artifactId>sharding-transaction-saga-persisitence-jpa</artifactId>
 
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>io.shardingsphere</groupId>
             <artifactId>sharding-transaction-saga</artifactId>
-            <version>4.0.0.M1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         
         <dependency>

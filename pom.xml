@@ -5,12 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.shardingsphere</groupId>
     <artifactId>ShardingSphere-experimental</artifactId>
-    <version>3.0.0</version>
+    <version>4.0.0.M1-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>
         <module>sharding-orchestration-reg-native-zookeeper</module>
         <module>sharding-transaction-saga-persisitence-jpa</module>
+        <module>sharding-trasaction-saga</module>
     </modules>
     
     <properties>
@@ -22,17 +23,30 @@
         <guava.version>18.0</guava.version>
         <slf4j.version>1.7.7</slf4j.version>
     
+        <javax.transaction.version>1.1</javax.transaction.version>
+        <servicecomb.saga.version>0.3.0</servicecomb.saga.version>
+        
         <zookeeper.version>3.4.6</zookeeper.version>
         <curator.version>2.10.0</curator.version>
         <grpc.version>1.7.0</grpc.version>
         <protobuf.version>3.4.0</protobuf.version>
-    
+        
         <lombok.version>1.16.4</lombok.version>
     
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
         <mockito.version>2.7.21</mockito.version>
         <logback.version>1.2.0</logback.version>
+    
+        <hikari-cp.version>2.4.11</hikari-cp.version>
+        <alibaba.druid.version>1.1.11</alibaba.druid.version>
+        <commons-dbcp2.version>2.2.0</commons-dbcp2.version>
+        <tomcat-dbcp.version>9.0.14</tomcat-dbcp.version>
+        <commons-pool.version>1.6</commons-pool.version>
+        <h2.version>1.4.196</h2.version>
+        <mysql-connector-java.version>5.1.42</mysql-connector-java.version>
+        <postgresql.version>9.4.1212</postgresql.version>
+        <mssql.version>6.1.7.jre7-preview</mssql.version>
     
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
@@ -79,6 +93,22 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+    
+            <dependency>
+                <groupId>javax.transaction</groupId>
+                <artifactId>jta</artifactId>
+                <version>${javax.transaction.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicecomb.saga</groupId>
+                <artifactId>saga-core</artifactId>
+                <version>${servicecomb.saga.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicecomb.saga</groupId>
+                <artifactId>saga-format</artifactId>
+                <version>${servicecomb.saga.version}</version>
             </dependency>
             
             <dependency>
@@ -141,6 +171,67 @@
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-test</artifactId>
                 <version>${curator.version}</version>
+                <scope>test</scope>
+            </dependency>
+    
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP-java7</artifactId>
+                <version>${hikari-cp.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>${alibaba.druid.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>${commons-pool.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-dbcp2</artifactId>
+                <version>${commons-dbcp2.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-pool</groupId>
+                        <artifactId>commons-pool</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-dbcp</artifactId>
+                <version>${tomcat-dbcp.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector-java.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>${mssql.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
