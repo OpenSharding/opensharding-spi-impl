@@ -33,33 +33,32 @@ public final class ShardingTransportFactory implements TransportFactory<SQLTrans
     private final ThreadLocal<SQLTransport> transports = new ThreadLocal<>();
     
     /**
-     * Get sharding transport factory instance.
+     * Get instance of sharding transport factory.
      *
-     * @return sharding transport factory
+     * @return instance of sharding transport factory
      */
     public static ShardingTransportFactory getInstance() {
         return INSTANCE;
     }
     
-    @Override
-    public SQLTransport getTransport() {
-        return transports.get();
-    }
-    
     /**
-     * cache transport.
+     * Cache transport.
      *
      * @param sagaTransaction saga transaction
      */
     public void cacheTransport(final SagaTransaction sagaTransaction) {
-        SQLTransport sqlTransport = new ShardingSQLTransport(sagaTransaction);
-        transports.set(sqlTransport);
+        transports.set(new ShardingSQLTransport(sagaTransaction));
     }
     
     /**
-     * remove cached transport.
+     * Remove cached transport.
      */
     public void remove() {
         transports.remove();
+    }
+    
+    @Override
+    public SQLTransport getTransport() {
+        return transports.get();
     }
 }

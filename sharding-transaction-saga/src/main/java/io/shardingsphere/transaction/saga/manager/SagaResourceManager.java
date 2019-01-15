@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author yangyi
  */
 @Getter
-public class SagaResourceManager {
+public final class SagaResourceManager {
 
     private final SagaConfiguration sagaConfiguration;
     

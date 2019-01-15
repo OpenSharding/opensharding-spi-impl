@@ -19,7 +19,6 @@ package io.shardingsphere.transaction.saga.config;
 
 import io.shardingsphere.transaction.saga.constant.SagaRecoveryPolicy;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -29,7 +28,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@RequiredArgsConstructor
 public final class SagaConfiguration {
     
     private int executorSize = 5;

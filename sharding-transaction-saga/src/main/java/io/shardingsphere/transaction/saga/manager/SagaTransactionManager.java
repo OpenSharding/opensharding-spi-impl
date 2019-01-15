@@ -32,6 +32,7 @@ import javax.transaction.Status;
  * @author zhaojun
  * @author yangyi
  */
+@Getter
 public final class SagaTransactionManager implements ShardingTransactionManager {
     
     private static final String TRANSACTION_KEY = "transaction";
@@ -40,13 +41,12 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
     
     private static final ThreadLocal<SagaTransaction> TRANSACTIONS = new ThreadLocal<>();
     
-    @Getter
     private final SagaResourceManager resourceManager = new SagaResourceManager();
     
     /**
-     * Get saga transaction manager instance.
+     * Get instance of saga transaction manager.
      *
-     * @return saga transaction manager
+     * @return instance of saga transaction manager
      */
     public static SagaTransactionManager getInstance() {
         return INSTANCE;
