@@ -26,6 +26,8 @@ import lombok.Getter;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,11 +36,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author yangyi
  */
-@Getter
 public final class SagaResourceManager {
     
+    @Getter
     private final SagaPersistence sagaPersistence;
     
+    @Getter
     private final SagaExecutionComponent sagaExecutionComponent;
     
     private final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<>();
@@ -64,6 +67,17 @@ public final class SagaResourceManager {
                 throw new ShardingException("datasource {} has registered", each);
             }
         }
+    }
+    
+    /**
+     * Get connection.
+     * 
+     * @param dataSourceName data source name
+     * @return connection
+     * @throws SQLException SQL exception
+     */
+    public Connection getConnection(final String dataSourceName) throws SQLException {
+        return dataSourceMap.get(dataSourceName).getConnection();
     }
     
     /**

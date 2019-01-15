@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public final class SagaShardingTransactionEngineTest {
     
-    private final SagaShardingTransactionEngine handler = new SagaShardingTransactionEngine();
+    private final SagaShardingTransactionEngine sagaShardingTransactionEngine = new SagaShardingTransactionEngine();
     
     @Mock
     private SagaTransactionManager sagaTransactionManager;
@@ -59,25 +59,25 @@ public final class SagaShardingTransactionEngineTest {
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
         Field transactionManagerField = SagaShardingTransactionEngine.class.getDeclaredField("sagaTransactionManager");
         transactionManagerField.setAccessible(true);
-        transactionManagerField.set(handler, sagaTransactionManager);
+        transactionManagerField.set(sagaShardingTransactionEngine, sagaTransactionManager);
         when(sagaTransactionManager.getResourceManager()).thenReturn(sagaResourceManager);
     }
     
     @Test
     public void assertGetTransactionType() {
-        assertThat(handler.getTransactionType(), equalTo(TransactionType.BASE));
+        assertThat(sagaShardingTransactionEngine.getTransactionType(), equalTo(TransactionType.BASE));
     }
     
     @Test
     public void assertInit() {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
-        handler.init(DatabaseType.MySQL, dataSourceMap);
+        sagaShardingTransactionEngine.init(DatabaseType.MySQL, dataSourceMap);
         verify(sagaResourceManager).registerDataSourceMap(dataSourceMap);
     }
     
     @Test
     public void assertClose() {
-        handler.close();
+        sagaShardingTransactionEngine.close();
         verify(sagaResourceManager).releaseDataSourceMap();
     }
     
@@ -85,42 +85,38 @@ public final class SagaShardingTransactionEngineTest {
     public void assertGetConnection() throws SQLException {
         SagaTransaction sagaTransaction = mock(SagaTransaction.class);
         Map<String, Connection> connectionMap = new HashMap<>();
-        when(sagaTransaction.getConnectionMap()).thenReturn(connectionMap);
-        Map<String, DataSource> dataSourceMap = new HashMap<>();
-        when(sagaResourceManager.getDataSourceMap()).thenReturn(dataSourceMap);
-        DataSource dataSource = mock(DataSource.class);
         Connection connection = mock(Connection.class);
-        dataSourceMap.put("ds", dataSource);
-        when(dataSource.getConnection()).thenReturn(connection);
+        when(sagaTransaction.getConnectionMap()).thenReturn(connectionMap);
+        when(sagaResourceManager.getConnection("ds")).thenReturn(connection);
         when(sagaTransactionManager.getTransaction()).thenReturn(sagaTransaction);
-        assertThat(handler.getConnection("ds"), is(connection));
+        assertThat(sagaShardingTransactionEngine.getConnection("ds"), is(connection));
         assertThat(sagaTransaction.getConnectionMap().size(), is(1));
         assertThat(sagaTransaction.getConnectionMap().get("ds"), is(connection));
     }
     
     @Test
     public void assertBegin() {
-        handler.begin();
+        sagaShardingTransactionEngine.begin();
         verify(sagaTransactionManager).begin();
     }
     
     @Test
     public void assertCommit() {
-        handler.commit();
+        sagaShardingTransactionEngine.commit();
         verify(sagaTransactionManager).commit();
     }
     
     @Test
     public void assertRollback() {
-        handler.rollback();
+        sagaShardingTransactionEngine.rollback();
         verify(sagaTransactionManager).rollback();
     }
     
     @Test
     public void assertIsInTransaction() {
         when(sagaTransactionManager.getStatus()).thenReturn(Status.STATUS_ACTIVE);
-        assertTrue(handler.isInTransaction());
+        assertTrue(sagaShardingTransactionEngine.isInTransaction());
         when(sagaTransactionManager.getStatus()).thenReturn(Status.STATUS_NO_TRANSACTION);
-        assertFalse(handler.isInTransaction());
+        assertFalse(sagaShardingTransactionEngine.isInTransaction());
     }
 }

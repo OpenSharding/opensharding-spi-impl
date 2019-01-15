@@ -19,9 +19,11 @@ package io.shardingsphere.transaction.saga.manager;
 
 import io.shardingsphere.core.exception.ShardingException;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
+import lombok.SneakyThrows;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,12 +41,12 @@ public class SagaResourceManagerTest {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds1", mock(DataSource.class));
         resourceManager.registerDataSourceMap(dataSourceMap);
-        assertThat(resourceManager.getDataSourceMap().size(), is(1));
+        assertThat(getDataSourceMap().size(), is(1));
         dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds2", mock(DataSource.class));
         dataSourceMap.put("ds3", mock(DataSource.class));
         resourceManager.registerDataSourceMap(dataSourceMap);
-        assertThat(resourceManager.getDataSourceMap().size(), is(3));
+        assertThat(getDataSourceMap().size(), is(3));
     }
     
     @Test(expected = ShardingException.class)
@@ -52,7 +54,7 @@ public class SagaResourceManagerTest {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds1", mock(DataSource.class));
         resourceManager.registerDataSourceMap(dataSourceMap);
-        assertThat(resourceManager.getDataSourceMap().size(), is(1));
+        assertThat(getDataSourceMap().size(), is(1));
         dataSourceMap = new HashMap<>();
         dataSourceMap.put("ds2", mock(DataSource.class));
         dataSourceMap.put("ds1", mock(DataSource.class));
@@ -66,8 +68,16 @@ public class SagaResourceManagerTest {
         dataSourceMap.put("ds2", mock(DataSource.class));
         dataSourceMap.put("ds3", mock(DataSource.class));
         resourceManager.registerDataSourceMap(dataSourceMap);
-        assertThat(resourceManager.getDataSourceMap().size(), is(3));
+        assertThat(getDataSourceMap().size(), is(3));
         resourceManager.releaseDataSourceMap();
-        assertTrue(resourceManager.getDataSourceMap().isEmpty());
+        assertTrue(getDataSourceMap().isEmpty());
+    }
+    
+    @SuppressWarnings("unchecked")
+    @SneakyThrows
+    private Map<String, DataSource> getDataSourceMap() {
+        Field field = SagaResourceManager.class.getDeclaredField("dataSourceMap");
+        field.setAccessible(true);
+        return (Map) field.get(resourceManager);
     }
 }
