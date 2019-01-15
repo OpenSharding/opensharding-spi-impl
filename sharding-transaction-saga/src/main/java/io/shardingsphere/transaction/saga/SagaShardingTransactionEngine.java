@@ -49,7 +49,7 @@ public final class SagaShardingTransactionEngine implements ShardingTransactionE
     
     @Override
     public boolean isInTransaction() {
-        return Status.STATUS_ACTIVE == sagaTransactionManager.getStatus();
+        return Status.STATUS_NO_TRANSACTION != sagaTransactionManager.getStatus();
     }
     
     @Override
