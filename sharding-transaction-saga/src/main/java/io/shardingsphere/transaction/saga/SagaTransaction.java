@@ -81,6 +81,15 @@ public final class SagaTransaction {
         executionResultMap.put(sagaSubTransaction, ExecuteStatus.EXECUTING);
     }
     
+    private void sqlRevert(final SagaSubTransaction sagaSubTransaction) {
+        RevertEngine revertEngine = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy()) ? new EmptyRevertEngine() : new RevertEngineImpl(connectionMap);
+        try {
+            revertResultMap.put(sagaSubTransaction, revertEngine.revert(sagaSubTransaction.getDataSourceName(), sagaSubTransaction.getSql(), sagaSubTransaction.getParameterSets()));
+        } catch (SQLException ex) {
+            throw new ShardingException(String.format("Revert SQL %s failed: ", sagaSubTransaction.toString()), ex);
+        }
+    }
+    
     /**
      * Record result for sub transaction.
      *
@@ -129,14 +138,5 @@ public final class SagaTransaction {
      */
     public void cleanSnapshot() {
         persistence.cleanSnapshot(id);
-    }
-    
-    private void sqlRevert(final SagaSubTransaction sagaSubTransaction) {
-        RevertEngine revertEngine = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy()) ? new EmptyRevertEngine() : new RevertEngineImpl(connectionMap);
-        try {
-            revertResultMap.put(sagaSubTransaction, revertEngine.revert(sagaSubTransaction.getDataSourceName(), sagaSubTransaction.getSql(), sagaSubTransaction.getParameterSets()));
-        } catch (SQLException ex) {
-            throw new ShardingException(String.format("Revert SQL %s failed: ", sagaSubTransaction.toString()), ex);
-        }
     }
 }
