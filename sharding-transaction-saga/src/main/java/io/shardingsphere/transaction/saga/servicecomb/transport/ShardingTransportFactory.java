@@ -18,6 +18,8 @@
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
 import io.shardingsphere.transaction.saga.SagaTransaction;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.servicecomb.saga.transports.SQLTransport;
 import org.apache.servicecomb.saga.transports.TransportFactory;
 
@@ -26,6 +28,7 @@ import org.apache.servicecomb.saga.transports.TransportFactory;
  *
  * @author yangyi
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ShardingTransportFactory implements TransportFactory<SQLTransport> {
     
     private static final ShardingTransportFactory INSTANCE = new ShardingTransportFactory();

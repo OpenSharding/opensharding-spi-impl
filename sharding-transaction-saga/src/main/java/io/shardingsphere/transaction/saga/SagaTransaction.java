@@ -103,12 +103,21 @@ public final class SagaTransaction {
      * @return saga definition builder
      */
     public SagaDefinitionBuilder getSagaDefinitionBuilder() {
-        SagaDefinitionBuilder result = createDefinitionBuilder();
+        SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(), 
+                sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelay());
         for (Queue<SagaSubTransaction> each : logicSQLs) {
             result.switchParents();
             initSagaDefinitionForLogicSQL(result, each);
         }
         return result;
+    }
+    
+    private void initSagaDefinitionForLogicSQL(final SagaDefinitionBuilder sagaDefinitionBuilder, final Queue<SagaSubTransaction> sagaSubTransactions) {
+        for (SagaSubTransaction each : sagaSubTransactions) {
+            RevertResult revertResult = revertResultMap.get(each);
+            sagaDefinitionBuilder.addChildRequest(
+                    String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getRevertSQL(), revertResult.getRevertSQLParams());
+        }
     }
     
     /**
@@ -125,18 +134,5 @@ public final class SagaTransaction {
         } catch (SQLException ex) {
             throw new ShardingException(String.format("Revert SQL %s failed: ", sagaSubTransaction.toString()), ex);
         }
-    }
-    
-    private void initSagaDefinitionForLogicSQL(final SagaDefinitionBuilder sagaDefinitionBuilder, final Queue<SagaSubTransaction> sagaSubTransactions) {
-        for (SagaSubTransaction each : sagaSubTransactions) {
-            RevertResult revertResult = revertResultMap.get(each);
-            sagaDefinitionBuilder.addChildRequest(
-                    String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getRevertSQL(), revertResult.getRevertSQLParams());
-        }
-    }
-    
-    private SagaDefinitionBuilder createDefinitionBuilder() {
-        return new SagaDefinitionBuilder(
-                sagaConfiguration.getRecoveryPolicy(), sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelay());
     }
 }

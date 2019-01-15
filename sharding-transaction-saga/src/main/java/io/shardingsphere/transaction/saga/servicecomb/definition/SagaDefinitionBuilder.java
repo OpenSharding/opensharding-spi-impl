@@ -54,23 +54,23 @@ public final class SagaDefinitionBuilder {
     /**
      * Add child request node to definition graph.
      *
-     * @param id request id
+     * @param id request ID
      * @param datasource data source name
-     * @param sql transaction sql
-     * @param params transaction sql parameters
-     * @param compensationSql compensation sql
-     * @param compensationParams compensation sql parameters
+     * @param sql transaction SQL
+     * @param params transaction SQL parameters
+     * @param compensationSQL compensation SQL
+     * @param compensationParams compensation SQL parameters
      */
     public void addChildRequest(final String id, final String datasource, final String sql, final List<List<Object>> params,
-                                final String compensationSql, final List<Collection<Object>> compensationParams) {
+                                final String compensationSQL, final List<Collection<Object>> compensationParams) {
         Transaction transaction = new Transaction(sql, params, transactionRetires);
-        Compensation compensation = new Compensation(compensationSql, compensationParams, compensationRetires);
+        Compensation compensation = new Compensation(compensationSQL, compensationParams, compensationRetires);
         requests.add(new SagaRequest(id, datasource, TYPE, transaction, compensation, parents, failRetryDelay));
         newRequestIds.add(id);
     }
     
     /**
-     * Switch to next logic sql.
+     * Switch to next logic SQL.
      */
     public void switchParents() {
         parents = newRequestIds.toArray(new String[]{});
