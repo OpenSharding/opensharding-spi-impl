@@ -26,5 +26,5 @@ import org.junit.runners.Suite.SuiteClasses;
         SagaSQLExecutionHookTest.class,
         SagaSQLParsingHookTest.class
 })
-public class AllHookTests {
+public final class AllHookTests {
 }

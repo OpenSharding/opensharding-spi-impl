@@ -26,5 +26,5 @@ import org.junit.runners.Suite.SuiteClasses;
         SagaResourceManagerTest.class,
         SagaTransactionManagerTest.class
 })
-public class AllManagerTests {
+public final class AllManagerTests {
 }

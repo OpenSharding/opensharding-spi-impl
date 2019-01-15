@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SagaSQLParsingHookTest {
+public final class SagaSQLParsingHookTest {
     
     @Mock
     private SagaTransaction sagaTransaction;

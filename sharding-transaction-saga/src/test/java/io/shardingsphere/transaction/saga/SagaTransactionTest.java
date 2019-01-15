@@ -38,7 +38,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class SagaTransactionTest {
+public final class SagaTransactionTest {
     
     private SagaTransaction sagaTransaction;
     

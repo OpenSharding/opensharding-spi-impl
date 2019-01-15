@@ -26,5 +26,5 @@ import org.junit.runners.Suite;
         ShardingSQLTransportTest.class,
         ShardingTransportFactoryTest.class
 })
-public class AllTransportTests {
+public final class AllTransportTests {
 }

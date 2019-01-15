@@ -24,7 +24,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class SagaConfigurationLoaderTest {
+public final class SagaConfigurationLoaderTest {
     
     @Test
     public void assertLoad() {

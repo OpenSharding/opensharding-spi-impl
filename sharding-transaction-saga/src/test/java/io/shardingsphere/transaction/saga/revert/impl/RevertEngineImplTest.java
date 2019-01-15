@@ -30,7 +30,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class RevertEngineImplTest {
+public final class RevertEngineImplTest {
     
     private final RevertEngine revertEngine = new RevertEngineImpl(new HashMap<String, Connection>());
     

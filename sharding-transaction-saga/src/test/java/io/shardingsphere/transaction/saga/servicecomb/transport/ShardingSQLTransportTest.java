@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ShardingSQLTransportTest {
+public final class ShardingSQLTransportTest {
     
     @Mock
     private PreparedStatement statement;

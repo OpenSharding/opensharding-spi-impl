@@ -26,5 +26,5 @@ import org.junit.runners.Suite;
         EmptyRevertEngineTest.class,
         RevertEngineImplTest.class
 })
-public class AllRevertTests {
+public final class AllRevertTests {
 }

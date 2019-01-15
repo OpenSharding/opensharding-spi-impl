@@ -26,7 +26,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
-public class EmptySQLTransportTest {
+public final class EmptySQLTransportTest {
     
     @Test
     public void assertWith() {

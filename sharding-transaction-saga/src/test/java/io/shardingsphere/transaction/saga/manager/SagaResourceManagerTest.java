@@ -32,7 +32,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class SagaResourceManagerTest {
+public final class SagaResourceManagerTest {
     
     private final SagaResourceManager resourceManager = new SagaResourceManager(new SagaConfiguration());
     

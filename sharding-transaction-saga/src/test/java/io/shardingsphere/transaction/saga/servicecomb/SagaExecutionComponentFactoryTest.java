@@ -30,7 +30,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SagaExecutionComponentFactoryTest {
+public final class SagaExecutionComponentFactoryTest {
     
     @Test
     public void assertCreateSagaExecutionComponent() throws NoSuchFieldException, IllegalAccessException {

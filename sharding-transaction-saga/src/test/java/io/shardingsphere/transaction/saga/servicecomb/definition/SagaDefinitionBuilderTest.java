@@ -31,7 +31,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SagaDefinitionBuilderTest {
+public final class SagaDefinitionBuilderTest {
     
     private static final List<List<Object>> INSERT_PARAMS = new ArrayList<>();
     

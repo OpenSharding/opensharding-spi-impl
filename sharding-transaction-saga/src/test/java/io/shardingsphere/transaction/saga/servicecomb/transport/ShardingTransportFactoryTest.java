@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ShardingTransportFactoryTest {
+public final class ShardingTransportFactoryTest {
     
     @Mock
     private SagaTransaction sagaTransaction;
