@@ -57,7 +57,7 @@ public final class SagaShardingTransactionEngineTest {
     
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        Field transactionManagerField = SagaShardingTransactionEngine.class.getDeclaredField("transactionManager");
+        Field transactionManagerField = SagaShardingTransactionEngine.class.getDeclaredField("sagaTransactionManager");
         transactionManagerField.setAccessible(true);
         transactionManagerField.set(handler, sagaTransactionManager);
         when(sagaTransactionManager.getResourceManager()).thenReturn(sagaResourceManager);

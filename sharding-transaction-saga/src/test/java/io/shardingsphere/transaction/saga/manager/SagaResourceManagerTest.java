@@ -18,6 +18,7 @@
 package io.shardingsphere.transaction.saga.manager;
 
 import io.shardingsphere.core.exception.ShardingException;
+import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.mock;
 
 public class SagaResourceManagerTest {
     
-    private final SagaResourceManager resourceManager = new SagaResourceManager();
+    private final SagaResourceManager resourceManager = new SagaResourceManager(new SagaConfiguration());
     
     @Test
     public void assertRegisterDataSourceMap() {

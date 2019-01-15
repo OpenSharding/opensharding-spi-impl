@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.persistence;
 
-import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import java.util.ServiceLoader;
 
 /**
@@ -30,12 +29,12 @@ public class SagaPersistenceLoader {
     /**
      * Load saga persistence.
      *
-     * @param sagaConfiguration saga configuration
+     * @param isEnablePersistence is enable persistence
      * @return saga persistence
      */
-    public static SagaPersistence load(final SagaConfiguration sagaConfiguration) {
+    public static SagaPersistence load(final boolean isEnablePersistence) {
         SagaPersistence result = null;
-        if (sagaConfiguration.isEnablePersistence()) {
+        if (isEnablePersistence) {
             for (SagaPersistence each : ServiceLoader.load(SagaPersistence.class)) {
                 result = each;
             }

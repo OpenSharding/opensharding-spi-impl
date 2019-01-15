@@ -19,7 +19,6 @@ package io.shardingsphere.transaction.saga.manager;
 
 import io.shardingsphere.core.executor.ShardingExecuteDataMap;
 import io.shardingsphere.transaction.saga.SagaTransaction;
-import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingSQLTransport;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
@@ -60,11 +59,8 @@ public final class SagaTransactionManagerTest {
     
     private final SagaTransactionManager transactionManager = SagaTransactionManager.getInstance();
     
-    private final SagaConfiguration config = new SagaConfiguration();
-    
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        when(resourceManager.getSagaConfiguration()).thenReturn(config);
         when(resourceManager.getSagaExecutionComponent()).thenReturn(sagaExecutionComponent);
         when(resourceManager.getSagaPersistence()).thenReturn(sagaPersistence);
         Field resourceManagerField = SagaTransactionManager.class.getDeclaredField("resourceManager");
@@ -75,7 +71,6 @@ public final class SagaTransactionManagerTest {
     @Test
     public void assertBegin() {
         transactionManager.begin();
-        verify(resourceManager).getSagaConfiguration();
         assertNotNull(transactionManager.getTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().containsKey(transactionKey));
         assertThat(ShardingExecuteDataMap.getDataMap().get(transactionKey), instanceOf(SagaTransaction.class));
