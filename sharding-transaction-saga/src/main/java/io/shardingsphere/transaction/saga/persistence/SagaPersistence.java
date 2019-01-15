@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.persistence;
 
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import org.apache.servicecomb.saga.core.PersistentStore;
 
 /**
@@ -38,9 +39,9 @@ public interface SagaPersistence extends PersistentStore {
      *
      * @param transactionId transaction id
      * @param snapshotId snapshot id
-     * @param executeStatus new execute status
+     * @param executeStatus execute status
      */
-    void updateSnapshotStatus(String transactionId, int snapshotId, String executeStatus);
+    void updateSnapshotStatus(String transactionId, int snapshotId, ExecuteStatus executeStatus);
     
     /**
      * Clean snapshot for target transaction.

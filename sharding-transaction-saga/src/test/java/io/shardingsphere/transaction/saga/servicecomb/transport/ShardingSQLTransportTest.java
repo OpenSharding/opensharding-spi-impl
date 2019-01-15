@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.servicecomb.transport;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.SagaSubTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
-import io.shardingsphere.transaction.saga.constant.ExecutionResult;
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.junit.Before;
@@ -68,7 +68,7 @@ public final class ShardingSQLTransportTest {
     public void assertWithSuccessResult() {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> params = getParams();
-        recordMockResult(params, ExecutionResult.SUCCESS);
+        recordMockResult(params, ExecuteStatus.SUCCESS);
         shardingSQLTransport.with(dataSourceName, sql, params);
         verify(sagaTransaction, never()).getConnectionMap();
     }
@@ -77,7 +77,7 @@ public final class ShardingSQLTransportTest {
     public void assertWithFailureResult() throws SQLException {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> params = getParams();
-        recordMockResult(params, ExecutionResult.FAILURE);
+        recordMockResult(params, ExecuteStatus.FAILURE);
         shardingSQLTransport.with(dataSourceName, sql, params);
         verify(sagaTransaction).getConnectionMap();
         verify(statement, times(2)).addBatch();
@@ -130,8 +130,8 @@ public final class ShardingSQLTransportTest {
         when(sagaTransaction.getConnectionMap()).thenReturn(connectionMap);
     }
     
-    private void recordMockResult(final List<List<String>> params, final ExecutionResult executionResult) {
-        Map<SagaSubTransaction, ExecutionResult> resultMap = new ConcurrentHashMap<>();
+    private void recordMockResult(final List<List<String>> params, final ExecuteStatus executionResult) {
+        Map<SagaSubTransaction, ExecuteStatus> resultMap = new ConcurrentHashMap<>();
         resultMap.put(new SagaSubTransaction(dataSourceName, sql, copyList(params)), executionResult);
         when(sagaTransaction.getExecutionResultMap()).thenReturn(resultMap);
     }

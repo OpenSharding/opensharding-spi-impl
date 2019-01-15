@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.core.exception.ShardingException;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.constant.ExecutionResult;
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.revert.EmptyRevertEngine;
@@ -59,7 +59,7 @@ public final class SagaTransaction {
     
     private final ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
     
-    private final Map<SagaSubTransaction, ExecutionResult> executionResultMap = new ConcurrentHashMap<>();
+    private final Map<SagaSubTransaction, ExecuteStatus> executionResultMap = new ConcurrentHashMap<>();
     
     private final Map<SagaSubTransaction, RevertResult> revertResultMap = new ConcurrentHashMap<>();
     
@@ -77,21 +77,20 @@ public final class SagaTransaction {
     public void recordStart(final SagaSubTransaction sagaSubTransaction) {
         currentLogicSQL.add(sagaSubTransaction);
         sqlRevert(sagaSubTransaction);
-        persistence.persistSnapshot(
-                new SagaSnapshot(id, sagaSubTransaction.hashCode(), sagaSubTransaction.toString(), revertResultMap.get(sagaSubTransaction).toString(), ExecutionResult.EXECUTING.name()));
-        executionResultMap.put(sagaSubTransaction, ExecutionResult.EXECUTING);
+        persistence.persistSnapshot(new SagaSnapshot(id, sagaSubTransaction.hashCode(), sagaSubTransaction.toString(), revertResultMap.get(sagaSubTransaction).toString(), ExecuteStatus.EXECUTING));
+        executionResultMap.put(sagaSubTransaction, ExecuteStatus.EXECUTING);
     }
     
     /**
      * Record result for sub transaction.
      *
      * @param sagaSubTransaction saga sub transaction
-     * @param executionResult execution result
+     * @param executeStatus execute status
      */
-    public void recordResult(final SagaSubTransaction sagaSubTransaction, final ExecutionResult executionResult) {
-        containException = ExecutionResult.FAILURE == executionResult;
-        persistence.updateSnapshotStatus(id, sagaSubTransaction.hashCode(), executionResult.name());
-        executionResultMap.put(sagaSubTransaction, executionResult);
+    public void recordResult(final SagaSubTransaction sagaSubTransaction, final ExecuteStatus executeStatus) {
+        containException = ExecuteStatus.FAILURE == executeStatus;
+        persistence.updateSnapshotStatus(id, sagaSubTransaction.hashCode(), executeStatus);
+        executionResultMap.put(sagaSubTransaction, executeStatus);
     }
     
     /**

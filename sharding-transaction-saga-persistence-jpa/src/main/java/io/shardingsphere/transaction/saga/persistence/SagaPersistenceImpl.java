@@ -17,12 +17,12 @@
 
 package io.shardingsphere.transaction.saga.persistence;
 
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.entity.SagaEventEntity;
 import io.shardingsphere.transaction.saga.persistence.entity.SagaSnapshotEntity;
 import io.shardingsphere.transaction.saga.persistence.repository.SagaEventRepository;
 import io.shardingsphere.transaction.saga.persistence.repository.SagaSnapshotRepository;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
-
 import org.apache.servicecomb.saga.core.EventEnvelope;
 import org.apache.servicecomb.saga.core.JacksonToJsonFormat;
 import org.apache.servicecomb.saga.core.SagaEvent;
@@ -57,12 +57,12 @@ public final class SagaPersistenceImpl implements SagaPersistence {
         snapshotEntity.setSnapshotId(snapshot.getSnapshotId());
         snapshotEntity.setTransactionContext(snapshot.getTransactionContext());
         snapshotEntity.setRevertContext(snapshot.getRevertContext());
-        snapshotEntity.setExecuteStatus(snapshot.getExecuteStatus());
+        snapshotEntity.setExecuteStatus(snapshot.getExecuteStatus().name());
         sagaSnapshotRepository.insert(snapshotEntity);
     }
     
     @Override
-    public void updateSnapshotStatus(final String transactionId, final int snapshotId, final String executeStatus) {
+    public void updateSnapshotStatus(final String transactionId, final int snapshotId, final ExecuteStatus executeStatus) {
         sagaSnapshotRepository.update(transactionId, snapshotId, executeStatus);
     }
     

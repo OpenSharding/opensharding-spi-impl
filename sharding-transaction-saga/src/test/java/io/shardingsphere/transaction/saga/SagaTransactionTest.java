@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.constant.ExecutionResult;
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.impl.EmptySagaPersistence;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
@@ -63,19 +63,19 @@ public final class SagaTransactionTest {
         sagaTransaction.recordStart(sagaSubTransaction);
         assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
         assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecutionResult.EXECUTING));
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecuteStatus.EXECUTING));
         assertFalse(sagaTransaction.isContainException());
         assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
-        sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.SUCCESS);
+        sagaTransaction.recordResult(sagaSubTransaction, ExecuteStatus.SUCCESS);
         assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
         assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecutionResult.SUCCESS));
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecuteStatus.SUCCESS));
         assertFalse(sagaTransaction.isContainException());
         assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
-        sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.FAILURE);
+        sagaTransaction.recordResult(sagaSubTransaction, ExecuteStatus.FAILURE);
         assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
         assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecutionResult.FAILURE));
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecuteStatus.FAILURE));
         assertTrue(sagaTransaction.isContainException());
         assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
     }
@@ -86,7 +86,7 @@ public final class SagaTransactionTest {
         sagaTransaction.nextLogicSQL();
         SagaSubTransaction sagaSubTransaction = mock(SagaSubTransaction.class);
         sagaTransaction.recordStart(sagaSubTransaction);
-        sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.SUCCESS);
+        sagaTransaction.recordResult(sagaSubTransaction, ExecuteStatus.SUCCESS);
         SagaDefinitionBuilder builder = sagaTransaction.getSagaDefinitionBuilder();
         ObjectMapper jacksonObjectMapper = new ObjectMapper();
         Map sagaDefinitionMap = jacksonObjectMapper.readValue(builder.build(), Map.class);

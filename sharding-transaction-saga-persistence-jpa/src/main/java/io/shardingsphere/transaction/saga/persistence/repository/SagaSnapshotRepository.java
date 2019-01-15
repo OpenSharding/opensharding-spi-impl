@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.persistence.repository;
 
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.entity.SagaSnapshotEntity;
 
 import javax.persistence.EntityManager;
@@ -62,11 +63,11 @@ public class SagaSnapshotRepository {
      * @param snapshotId snapshot id
      * @param executeStatus execute status
      */
-    public void update(final String transactionId, final int snapshotId, final String executeStatus) {
+    public void update(final String transactionId, final int snapshotId, final ExecuteStatus executeStatus) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.createNativeQuery("UPDATE saga_snapshot SET execute_status = ? WHERE transaction_id=? AND snapshot_id=?")
-            .setParameter(1, executeStatus).setParameter(2, transactionId).setParameter(3, snapshotId).executeUpdate();
+            .setParameter(1, executeStatus.name()).setParameter(2, transactionId).setParameter(3, snapshotId).executeUpdate();
         entityManager.getTransaction().commit();
     }
     

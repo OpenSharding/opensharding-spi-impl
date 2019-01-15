@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.constant.ExecutionResult;
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.SagaSubTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +57,7 @@ public final class ShardingSQLTransport implements SQLTransport {
     }
     
     private boolean isExecutionSuccess(final SagaSubTransaction subTransaction) {
-        return sagaTransaction.getExecutionResultMap().containsKey(subTransaction) && ExecutionResult.SUCCESS == sagaTransaction.getExecutionResultMap().get(subTransaction);
+        return sagaTransaction.getExecutionResultMap().containsKey(subTransaction) && ExecuteStatus.SUCCESS == sagaTransaction.getExecutionResultMap().get(subTransaction);
     }
     
     private SagaResponse executeFromDataSource(final SagaSubTransaction subTransaction) {

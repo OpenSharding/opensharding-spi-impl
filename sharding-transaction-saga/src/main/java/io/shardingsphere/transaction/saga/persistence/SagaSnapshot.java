@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.persistence;
 
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -37,5 +38,5 @@ public final class SagaSnapshot {
     
     private final String revertContext;
     
-    private final String executeStatus;
+    private final ExecuteStatus executeStatus;
 }

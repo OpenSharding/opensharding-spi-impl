@@ -18,11 +18,11 @@
 package io.shardingsphere.transaction.saga.constant;
 
 /**
- * SQL execution result.
+ * SQL execute status.
  *
  * @author yangyi
  */
-public enum ExecutionResult {
+public enum ExecuteStatus {
     
     EXECUTING, SUCCESS, FAILURE
 }
