@@ -25,7 +25,7 @@ import javax.persistence.Persistence;
 import java.util.List;
 
 /**
- * Saga event repository
+ * Saga event repository.
  *
  * @author yangyi
  */
@@ -33,6 +33,10 @@ public class SagaEventRepository {
     
     private final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("io.shardingsphere.transaction.saga.persistence");
     
+    /**
+     * Insert new saga event.
+     * @param sagaEventEntity saga event entity
+     */
     public void insert(final SagaEventEntity sagaEventEntity) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -40,11 +44,21 @@ public class SagaEventRepository {
         entityManager.getTransaction().commit();
     }
     
+    /**
+     * Find Incomplete saga events.
+     *
+     * @return incomplete saga event list
+     */
     public List<SagaEventEntity> findIncompleteSagaEventsGroupBySagaId() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         return entityManager.createNamedQuery("findIncompleteSagaEventsGroupBySagaId", SagaEventEntity.class).getResultList();
     }
     
+    /**
+     * Delete saga event by saga id.
+     *
+     * @param sagaId saga id
+     */
     public void deleteBySagaId(final String sagaId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();

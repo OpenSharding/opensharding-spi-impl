@@ -40,7 +40,7 @@ import java.util.Map;
  *
  * @author yangyi
  */
-public class SagaPersistenceImpl implements SagaPersistence {
+public final class SagaPersistenceImpl implements SagaPersistence {
     
     private final SagaEventRepository sagaEventRepository = new SagaEventRepository();
     
