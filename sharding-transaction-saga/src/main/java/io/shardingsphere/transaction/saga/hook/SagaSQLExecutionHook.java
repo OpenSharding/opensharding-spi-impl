@@ -46,7 +46,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         if (shardingExecuteDataMap.containsKey(TRANSACTION_KEY)) {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(TRANSACTION_KEY);
             sagaSubTransaction = new SagaSubTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
-            sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.EXECUTING);
+            sagaTransaction.recordStart(sagaSubTransaction);
         }
     }
     

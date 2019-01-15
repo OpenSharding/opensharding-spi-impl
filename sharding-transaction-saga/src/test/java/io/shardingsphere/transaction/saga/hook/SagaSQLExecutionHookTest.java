@@ -62,7 +62,7 @@ public final class SagaSQLExecutionHookTest {
     @Test
     public void assertStart() {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
-        verify(sagaTransaction).recordResult(any(SagaSubTransaction.class), eq(ExecutionResult.EXECUTING));
+        verify(sagaTransaction).recordStart(any(SagaSubTransaction.class));
     }
     
     @Test
@@ -78,6 +78,7 @@ public final class SagaSQLExecutionHookTest {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
         verify(sagaTransaction).recordResult(any(SagaSubTransaction.class), eq(ExecutionResult.FAILURE));
+        
         assertFalse(ExecutorExceptionHandler.isExceptionThrown());
     }
 }

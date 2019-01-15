@@ -60,7 +60,7 @@ public final class SagaTransactionTest {
     public void assertRecordResult() {
         sagaTransaction.nextLogicSQL();
         SagaSubTransaction sagaSubTransaction = mock(SagaSubTransaction.class);
-        sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.EXECUTING);
+        sagaTransaction.recordStart(sagaSubTransaction);
         assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
         assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
         assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecutionResult.EXECUTING));
@@ -85,7 +85,7 @@ public final class SagaTransactionTest {
     public void assertGetSagaDefinitionBuilder() throws IOException {
         sagaTransaction.nextLogicSQL();
         SagaSubTransaction sagaSubTransaction = mock(SagaSubTransaction.class);
-        sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.EXECUTING);
+        sagaTransaction.recordStart(sagaSubTransaction);
         sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.SUCCESS);
         SagaDefinitionBuilder builder = sagaTransaction.getSagaDefinitionBuilder();
         ObjectMapper jacksonObjectMapper = new ObjectMapper();

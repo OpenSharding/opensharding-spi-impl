@@ -70,23 +70,27 @@ public final class SagaTransaction {
     private volatile boolean containException;
     
     /**
-     * Record and cache result for sub transaction.
+     * Record start for sub transaction.
+     *
+     * @param sagaSubTransaction saga sub transaction
+     */
+    public void recordStart(final SagaSubTransaction sagaSubTransaction) {
+        currentLogicSQL.add(sagaSubTransaction);
+        sqlRevert(sagaSubTransaction);
+        persistence.persistSnapshot(
+                new SagaSnapshot(id, sagaSubTransaction.hashCode(), sagaSubTransaction.toString(), revertResultMap.get(sagaSubTransaction).toString(), ExecutionResult.EXECUTING.name()));
+        executionResultMap.put(sagaSubTransaction, ExecutionResult.EXECUTING);
+    }
+    
+    /**
+     * Record result for sub transaction.
      *
      * @param sagaSubTransaction saga sub transaction
      * @param executionResult execution result
      */
     public void recordResult(final SagaSubTransaction sagaSubTransaction, final ExecutionResult executionResult) {
-        switch (executionResult) {
-            case EXECUTING:
-                currentLogicSQL.add(sagaSubTransaction);
-                sqlRevert(sagaSubTransaction);
-                persistence.persistSnapshot(new SagaSnapshot(id, sagaSubTransaction.hashCode(), sagaSubTransaction.toString(),
-                    revertResultMap.get(sagaSubTransaction).toString(), executionResult.name()));
-                break;
-            default:
-                containException = ExecutionResult.FAILURE == executionResult;
-                persistence.updateSnapshotStatus(id, sagaSubTransaction.hashCode(), executionResult.name());
-        }
+        containException = ExecutionResult.FAILURE == executionResult;
+        persistence.updateSnapshotStatus(id, sagaSubTransaction.hashCode(), executionResult.name());
         executionResultMap.put(sagaSubTransaction, executionResult);
     }
     
