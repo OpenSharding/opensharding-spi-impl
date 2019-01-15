@@ -45,13 +45,8 @@ public final class SagaShardingTransactionEngine implements ShardingTransactionE
     }
     
     @Override
-    public void registerTransactionalResources(final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap) {
+    public void init(final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap) {
         transactionManager.getResourceManager().registerDataSourceMap(dataSourceMap);
-    }
-    
-    @Override
-    public void clearTransactionalResources() {
-        transactionManager.getResourceManager().releaseDataSourceMap();
     }
     
     @Override
@@ -81,5 +76,10 @@ public final class SagaShardingTransactionEngine implements ShardingTransactionE
     @Override
     public void rollback() {
         transactionManager.rollback();
+    }
+    
+    @Override
+    public void close() {
+        transactionManager.getResourceManager().releaseDataSourceMap();
     }
 }

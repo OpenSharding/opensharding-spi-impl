@@ -57,7 +57,7 @@ public class SagaShardingTransactionEngineTest {
     private SagaResourceManager sagaResourceManager;
     
     @Before
-    public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    public void setUp() throws NoSuchFieldException, IllegalAccessException {
         Field transactionManagerField = SagaShardingTransactionEngine.class.getDeclaredField("transactionManager");
         transactionManagerField.setAccessible(true);
         transactionManagerField.set(handler, sagaTransactionManager);
@@ -70,15 +70,15 @@ public class SagaShardingTransactionEngineTest {
     }
     
     @Test
-    public void assertRegisterTransactionalResource() {
+    public void assertInit() {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
-        handler.registerTransactionalResources(DatabaseType.MySQL, dataSourceMap);
+        handler.init(DatabaseType.MySQL, dataSourceMap);
         verify(sagaResourceManager).registerDataSourceMap(dataSourceMap);
     }
     
     @Test
-    public void assertClearTransactionalResources() {
-        handler.clearTransactionalResources();
+    public void assertClose() {
+        handler.close();
         verify(sagaResourceManager).releaseDataSourceMap();
     }
     
