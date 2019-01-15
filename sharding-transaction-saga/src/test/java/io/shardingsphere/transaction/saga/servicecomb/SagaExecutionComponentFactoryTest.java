@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.servicecomb;
 
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.persistence.EmptySagaPersistence;
+import io.shardingsphere.transaction.saga.persistence.impl.EmptySagaPersistence;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.servicecomb.saga.core.dag.GraphBasedSagaFactory;
 import org.junit.Test;

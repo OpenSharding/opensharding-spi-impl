@@ -24,7 +24,7 @@ import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.revert.EmptyRevertEngine;
 import io.shardingsphere.transaction.saga.revert.RevertEngine;
-import io.shardingsphere.transaction.saga.revert.RevertEngineImpl;
+import io.shardingsphere.transaction.saga.revert.impl.RevertEngineImpl;
 import io.shardingsphere.transaction.saga.revert.RevertResult;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import lombok.Getter;
@@ -46,8 +46,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * @author yangyi
  */
-@Getter
 @RequiredArgsConstructor
+@Getter
 public final class SagaTransaction {
     
     private final String id = UUID.randomUUID().toString();

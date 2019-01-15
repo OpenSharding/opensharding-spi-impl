@@ -22,7 +22,7 @@ import lombok.Setter;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 
 /**
- * Saga Transaction Configuration.
+ * Saga configuration.
  *
  * @author yangyi
  */

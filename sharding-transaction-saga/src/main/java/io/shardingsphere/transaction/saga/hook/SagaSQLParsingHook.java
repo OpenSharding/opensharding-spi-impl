@@ -32,7 +32,6 @@ public final class SagaSQLParsingHook implements ParsingHook {
     
     @Override
     public void start(final String sql) {
-    
     }
     
     @Override
@@ -44,6 +43,5 @@ public final class SagaSQLParsingHook implements ParsingHook {
     
     @Override
     public void finishFailure(final Exception cause) {
-    
     }
 }

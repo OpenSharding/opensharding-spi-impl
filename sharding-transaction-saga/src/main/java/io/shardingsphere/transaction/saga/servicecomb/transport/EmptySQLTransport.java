@@ -27,7 +27,8 @@ import java.util.List;
 
 /**
  * Empty SQL transport default implements.
- * used when no SPI found
+ * 
+ * <p>used when no SPI found.</p>
  *
  * @author yangyi
  */

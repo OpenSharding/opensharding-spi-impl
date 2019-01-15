@@ -17,6 +17,8 @@
 
 package io.shardingsphere.transaction.saga.persistence;
 
+import io.shardingsphere.transaction.saga.persistence.impl.EmptySagaPersistence;
+
 import java.util.ServiceLoader;
 
 /**
@@ -24,7 +26,7 @@ import java.util.ServiceLoader;
  *
  * @author yangyi
  */
-public class SagaPersistenceLoader {
+public final class SagaPersistenceLoader {
     
     /**
      * Load saga persistence.

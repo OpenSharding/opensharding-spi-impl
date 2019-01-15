@@ -20,8 +20,9 @@ package io.shardingsphere.transaction.saga.revert;
 import java.util.List;
 
 /**
- * empty revert engine.
- * will be used when no revert engine injected.
+ * Empty revert engine.
+ * 
+ * <p>Will be used when no revert engine injected.</p>
  *
  * @author yangyi
  */

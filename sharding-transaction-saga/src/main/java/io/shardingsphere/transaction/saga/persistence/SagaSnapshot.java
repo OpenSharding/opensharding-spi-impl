@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 @Getter
-public class SagaSnapshot {
+public final class SagaSnapshot {
     
     private final String transactionId;
     

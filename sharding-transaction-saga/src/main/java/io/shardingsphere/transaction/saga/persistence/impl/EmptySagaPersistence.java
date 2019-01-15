@@ -15,8 +15,10 @@
  * </p>
  */
 
-package io.shardingsphere.transaction.saga.persistence;
+package io.shardingsphere.transaction.saga.persistence.impl;
 
+import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
+import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import org.apache.servicecomb.saga.core.EventEnvelope;
 import org.apache.servicecomb.saga.core.SagaEvent;
 
@@ -33,22 +35,18 @@ public final class EmptySagaPersistence implements SagaPersistence {
     
     @Override
     public void persistSnapshot(final SagaSnapshot snapshot) {
-    
     }
     
     @Override
     public void updateSnapshotStatus(final String transactionId, final int snapshotId, final String executeStatus) {
-    
     }
     
     @Override
     public void cleanSnapshot(final String transactionId) {
-    
     }
     
     @Override
     public void cleanSagaEvent(final String sagaId) {
-    
     }
     
     @Override
@@ -58,6 +56,5 @@ public final class EmptySagaPersistence implements SagaPersistence {
     
     @Override
     public void offer(final SagaEvent sagaEvent) {
-    
     }
 }
