@@ -43,6 +43,15 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
     @Getter
     private final SagaResourceManager resourceManager = new SagaResourceManager();
     
+    /**
+     * Get saga transaction manager instance.
+     *
+     * @return saga transaction manager
+     */
+    public static SagaTransactionManager getInstance() {
+        return INSTANCE;
+    }
+    
     @Override
     public void begin() {
         if (null == TRANSACTIONS.get()) {
@@ -72,15 +81,6 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
     @Override
     public int getStatus() {
         return null == TRANSACTIONS.get() ? Status.STATUS_NO_TRANSACTION : Status.STATUS_ACTIVE;
-    }
-    
-    /**
-     * Get saga transaction manager instance.
-     *
-     * @return saga transaction manager
-     */
-    public static SagaTransactionManager getInstance() {
-        return INSTANCE;
     }
     
     /**

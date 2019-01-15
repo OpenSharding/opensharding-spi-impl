@@ -15,11 +15,10 @@
  * </p>
  */
 
-package io.shardingsphere.transaction.saga.handler;
+package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.core.constant.DatabaseType;
 import io.shardingsphere.transaction.api.TransactionType;
-import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.manager.SagaResourceManager;
 import io.shardingsphere.transaction.saga.manager.SagaTransactionManager;
 import org.junit.Before;
@@ -46,7 +45,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SagaShardingTransactionEngineTest {
+public final class SagaShardingTransactionEngineTest {
     
     private final SagaShardingTransactionEngine handler = new SagaShardingTransactionEngine();
     

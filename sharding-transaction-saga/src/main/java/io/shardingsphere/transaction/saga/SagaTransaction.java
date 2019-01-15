@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Saga transaction object.
+ * Saga transaction.
  *
  * @author yangyi
  */

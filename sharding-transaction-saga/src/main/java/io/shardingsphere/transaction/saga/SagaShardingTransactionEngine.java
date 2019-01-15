@@ -15,13 +15,12 @@
  * </p>
  */
 
-package io.shardingsphere.transaction.saga.handler;
+package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.core.constant.DatabaseType;
 import io.shardingsphere.transaction.api.TransactionType;
 import io.shardingsphere.transaction.saga.manager.SagaTransactionManager;
 import io.shardingsphere.transaction.spi.ShardingTransactionEngine;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import javax.transaction.Status;
@@ -30,23 +29,22 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * Saga transaction handler.
+ * Saga sharding transaction engine.
  *
  * @author yangyi
  */
-@Slf4j
 public final class SagaShardingTransactionEngine implements ShardingTransactionEngine {
     
     private final SagaTransactionManager transactionManager = SagaTransactionManager.getInstance();
     
     @Override
-    public TransactionType getTransactionType() {
-        return TransactionType.BASE;
+    public void init(final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap) {
+        transactionManager.getResourceManager().registerDataSourceMap(dataSourceMap);
     }
     
     @Override
-    public void init(final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap) {
-        transactionManager.getResourceManager().registerDataSourceMap(dataSourceMap);
+    public TransactionType getTransactionType() {
+        return TransactionType.BASE;
     }
     
     @Override
