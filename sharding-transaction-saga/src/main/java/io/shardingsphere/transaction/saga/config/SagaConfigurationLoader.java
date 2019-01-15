@@ -43,13 +43,13 @@ public class SagaConfigurationLoader {
     
     private static final String EXECUTOR_SIZE = PREFIX + "executorSize";
     
-    private static final String TRANSACTION_MAX_RERTIES = PREFIX + "transactionMaxRetries";
+    private static final String TRANSACTION_MAX_RETRIES = PREFIX + "transactionMaxRetries";
     
-    private static final String COMPENSATION_MAX_RERTIES = PREFIX + "compensationMaxRetries";
+    private static final String COMPENSATION_MAX_RETRIES = PREFIX + "compensationMaxRetries";
     
-    private static final String TRANSACTION_RERTY_DELAY = PREFIX + "transactionRetryDelay";
+    private static final String TRANSACTION_RETRY_DELAY = PREFIX + "transactionRetryDelay";
     
-    private static final String COMPENSATION_RERTY_DELAY = PREFIX + "compensationRetryDelay";
+    private static final String COMPENSATION_RETRY_DELAY = PREFIX + "compensationRetryDelay";
     
     private static final String RECOVERY_POLICY = PREFIX + "recoveryPolicy";
     
@@ -89,19 +89,19 @@ public class SagaConfigurationLoader {
         if (!Strings.isNullOrEmpty(executorSize)) {
             sagaConfiguration.setExecutorSize(Integer.parseInt(executorSize));
         }
-        String transactionMaxRetries = sagaProperties.getProperty(TRANSACTION_MAX_RERTIES);
+        String transactionMaxRetries = sagaProperties.getProperty(TRANSACTION_MAX_RETRIES);
         if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
             sagaConfiguration.setTransactionMaxRetries(Integer.parseInt(transactionMaxRetries));
         }
-        String compensationMaxRetries = sagaProperties.getProperty(COMPENSATION_MAX_RERTIES);
+        String compensationMaxRetries = sagaProperties.getProperty(COMPENSATION_MAX_RETRIES);
         if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
             sagaConfiguration.setCompensationMaxRetries(Integer.parseInt(compensationMaxRetries));
         }
-        String transactionRetryDelay = sagaProperties.getProperty(TRANSACTION_RERTY_DELAY);
+        String transactionRetryDelay = sagaProperties.getProperty(TRANSACTION_RETRY_DELAY);
         if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
             sagaConfiguration.setTransactionRetryDelay(Integer.parseInt(transactionRetryDelay));
         }
-        String compensationRetryDelay = sagaProperties.getProperty(COMPENSATION_RERTY_DELAY);
+        String compensationRetryDelay = sagaProperties.getProperty(COMPENSATION_RETRY_DELAY);
         if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
             sagaConfiguration.setCompensationRetryDelay(Integer.parseInt(compensationRetryDelay));
         }

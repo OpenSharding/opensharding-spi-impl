@@ -25,9 +25,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import io.shardingsphere.transaction.saga.revert.EmptyRevertEngine;
-import io.shardingsphere.transaction.saga.revert.RevertResult;
-
 public class EmptyRevertEngineTest {
     
     private final EmptyRevertEngine revertEngine = new EmptyRevertEngine();

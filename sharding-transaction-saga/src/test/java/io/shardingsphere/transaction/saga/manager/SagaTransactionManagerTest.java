@@ -64,7 +64,7 @@ public final class SagaTransactionManagerTest {
     private final SagaConfiguration config = new SagaConfiguration();
     
     @Before
-    public void setUp() throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
+    public void setUp() throws NoSuchFieldException, IllegalAccessException {
         when(resourceManager.getSagaConfiguration()).thenReturn(config);
         when(resourceManager.getSagaExecutionComponent()).thenReturn(sagaExecutionComponent);
         when(resourceManager.getSagaPersistence()).thenReturn(sagaPersistence);

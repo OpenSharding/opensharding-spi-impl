@@ -17,17 +17,15 @@
 
 package io.shardingsphere.transaction.saga.manager;
 
+import io.shardingsphere.core.exception.ShardingException;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-
-import io.shardingsphere.core.exception.ShardingException;
 
 public class SagaResourceManagerTest {
     

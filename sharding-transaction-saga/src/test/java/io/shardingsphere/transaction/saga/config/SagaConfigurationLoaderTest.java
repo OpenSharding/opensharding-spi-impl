@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 public class SagaConfigurationLoaderTest {
     
     @Test
-    public void assertLoad() throws Exception {
+    public void assertLoad() {
         SagaConfiguration sagaConfiguration = SagaConfigurationLoader.load();
         assertEquals(sagaConfiguration.getExecutorSize(), 16);
         assertEquals(sagaConfiguration.getTransactionMaxRetries(), 8);

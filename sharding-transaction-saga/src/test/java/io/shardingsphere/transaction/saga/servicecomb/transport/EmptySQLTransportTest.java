@@ -21,16 +21,15 @@ import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
-
-import io.shardingsphere.transaction.saga.servicecomb.transport.EmptySQLTransport;
 
 public class EmptySQLTransportTest {
     
     @Test
     public void assertWith() {
-        assertThat(new EmptySQLTransport().with("ds", "sql", Collections.EMPTY_LIST), instanceOf(JsonSuccessfulSagaResponse.class));
+        assertThat(new EmptySQLTransport().with("ds", "sql", Collections.<List<String>>emptyList()), instanceOf(JsonSuccessfulSagaResponse.class));
     }
 }

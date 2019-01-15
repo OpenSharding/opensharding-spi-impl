@@ -28,19 +28,31 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
-
 public class SagaDefinitionBuilderTest {
-    
-    private static final String DS_0 = "ds_0";
-    
-    private static final String DS_1 = "ds_1";
     
     private static final String EXAMPLE_INSERT_SQL = "INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)";
     
     private static final String EXAMPLE_DELETE_SQL = "DELETE FROM ds_0.tb_0 WHERE id=?";
     
     private static final String EXAMPLE_UPDATE_SQL = "UPDATE ds_1.tb_1 SET value=? where id=?";
+    
+    private static final String EXPECT_EMPTY_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[]}";
+    
+    private static final String EXPECT_SINGLE_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[{\"id\":\"1\",\"datasource\":\"ds_0\",\"type\":\"sql\",\"transaction\""
+            + ":{\"sql\":\"INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)\",\"params\":[[1,\"xxx\"]],\"retries\":5},\"compensation\""
+            + ":{\"sql\":\"DELETE FROM ds_0.tb_0 WHERE id=?\",\"params\":[[1]],\"retries\":5},\"parents\":[],\"failRetryDelayMilliseconds\":5000}]}";
+    
+    private static final String EXPECT_DOUBLE_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[{\"id\":\"1\",\"datasource\":\"ds_0\",\"type\":\"sql\",\"transaction\""
+            + ":{\"sql\":\"INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)\",\"params\":[[1,\"xxx\"]],\"retries\":5},\"compensation\""
+            + ":{\"sql\":\"DELETE FROM ds_0.tb_0 WHERE id=?\",\"params\":[[1]],\"retries\":5},\"parents\":[],\"failRetryDelayMilliseconds\":5000},{\"id\":\"2\",\"datasource\":\"ds_1\","
+            + "\"type\":\"sql\",\"transaction\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"yyy\",2]],\"retries\":5},\"compensation\""
+            + ":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"xxx\",2]],\"retries\":5},\"parents\":[],\"failRetryDelayMilliseconds\":5000}]}";
+    
+    private static final String EXPECT_PARENTS_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[{\"id\":\"1\",\"datasource\":\"ds_0\",\"type\":\"sql\",\"transaction\""
+            + ":{\"sql\":\"INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)\",\"params\":[[1,\"xxx\"]],\"retries\":5},\"compensation\""
+            + ":{\"sql\":\"DELETE FROM ds_0.tb_0 WHERE id=?\",\"params\":[[1]],\"retries\":5},\"parents\":[],\"failRetryDelayMilliseconds\":5000}"
+            + ",{\"id\":\"2\",\"datasource\":\"ds_1\",\"type\":\"sql\",\"transaction\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"yyy\",2]],\"retries\":5}"
+            + ",\"compensation\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"xxx\",2]],\"retries\":5},\"parents\":[\"1\"],\"failRetryDelayMilliseconds\":5000}]}";
     
     private SagaDefinitionBuilder builder;
     
@@ -67,11 +79,6 @@ public class SagaDefinitionBuilderTest {
             add(2);
         }});
     }};
-    
-    private static final String EXPECT_EMPTY_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[]}";
-    private static final String EXPECT_SINGLE_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[{\"id\":\"1\",\"datasource\":\"ds_0\",\"type\":\"sql\",\"transaction\":{\"sql\":\"INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)\",\"params\":[[1,\"xxx\"]],\"retries\":5},\"compensation\":{\"sql\":\"DELETE FROM ds_0.tb_0 WHERE id=?\",\"params\":[[1]],\"retries\":5},\"parents\":[],\"failRetryDelayMilliseconds\":5000}]}";
-    private static final String EXPECT_DOUBLE_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[{\"id\":\"1\",\"datasource\":\"ds_0\",\"type\":\"sql\",\"transaction\":{\"sql\":\"INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)\",\"params\":[[1,\"xxx\"]],\"retries\":5},\"compensation\":{\"sql\":\"DELETE FROM ds_0.tb_0 WHERE id=?\",\"params\":[[1]],\"retries\":5},\"parents\":[],\"failRetryDelayMilliseconds\":5000},{\"id\":\"2\",\"datasource\":\"ds_1\",\"type\":\"sql\",\"transaction\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"yyy\",2]],\"retries\":5},\"compensation\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"xxx\",2]],\"retries\":5},\"parents\":[],\"failRetryDelayMilliseconds\":5000}]}";
-    private static final String EXPECT_PARENTS_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[{\"id\":\"1\",\"datasource\":\"ds_0\",\"type\":\"sql\",\"transaction\":{\"sql\":\"INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)\",\"params\":[[1,\"xxx\"]],\"retries\":5},\"compensation\":{\"sql\":\"DELETE FROM ds_0.tb_0 WHERE id=?\",\"params\":[[1]],\"retries\":5},\"parents\":[],\"failRetryDelayMilliseconds\":5000},{\"id\":\"2\",\"datasource\":\"ds_1\",\"type\":\"sql\",\"transaction\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"yyy\",2]],\"retries\":5},\"compensation\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"xxx\",2]],\"retries\":5},\"parents\":[\"1\"],\"failRetryDelayMilliseconds\":5000}]}";
     
     @Before
     public void setUp() {

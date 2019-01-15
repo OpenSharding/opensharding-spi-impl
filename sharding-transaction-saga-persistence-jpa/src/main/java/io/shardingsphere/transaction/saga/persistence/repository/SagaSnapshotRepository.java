@@ -60,7 +60,7 @@ public class SagaSnapshotRepository {
      *
      * @param transactionId transaction id
      * @param snapshotId snapshot id
-     * @param executeStatus exeucte status
+     * @param executeStatus execute status
      */
     public void update(final String transactionId, final int snapshotId, final String executeStatus) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();

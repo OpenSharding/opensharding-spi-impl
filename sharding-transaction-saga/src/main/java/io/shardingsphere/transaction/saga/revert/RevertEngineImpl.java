@@ -20,7 +20,6 @@ package io.shardingsphere.transaction.saga.revert;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,18 +35,18 @@ public final class RevertEngineImpl implements RevertEngine {
     private final Map<String, Connection> connectionMap;
     
     @Override
-    public RevertResult revert(final String datasource, final String sql, final List<List<Object>> params) throws SQLException {
+    public RevertResult revert(final String datasource, final String sql, final List<List<Object>> params) {
         RevertResult result = new RevertResult();
         result.setRevertSQL("");
         for (List<Object> each : params) {
             // TODO use new SnapShotEngine to get revert result.
-            result.getRevertSQLParams().add(new ArrayList<Object>());
+            result.getRevertSQLParams().add(new ArrayList<>());
         }
         return result;
     }
     
     @Override
-    public RevertResult revert(final String datasource, final String sql, final Object[] params) throws SQLException {
+    public RevertResult revert(final String datasource, final String sql, final Object[] params) {
         RevertResult result = new RevertResult();
         result.setRevertSQL(sql);
         return result;
