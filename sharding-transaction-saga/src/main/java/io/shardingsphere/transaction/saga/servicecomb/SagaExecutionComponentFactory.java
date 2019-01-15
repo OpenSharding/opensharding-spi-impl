@@ -22,6 +22,8 @@ import io.shardingsphere.core.executor.ShardingThreadFactoryBuilder;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaDefinition;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
@@ -31,6 +33,7 @@ import org.apache.servicecomb.saga.format.JacksonFromJsonFormat;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,25 +41,25 @@ import java.util.concurrent.TimeUnit;
  *
  * @author yangyi
  */
-public class SagaExecutionComponentFactory {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class SagaExecutionComponentFactory {
     
     /**
-     * Create saga execution Component.
+     * Create saga execution component.
      *
-     * @param config saga configuration
+     * @param sagaConfig saga configuration
      * @param sagaPersistence saga persistence
-     * @return saga execution component.
+     * @return saga execution component
      */
-    public static SagaExecutionComponent createSagaExecutionComponent(final SagaConfiguration config, final SagaPersistence sagaPersistence) {
+    public static SagaExecutionComponent createSagaExecutionComponent(final SagaConfiguration sagaConfig, final SagaPersistence sagaPersistence) {
         FromJsonFormat<SagaDefinition> fromJsonFormat = new JacksonFromJsonFormat(ShardingTransportFactory.getInstance());
-        GraphBasedSagaFactory sagaFactory = new GraphBasedSagaFactory(config.getCompensationRetryDelay(), sagaPersistence, new ChildrenExtractor(), createExecutors(config));
+        GraphBasedSagaFactory sagaFactory = new GraphBasedSagaFactory(sagaConfig.getCompensationRetryDelay(), sagaPersistence, new ChildrenExtractor(), createExecutorService(sagaConfig));
         return new SagaExecutionComponent(sagaPersistence, fromJsonFormat, null, sagaFactory);
     }
     
-    private static ExecutorService createExecutors(final SagaConfiguration config) {
-        ExecutorService result = config.getExecutorSize() <= 0
-            ? Executors.newCachedThreadPool(ShardingThreadFactoryBuilder.build("Saga-%d"))
-            : Executors.newFixedThreadPool(config.getExecutorSize(), ShardingThreadFactoryBuilder.build("Saga-%d"));
+    private static ExecutorService createExecutorService(final SagaConfiguration sagaConfig) {
+        ThreadFactory threadFactory = ShardingThreadFactoryBuilder.build("Saga-%d");
+        ExecutorService result = sagaConfig.getExecutorSize() > 0 ? Executors.newFixedThreadPool(sagaConfig.getExecutorSize(), threadFactory) : Executors.newCachedThreadPool(threadFactory);
         MoreExecutors.addDelayedShutdownHook(result, 60, TimeUnit.SECONDS);
         return result;
     }

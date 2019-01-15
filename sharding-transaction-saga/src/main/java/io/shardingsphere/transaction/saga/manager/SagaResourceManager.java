@@ -21,7 +21,7 @@ import io.shardingsphere.core.exception.ShardingException;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
-import io.shardingsphere.transaction.saga.persistence.SagaPersistenceSPILoader;
+import io.shardingsphere.transaction.saga.persistence.SagaPersistenceLoader;
 import io.shardingsphere.transaction.saga.servicecomb.SagaExecutionComponentFactory;
 import lombok.Getter;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Getter
 public final class SagaResourceManager {
-
+    
     private final SagaConfiguration sagaConfiguration;
     
     private final SagaPersistence sagaPersistence;
@@ -48,18 +48,25 @@ public final class SagaResourceManager {
     
     public SagaResourceManager() {
         sagaConfiguration = SagaConfigurationLoader.load();
-        sagaPersistence = SagaPersistenceSPILoader.load(sagaConfiguration);
+        sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration);
         sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, sagaPersistence);
     }
     
     /**
      * Register data source map.
      *
-     * @param newDataSourceMap data source map
+     * @param dataSourceMap data source map
      */
-    public void registerDataSourceMap(final Map<String, DataSource> newDataSourceMap) {
-        if (!containDataSourceName(newDataSourceMap)) {
-            dataSourceMap.putAll(newDataSourceMap);
+    public void registerDataSourceMap(final Map<String, DataSource> dataSourceMap) {
+        validateDataSourceName(dataSourceMap);
+        this.dataSourceMap.putAll(dataSourceMap);
+    }
+    
+    private void validateDataSourceName(final Map<String, DataSource> dataSourceMap) {
+        for (String each : dataSourceMap.keySet()) {
+            if (this.dataSourceMap.containsKey(each)) {
+                throw new ShardingException("datasource {} has registered", each);
+            }
         }
     }
     
@@ -68,14 +75,5 @@ public final class SagaResourceManager {
      */
     public void releaseDataSourceMap() {
         dataSourceMap.clear();
-    }
-    
-    private boolean containDataSourceName(final Map<String, DataSource> newDataSourceMap) {
-        for (String each : newDataSourceMap.keySet()) {
-            if (dataSourceMap.containsKey(each)) {
-                throw new ShardingException("datasource {} has registered", each);
-            }
-        }
-        return false;
     }
 }

@@ -21,11 +21,11 @@ import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import java.util.ServiceLoader;
 
 /**
- * Saga persistence registry.
+ * Saga persistence loader.
  *
  * @author yangyi
  */
-public class SagaPersistenceSPILoader {
+public class SagaPersistenceLoader {
     
     /**
      * Load saga persistence.
