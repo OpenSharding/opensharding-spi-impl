@@ -18,9 +18,8 @@
 package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.core.exception.ShardingException;
-import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.constant.SagaRecoveryPolicy;
+import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.revert.EmptyRevertEngine;
@@ -30,6 +29,7 @@ import io.shardingsphere.transaction.saga.revert.RevertResult;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -119,7 +119,7 @@ public final class SagaTransaction {
     }
     
     private void sqlRevert(final SagaSubTransaction sagaSubTransaction) {
-        RevertEngine revertEngine = SagaRecoveryPolicy.FORWARD == sagaConfiguration.getRecoveryPolicy() ? new EmptyRevertEngine() : new RevertEngineImpl(connectionMap);
+        RevertEngine revertEngine = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy()) ? new EmptyRevertEngine() : new RevertEngineImpl(connectionMap);
         try {
             revertResultMap.put(sagaSubTransaction, revertEngine.revert(sagaSubTransaction.getDataSourceName(), sagaSubTransaction.getSql(), sagaSubTransaction.getParameterSets()));
         } catch (SQLException ex) {
@@ -130,13 +130,13 @@ public final class SagaTransaction {
     private void initSagaDefinitionForLogicSQL(final SagaDefinitionBuilder sagaDefinitionBuilder, final Queue<SagaSubTransaction> sagaSubTransactions) {
         for (SagaSubTransaction each : sagaSubTransactions) {
             RevertResult revertResult = revertResultMap.get(each);
-            sagaDefinitionBuilder.addChildRequest(String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(),
-                                                  revertResult.getRevertSQL(), revertResult.getRevertSQLParams());
+            sagaDefinitionBuilder.addChildRequest(
+                    String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getRevertSQL(), revertResult.getRevertSQLParams());
         }
     }
     
     private SagaDefinitionBuilder createDefinitionBuilder() {
-        return new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy().getName(), sagaConfiguration.getTransactionMaxRetries(),
-                                         sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelay());
+        return new SagaDefinitionBuilder(
+                sagaConfiguration.getRecoveryPolicy(), sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelay());
     }
 }

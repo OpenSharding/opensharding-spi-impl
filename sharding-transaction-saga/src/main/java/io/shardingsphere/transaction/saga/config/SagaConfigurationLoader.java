@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.config;
 
 import com.google.common.base.Strings;
-import io.shardingsphere.transaction.saga.constant.SagaRecoveryPolicy;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -74,7 +74,6 @@ public final class SagaConfigurationLoader {
         return result;
     }
     
-    @SneakyThrows
     private static SagaConfiguration createSagaConfiguration(final Properties sagaProperties) {
         SagaConfiguration result = new SagaConfiguration();
         String executorSize = sagaProperties.getProperty(EXECUTOR_SIZE);
@@ -98,8 +97,8 @@ public final class SagaConfigurationLoader {
             result.setCompensationRetryDelay(Integer.parseInt(compensationRetryDelay));
         }
         String recoveryPolicy = sagaProperties.getProperty(RECOVERY_POLICY);
-        if (!Strings.isNullOrEmpty(recoveryPolicy)) {
-            result.setRecoveryPolicy(SagaRecoveryPolicy.find(recoveryPolicy));
+        if (RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(recoveryPolicy) || RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(recoveryPolicy)) {
+            result.setRecoveryPolicy(recoveryPolicy);
         }
         String enabledPersistence = sagaProperties.getProperty(ENABLED_PERSISTENCE);
         if (!Strings.isNullOrEmpty(enabledPersistence)) {

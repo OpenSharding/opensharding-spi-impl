@@ -17,9 +17,9 @@
 
 package io.shardingsphere.transaction.saga.config;
 
-import io.shardingsphere.transaction.saga.constant.SagaRecoveryPolicy;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
 
 /**
  * Saga Transaction Configuration.
@@ -40,7 +40,7 @@ public final class SagaConfiguration {
     
     private int compensationRetryDelay = 3000;
     
-    private SagaRecoveryPolicy recoveryPolicy = SagaRecoveryPolicy.FORWARD;
+    private String recoveryPolicy = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY;
     
     private boolean enablePersistence;
 }

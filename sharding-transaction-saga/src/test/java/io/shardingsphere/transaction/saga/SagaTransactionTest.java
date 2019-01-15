@@ -20,9 +20,9 @@ package io.shardingsphere.transaction.saga;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.constant.SagaRecoveryPolicy;
 import io.shardingsphere.transaction.saga.persistence.EmptySagaPersistence;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -90,7 +90,7 @@ public class SagaTransactionTest {
         SagaDefinitionBuilder builder = sagaTransaction.getSagaDefinitionBuilder();
         ObjectMapper jacksonObjectMapper = new ObjectMapper();
         Map sagaDefinitionMap = jacksonObjectMapper.readValue(builder.build(), Map.class);
-        assertEquals(sagaDefinitionMap.get("policy"), SagaRecoveryPolicy.FORWARD.getName());
+        assertEquals(sagaDefinitionMap.get("policy"), RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY);
         assertThat(sagaDefinitionMap.get("requests"), instanceOf(List.class));
         List<Object> requests = (List<Object>) sagaDefinitionMap.get("requests");
         assertEquals(requests.size(), 1);
