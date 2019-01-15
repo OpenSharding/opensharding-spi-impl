@@ -51,7 +51,7 @@ public class SagaSnapshotRepository {
      * @param transactionId transaction id
      * @return saga snapshot list
      */
-    public List<SagaSnapshotEntity> selectByTranscationId(final String transactionId) {
+    public List<SagaSnapshotEntity> selectByTransactionId(final String transactionId) {
         return entityManagerFactory.createEntityManager().createNamedQuery("selectByTransactionId", SagaSnapshotEntity.class).setParameter(1, transactionId).getResultList();
     }
     

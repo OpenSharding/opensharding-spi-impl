@@ -80,6 +80,7 @@ public class SagaTransactionTest {
         assertEquals(sagaTransaction.getCurrentLogicSQL().size(), 1);
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void assertGetSagaDefinitionBuilder() throws IOException {
         sagaTransaction.nextLogicSQL();
@@ -88,7 +89,7 @@ public class SagaTransactionTest {
         sagaTransaction.recordResult(sagaSubTransaction, ExecutionResult.SUCCESS);
         SagaDefinitionBuilder builder = sagaTransaction.getSagaDefinitionBuilder();
         ObjectMapper jacksonObjectMapper = new ObjectMapper();
-        Map<String, Object> sagaDefinitionMap = jacksonObjectMapper.readValue(builder.build(), Map.class);
+        Map sagaDefinitionMap = jacksonObjectMapper.readValue(builder.build(), Map.class);
         assertEquals(sagaDefinitionMap.get("policy"), SagaRecoveryPolicy.FORWARD.getName());
         assertThat(sagaDefinitionMap.get("requests"), instanceOf(List.class));
         List<Object> requests = (List<Object>) sagaDefinitionMap.get("requests");

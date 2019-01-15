@@ -22,10 +22,10 @@ import io.shardingsphere.core.executor.ShardingExecuteDataMap;
 import io.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorExceptionHandler;
 import io.shardingsphere.core.routing.RouteUnit;
 import io.shardingsphere.core.routing.SQLUnit;
-import io.shardingsphere.transaction.saga.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import io.shardingsphere.transaction.saga.SagaSubTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.config.SagaConfiguration;
+import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +34,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +54,9 @@ public class SagaSQLExecutionHookTest {
     
     @Before
     public void setUp() {
-        ShardingExecuteDataMap.setDataMap(new HashMap<String, Object>() {{ put("transaction", sagaTransaction); }});
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("transaction", sagaTransaction);
+        ShardingExecuteDataMap.setDataMap(dataMap);
     }
     
     @Test

@@ -117,6 +117,7 @@ public class SagaShardingTransactionEngineTest {
         verify(sagaTransactionManager).rollback();
     }
     
+    @Test
     public void assertIsInTransaction() {
         when(sagaTransactionManager.getStatus()).thenReturn(Status.STATUS_ACTIVE);
         assertTrue(handler.isInTransaction());

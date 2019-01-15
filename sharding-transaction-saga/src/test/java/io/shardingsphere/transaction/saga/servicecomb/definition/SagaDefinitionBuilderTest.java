@@ -19,16 +19,27 @@ package io.shardingsphere.transaction.saga.servicecomb.definition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SagaDefinitionBuilderTest {
+    
+    private static final List<List<Object>> INSERT_PARAMS = new ArrayList<>();
+    
+    private static final List<Collection<Object>> DELETE_PARAMS = new ArrayList<>();
+    
+    private static final List<List<Object>> UPDATE_PARAMS = new ArrayList<>();
+    
+    private static final List<Collection<Object>> UPDATE_C_PARAMS = new ArrayList<>();
     
     private static final String EXAMPLE_INSERT_SQL = "INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)";
     
@@ -56,29 +67,13 @@ public class SagaDefinitionBuilderTest {
     
     private SagaDefinitionBuilder builder;
     
-    private static final List<List<Object>> INSERT_PARAMS = new ArrayList<List<Object>>() {{
-        add(new ArrayList<Object>() {{
-            add(1);
-            add("xxx");
-        }});
-    }};
-    private static final List<Collection<Object>> DELETE_PARAMS = new ArrayList<Collection<Object>>() {{
-        add(new ArrayList<Object>() {{
-            add(1);
-        }});
-    }};
-    private static final List<List<Object>> UPDATE_PARAMS = new ArrayList<List<Object>>() {{
-        add(new ArrayList<Object>() {{
-            add("yyy");
-            add(2);
-        }});
-    }};
-    private static final List<Collection<Object>> UPDATE_C_PARAMS = new ArrayList<Collection<Object>>() {{
-        add(new ArrayList<Object>() {{
-            add("xxx");
-            add(2);
-        }});
-    }};
+    @BeforeClass
+    public static void setUpClass() {
+        INSERT_PARAMS.add(Arrays.<Object>asList(1, "xxx"));
+        DELETE_PARAMS.add(Collections.<Object>singletonList(1));
+        UPDATE_PARAMS.add(Arrays.<Object>asList("yyy", 2));
+        UPDATE_C_PARAMS.add(Arrays.<Object>asList("xxx", 2));
+    }
     
     @Before
     public void setUp() {
