@@ -25,7 +25,7 @@ import javax.persistence.Persistence;
 import java.util.List;
 
 /**
- * Saga snapshot repository
+ * Saga snapshot repository.
  *
  * @author yangyi
  */
@@ -33,6 +33,11 @@ public class SagaSnapshotRepository {
     
     private final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("io.shardingsphere.transaction.saga.persistence");
     
+    /**
+     * Insert new saga snapshot.
+     *
+     * @param sagaSnapshotEntity saga snapshot entity
+     */
     public void insert(final SagaSnapshotEntity sagaSnapshotEntity) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -40,14 +45,23 @@ public class SagaSnapshotRepository {
         entityManager.getTransaction().commit();
     }
     
-    public SagaSnapshotEntity select(final Long id) {
-        return entityManagerFactory.createEntityManager().find(SagaSnapshotEntity.class, id);
-    }
-    
+    /**
+     * Select all snapshot for special transaction id.
+     *
+     * @param transactionId transaction id
+     * @return saga snapshot list
+     */
     public List<SagaSnapshotEntity> selectByTranscationId(final String transactionId) {
         return entityManagerFactory.createEntityManager().createNamedQuery("selectByTransactionId", SagaSnapshotEntity.class).setParameter(1, transactionId).getResultList();
     }
     
+    /**
+     * Update execute status for snapshot.
+     *
+     * @param transactionId transaction id
+     * @param snapshotId snapshot id
+     * @param executeStatus exeucte status
+     */
     public void update(final String transactionId, final int snapshotId, final String executeStatus) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
@@ -56,18 +70,15 @@ public class SagaSnapshotRepository {
         entityManager.getTransaction().commit();
     }
     
-    public void delete(final SagaSnapshotEntity sagaSnapshotEntity) {
-        entityManagerFactory.createEntityManager().remove(sagaSnapshotEntity);
-    }
-    
+    /**
+     * Delete all snapshots by transaction id.
+     *
+     * @param transactionId transaction id
+     */
     public void deleteByTransactionId(final String transactionId) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.createNativeQuery("DELETE FROM saga_snapshot WHERE transaction_id=?").setParameter(1, transactionId).executeUpdate();
         entityManager.getTransaction().commit();
-    }
-    
-    public void close() {
-        entityManagerFactory.close();
     }
 }

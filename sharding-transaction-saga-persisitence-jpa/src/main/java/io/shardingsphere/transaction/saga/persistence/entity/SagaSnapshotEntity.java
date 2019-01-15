@@ -34,7 +34,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Saga snapshot entity
+ * Saga snapshot entity.
  *
  * @author yangyi
  */

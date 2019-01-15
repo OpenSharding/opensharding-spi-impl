@@ -34,7 +34,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Saga event entity
+ * Saga event entity.
  *
  * @author yangyi
  */
