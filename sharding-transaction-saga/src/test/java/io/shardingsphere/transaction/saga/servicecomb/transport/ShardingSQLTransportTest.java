@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import io.shardingsphere.transaction.saga.SagaSubTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.constant.ExecutionResult;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.junit.Before;
@@ -32,10 +32,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -112,7 +112,7 @@ public class ShardingSQLTransportTest {
     
     @Test(expected = TransportFailedException.class)
     public void assertGetConnectionFailure() throws SQLException {
-        Map<String, Connection> connectionMap = new HashMap<>();
+        ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
         Connection connection = mock(Connection.class);
         connectionMap.put(dataSourceName, connection);
         when(sagaTransaction.getConnectionMap()).thenReturn(connectionMap);
@@ -123,7 +123,7 @@ public class ShardingSQLTransportTest {
     }
     
     private void getConnectionMap() throws SQLException {
-        Map<String, Connection> connectionMap = new HashMap<>();
+        ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
         Connection connection = mock(Connection.class);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
         connectionMap.put(dataSourceName, connection);

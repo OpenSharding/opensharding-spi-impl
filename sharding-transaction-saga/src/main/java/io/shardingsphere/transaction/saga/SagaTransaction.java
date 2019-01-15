@@ -40,6 +40,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Saga transaction.
@@ -56,7 +57,7 @@ public final class SagaTransaction {
     
     private final SagaPersistence persistence;
     
-    private final ConcurrentHashMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
     
     private final Map<SagaSubTransaction, ExecutionResult> executionResultMap = new ConcurrentHashMap<>();
     

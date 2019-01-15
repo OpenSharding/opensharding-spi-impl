@@ -34,6 +34,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -84,7 +86,7 @@ public final class SagaShardingTransactionEngineTest {
     @Test
     public void assertGetConnection() throws SQLException {
         SagaTransaction sagaTransaction = mock(SagaTransaction.class);
-        Map<String, Connection> connectionMap = new HashMap<>();
+        ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
         Connection connection = mock(Connection.class);
         when(sagaTransaction.getConnectionMap()).thenReturn(connectionMap);
         when(sagaResourceManager.getConnection("ds")).thenReturn(connection);
