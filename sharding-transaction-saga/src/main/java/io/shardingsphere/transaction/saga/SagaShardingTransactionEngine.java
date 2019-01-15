@@ -29,17 +29,17 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * Saga sharding transaction engine.
+ * Sharding transaction engine for Saga.
  *
  * @author yangyi
  */
 public final class SagaShardingTransactionEngine implements ShardingTransactionEngine {
     
-    private final SagaTransactionManager transactionManager = SagaTransactionManager.getInstance();
+    private final SagaTransactionManager sagaTransactionManager = SagaTransactionManager.getInstance();
     
     @Override
     public void init(final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap) {
-        transactionManager.getResourceManager().registerDataSourceMap(dataSourceMap);
+        sagaTransactionManager.getResourceManager().registerDataSourceMap(dataSourceMap);
     }
     
     @Override
@@ -49,35 +49,35 @@ public final class SagaShardingTransactionEngine implements ShardingTransactionE
     
     @Override
     public boolean isInTransaction() {
-        return Status.STATUS_ACTIVE == transactionManager.getStatus();
+        return Status.STATUS_ACTIVE == sagaTransactionManager.getStatus();
     }
     
     @Override
     public Connection getConnection(final String dataSourceName) throws SQLException {
-        Connection result = transactionManager.getResourceManager().getDataSourceMap().get(dataSourceName).getConnection();
-        if (null != transactionManager.getTransaction() && !transactionManager.getTransaction().getConnectionMap().containsKey(dataSourceName)) {
-            transactionManager.getTransaction().getConnectionMap().put(dataSourceName, result);
+        Connection result = sagaTransactionManager.getResourceManager().getDataSourceMap().get(dataSourceName).getConnection();
+        if (null != sagaTransactionManager.getTransaction() && !sagaTransactionManager.getTransaction().getConnectionMap().containsKey(dataSourceName)) {
+            sagaTransactionManager.getTransaction().getConnectionMap().put(dataSourceName, result);
         }
         return result;
     }
     
     @Override
     public void begin() {
-        transactionManager.begin();
+        sagaTransactionManager.begin();
     }
     
     @Override
     public void commit() {
-        transactionManager.commit();
+        sagaTransactionManager.commit();
     }
     
     @Override
     public void rollback() {
-        transactionManager.rollback();
+        sagaTransactionManager.rollback();
     }
     
     @Override
     public void close() {
-        transactionManager.getResourceManager().releaseDataSourceMap();
+        sagaTransactionManager.getResourceManager().releaseDataSourceMap();
     }
 }

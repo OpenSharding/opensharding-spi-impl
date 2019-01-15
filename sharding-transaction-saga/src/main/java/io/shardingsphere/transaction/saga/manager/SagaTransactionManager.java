@@ -22,7 +22,9 @@ import io.shardingsphere.core.executor.ShardingExecuteDataMap;
 import io.shardingsphere.transaction.core.ShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.transaction.Status;
 
@@ -32,6 +34,7 @@ import javax.transaction.Status;
  * @author zhaojun
  * @author yangyi
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class SagaTransactionManager implements ShardingTransactionManager {
     
@@ -78,6 +81,23 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
         cleanTransaction();
     }
     
+    private void submitToActuator() {
+        try {
+            String json = TRANSACTIONS.get().getSagaDefinitionBuilder().build();
+            resourceManager.getSagaExecutionComponent().run(json);
+        } catch (JsonProcessingException ignored) {
+        }
+    }
+    
+    private void cleanTransaction() {
+        if (null != TRANSACTIONS.get()) {
+            TRANSACTIONS.get().cleanSnapshot();
+        }
+        ShardingTransportFactory.getInstance().remove();
+        ShardingExecuteDataMap.getDataMap().remove(TRANSACTION_KEY);
+        TRANSACTIONS.remove();
+    }
+    
     @Override
     public int getStatus() {
         return null == TRANSACTIONS.get() ? Status.STATUS_NO_TRANSACTION : Status.STATUS_ACTIVE;
@@ -90,25 +110,5 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
      */
     public SagaTransaction getTransaction() {
         return TRANSACTIONS.get();
-    }
-    
-    /**
-     * Clean context of current transaction.
-     */
-    public void cleanTransaction() {
-        if (null != TRANSACTIONS.get()) {
-            TRANSACTIONS.get().cleanSnapshot();
-        }
-        ShardingTransportFactory.getInstance().remove();
-        ShardingExecuteDataMap.getDataMap().remove(TRANSACTION_KEY);
-        TRANSACTIONS.remove();
-    }
-    
-    private void submitToActuator() {
-        try {
-            String json = TRANSACTIONS.get().getSagaDefinitionBuilder().build();
-            resourceManager.getSagaExecutionComponent().run(json);
-        } catch (JsonProcessingException ignored) {
-        }
     }
 }
