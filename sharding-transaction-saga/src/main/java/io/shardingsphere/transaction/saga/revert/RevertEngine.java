@@ -30,23 +30,23 @@ public interface RevertEngine {
     /**
      * Get revert result.
      *
-     * @param datasource datasource name
+     * @param datasourceName data source name
      * @param sql execute SQL
-     * @param params SQL params list
+     * @param parameters SQL parameters
      * @return revert result
      * @throws SQLException SQL exception
      */
-    RevertResult revert(String datasource, String sql, List<List<Object>> params) throws SQLException;
+    RevertResult revert(String datasourceName, String sql, List<List<Object>> parameters) throws SQLException;
     
     /**
      * Get revert result.
      *
-     * @param datasource datasource name
+     * @param datasourceName data source name
      * @param sql execute SQL
-     * @param params SQL params array
+     * @param parameters SQL parameters
      * @return revert result
      * @throws SQLException SQL exception
      */
-    RevertResult revert(String datasource, String sql, Object[] params) throws SQLException;
+    RevertResult revert(String datasourceName, String sql, Object[] parameters) throws SQLException;
     
 }

@@ -37,10 +37,10 @@ public final class RevertEngineImpl implements RevertEngine {
     private final Map<String, Connection> connectionMap;
     
     @Override
-    public RevertResult revert(final String datasource, final String sql, final List<List<Object>> params) {
+    public RevertResult revert(final String datasourceName, final String sql, final List<List<Object>> parameters) {
         RevertResult result = new RevertResult();
         result.setRevertSQL("");
-        for (List<Object> each : params) {
+        for (List<Object> each : parameters) {
             // TODO use new SnapShotEngine to get revert result.
             result.getRevertSQLParams().add(new ArrayList<>());
         }
@@ -48,7 +48,7 @@ public final class RevertEngineImpl implements RevertEngine {
     }
     
     @Override
-    public RevertResult revert(final String datasource, final String sql, final Object[] params) {
+    public RevertResult revert(final String datasourceName, final String sql, final Object[] parameters) {
         RevertResult result = new RevertResult();
         result.setRevertSQL(sql);
         return result;

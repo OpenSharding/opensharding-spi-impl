@@ -39,15 +39,15 @@ public class EmptySQLTransport implements SQLTransport {
      * empty SQL transport in transaction.
      * Just print log.
      *
-     * @param datasource data source name for each SQL
+     * @param datasourceName data source name
      * @param sql SQL in transaction
-     * @param params parameters for SQL
+     * @param parameters parameters for SQL
      * @return saga execute response
      */
     @Override
-    public SagaResponse with(final String datasource, final String sql, final List<List<String>> params) {
+    public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> parameters) {
         log.warn("This is empty SQLTransport, SQL will not be executed actually.");
-        log.info("SQL: " + sql + " param: " + Joiner.on(',').join(params) + " for datasource:" + datasource);
+        log.info("SQL: " + sql + " param: " + Joiner.on(',').join(parameters) + " for datasource:" + datasourceName);
         return new JsonSuccessfulSagaResponse("{}");
     }
 }
