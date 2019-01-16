@@ -22,6 +22,7 @@ import io.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import io.shardingsphere.core.routing.RouteUnit;
 import io.shardingsphere.spi.executor.SQLExecutionHook;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
@@ -35,16 +36,14 @@ import java.util.Map;
  */
 public final class SagaSQLExecutionHook implements SQLExecutionHook {
     
-    private static final String TRANSACTION_KEY = "transaction";
-    
     private SagaTransaction sagaTransaction;
     
     private SagaBranchTransaction sagaBranchTransaction;
     
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
-        if (shardingExecuteDataMap.containsKey(TRANSACTION_KEY)) {
-            sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(TRANSACTION_KEY);
+        if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.TRANSACTION_KEY)) {
+            sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.TRANSACTION_KEY);
             sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
             sagaTransaction.recordStart(sagaBranchTransaction);
         }

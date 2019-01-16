@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public final class SagaShardingTransactionManager implements ShardingTransactionManager {
     
-    private static final String TRANSACTION_KEY = "transaction";
+    public static final String TRANSACTION_KEY = "transaction";
     
     private static final ThreadLocal<SagaTransaction> TRANSACTION = new ThreadLocal<>();
     

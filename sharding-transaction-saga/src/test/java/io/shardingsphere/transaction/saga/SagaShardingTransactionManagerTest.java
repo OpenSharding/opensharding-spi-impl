@@ -59,8 +59,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public final class SagaShardingTransactionManagerTest {
     
-    private final String transactionKey = "transaction";
-    
     private final SagaShardingTransactionManager sagaShardingTransactionManager = new SagaShardingTransactionManager();
     
     @Mock
@@ -127,8 +125,8 @@ public final class SagaShardingTransactionManagerTest {
     public void assertBegin() {
         sagaShardingTransactionManager.begin();
         assertNotNull(SagaShardingTransactionManager.getTransaction());
-        assertTrue(ShardingExecuteDataMap.getDataMap().containsKey(transactionKey));
-        assertThat(ShardingExecuteDataMap.getDataMap().get(transactionKey), instanceOf(SagaTransaction.class));
+        assertTrue(ShardingExecuteDataMap.getDataMap().containsKey(SagaShardingTransactionManager.TRANSACTION_KEY));
+        assertThat(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.TRANSACTION_KEY), instanceOf(SagaTransaction.class));
         assertThat(ShardingTransportFactory.getInstance().getTransport(), instanceOf(ShardingSQLTransport.class));
     }
     
@@ -148,7 +146,7 @@ public final class SagaShardingTransactionManagerTest {
         sagaShardingTransactionManager.begin();
         Field containExceptionField = SagaTransaction.class.getDeclaredField("containException");
         containExceptionField.setAccessible(true);
-        containExceptionField.set(ShardingExecuteDataMap.getDataMap().get(transactionKey), true);
+        containExceptionField.set(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.TRANSACTION_KEY), true);
         sagaShardingTransactionManager.commit();
         verify(sagaExecutionComponent).run(anyString());
         assertNull(SagaShardingTransactionManager.getTransaction());

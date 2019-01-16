@@ -23,6 +23,7 @@ import io.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorException
 import io.shardingsphere.core.routing.RouteUnit;
 import io.shardingsphere.core.routing.SQLUnit;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
@@ -55,7 +56,7 @@ public final class SagaSQLExecutionHookTest {
     @Before
     public void setUp() {
         Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("transaction", sagaTransaction);
+        dataMap.put(SagaShardingTransactionManager.TRANSACTION_KEY, sagaTransaction);
         ShardingExecuteDataMap.setDataMap(dataMap);
     }
     
