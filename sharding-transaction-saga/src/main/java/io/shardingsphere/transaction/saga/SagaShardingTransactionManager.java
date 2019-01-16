@@ -19,12 +19,12 @@ package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.core.constant.DatabaseType;
 import io.shardingsphere.core.executor.ShardingExecuteDataMap;
-import io.shardingsphere.transaction.api.TransactionType;
+import io.shardingsphere.transaction.core.TransactionType;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.manager.SagaResourceManager;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
-import io.shardingsphere.transaction.spi.ShardingTransactionEngine;
+import io.shardingsphere.transaction.spi.ShardingTransactionManager;
 import lombok.SneakyThrows;
 
 import javax.sql.DataSource;
@@ -33,11 +33,11 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- * Sharding transaction engine for Saga.
+ * Sharding transaction manager for Saga.
  *
  * @author yangyi
  */
-public final class SagaShardingTransactionEngine implements ShardingTransactionEngine {
+public final class SagaShardingTransactionManager implements ShardingTransactionManager {
     
     private static final String TRANSACTION_KEY = "transaction";
     
@@ -47,7 +47,7 @@ public final class SagaShardingTransactionEngine implements ShardingTransactionE
     
     private final SagaResourceManager resourceManager;
     
-    public SagaShardingTransactionEngine() {
+    public SagaShardingTransactionManager() {
         sagaConfiguration = SagaConfigurationLoader.load();
         resourceManager = new SagaResourceManager(sagaConfiguration);
     }

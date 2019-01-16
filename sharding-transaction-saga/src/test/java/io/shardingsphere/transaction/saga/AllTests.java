@@ -28,7 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        SagaShardingTransactionEngineTest.class, 
+        SagaShardingTransactionManagerTest.class, 
         SagaConfigurationLoaderTest.class, 
         SagaTransactionTest.class, 
         SagaBranchTransactionTest.class,
