@@ -37,7 +37,7 @@ public final class SagaSQLParsingHook implements ParsingHook {
     @Override
     public void finishSuccess() {
         if (null != sagaTransaction) {
-            sagaTransaction.nextLogicSQL();
+            sagaTransaction.nextBranchTransactionGroup();
         }
     }
     

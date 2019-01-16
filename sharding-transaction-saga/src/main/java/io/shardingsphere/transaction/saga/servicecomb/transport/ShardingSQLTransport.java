@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.servicecomb.transport;
 
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.SagaSubTransaction;
+import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
@@ -44,7 +44,7 @@ public final class ShardingSQLTransport implements SQLTransport {
     
     @Override
     public SagaResponse with(final String datasource, final String sql, final List<List<String>> params) {
-        SagaSubTransaction subTransaction = new SagaSubTransaction(datasource, sql, copyList(params));
+        SagaBranchTransaction subTransaction = new SagaBranchTransaction(datasource, sql, copyList(params));
         return isExecutionSuccess(subTransaction) ? new JsonSuccessfulSagaResponse("{}") : executeFromDataSource(subTransaction);
     }
     
@@ -56,11 +56,11 @@ public final class ShardingSQLTransport implements SQLTransport {
         return result;
     }
     
-    private boolean isExecutionSuccess(final SagaSubTransaction subTransaction) {
+    private boolean isExecutionSuccess(final SagaBranchTransaction subTransaction) {
         return sagaTransaction.getExecutionResultMap().containsKey(subTransaction) && ExecuteStatus.SUCCESS == sagaTransaction.getExecutionResultMap().get(subTransaction);
     }
     
-    private SagaResponse executeFromDataSource(final SagaSubTransaction subTransaction) {
+    private SagaResponse executeFromDataSource(final SagaBranchTransaction subTransaction) {
         Connection connection = getConnectionFromConnectionMap(subTransaction.getDataSourceName());
         try (PreparedStatement statement = connection.prepareStatement(subTransaction.getSql())) {
             if (subTransaction.getParameterSets().isEmpty()) {

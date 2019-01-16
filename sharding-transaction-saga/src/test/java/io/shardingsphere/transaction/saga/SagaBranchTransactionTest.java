@@ -24,7 +24,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public final class SagaSubTransactionTest {
+public final class SagaBranchTransactionTest {
     
     private String ds = "ds";
     
@@ -32,23 +32,23 @@ public final class SagaSubTransactionTest {
     
     @Test
     public void assertHashCode() {
-        SagaSubTransaction sagaSubTransaction = new SagaSubTransaction(ds, sql, getStringParams());
-        assertTrue(new SagaSubTransaction(ds, sql, getStringParams()).hashCode() == sagaSubTransaction.hashCode());
-        assertTrue(new SagaSubTransaction(ds, sql, getMixedParams()).hashCode() == sagaSubTransaction.hashCode());
+        SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(ds, sql, getStringParams());
+        assertTrue(new SagaBranchTransaction(ds, sql, getStringParams()).hashCode() == sagaBranchTransaction.hashCode());
+        assertTrue(new SagaBranchTransaction(ds, sql, getMixedParams()).hashCode() == sagaBranchTransaction.hashCode());
     }
     
     @Test
     public void assertEquals() {
-        SagaSubTransaction sagaSubTransaction = new SagaSubTransaction(ds, sql, getStringParams());
-        assertTrue(sagaSubTransaction.equals(new SagaSubTransaction(ds, sql, getStringParams())));
-        assertTrue(sagaSubTransaction.equals(new SagaSubTransaction(ds, sql, getMixedParams())));
+        SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(ds, sql, getStringParams());
+        assertTrue(sagaBranchTransaction.equals(new SagaBranchTransaction(ds, sql, getStringParams())));
+        assertTrue(sagaBranchTransaction.equals(new SagaBranchTransaction(ds, sql, getMixedParams())));
     }
     
     @Test
     public void assertToString() {
-        SagaSubTransaction sagaSubTransaction = new SagaSubTransaction(ds, sql, getStringParams());
-        assertTrue(new SagaSubTransaction(ds, sql, getStringParams()).toString().equals(sagaSubTransaction.toString()));
-        assertTrue(new SagaSubTransaction(ds, sql, getMixedParams()).toString().equals(sagaSubTransaction.toString()));
+        SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(ds, sql, getStringParams());
+        assertTrue(new SagaBranchTransaction(ds, sql, getStringParams()).toString().equals(sagaBranchTransaction.toString()));
+        assertTrue(new SagaBranchTransaction(ds, sql, getMixedParams()).toString().equals(sagaBranchTransaction.toString()));
     }
     
     private List<List<Object>> getStringParams() {

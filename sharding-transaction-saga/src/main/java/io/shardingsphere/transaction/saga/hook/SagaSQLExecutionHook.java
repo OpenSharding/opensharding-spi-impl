@@ -21,7 +21,7 @@ import io.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorException
 import io.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import io.shardingsphere.core.routing.RouteUnit;
 import io.shardingsphere.spi.executor.SQLExecutionHook;
-import io.shardingsphere.transaction.saga.SagaSubTransaction;
+import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
@@ -39,29 +39,29 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     
     private SagaTransaction sagaTransaction;
     
-    private SagaSubTransaction sagaSubTransaction;
+    private SagaBranchTransaction sagaBranchTransaction;
     
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
         if (shardingExecuteDataMap.containsKey(TRANSACTION_KEY)) {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(TRANSACTION_KEY);
-            sagaSubTransaction = new SagaSubTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
-            sagaTransaction.recordStart(sagaSubTransaction);
+            sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
+            sagaTransaction.recordStart(sagaBranchTransaction);
         }
     }
     
     @Override
     public void finishSuccess() {
-        if (null != sagaTransaction && null != sagaSubTransaction) {
-            sagaTransaction.recordResult(sagaSubTransaction, ExecuteStatus.SUCCESS);
+        if (null != sagaTransaction && null != sagaBranchTransaction) {
+            sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         }
     }
     
     @Override
     public void finishFailure(final Exception cause) {
-        if (null != sagaTransaction && null != sagaSubTransaction) {
+        if (null != sagaTransaction && null != sagaBranchTransaction) {
             ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getSagaConfiguration().getRecoveryPolicy()));
-            sagaTransaction.recordResult(sagaSubTransaction, ExecuteStatus.FAILURE);
+            sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
         }
     }
 }

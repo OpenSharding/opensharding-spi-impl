@@ -49,44 +49,44 @@ public final class SagaTransactionTest {
     
     @Test
     public void assertNextLogicSQL() {
-        sagaTransaction.nextLogicSQL();
-        assertNotNull(sagaTransaction.getCurrentLogicSQL());
-        assertThat(sagaTransaction.getLogicSQLs().size(), is(1));
-        sagaTransaction.nextLogicSQL();
-        assertThat(sagaTransaction.getLogicSQLs().size(), is(2));
+        sagaTransaction.nextBranchTransactionGroup();
+        assertNotNull(sagaTransaction.getSagaBranchTransactionGroup());
+        assertThat(sagaTransaction.getSagaBranchTransactionGroups().size(), is(1));
+        sagaTransaction.nextBranchTransactionGroup();
+        assertThat(sagaTransaction.getSagaBranchTransactionGroups().size(), is(2));
     }
     
     @Test
     public void assertRecordResult() {
-        sagaTransaction.nextLogicSQL();
-        SagaSubTransaction sagaSubTransaction = mock(SagaSubTransaction.class);
-        sagaTransaction.recordStart(sagaSubTransaction);
+        sagaTransaction.nextBranchTransactionGroup();
+        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        sagaTransaction.recordStart(sagaBranchTransaction);
         assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecuteStatus.EXECUTING));
+        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.EXECUTING));
         assertFalse(sagaTransaction.isContainException());
-        assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
-        sagaTransaction.recordResult(sagaSubTransaction, ExecuteStatus.SUCCESS);
+        assertThat(sagaTransaction.getSagaBranchTransactionGroup().size(), is(1));
+        sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecuteStatus.SUCCESS));
+        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.SUCCESS));
         assertFalse(sagaTransaction.isContainException());
-        assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
-        sagaTransaction.recordResult(sagaSubTransaction, ExecuteStatus.FAILURE);
+        assertThat(sagaTransaction.getSagaBranchTransactionGroup().size(), is(1));
+        sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
         assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaSubTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaSubTransaction), is(ExecuteStatus.FAILURE));
+        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.FAILURE));
         assertTrue(sagaTransaction.isContainException());
-        assertThat(sagaTransaction.getCurrentLogicSQL().size(), is(1));
+        assertThat(sagaTransaction.getSagaBranchTransactionGroup().size(), is(1));
     }
     
     @SuppressWarnings("unchecked")
     @Test
     public void assertGetSagaDefinitionBuilder() throws IOException {
-        sagaTransaction.nextLogicSQL();
-        SagaSubTransaction sagaSubTransaction = mock(SagaSubTransaction.class);
-        sagaTransaction.recordStart(sagaSubTransaction);
-        sagaTransaction.recordResult(sagaSubTransaction, ExecuteStatus.SUCCESS);
+        sagaTransaction.nextBranchTransactionGroup();
+        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        sagaTransaction.recordStart(sagaBranchTransaction);
+        sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         SagaDefinitionBuilder builder = sagaTransaction.getSagaDefinitionBuilder();
         ObjectMapper jacksonObjectMapper = new ObjectMapper();
         Map sagaDefinitionMap = jacksonObjectMapper.readValue(builder.build(), Map.class);
