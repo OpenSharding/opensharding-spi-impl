@@ -25,6 +25,7 @@ import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import javax.transaction.Status;
 
@@ -87,12 +88,10 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
         cleanTransaction();
     }
     
+    @SneakyThrows
     private void submitToActuator() {
-        try {
-            String json = transaction.get().getSagaDefinitionBuilder().build();
-            resourceManager.getSagaExecutionComponent().run(json);
-        } catch (JsonProcessingException ignored) {
-        }
+        String json = transaction.get().getSagaDefinitionBuilder().build();
+        resourceManager.getSagaExecutionComponent().run(json);
     }
     
     private void cleanTransaction() {
