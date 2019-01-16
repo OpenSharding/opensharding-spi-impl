@@ -55,9 +55,7 @@ public final class SagaShardingTransactionEngine implements ShardingTransactionE
     @Override
     public Connection getConnection(final String dataSourceName) throws SQLException {
         Connection result = sagaTransactionManager.getResourceManager().getConnection(dataSourceName);
-        if (null != sagaTransactionManager.getTransaction()) {
-            sagaTransactionManager.getTransaction().getConnectionMap().putIfAbsent(dataSourceName, result);
-        }
+        sagaTransactionManager.getTransaction().getConnectionMap().putIfAbsent(dataSourceName, result);
         return result;
     }
     
