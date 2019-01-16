@@ -19,7 +19,6 @@ package io.shardingsphere.transaction.saga.manager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.shardingsphere.core.executor.ShardingExecuteDataMap;
-import io.shardingsphere.transaction.core.ShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
@@ -35,7 +34,7 @@ import javax.transaction.Status;
  * @author yangyi
  */
 @Getter
-public final class SagaTransactionManager implements ShardingTransactionManager {
+public final class SagaTransactionManager {
     
     private static final String TRANSACTION_KEY = "transaction";
     
@@ -61,7 +60,9 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
         return INSTANCE;
     }
     
-    @Override
+    /**
+     * Begin transaction.
+     */
     public void begin() {
         if (null == TRANSACTION.get()) {
             SagaTransaction transaction = new SagaTransaction(sagaConfiguration, resourceManager.getSagaPersistence());
@@ -71,7 +72,9 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
         }
     }
     
-    @Override
+    /**
+     * Commit transaction.
+     */
     public void commit() {
         if (null != TRANSACTION.get() && TRANSACTION.get().isContainException()) {
             submitToActuator();
@@ -79,7 +82,9 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
         cleanTransaction();
     }
     
-    @Override
+    /**
+     * Rollback transaction.
+     */
     public void rollback() {
         if (null != TRANSACTION.get()) {
             submitToActuator();
@@ -104,7 +109,11 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
         TRANSACTION.remove();
     }
     
-    @Override
+    /**
+     * Get transaction status.
+     * 
+     * @return transaction status, {@see javax.transaction.Status}
+     */
     public int getStatus() {
         return null == TRANSACTION.get() ? Status.STATUS_NO_TRANSACTION : Status.STATUS_ACTIVE;
     }
