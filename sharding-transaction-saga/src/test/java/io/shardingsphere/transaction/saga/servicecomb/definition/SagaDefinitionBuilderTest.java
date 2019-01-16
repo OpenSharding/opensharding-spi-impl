@@ -18,6 +18,7 @@
 package io.shardingsphere.transaction.saga.servicecomb.definition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,7 +78,7 @@ public final class SagaDefinitionBuilderTest {
     
     @Before
     public void setUp() {
-        builder = new SagaDefinitionBuilder("ForwardRecovery", 5, 5, 5000);
+        builder = new SagaDefinitionBuilder(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, 5, 5, 5000);
     }
     
     @Test
