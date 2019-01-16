@@ -22,7 +22,7 @@ import io.shardingsphere.core.executor.ShardingExecuteDataMap;
 import io.shardingsphere.transaction.core.TransactionType;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
-import io.shardingsphere.transaction.saga.manager.SagaResourceManager;
+import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
 import io.shardingsphere.transaction.spi.ShardingTransactionManager;
 import lombok.SneakyThrows;

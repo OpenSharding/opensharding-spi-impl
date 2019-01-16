@@ -15,7 +15,7 @@
  * </p>
  */
 
-package io.shardingsphere.transaction.saga.manager;
+package io.shardingsphere.transaction.saga.resource;
 
 import io.shardingsphere.core.exception.ShardingException;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
