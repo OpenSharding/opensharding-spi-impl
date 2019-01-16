@@ -97,7 +97,9 @@ public final class SagaTransaction {
      * @param executeStatus execute status
      */
     public void recordResult(final SagaSubTransaction sagaSubTransaction, final ExecuteStatus executeStatus) {
-        containException = ExecuteStatus.FAILURE == executeStatus;
+        if (ExecuteStatus.FAILURE == executeStatus) {
+            containException = true;
+        }
         persistence.updateSnapshotStatus(id, sagaSubTransaction.hashCode(), executeStatus);
         executionResultMap.put(sagaSubTransaction, executeStatus);
     }
