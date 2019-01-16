@@ -70,9 +70,9 @@ public final class SagaTransaction {
     private volatile boolean containException;
     
     /**
-     * Record start for sub transaction.
+     * Record start for branch transaction.
      *
-     * @param sagaBranchTransaction saga sub transaction
+     * @param sagaBranchTransaction saga branch transaction
      */
     public void recordStart(final SagaBranchTransaction sagaBranchTransaction) {
         sagaBranchTransactionGroup.add(sagaBranchTransaction);
@@ -93,9 +93,9 @@ public final class SagaTransaction {
     }
     
     /**
-     * Record result for sub transaction.
+     * Record result for branch transaction.
      *
-     * @param sagaBranchTransaction saga sub transaction
+     * @param sagaBranchTransaction saga branch transaction
      * @param executeStatus execute status
      */
     public void recordResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
@@ -107,7 +107,7 @@ public final class SagaTransaction {
     }
     
     /**
-     * Transaction start next logic SQL.
+     * Go to next branch transaction group.
      */
     public void nextBranchTransactionGroup() {
         sagaBranchTransactionGroup = new ConcurrentLinkedQueue<>();

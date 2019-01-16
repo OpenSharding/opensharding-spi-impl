@@ -24,7 +24,7 @@ import lombok.ToString;
 import java.util.List;
 
 /**
- * Saga sub transaction.
+ * Saga branch transaction.
  *
  * @author yangyi
  */
