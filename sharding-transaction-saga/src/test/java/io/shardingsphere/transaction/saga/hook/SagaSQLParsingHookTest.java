@@ -46,6 +46,6 @@ public final class SagaSQLParsingHookTest {
     @Test
     public void assertFinishSuccess() {
         sagaSQLParsingHook.finishSuccess();
-        verify(sagaTransaction).nextLogicSQL();
+        verify(sagaTransaction).nextBranchTransactionGroup();
     }
 }

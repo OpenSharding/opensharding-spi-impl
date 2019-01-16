@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.SagaSubTransaction;
+import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import org.apache.servicecomb.saga.core.TransportFailedException;
@@ -131,8 +131,8 @@ public final class ShardingSQLTransportTest {
     }
     
     private void recordMockResult(final List<List<String>> params, final ExecuteStatus executionResult) {
-        Map<SagaSubTransaction, ExecuteStatus> resultMap = new ConcurrentHashMap<>();
-        resultMap.put(new SagaSubTransaction(dataSourceName, sql, copyList(params)), executionResult);
+        Map<SagaBranchTransaction, ExecuteStatus> resultMap = new ConcurrentHashMap<>();
+        resultMap.put(new SagaBranchTransaction(dataSourceName, sql, copyList(params)), executionResult);
         when(sagaTransaction.getExecutionResultMap()).thenReturn(resultMap);
     }
     

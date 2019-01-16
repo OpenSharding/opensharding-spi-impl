@@ -31,7 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @ToString
-public final class SagaSubTransaction {
+public final class SagaBranchTransaction {
     
     private final String dataSourceName;
     
@@ -46,6 +46,6 @@ public final class SagaSubTransaction {
     
     @Override
     public boolean equals(final Object obj) {
-        return this == obj || obj instanceof SagaSubTransaction && this.toString().equals(obj.toString());
+        return this == obj || obj instanceof SagaBranchTransaction && this.toString().equals(obj.toString());
     }
 }

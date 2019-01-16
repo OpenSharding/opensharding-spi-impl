@@ -59,55 +59,59 @@ public final class SagaTransaction {
     
     private final ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
     
-    private final Map<SagaSubTransaction, ExecuteStatus> executionResultMap = new ConcurrentHashMap<>();
+    private final Map<SagaBranchTransaction, ExecuteStatus> executionResultMap = new ConcurrentHashMap<>();
     
-    private final Map<SagaSubTransaction, RevertResult> revertResultMap = new ConcurrentHashMap<>();
+    private final Map<SagaBranchTransaction, RevertResult> revertResultMap = new ConcurrentHashMap<>();
     
-    private final List<Queue<SagaSubTransaction>> logicSQLs = new LinkedList<>();
+    private final List<Queue<SagaBranchTransaction>> sagaBranchTransactionGroups = new LinkedList<>();
     
-    private Queue<SagaSubTransaction> currentLogicSQL;
+    private Queue<SagaBranchTransaction> sagaBranchTransactionGroup;
     
     private volatile boolean containException;
     
     /**
      * Record start for sub transaction.
      *
-     * @param sagaSubTransaction saga sub transaction
+     * @param sagaBranchTransaction saga sub transaction
      */
-    public void recordStart(final SagaSubTransaction sagaSubTransaction) {
-        currentLogicSQL.add(sagaSubTransaction);
-        sqlRevert(sagaSubTransaction);
-        persistence.persistSnapshot(new SagaSnapshot(id, sagaSubTransaction.hashCode(), sagaSubTransaction.toString(), revertResultMap.get(sagaSubTransaction).toString(), ExecuteStatus.EXECUTING));
-        executionResultMap.put(sagaSubTransaction, ExecuteStatus.EXECUTING);
+    public void recordStart(final SagaBranchTransaction sagaBranchTransaction) {
+        sagaBranchTransactionGroup.add(sagaBranchTransaction);
+        sqlRevert(sagaBranchTransaction);
+        persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction.toString(), revertResultMap.get(
+            sagaBranchTransaction).toString(), ExecuteStatus.EXECUTING));
+        executionResultMap.put(sagaBranchTransaction, ExecuteStatus.EXECUTING);
     }
     
-    private void sqlRevert(final SagaSubTransaction sagaSubTransaction) {
+    private void sqlRevert(final SagaBranchTransaction sagaBranchTransaction) {
         RevertEngine revertEngine = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy()) ? new EmptyRevertEngine() : new RevertEngineImpl(connectionMap);
         try {
-            revertResultMap.put(sagaSubTransaction, revertEngine.revert(sagaSubTransaction.getDataSourceName(), sagaSubTransaction.getSql(), sagaSubTransaction.getParameterSets()));
+            revertResultMap.put(sagaBranchTransaction, revertEngine.revert(sagaBranchTransaction.getDataSourceName(), sagaBranchTransaction
+                .getSql(), sagaBranchTransaction.getParameterSets()));
         } catch (SQLException ex) {
-            throw new ShardingException(String.format("Revert SQL %s failed: ", sagaSubTransaction.toString()), ex);
+            throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
         }
     }
     
     /**
      * Record result for sub transaction.
      *
-     * @param sagaSubTransaction saga sub transaction
+     * @param sagaBranchTransaction saga sub transaction
      * @param executeStatus execute status
      */
-    public void recordResult(final SagaSubTransaction sagaSubTransaction, final ExecuteStatus executeStatus) {
-        containException = ExecuteStatus.FAILURE == executeStatus;
-        persistence.updateSnapshotStatus(id, sagaSubTransaction.hashCode(), executeStatus);
-        executionResultMap.put(sagaSubTransaction, executeStatus);
+    public void recordResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
+        if (ExecuteStatus.FAILURE == executeStatus) {
+            containException = true;
+        }
+        persistence.updateSnapshotStatus(id, sagaBranchTransaction.hashCode(), executeStatus);
+        executionResultMap.put(sagaBranchTransaction, executeStatus);
     }
     
     /**
      * Transaction start next logic SQL.
      */
-    public void nextLogicSQL() {
-        currentLogicSQL = new ConcurrentLinkedQueue<>();
-        logicSQLs.add(currentLogicSQL);
+    public void nextBranchTransactionGroup() {
+        sagaBranchTransactionGroup = new ConcurrentLinkedQueue<>();
+        sagaBranchTransactionGroups.add(sagaBranchTransactionGroup);
     }
     
     /**
@@ -118,15 +122,15 @@ public final class SagaTransaction {
     public SagaDefinitionBuilder getSagaDefinitionBuilder() {
         SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(), 
                 sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelay());
-        for (Queue<SagaSubTransaction> each : logicSQLs) {
+        for (Queue<SagaBranchTransaction> each : sagaBranchTransactionGroups) {
             result.switchParents();
-            initSagaDefinitionForLogicSQL(result, each);
+            initSagaDefinitionForGroup(result, each);
         }
         return result;
     }
     
-    private void initSagaDefinitionForLogicSQL(final SagaDefinitionBuilder sagaDefinitionBuilder, final Queue<SagaSubTransaction> sagaSubTransactions) {
-        for (SagaSubTransaction each : sagaSubTransactions) {
+    private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final Queue<SagaBranchTransaction> sagaBranchTransactionGroup) {
+        for (SagaBranchTransaction each : sagaBranchTransactionGroup) {
             RevertResult revertResult = revertResultMap.get(each);
             sagaDefinitionBuilder.addChildRequest(
                     String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getRevertSQL(), revertResult.getRevertSQLParams());

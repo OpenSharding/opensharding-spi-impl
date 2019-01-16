@@ -22,7 +22,7 @@ import io.shardingsphere.core.executor.ShardingExecuteDataMap;
 import io.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorExceptionHandler;
 import io.shardingsphere.core.routing.RouteUnit;
 import io.shardingsphere.core.routing.SQLUnit;
-import io.shardingsphere.transaction.saga.SagaSubTransaction;
+import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
@@ -62,14 +62,14 @@ public final class SagaSQLExecutionHookTest {
     @Test
     public void assertStart() {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
-        verify(sagaTransaction).recordStart(any(SagaSubTransaction.class));
+        verify(sagaTransaction).recordStart(any(SagaBranchTransaction.class));
     }
     
     @Test
     public void assertFinishSuccess() {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishSuccess();
-        verify(sagaTransaction).recordResult(any(SagaSubTransaction.class), eq(ExecuteStatus.SUCCESS));
+        verify(sagaTransaction).recordResult(any(SagaBranchTransaction.class), eq(ExecuteStatus.SUCCESS));
     }
     
     @Test
@@ -77,7 +77,7 @@ public final class SagaSQLExecutionHookTest {
         when(sagaTransaction.getSagaConfiguration()).thenReturn(new SagaConfiguration());
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
-        verify(sagaTransaction).recordResult(any(SagaSubTransaction.class), eq(ExecuteStatus.FAILURE));
+        verify(sagaTransaction).recordResult(any(SagaBranchTransaction.class), eq(ExecuteStatus.FAILURE));
         
         assertFalse(ExecutorExceptionHandler.isExceptionThrown());
     }

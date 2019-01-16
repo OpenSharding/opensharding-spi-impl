@@ -52,7 +52,7 @@ public final class EmptySagaPersistence implements SagaPersistence {
     
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
-        return new HashMap<>();
+        return new HashMap<>(1);
     }
     
     @Override
