@@ -35,6 +35,7 @@ public class SagaEventRepository {
     
     /**
      * Insert new saga event.
+     *
      * @param sagaEventEntity saga event entity
      */
     public void insert(final SagaEventEntity sagaEventEntity) {
