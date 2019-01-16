@@ -22,9 +22,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({
-        SagaResourceManagerTest.class,
-        SagaTransactionManagerTest.class
-})
+@SuiteClasses(SagaResourceManagerTest.class)
 public final class AllManagerTests {
 }
