@@ -133,7 +133,7 @@ public final class SagaTransaction {
         for (SagaBranchTransaction each : sagaBranchTransactionGroup) {
             RevertResult revertResult = revertResultMap.get(each);
             sagaDefinitionBuilder.addChildRequest(
-                    String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getRevertSQL(), revertResult.getRevertSQLParams());
+                    String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getRevertSQL(), revertResult.getRevertSQLParameters());
         }
     }
     

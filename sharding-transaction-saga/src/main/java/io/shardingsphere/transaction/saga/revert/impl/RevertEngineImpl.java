@@ -42,7 +42,7 @@ public final class RevertEngineImpl implements RevertEngine {
         result.setRevertSQL("");
         for (List<Object> each : parameters) {
             // TODO use new SnapShotEngine to get revert result.
-            result.getRevertSQLParams().add(new ArrayList<>());
+            result.getRevertSQLParameters().add(new ArrayList<>());
         }
         return result;
     }

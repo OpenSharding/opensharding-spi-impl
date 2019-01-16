@@ -34,13 +34,13 @@ import static org.junit.Assert.assertThat;
 
 public final class SagaDefinitionBuilderTest {
     
-    private static final List<List<Object>> INSERT_PARAMS = new ArrayList<>();
+    private static final List<List<Object>> INSERT_PARAMETERS = new ArrayList<>();
     
-    private static final List<Collection<Object>> DELETE_PARAMS = new ArrayList<>();
+    private static final List<Collection<Object>> DELETE_PARAMETERS = new ArrayList<>();
     
-    private static final List<List<Object>> UPDATE_PARAMS = new ArrayList<>();
+    private static final List<List<Object>> UPDATE_PARAMETERS = new ArrayList<>();
     
-    private static final List<Collection<Object>> UPDATE_C_PARAMS = new ArrayList<>();
+    private static final List<Collection<Object>> UPDATE_C_PARAMETERS = new ArrayList<>();
     
     private static final String EXAMPLE_INSERT_SQL = "INSERT INTO TABLE ds_0.tb_0 (id, value) VALUES (?, ?)";
     
@@ -70,10 +70,10 @@ public final class SagaDefinitionBuilderTest {
     
     @BeforeClass
     public static void setUpClass() {
-        INSERT_PARAMS.add(Arrays.<Object>asList(1, "xxx"));
-        DELETE_PARAMS.add(Collections.<Object>singletonList(1));
-        UPDATE_PARAMS.add(Arrays.<Object>asList("yyy", 2));
-        UPDATE_C_PARAMS.add(Arrays.<Object>asList("xxx", 2));
+        INSERT_PARAMETERS.add(Arrays.<Object>asList(1, "xxx"));
+        DELETE_PARAMETERS.add(Collections.<Object>singletonList(1));
+        UPDATE_PARAMETERS.add(Arrays.<Object>asList("yyy", 2));
+        UPDATE_C_PARAMETERS.add(Arrays.<Object>asList("xxx", 2));
     }
     
     @Before
@@ -88,17 +88,17 @@ public final class SagaDefinitionBuilderTest {
     
     @Test
     public void assertAddChildRequestAndBuild() throws JsonProcessingException {
-        builder.addChildRequest("1", "ds_0", EXAMPLE_INSERT_SQL, INSERT_PARAMS, EXAMPLE_DELETE_SQL, DELETE_PARAMS);
+        builder.addChildRequest("1", "ds_0", EXAMPLE_INSERT_SQL, INSERT_PARAMETERS, EXAMPLE_DELETE_SQL, DELETE_PARAMETERS);
         assertThat(builder.build(), is(EXPECT_SINGLE_SQL_DEFINITION));
-        builder.addChildRequest("2", "ds_1", EXAMPLE_UPDATE_SQL, UPDATE_PARAMS, EXAMPLE_UPDATE_SQL, UPDATE_C_PARAMS);
+        builder.addChildRequest("2", "ds_1", EXAMPLE_UPDATE_SQL, UPDATE_PARAMETERS, EXAMPLE_UPDATE_SQL, UPDATE_C_PARAMETERS);
         assertThat(builder.build(), is(EXPECT_DOUBLE_SQL_DEFINITION));
     }
     
     @Test
     public void assertSwitchParents() throws JsonProcessingException {
-        builder.addChildRequest("1", "ds_0", EXAMPLE_INSERT_SQL, INSERT_PARAMS, EXAMPLE_DELETE_SQL, DELETE_PARAMS);
+        builder.addChildRequest("1", "ds_0", EXAMPLE_INSERT_SQL, INSERT_PARAMETERS, EXAMPLE_DELETE_SQL, DELETE_PARAMETERS);
         builder.switchParents();
-        builder.addChildRequest("2", "ds_1", EXAMPLE_UPDATE_SQL, UPDATE_PARAMS, EXAMPLE_UPDATE_SQL, UPDATE_C_PARAMS);
+        builder.addChildRequest("2", "ds_1", EXAMPLE_UPDATE_SQL, UPDATE_PARAMETERS, EXAMPLE_UPDATE_SQL, UPDATE_C_PARAMETERS);
         assertThat(builder.build(), is(EXPECT_PARENTS_SQL_DEFINITION));
     }
     
