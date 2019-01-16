@@ -121,7 +121,7 @@ public final class SagaTransaction {
      */
     public SagaDefinitionBuilder getSagaDefinitionBuilder() {
         SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(), 
-                sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelay());
+                sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
         for (Queue<SagaBranchTransaction> each : sagaBranchTransactionGroups) {
             result.switchParents();
             initSagaDefinitionForGroup(result, each);

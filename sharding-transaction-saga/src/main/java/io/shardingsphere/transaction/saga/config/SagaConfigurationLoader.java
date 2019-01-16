@@ -88,13 +88,13 @@ public final class SagaConfigurationLoader {
         if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
             result.setCompensationMaxRetries(Integer.parseInt(compensationMaxRetries));
         }
-        String transactionRetryDelay = sagaProperties.getProperty(TRANSACTION_RETRY_DELAY_MILLISECONDS);
+        String transactionRetryDelayMilliseconds = sagaProperties.getProperty(TRANSACTION_RETRY_DELAY_MILLISECONDS);
         if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
-            result.setTransactionRetryDelay(Integer.parseInt(transactionRetryDelay));
+            result.setTransactionRetryDelayMilliseconds(Integer.parseInt(transactionRetryDelayMilliseconds));
         }
-        String compensationRetryDelay = sagaProperties.getProperty(COMPENSATION_RETRY_DELAY_MILLISECONDS);
+        String compensationRetryDelayMilliseconds = sagaProperties.getProperty(COMPENSATION_RETRY_DELAY_MILLISECONDS);
         if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
-            result.setCompensationRetryDelay(Integer.parseInt(compensationRetryDelay));
+            result.setCompensationRetryDelayMilliseconds(Integer.parseInt(compensationRetryDelayMilliseconds));
         }
         String recoveryPolicy = sagaProperties.getProperty(RECOVERY_POLICY);
         if (RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(recoveryPolicy) || RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(recoveryPolicy)) {

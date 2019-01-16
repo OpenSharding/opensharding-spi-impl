@@ -39,11 +39,11 @@ public final class SagaDefinitionBuilder {
     
     private final String recoveryPolicy;
     
-    private final int transactionRetires;
+    private final int transactionMaxRetries;
     
-    private final int compensationRetires;
+    private final int compensationMaxRetries;
     
-    private final int failRetryDelay;
+    private final int transactionRetryDelayMilliseconds;
     
     private final ConcurrentLinkedQueue<SagaRequest> requests = new ConcurrentLinkedQueue<>();
     
@@ -63,9 +63,9 @@ public final class SagaDefinitionBuilder {
      */
     public void addChildRequest(final String id, final String datasource, final String sql, final List<List<Object>> params,
                                 final String compensationSQL, final List<Collection<Object>> compensationParams) {
-        Transaction transaction = new Transaction(sql, params, transactionRetires);
-        Compensation compensation = new Compensation(compensationSQL, compensationParams, compensationRetires);
-        requests.add(new SagaRequest(id, datasource, TYPE, transaction, compensation, parents, failRetryDelay));
+        Transaction transaction = new Transaction(sql, params, transactionMaxRetries);
+        Compensation compensation = new Compensation(compensationSQL, compensationParams, compensationMaxRetries);
+        requests.add(new SagaRequest(id, datasource, TYPE, transaction, compensation, parents, transactionRetryDelayMilliseconds));
         newRequestIds.add(id);
     }
     
