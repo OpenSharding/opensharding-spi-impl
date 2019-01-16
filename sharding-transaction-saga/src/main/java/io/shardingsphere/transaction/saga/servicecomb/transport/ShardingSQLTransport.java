@@ -43,8 +43,8 @@ public final class ShardingSQLTransport implements SQLTransport {
     private final SagaTransaction sagaTransaction;
     
     @Override
-    public SagaResponse with(final String datasource, final String sql, final List<List<String>> params) {
-        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasource, sql, copyList(params));
+    public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> params) {
+        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, copyList(params));
         return isExecutionSuccess(branchTransaction) ? new JsonSuccessfulSagaResponse("{}") : executeFromDataSource(branchTransaction);
     }
     
@@ -61,34 +61,38 @@ public final class ShardingSQLTransport implements SQLTransport {
     }
     
     private SagaResponse executeFromDataSource(final SagaBranchTransaction branchTransaction) {
-        Connection connection = getConnectionFromConnectionMap(branchTransaction.getDataSourceName());
-        try (PreparedStatement statement = connection.prepareStatement(branchTransaction.getSql())) {
+        Connection connection = getConnection(branchTransaction.getDataSourceName());
+        try (PreparedStatement preparedStatement = connection.prepareStatement(branchTransaction.getSql())) {
             if (branchTransaction.getParameterSets().isEmpty()) {
-                statement.executeUpdate();
+                preparedStatement.executeUpdate();
             } else {
-                for (List<Object> each : branchTransaction.getParameterSets()) {
-                    for (int parameterIndex = 0; parameterIndex < each.size(); parameterIndex++) {
-                        statement.setObject(parameterIndex + 1, each.get(parameterIndex));
-                    }
-                    statement.addBatch();
-                }
-                statement.executeBatch();
+                executeBatch(preparedStatement, branchTransaction.getParameterSets());
             }
         } catch (SQLException ex) {
-            throw new TransportFailedException(String.format("execute SQL %s occur exception: ", branchTransaction.toString()), ex);
+            throw new TransportFailedException(String.format("execute SQL `%s` occur exception: ", branchTransaction.toString()), ex);
         }
         return new JsonSuccessfulSagaResponse("{}");
     }
     
-    private Connection getConnectionFromConnectionMap(final String datasource) {
+    private Connection getConnection(final String datasourceName) {
         try {
-            Connection result = sagaTransaction.getConnectionMap().get(datasource);
+            Connection result = sagaTransaction.getConnectionMap().get(datasourceName);
             if (!result.getAutoCommit()) {
                 result.setAutoCommit(true);
             }
             return result;
-        } catch (SQLException ex) {
-            throw new TransportFailedException("get connection of [" + datasource + "] occur exception ", ex);
+        } catch (final SQLException ex) {
+            throw new TransportFailedException(String.format("Get connection of data source name `%s` occur exception: ", datasourceName), ex);
         }
+    }
+    
+    private void executeBatch(final PreparedStatement preparedStatement, final List<List<Object>> parameterSets) throws SQLException {
+        for (List<Object> each : parameterSets) {
+            for (int parameterIndex = 0; parameterIndex < each.size(); parameterIndex++) {
+                preparedStatement.setObject(parameterIndex + 1, each.get(parameterIndex));
+            }
+            preparedStatement.addBatch();
+        }
+        preparedStatement.executeBatch();
     }
 }
