@@ -98,7 +98,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     
     @Override
     public void commit() {
-        if (null != TRANSACTION.get() && TRANSACTION.get().isContainException()) {
+        if (null != TRANSACTION.get() && TRANSACTION.get().isContainsException()) {
             submitToActuator();
         }
         cleanTransaction();

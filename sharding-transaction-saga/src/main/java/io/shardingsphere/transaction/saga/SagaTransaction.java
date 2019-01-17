@@ -63,22 +63,29 @@ public final class SagaTransaction {
     
     private final Map<SagaBranchTransaction, RevertResult> revertResultMap = new ConcurrentHashMap<>();
     
-    private final List<Queue<SagaBranchTransaction>> sagaBranchTransactionGroups = new LinkedList<>();
+    private final List<Queue<SagaBranchTransaction>> branchTransactionGroups = new LinkedList<>();
     
-    private Queue<SagaBranchTransaction> sagaBranchTransactionGroup;
+    private Queue<SagaBranchTransaction> currentBranchTransactionGroup;
     
-    private volatile boolean containException;
+    private volatile boolean containsException;
     
     /**
-     * Record start for branch transaction.
+     * Go to next branch transaction group.
+     */
+    public void nextBranchTransactionGroup() {
+        currentBranchTransactionGroup = new ConcurrentLinkedQueue<>();
+        branchTransactionGroups.add(currentBranchTransactionGroup);
+    }
+    
+    /**
+     * Save new snapshot.
      *
      * @param sagaBranchTransaction saga branch transaction
      */
-    public void recordStart(final SagaBranchTransaction sagaBranchTransaction) {
-        sagaBranchTransactionGroup.add(sagaBranchTransaction);
+    public void saveNewSnapshot(final SagaBranchTransaction sagaBranchTransaction) {
+        currentBranchTransactionGroup.add(sagaBranchTransaction);
         sqlRevert(sagaBranchTransaction);
         persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResultMap.get(sagaBranchTransaction), ExecuteStatus.EXECUTING));
-        executionResultMap.put(sagaBranchTransaction, ExecuteStatus.EXECUTING);
     }
     
     private void sqlRevert(final SagaBranchTransaction sagaBranchTransaction) {
@@ -92,25 +99,24 @@ public final class SagaTransaction {
     }
     
     /**
-     * Record result for branch transaction.
+     * Update snapshot.
      *
      * @param sagaBranchTransaction saga branch transaction
      * @param executeStatus execute status
      */
-    public void recordResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        if (ExecuteStatus.FAILURE == executeStatus) {
-            containException = true;
-        }
+    public void updateSnapshot(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
         persistence.updateSnapshotStatus(id, sagaBranchTransaction.hashCode(), executeStatus);
-        executionResultMap.put(sagaBranchTransaction, executeStatus);
     }
     
     /**
-     * Go to next branch transaction group.
+     * Record execution result.
+     * 
+     * @param sagaBranchTransaction saga branch transaction
+     * @param executeStatus execute status
      */
-    public void nextBranchTransactionGroup() {
-        sagaBranchTransactionGroup = new ConcurrentLinkedQueue<>();
-        sagaBranchTransactionGroups.add(sagaBranchTransactionGroup);
+    public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
+        containsException = ExecuteStatus.FAILURE == executeStatus;
+        executionResultMap.put(sagaBranchTransaction, executeStatus);
     }
     
     /**
@@ -121,7 +127,7 @@ public final class SagaTransaction {
     public SagaDefinitionBuilder getSagaDefinitionBuilder() {
         SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(), 
                 sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
-        for (Queue<SagaBranchTransaction> each : sagaBranchTransactionGroups) {
+        for (Queue<SagaBranchTransaction> each : branchTransactionGroups) {
             result.switchParents();
             initSagaDefinitionForGroup(result, each);
         }

@@ -144,7 +144,7 @@ public final class SagaShardingTransactionManagerTest {
         when(sagaResourceManager.getSagaExecutionComponent()).thenReturn(sagaExecutionComponent);
         when(sagaResourceManager.getSagaPersistence()).thenReturn(sagaPersistence);
         sagaShardingTransactionManager.begin();
-        Field containExceptionField = SagaTransaction.class.getDeclaredField("containException");
+        Field containExceptionField = SagaTransaction.class.getDeclaredField("containsException");
         containExceptionField.setAccessible(true);
         containExceptionField.set(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.TRANSACTION_KEY), true);
         sagaShardingTransactionManager.commit();

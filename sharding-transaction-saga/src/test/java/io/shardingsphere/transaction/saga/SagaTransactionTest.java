@@ -20,11 +20,16 @@ package io.shardingsphere.transaction.saga;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.persistence.impl.EmptySagaPersistence;
+import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
+import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,48 +41,66 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+@RunWith(MockitoJUnitRunner.class)
 public final class SagaTransactionTest {
     
     private SagaTransaction sagaTransaction;
     
+    @Mock
+    private SagaPersistence persistence;
+    
     @Before
     public void setUp() {
-        sagaTransaction = new SagaTransaction(new SagaConfiguration(), new EmptySagaPersistence());
+        sagaTransaction = new SagaTransaction(new SagaConfiguration(), persistence);
     }
     
     @Test
-    public void assertNextLogicSQL() {
+    public void assertNextBranchTransactionGroup() {
         sagaTransaction.nextBranchTransactionGroup();
-        assertNotNull(sagaTransaction.getSagaBranchTransactionGroup());
-        assertThat(sagaTransaction.getSagaBranchTransactionGroups().size(), is(1));
+        assertNotNull(sagaTransaction.getCurrentBranchTransactionGroup());
+        assertThat(sagaTransaction.getBranchTransactionGroups().size(), is(1));
         sagaTransaction.nextBranchTransactionGroup();
-        assertThat(sagaTransaction.getSagaBranchTransactionGroups().size(), is(2));
+        assertThat(sagaTransaction.getBranchTransactionGroups().size(), is(2));
     }
     
     @Test
-    public void assertRecordResult() {
+    public void assertSaveNewSnapshot() {
         sagaTransaction.nextBranchTransactionGroup();
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
-        sagaTransaction.recordStart(sagaBranchTransaction);
-        assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.EXECUTING));
-        assertFalse(sagaTransaction.isContainException());
-        assertThat(sagaTransaction.getSagaBranchTransactionGroup().size(), is(1));
-        sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
-        assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.SUCCESS));
-        assertFalse(sagaTransaction.isContainException());
-        assertThat(sagaTransaction.getSagaBranchTransactionGroup().size(), is(1));
-        sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
+        sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
+        verify(persistence).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
+    }
+    
+    @Test
+    public void assertUpdateSnapshot() {
+        sagaTransaction.nextBranchTransactionGroup();
+        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
+        verify(persistence).updateSnapshotStatus(ArgumentMatchers.<String>any(), eq(sagaBranchTransaction.hashCode()), eq(ExecuteStatus.SUCCESS));
+    }
+    
+    @Test
+    public void assertUpdateExecutionResultWithContainsException() {
+        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
         assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
         assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
         assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.FAILURE));
-        assertTrue(sagaTransaction.isContainException());
-        assertThat(sagaTransaction.getSagaBranchTransactionGroup().size(), is(1));
+        assertTrue(sagaTransaction.isContainsException());
+    }
+    
+    @Test
+    public void assertUpdateExecutionResultWithoutContainsException() {
+        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
+        assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
+        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
+        assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.EXECUTING));
+        assertFalse(sagaTransaction.isContainsException());
     }
     
     @SuppressWarnings("unchecked")
@@ -85,8 +108,8 @@ public final class SagaTransactionTest {
     public void assertGetSagaDefinitionBuilder() throws IOException {
         sagaTransaction.nextBranchTransactionGroup();
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
-        sagaTransaction.recordStart(sagaBranchTransaction);
-        sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
+        sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
+        sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         SagaDefinitionBuilder builder = sagaTransaction.getSagaDefinitionBuilder();
         ObjectMapper jacksonObjectMapper = new ObjectMapper();
         Map sagaDefinitionMap = jacksonObjectMapper.readValue(builder.build(), Map.class);

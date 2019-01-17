@@ -63,14 +63,14 @@ public final class SagaSQLExecutionHookTest {
     @Test
     public void assertStart() {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
-        verify(sagaTransaction).recordStart(any(SagaBranchTransaction.class));
+        verify(sagaTransaction).saveNewSnapshot(any(SagaBranchTransaction.class));
     }
     
     @Test
     public void assertFinishSuccess() {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishSuccess();
-        verify(sagaTransaction).recordResult(any(SagaBranchTransaction.class), eq(ExecuteStatus.SUCCESS));
+        verify(sagaTransaction).updateSnapshot(any(SagaBranchTransaction.class), eq(ExecuteStatus.SUCCESS));
     }
     
     @Test
@@ -78,7 +78,7 @@ public final class SagaSQLExecutionHookTest {
         when(sagaTransaction.getSagaConfiguration()).thenReturn(new SagaConfiguration());
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
-        verify(sagaTransaction).recordResult(any(SagaBranchTransaction.class), eq(ExecuteStatus.FAILURE));
+        verify(sagaTransaction).updateSnapshot(any(SagaBranchTransaction.class), eq(ExecuteStatus.FAILURE));
         
         assertFalse(ExecutorExceptionHandler.isExceptionThrown());
     }

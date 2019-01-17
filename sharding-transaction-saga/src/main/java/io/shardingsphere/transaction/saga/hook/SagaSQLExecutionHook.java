@@ -45,14 +45,16 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.TRANSACTION_KEY)) {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.TRANSACTION_KEY);
             sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
-            sagaTransaction.recordStart(sagaBranchTransaction);
+            sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
+            sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
         }
     }
     
     @Override
     public void finishSuccess() {
         if (null != sagaTransaction && null != sagaBranchTransaction) {
-            sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
+            sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
+            sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         }
     }
     
@@ -60,7 +62,8 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     public void finishFailure(final Exception cause) {
         if (null != sagaTransaction && null != sagaBranchTransaction) {
             ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getSagaConfiguration().getRecoveryPolicy()));
-            sagaTransaction.recordResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
+            sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.FAILURE);
+            sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
         }
     }
 }
