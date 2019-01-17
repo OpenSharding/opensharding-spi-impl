@@ -37,7 +37,7 @@ import java.util.List;
 @ToString
 public final class RevertResult {
     
-    private String revertSQL;
+    private String revertSQL = "";
     
     private final List<Collection<Object>> revertSQLParameters = new ArrayList<>();
     
