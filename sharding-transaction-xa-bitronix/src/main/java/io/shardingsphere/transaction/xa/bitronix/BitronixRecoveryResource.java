@@ -37,7 +37,7 @@ import javax.transaction.xa.XAResource;
  * @author zhaojun
  */
 @RequiredArgsConstructor
-public class BitronixRecoveryResource extends ResourceBean implements XAResourceProducer {
+public final class BitronixRecoveryResource extends ResourceBean implements XAResourceProducer {
     
     private static final long serialVersionUID = 3352890484951804392L;
     
@@ -47,11 +47,17 @@ public class BitronixRecoveryResource extends ResourceBean implements XAResource
     
     private XAConnection xaConnection;
     
+    @Override
+    public void init() {
+    }
+    
+    @Override
     public String getUniqueName() {
         return resourceName;
     }
     
     @SneakyThrows
+    @Override
     public XAResourceHolderState startRecovery() {
         xaConnection = xaDataSource.getXAConnection();
         SingleXAResourceHolder singleXAResourceHolder = new SingleXAResourceHolder(xaConnection.getXAResource(), this);
@@ -59,31 +65,34 @@ public class BitronixRecoveryResource extends ResourceBean implements XAResource
     }
     
     @SneakyThrows
+    @Override
     public void endRecovery() {
         if (null != xaConnection) {
             xaConnection.close();
         }
     }
     
-    public void setFailed(boolean failed) {
+    @Override
+    public void setFailed(final boolean failed) {
     }
     
-    public XAResourceHolder findXAResourceHolder(XAResource xaResource) {
+    @Override
+    public XAResourceHolder findXAResourceHolder(final XAResource xaResource) {
         SingleXAResource singleXAResource = (SingleXAResource) xaResource;
         return resourceName.equals(singleXAResource.getResourceName()) ? new SingleXAResourceHolder(xaResource, this) : null;
     }
     
-    public void init() {
-    }
-    
-    public void close() {
-    }
-    
-    public XAStatefulHolder createPooledConnection(Object xaFactory, ResourceBean bean) {
+    @Override
+    public XAStatefulHolder createPooledConnection(final Object xaFactory, final ResourceBean bean) {
         return null;
     }
     
+    @Override
     public Reference getReference() {
         return null;
+    }
+    
+    @Override
+    public void close() {
     }
 }

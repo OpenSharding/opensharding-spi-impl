@@ -32,32 +32,38 @@ import java.util.List;
  * @author zhaojun
  */
 @RequiredArgsConstructor
-public class SingleXAResourceHolder extends AbstractXAResourceHolder {
+public final class SingleXAResourceHolder extends AbstractXAResourceHolder {
     
     private final XAResource xaResource;
     
     private final ResourceBean resourceBean;
     
+    @Override
     public XAResource getXAResource() {
         return xaResource;
     }
     
+    @Override
     public ResourceBean getResourceBean() {
         return resourceBean;
     }
     
+    @Override
     public List<XAResourceHolder> getXAResourceHolders() {
         return null;
     }
     
+    @Override
     public Object getConnectionHandle() {
         return null;
     }
     
-    public void close() {
-    }
-    
+    @Override
     public Date getLastReleaseDate() {
         return null;
+    }
+    
+    @Override
+    public void close() {
     }
 }
