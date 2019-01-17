@@ -44,11 +44,11 @@ public final class ShardingSQLTransport implements SQLTransport {
     
     @Override
     public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> parameters) {
-        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, copyList(parameters));
+        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, transferList(parameters));
         return isExecutionSuccess(branchTransaction) ? new JsonSuccessfulSagaResponse("{}") : executeSQL(branchTransaction);
     }
     
-    private List<List<Object>> copyList(final List<List<String>> origin) {
+    private List<List<Object>> transferList(final List<List<String>> origin) {
         List<List<Object>> result = Lists.newArrayList();
         for (List<String> each : origin) {
             result.add(Lists.<Object>newArrayList(each));

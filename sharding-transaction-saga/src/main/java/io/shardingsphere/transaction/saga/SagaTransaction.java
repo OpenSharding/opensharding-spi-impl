@@ -142,7 +142,7 @@ public final class SagaTransaction {
     }
     
     /**
-     * Clean snapshot in persistence.
+     * Clean snapshot.
      */
     public void cleanSnapshot() {
         persistence.cleanSnapshot(id);
