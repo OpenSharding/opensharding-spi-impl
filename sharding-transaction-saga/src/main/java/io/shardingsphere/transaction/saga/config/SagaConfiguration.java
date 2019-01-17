@@ -42,5 +42,5 @@ public final class SagaConfiguration {
     
     private String recoveryPolicy = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY;
     
-    private boolean enablePersistence;
+    private SagaPersistenceConfiguration sagaPersistenceConfiguration = new SagaPersistenceConfiguration();
 }

@@ -55,8 +55,8 @@ public final class SagaPersistenceImpl implements SagaPersistence {
         SagaSnapshotEntity snapshotEntity = new SagaSnapshotEntity();
         snapshotEntity.setTransactionId(snapshot.getTransactionId());
         snapshotEntity.setSnapshotId(snapshot.getSnapshotId());
-        snapshotEntity.setTransactionContext(snapshot.getTransactionContext());
-        snapshotEntity.setRevertContext(snapshot.getRevertContext());
+        snapshotEntity.setTransactionContext(snapshot.getTransactionContext().toString());
+        snapshotEntity.setRevertContext(snapshot.getRevertContext().toString());
         snapshotEntity.setExecuteStatus(snapshot.getExecuteStatus().name());
         sagaSnapshotRepository.insert(snapshotEntity);
     }
@@ -69,11 +69,6 @@ public final class SagaPersistenceImpl implements SagaPersistence {
     @Override
     public void cleanSnapshot(final String transactionId) {
         sagaSnapshotRepository.deleteByTransactionId(transactionId);
-    }
-    
-    @Override
-    public void cleanSagaEvent(final String sagaId) {
-        sagaEventRepository.deleteBySagaId(sagaId);
     }
     
     @Override

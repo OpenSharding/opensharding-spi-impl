@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.servicecomb;
 
 import com.google.common.util.concurrent.MoreExecutors;
-import io.shardingsphere.core.executor.ShardingThreadFactoryBuilder;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
@@ -30,6 +29,7 @@ import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import org.apache.servicecomb.saga.core.dag.GraphBasedSagaFactory;
 import org.apache.servicecomb.saga.format.ChildrenExtractor;
 import org.apache.servicecomb.saga.format.JacksonFromJsonFormat;
+import org.apache.shardingsphere.core.executor.ShardingThreadFactoryBuilder;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

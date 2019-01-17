@@ -17,13 +17,13 @@
 
 package io.shardingsphere.transaction.saga.resource;
 
-import io.shardingsphere.core.exception.ShardingException;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistenceLoader;
 import io.shardingsphere.transaction.saga.servicecomb.SagaExecutionComponentFactory;
 import lombok.Getter;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
+import org.apache.shardingsphere.core.exception.ShardingException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -47,7 +47,7 @@ public final class SagaResourceManager {
     private final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<>();
     
     public SagaResourceManager(final SagaConfiguration sagaConfiguration) {
-        sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.isEnablePersistence());
+        sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
         sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, sagaPersistence);
     }
     

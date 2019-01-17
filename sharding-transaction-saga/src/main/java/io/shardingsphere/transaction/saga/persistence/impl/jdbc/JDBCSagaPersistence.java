@@ -15,7 +15,7 @@
  * </p>
  */
 
-package io.shardingsphere.transaction.saga.persistence.impl;
+package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
@@ -23,27 +23,40 @@ import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import org.apache.servicecomb.saga.core.EventEnvelope;
 import org.apache.servicecomb.saga.core.SagaEvent;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Empty saga persistence.
+ * JDBC saga persistence.
  *
  * @author yangyi
  */
-public final class EmptySagaPersistence implements SagaPersistence {
+public final class JDBCSagaPersistence implements SagaPersistence {
+    
+    private final JDBCSagaSnapshotRepository snapshotRepository;
+    
+    private final JDBCSagaEventRepository eventRepository;
+    
+    public JDBCSagaPersistence(final DataSource dataSource) {
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource);
+        eventRepository = new JDBCSagaEventRepository(dataSource);
+    }
     
     @Override
     public void persistSnapshot(final SagaSnapshot snapshot) {
+        snapshotRepository.insert(snapshot);
     }
     
     @Override
     public void updateSnapshotStatus(final String transactionId, final int snapshotId, final ExecuteStatus executeStatus) {
+        snapshotRepository.update(transactionId, snapshotId, executeStatus);
     }
     
     @Override
     public void cleanSnapshot(final String transactionId) {
+        snapshotRepository.delete(transactionId);
     }
     
     @Override
@@ -53,5 +66,6 @@ public final class EmptySagaPersistence implements SagaPersistence {
     
     @Override
     public void offer(final SagaEvent sagaEvent) {
+        eventRepository.insert(sagaEvent);
     }
 }

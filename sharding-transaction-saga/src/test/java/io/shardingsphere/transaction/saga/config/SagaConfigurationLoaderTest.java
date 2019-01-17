@@ -21,8 +21,8 @@ import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public final class SagaConfigurationLoaderTest {
     
@@ -35,6 +35,19 @@ public final class SagaConfigurationLoaderTest {
         assertThat(sagaConfiguration.getTransactionRetryDelayMilliseconds(), is(1000));
         assertThat(sagaConfiguration.getCompensationRetryDelayMilliseconds(), is(2000));
         assertThat(sagaConfiguration.getRecoveryPolicy(), is(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY));
-        assertTrue(sagaConfiguration.isEnablePersistence());
+        assertSagaPersistenceConfiguration(sagaConfiguration.getSagaPersistenceConfiguration());
+    }
+    
+    private void assertSagaPersistenceConfiguration(final SagaPersistenceConfiguration sagaPersistenceConfiguration) {
+        assertFalse(sagaPersistenceConfiguration.isEnablePersistence());
+        assertThat(sagaPersistenceConfiguration.getUrl(), is("jdbc:mysql://localhost:3306/saga"));
+        assertThat(sagaPersistenceConfiguration.getUsername(), is("root"));
+        assertThat(sagaPersistenceConfiguration.getPassword(), is(""));
+        assertThat(sagaPersistenceConfiguration.getMaxPoolSize(), is(32));
+        assertThat(sagaPersistenceConfiguration.getMinPoolSize(), is(4));
+        assertThat(sagaPersistenceConfiguration.getConnectionTimeoutMilliseconds(), is(30000L));
+        assertThat(sagaPersistenceConfiguration.getIdleTimeoutMilliseconds(), is(60000L));
+        assertThat(sagaPersistenceConfiguration.getMaintenanceIntervalMilliseconds(), is(29999L));
+        assertThat(sagaPersistenceConfiguration.getMaxLifetimeMilliseconds(), is(1800000L));
     }
 }

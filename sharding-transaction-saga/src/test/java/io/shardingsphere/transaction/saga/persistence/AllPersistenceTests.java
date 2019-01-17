@@ -17,28 +17,19 @@
 
 package io.shardingsphere.transaction.saga.persistence;
 
-import io.shardingsphere.transaction.saga.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.revert.RevertResult;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-/**
- * Saga snapshot bean.
- *
- * @author yangyi
- */
-@RequiredArgsConstructor
-@Getter
-public final class SagaSnapshot {
-    
-    private final String transactionId;
-    
-    private final int snapshotId;
-    
-    private final SagaBranchTransaction transactionContext;
-    
-    private final RevertResult revertContext;
-    
-    private final ExecuteStatus executeStatus;
+import io.shardingsphere.transaction.saga.persistence.impl.jdbc.JDBCSagaEventRepositoryTest;
+import io.shardingsphere.transaction.saga.persistence.impl.jdbc.JDBCSagaPersistenceTest;
+import io.shardingsphere.transaction.saga.persistence.impl.jdbc.JDBCSagaSnapshotRepositoryTest;
+
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+        SagaPersistenceLoaderTest.class,
+        JDBCSagaEventRepositoryTest.class,
+        JDBCSagaPersistenceTest.class,
+        JDBCSagaSnapshotRepositoryTest.class
+})
+public class AllPersistenceTests {
 }
