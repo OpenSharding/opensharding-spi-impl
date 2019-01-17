@@ -80,9 +80,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public Connection getConnection(final String dataSourceName) throws SQLException {
         Connection result = resourceManager.getConnection(dataSourceName);
-        if (null != CURRENT_TRANSACTION.get()) {
-            CURRENT_TRANSACTION.get().getConnections().putIfAbsent(dataSourceName, result);
-        }
+        CURRENT_TRANSACTION.get().getConnections().putIfAbsent(dataSourceName, result);
         return result;
     }
     
