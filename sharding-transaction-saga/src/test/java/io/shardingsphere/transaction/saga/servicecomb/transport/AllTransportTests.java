@@ -22,7 +22,6 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        EmptySQLTransportTest.class,
         ShardingSQLTransportTest.class,
         ShardingTransportFactoryTest.class
 })
