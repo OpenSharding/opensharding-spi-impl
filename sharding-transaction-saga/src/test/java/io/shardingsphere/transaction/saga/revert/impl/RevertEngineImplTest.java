@@ -39,9 +39,9 @@ public final class RevertEngineImplTest {
         // TODO rewrite after SnapShotEngine complete
         RevertResult result = revertEngine.revert("", "", Collections.<List<Object>>emptyList());
         assertThat(result.getRevertSQL(), is(""));
-        assertThat(result.getRevertSQLParams().size(), is(0));
+        assertThat(result.getRevertSQLParameters().size(), is(0));
         result = revertEngine.revert("", "", new Object[]{});
         assertThat(result.getRevertSQL(), is(""));
-        assertThat(result.getRevertSQLParams().size(), is(0));
+        assertThat(result.getRevertSQLParameters().size(), is(0));
     }
 }

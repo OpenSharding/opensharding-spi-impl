@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
 import io.shardingsphere.transaction.saga.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.manager.AllManagerTests;
 import io.shardingsphere.transaction.saga.persistence.AllPersistenceTests;
+import io.shardingsphere.transaction.saga.resource.AllResourceTests;
 import io.shardingsphere.transaction.saga.revert.AllRevertTests;
 import io.shardingsphere.transaction.saga.servicecomb.AllServicecombTests;
 import org.junit.runner.RunWith;
@@ -29,13 +29,13 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        SagaShardingTransactionEngineTest.class, 
+        SagaShardingTransactionManagerTest.class,
         SagaConfigurationLoaderTest.class, 
         SagaTransactionTest.class, 
         SagaBranchTransactionTest.class,
-        AllHookTests.class, 
-        AllManagerTests.class,
+        AllHookTests.class,
         AllPersistenceTests.class,
+        AllResourceTests.class,
         AllRevertTests.class, 
         AllServicecombTests.class
 })

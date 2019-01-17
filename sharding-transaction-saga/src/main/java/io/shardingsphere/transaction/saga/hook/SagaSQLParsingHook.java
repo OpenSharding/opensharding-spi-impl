@@ -18,8 +18,8 @@
 package io.shardingsphere.transaction.saga.hook;
 
 import io.shardingsphere.spi.parsing.ParsingHook;
+import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
-import io.shardingsphere.transaction.saga.manager.SagaTransactionManager;
 
 /**
  * Saga SQL parsing hook.
@@ -28,7 +28,7 @@ import io.shardingsphere.transaction.saga.manager.SagaTransactionManager;
  */
 public final class SagaSQLParsingHook implements ParsingHook {
     
-    private final SagaTransaction sagaTransaction = SagaTransactionManager.getInstance().getTransaction();
+    private final SagaTransaction sagaTransaction = SagaShardingTransactionManager.getTransaction();
     
     @Override
     public void start(final String sql) {

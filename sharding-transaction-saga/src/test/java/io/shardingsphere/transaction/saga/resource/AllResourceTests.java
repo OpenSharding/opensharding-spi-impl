@@ -15,16 +15,13 @@
  * </p>
  */
 
-package io.shardingsphere.transaction.saga.manager;
+package io.shardingsphere.transaction.saga.resource;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({
-        SagaResourceManagerTest.class,
-        SagaTransactionManagerTest.class
-})
-public final class AllManagerTests {
+@SuiteClasses(SagaResourceManagerTest.class)
+public final class AllResourceTests {
 }

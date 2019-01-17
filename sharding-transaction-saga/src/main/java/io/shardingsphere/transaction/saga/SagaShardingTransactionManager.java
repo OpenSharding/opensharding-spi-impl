@@ -15,65 +15,89 @@
  * </p>
  */
 
-package io.shardingsphere.transaction.saga.manager;
+package io.shardingsphere.transaction.saga;
 
+import io.shardingsphere.core.constant.DatabaseType;
 import io.shardingsphere.core.executor.ShardingExecuteDataMap;
-import io.shardingsphere.transaction.core.ShardingTransactionManager;
-import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.core.TransactionType;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
+import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
-import lombok.Getter;
+import io.shardingsphere.transaction.spi.ShardingTransactionManager;
 import lombok.SneakyThrows;
 
-import javax.transaction.Status;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 
 /**
- * Saga transaction manager.
+ * Sharding transaction manager for Saga.
  *
- * @author zhaojun
  * @author yangyi
  */
-@Getter
-public final class SagaTransactionManager implements ShardingTransactionManager {
+public final class SagaShardingTransactionManager implements ShardingTransactionManager {
     
-    private static final String TRANSACTION_KEY = "transaction";
+    public static final String TRANSACTION_KEY = "transaction";
     
-    private static final SagaTransactionManager INSTANCE = new SagaTransactionManager();
-    
-    private final ThreadLocal<SagaTransaction> transaction = new ThreadLocal<>();
+    private static final ThreadLocal<SagaTransaction> TRANSACTION = new ThreadLocal<>();
     
     private final SagaConfiguration sagaConfiguration;
     
     private final SagaResourceManager resourceManager;
     
-    private SagaTransactionManager() {
+    public SagaShardingTransactionManager() {
         sagaConfiguration = SagaConfigurationLoader.load();
         resourceManager = new SagaResourceManager(sagaConfiguration);
     }
     
     /**
-     * Get instance of saga transaction manager.
+     * Get saga transaction for current thread.
      *
-     * @return instance of saga transaction manager
+     * @return saga transaction
      */
-    public static SagaTransactionManager getInstance() {
-        return INSTANCE;
+    public static SagaTransaction getTransaction() {
+        return TRANSACTION.get();
+    }
+    
+    @Override
+    public void init(final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap) {
+        resourceManager.registerDataSourceMap(dataSourceMap);
+    }
+    
+    @Override
+    public TransactionType getTransactionType() {
+        return TransactionType.BASE;
+    }
+    
+    @Override
+    public boolean isInTransaction() {
+        return null != TRANSACTION.get();
+    }
+    
+    @Override
+    public Connection getConnection(final String dataSourceName) throws SQLException {
+        Connection result = resourceManager.getConnection(dataSourceName);
+        if (null != TRANSACTION.get()) {
+            TRANSACTION.get().getConnectionMap().putIfAbsent(dataSourceName, result);
+        }
+        return result;
     }
     
     @Override
     public void begin() {
-        if (null == transaction.get()) {
+        if (null == TRANSACTION.get()) {
             SagaTransaction transaction = new SagaTransaction(sagaConfiguration, resourceManager.getSagaPersistence());
             ShardingExecuteDataMap.getDataMap().put(TRANSACTION_KEY, transaction);
-            this.transaction.set(transaction);
+            TRANSACTION.set(transaction);
             ShardingTransportFactory.getInstance().cacheTransport(transaction);
         }
     }
     
     @Override
     public void commit() {
-        if (null != transaction.get() && transaction.get().isContainException()) {
+        if (null != TRANSACTION.get() && TRANSACTION.get().isContainException()) {
             submitToActuator();
         }
         cleanTransaction();
@@ -81,7 +105,7 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
     
     @Override
     public void rollback() {
-        if (null != transaction.get()) {
+        if (null != TRANSACTION.get()) {
             submitToActuator();
         }
         cleanTransaction();
@@ -89,30 +113,21 @@ public final class SagaTransactionManager implements ShardingTransactionManager 
     
     @SneakyThrows
     private void submitToActuator() {
-        String json = transaction.get().getSagaDefinitionBuilder().build();
+        String json = TRANSACTION.get().getSagaDefinitionBuilder().build();
         resourceManager.getSagaExecutionComponent().run(json);
     }
     
     private void cleanTransaction() {
-        if (null != transaction.get()) {
-            transaction.get().cleanSnapshot();
+        if (null != TRANSACTION.get()) {
+            TRANSACTION.get().cleanSnapshot();
         }
         ShardingTransportFactory.getInstance().remove();
         ShardingExecuteDataMap.getDataMap().remove(TRANSACTION_KEY);
-        transaction.remove();
+        TRANSACTION.remove();
     }
     
     @Override
-    public int getStatus() {
-        return null == transaction.get() ? Status.STATUS_NO_TRANSACTION : Status.STATUS_ACTIVE;
-    }
-    
-    /**
-     * Get saga transaction object for current thread.
-     *
-     * @return saga transaction object
-     */
-    public SagaTransaction getTransaction() {
-        return transaction.get();
+    public void close() {
+        resourceManager.releaseDataSourceMap();
     }
 }

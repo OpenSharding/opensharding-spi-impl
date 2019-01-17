@@ -35,10 +35,10 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class RevertResult {
+public final class RevertResult {
     
     private String revertSQL;
     
-    private final List<Collection<Object>> revertSQLParams = new ArrayList<>();
+    private final List<Collection<Object>> revertSQLParameters = new ArrayList<>();
     
 }

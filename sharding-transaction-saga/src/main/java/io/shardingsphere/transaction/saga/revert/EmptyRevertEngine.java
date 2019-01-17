@@ -29,14 +29,14 @@ import java.util.List;
 public final class EmptyRevertEngine implements RevertEngine {
     
     @Override
-    public RevertResult revert(final String datasource, final String sql, final List<List<Object>> params) {
+    public RevertResult revert(final String datasourceName, final String sql, final List<List<Object>> parameters) {
         RevertResult result = new RevertResult();
         result.setRevertSQL("");
         return result;
     }
     
     @Override
-    public RevertResult revert(final String datasource, final String sql, final Object[] params) {
+    public RevertResult revert(final String datasourceName, final String sql, final Object[] parameters) {
         RevertResult result = new RevertResult();
         result.setRevertSQL("");
         return result;

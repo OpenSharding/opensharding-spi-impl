@@ -39,11 +39,11 @@ public final class SagaDefinitionBuilder {
     
     private final String recoveryPolicy;
     
-    private final int transactionRetires;
+    private final int transactionMaxRetries;
     
-    private final int compensationRetires;
+    private final int compensationMaxRetries;
     
-    private final int failRetryDelay;
+    private final int transactionRetryDelayMilliseconds;
     
     private final ConcurrentLinkedQueue<SagaRequest> requests = new ConcurrentLinkedQueue<>();
     
@@ -55,17 +55,17 @@ public final class SagaDefinitionBuilder {
      * Add child request node to definition graph.
      *
      * @param id request ID
-     * @param datasource data source name
+     * @param datasourceName data source name
      * @param sql transaction SQL
-     * @param params transaction SQL parameters
+     * @param parameters transaction SQL parameters
      * @param compensationSQL compensation SQL
-     * @param compensationParams compensation SQL parameters
+     * @param compensationParameters compensation SQL parameters
      */
-    public void addChildRequest(final String id, final String datasource, final String sql, final List<List<Object>> params,
-                                final String compensationSQL, final List<Collection<Object>> compensationParams) {
-        Transaction transaction = new Transaction(sql, params, transactionRetires);
-        Compensation compensation = new Compensation(compensationSQL, compensationParams, compensationRetires);
-        requests.add(new SagaRequest(id, datasource, TYPE, transaction, compensation, parents, failRetryDelay));
+    public void addChildRequest(final String id, final String datasourceName, final String sql, final List<List<Object>> parameters,
+                                final String compensationSQL, final List<Collection<Object>> compensationParameters) {
+        Transaction transaction = new Transaction(sql, parameters, transactionMaxRetries);
+        Compensation compensation = new Compensation(compensationSQL, compensationParameters, compensationMaxRetries);
+        requests.add(new SagaRequest(id, datasourceName, TYPE, transaction, compensation, parents, transactionRetryDelayMilliseconds));
         newRequestIds.add(id);
     }
     

@@ -36,9 +36,9 @@ public final class SagaConfiguration {
     
     private int compensationMaxRetries = 3;
     
-    private int transactionRetryDelay = 5000;
+    private int transactionRetryDelayMilliseconds = 5000;
     
-    private int compensationRetryDelay = 3000;
+    private int compensationRetryDelayMilliseconds = 3000;
     
     private String recoveryPolicy = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY;
     

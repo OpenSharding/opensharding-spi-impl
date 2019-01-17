@@ -32,8 +32,8 @@ public final class SagaConfigurationLoaderTest {
         assertThat(sagaConfiguration.getExecutorSize(), is(16));
         assertThat(sagaConfiguration.getTransactionMaxRetries(), is(8));
         assertThat(sagaConfiguration.getCompensationMaxRetries(), is(4));
-        assertThat(sagaConfiguration.getTransactionRetryDelay(), is(1000));
-        assertThat(sagaConfiguration.getCompensationRetryDelay(), is(2000));
+        assertThat(sagaConfiguration.getTransactionRetryDelayMilliseconds(), is(1000));
+        assertThat(sagaConfiguration.getCompensationRetryDelayMilliseconds(), is(2000));
         assertThat(sagaConfiguration.getRecoveryPolicy(), is(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY));
         assertSagaPersistenceConfiguration(sagaConfiguration.getSagaPersistenceConfiguration());
     }
