@@ -21,8 +21,8 @@ import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public final class SagaConfigurationLoaderTest {
     
@@ -39,7 +39,7 @@ public final class SagaConfigurationLoaderTest {
     }
     
     private void assertSagaPersistenceConfiguration(final SagaPersistenceConfiguration sagaPersistenceConfiguration) {
-        assertTrue(sagaPersistenceConfiguration.isEnablePersistence());
+        assertFalse(sagaPersistenceConfiguration.isEnablePersistence());
         assertThat(sagaPersistenceConfiguration.getUrl(), is("jdbc:mysql://localhost:3306/saga"));
         assertThat(sagaPersistenceConfiguration.getUsername(), is("root"));
         assertThat(sagaPersistenceConfiguration.getPassword(), is(""));

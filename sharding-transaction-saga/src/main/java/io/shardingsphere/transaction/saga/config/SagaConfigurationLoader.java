@@ -130,9 +130,7 @@ public final class SagaConfigurationLoader {
         if (!Strings.isNullOrEmpty(enabledPersistence)) {
             result.setEnablePersistence(Boolean.parseBoolean(enabledPersistence));
         }
-        if (result.isEnablePersistence()) {
-            initPersistenceDataSourceProperties(result, sagaProperties);
-        }
+        initPersistenceDataSourceProperties(result, sagaProperties);
         return result;
     }
     
