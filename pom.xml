@@ -82,7 +82,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>io.shardingsphere</groupId>
+                <groupId>org.apache.shardingsphere</groupId>
                 <artifactId>sharding-transaction-xa-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>

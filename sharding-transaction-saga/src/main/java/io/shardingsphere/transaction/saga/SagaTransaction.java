@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga;
 
-import io.shardingsphere.core.exception.ShardingException;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
@@ -30,6 +29,7 @@ import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionB
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
+import org.apache.shardingsphere.core.exception.ShardingException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
