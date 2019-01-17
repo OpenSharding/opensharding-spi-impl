@@ -78,6 +78,17 @@ public final class SagaTransaction {
     }
     
     /**
+     * Record execution result.
+     *
+     * @param sagaBranchTransaction saga branch transaction
+     * @param executeStatus execute status
+     */
+    public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
+        containsException = ExecuteStatus.FAILURE == executeStatus;
+        executionResultMap.put(sagaBranchTransaction, executeStatus);
+    }
+    
+    /**
      * Save new snapshot.
      *
      * @param sagaBranchTransaction saga branch transaction
@@ -106,17 +117,6 @@ public final class SagaTransaction {
      */
     public void updateSnapshot(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
         persistence.updateSnapshotStatus(id, sagaBranchTransaction.hashCode(), executeStatus);
-    }
-    
-    /**
-     * Record execution result.
-     * 
-     * @param sagaBranchTransaction saga branch transaction
-     * @param executeStatus execute status
-     */
-    public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        containsException = ExecuteStatus.FAILURE == executeStatus;
-        executionResultMap.put(sagaBranchTransaction, executeStatus);
     }
     
     /**
