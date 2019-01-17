@@ -61,14 +61,22 @@ public final class ShardingSQLTransportTest {
     
     @Before
     public void setUp() throws SQLException {
-        getConnectionMap();
+        mockGetConnections();
+    }
+    
+    private void mockGetConnections() throws SQLException {
+        ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
+        Connection connection = mock(Connection.class);
+        when(connection.prepareStatement(anyString())).thenReturn(statement);
+        connectionMap.put(dataSourceName, connection);
+        when(sagaTransaction.getConnections()).thenReturn(connectionMap);
     }
     
     @Test
     public void assertWithSuccessResult() {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> parameters = getParameters();
-        recordMockResult(parameters, ExecuteStatus.SUCCESS);
+        mockExecutionResults(parameters, ExecuteStatus.SUCCESS);
         shardingSQLTransport.with(dataSourceName, sql, parameters);
         verify(sagaTransaction, never()).getConnections();
     }
@@ -77,11 +85,25 @@ public final class ShardingSQLTransportTest {
     public void assertWithFailureResult() throws SQLException {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> parameters = getParameters();
-        recordMockResult(parameters, ExecuteStatus.FAILURE);
+        mockExecutionResults(parameters, ExecuteStatus.FAILURE);
         shardingSQLTransport.with(dataSourceName, sql, parameters);
         verify(sagaTransaction).getConnections();
         verify(statement, times(2)).addBatch();
         verify(statement).executeBatch();
+    }
+    
+    private void mockExecutionResults(final List<List<String>> parameters, final ExecuteStatus executeStatus) {
+        Map<SagaBranchTransaction, ExecuteStatus> executionResults = new ConcurrentHashMap<>();
+        executionResults.put(new SagaBranchTransaction(dataSourceName, sql, transferList(parameters)), executeStatus);
+        when(sagaTransaction.getExecutionResults()).thenReturn(executionResults);
+    }
+    
+    private List<List<Object>> transferList(final List<List<String>> origin) {
+        List<List<Object>> result = Lists.newArrayList();
+        for (List<String> each : origin) {
+            result.add(Lists.<Object>newArrayList(each));
+        }
+        return result;
     }
     
     @Test
@@ -100,6 +122,19 @@ public final class ShardingSQLTransportTest {
         List<List<String>> parameters = getParameters();
         assertThat(shardingSQLTransport.with(dataSourceName, sql, parameters), instanceOf(JsonSuccessfulSagaResponse.class));
         verify(statement, times(2)).addBatch();
+    }
+    
+    private List<List<String>> getParameters() {
+        List<List<String>> result = Lists.newArrayList();
+        List<String> parameters = Lists.newArrayList();
+        parameters.add("1");
+        parameters.add("x");
+        result.add(parameters);
+        parameters = Lists.newArrayList();
+        parameters.add("2");
+        parameters.add("y");
+        result.add(parameters);
+        return result;
     }
     
     @Test
@@ -122,38 +157,5 @@ public final class ShardingSQLTransportTest {
         shardingSQLTransport.with(dataSourceName, sql, parameters);
     }
     
-    private void getConnectionMap() throws SQLException {
-        ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
-        Connection connection = mock(Connection.class);
-        when(connection.prepareStatement(anyString())).thenReturn(statement);
-        connectionMap.put(dataSourceName, connection);
-        when(sagaTransaction.getConnections()).thenReturn(connectionMap);
-    }
-    
-    private void recordMockResult(final List<List<String>> parameters, final ExecuteStatus executeStatus) {
-        Map<SagaBranchTransaction, ExecuteStatus> resultMap = new ConcurrentHashMap<>();
-        resultMap.put(new SagaBranchTransaction(dataSourceName, sql, copyList(parameters)), executeStatus);
-        when(sagaTransaction.getExecutionResults()).thenReturn(resultMap);
-    }
-    
-    private List<List<Object>> copyList(final List<List<String>> origin) {
-        List<List<Object>> result = Lists.newArrayList();
-        for (List<String> each : origin) {
-            result.add(Lists.<Object>newArrayList(each));
-        }
-        return result;
-    }
-    
-    private List<List<String>> getParameters() {
-        List<List<String>> result = Lists.newArrayList();
-        List<String> parameters = Lists.newArrayList();
-        parameters.add("1");
-        parameters.add("x");
-        result.add(parameters);
-        parameters = Lists.newArrayList();
-        parameters.add("2");
-        parameters.add("y");
-        result.add(parameters);
-        return result;
-    }
+
 }
