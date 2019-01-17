@@ -43,8 +43,8 @@ public final class ShardingSQLTransport implements SQLTransport {
     private final SagaTransaction sagaTransaction;
     
     @Override
-    public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> parameters) {
-        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, transferList(parameters));
+    public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> parameterSets) {
+        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, transferList(parameterSets));
         return isExecutionSuccess(branchTransaction) ? new JsonSuccessfulSagaResponse("{}") : executeSQL(branchTransaction);
     }
     

@@ -66,13 +66,13 @@ public final class SagaDefinitionBuilder {
      * @param id request ID
      * @param datasourceName data source name
      * @param sql transaction SQL
-     * @param parameters transaction SQL parameters
+     * @param parameterSets transaction SQL parameters
      * @param compensationSQL compensation SQL
      * @param compensationParameters compensation SQL parameters
      */
-    public void addChildRequest(final String id, final String datasourceName, final String sql, final List<List<Object>> parameters,
+    public void addChildRequest(final String id, final String datasourceName, final String sql, final List<List<Object>> parameterSets,
                                 final String compensationSQL, final List<Collection<Object>> compensationParameters) {
-        Transaction transaction = new Transaction(sql, parameters, transactionMaxRetries);
+        Transaction transaction = new Transaction(sql, parameterSets, transactionMaxRetries);
         Compensation compensation = new Compensation(compensationSQL, compensationParameters, compensationMaxRetries);
         requests.add(new SagaRequest(id, datasourceName, TYPE, transaction, compensation, parents, transactionRetryDelayMilliseconds));
         newRequestIds.add(id);
