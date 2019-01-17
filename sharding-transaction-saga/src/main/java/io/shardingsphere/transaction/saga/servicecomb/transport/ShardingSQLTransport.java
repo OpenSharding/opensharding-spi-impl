@@ -45,7 +45,7 @@ public final class ShardingSQLTransport implements SQLTransport {
     @Override
     public SagaResponse with(final String datasource, final String sql, final List<List<String>> params) {
         SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasource, sql, copyList(params));
-        return isExecutionSuccess(branchTransaction) ? new JsonSuccessfulSagaResponse("{}") : executeFromDataSource(branchTransaction);
+        return isExecutionSuccess(branchTransaction) ? new JsonSuccessfulSagaResponse("{}") : executeSQL(branchTransaction);
     }
     
     private List<List<Object>> copyList(final List<List<String>> origin) {
@@ -57,10 +57,10 @@ public final class ShardingSQLTransport implements SQLTransport {
     }
     
     private boolean isExecutionSuccess(final SagaBranchTransaction branchTransaction) {
-        return sagaTransaction.getExecutionResultMap().containsKey(branchTransaction) && ExecuteStatus.SUCCESS == sagaTransaction.getExecutionResultMap().get(branchTransaction);
+        return ExecuteStatus.SUCCESS == sagaTransaction.getExecutionResultMap().get(branchTransaction);
     }
     
-    private SagaResponse executeFromDataSource(final SagaBranchTransaction branchTransaction) {
+    private SagaResponse executeSQL(final SagaBranchTransaction branchTransaction) {
         Connection connection = getConnectionFromConnectionMap(branchTransaction.getDataSourceName());
         try (PreparedStatement statement = connection.prepareStatement(branchTransaction.getSql())) {
             if (branchTransaction.getParameterSets().isEmpty()) {
