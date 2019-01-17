@@ -28,7 +28,7 @@ import org.apache.shardingsphere.spi.parsing.ParsingHook;
  */
 public final class SagaSQLParsingHook implements ParsingHook {
     
-    private final SagaTransaction sagaTransaction = SagaShardingTransactionManager.getTransaction();
+    private final SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
     
     @Override
     public void start(final String sql) {

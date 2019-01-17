@@ -58,7 +58,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
      *
      * @return saga transaction
      */
-    public static SagaTransaction getTransaction() {
+    public static SagaTransaction getCurrentTransaction() {
         return TRANSACTION.get();
     }
     
