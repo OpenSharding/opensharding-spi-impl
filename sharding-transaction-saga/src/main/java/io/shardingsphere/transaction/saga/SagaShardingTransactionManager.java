@@ -81,7 +81,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     public Connection getConnection(final String dataSourceName) throws SQLException {
         Connection result = resourceManager.getConnection(dataSourceName);
         if (null != TRANSACTION.get()) {
-            TRANSACTION.get().getConnectionMap().putIfAbsent(dataSourceName, result);
+            TRANSACTION.get().getConnections().putIfAbsent(dataSourceName, result);
         }
         return result;
     }
@@ -99,7 +99,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void commit() {
         if (null != TRANSACTION.get() && TRANSACTION.get().isContainsException()) {
-            submitToActuator();
+            submitToSagaEngine();
         }
         cleanTransaction();
     }
@@ -107,13 +107,13 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void rollback() {
         if (null != TRANSACTION.get()) {
-            submitToActuator();
+            submitToSagaEngine();
         }
         cleanTransaction();
     }
     
     @SneakyThrows
-    private void submitToActuator() {
+    private void submitToSagaEngine() {
         String json = TRANSACTION.get().getSagaDefinitionBuilder().build();
         resourceManager.getSagaExecutionComponent().run(json);
     }

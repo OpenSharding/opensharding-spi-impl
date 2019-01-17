@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -45,11 +46,19 @@ public final class SagaDefinitionBuilder {
     
     private final int transactionRetryDelayMilliseconds;
     
-    private final ConcurrentLinkedQueue<SagaRequest> requests = new ConcurrentLinkedQueue<>();
+    private final Queue<SagaRequest> requests = new ConcurrentLinkedQueue<>();
     
     private String[] parents = new String[]{};
     
-    private ConcurrentLinkedQueue<String> newRequestIds = new ConcurrentLinkedQueue<>();
+    private Queue<String> newRequestIds = new ConcurrentLinkedQueue<>();
+    
+    /**
+     * Switch to next logic SQL.
+     */
+    public void switchParents() {
+        parents = newRequestIds.toArray(new String[]{});
+        newRequestIds = new ConcurrentLinkedQueue<>();
+    }
     
     /**
      * Add child request node to definition graph.
@@ -67,14 +76,6 @@ public final class SagaDefinitionBuilder {
         Compensation compensation = new Compensation(compensationSQL, compensationParameters, compensationMaxRetries);
         requests.add(new SagaRequest(id, datasourceName, TYPE, transaction, compensation, parents, transactionRetryDelayMilliseconds));
         newRequestIds.add(id);
-    }
-    
-    /**
-     * Switch to next logic SQL.
-     */
-    public void switchParents() {
-        parents = newRequestIds.toArray(new String[]{});
-        newRequestIds = new ConcurrentLinkedQueue<>();
     }
     
     /**

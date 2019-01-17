@@ -113,12 +113,12 @@ public final class SagaShardingTransactionManagerTest {
         SagaTransaction sagaTransaction = mock(SagaTransaction.class);
         ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
         Connection connection = mock(Connection.class);
-        when(sagaTransaction.getConnectionMap()).thenReturn(connectionMap);
+        when(sagaTransaction.getConnections()).thenReturn(connectionMap);
         when(sagaResourceManager.getConnection("ds")).thenReturn(connection);
         getTransactionThreadLocal().set(sagaTransaction);
         assertThat(sagaShardingTransactionManager.getConnection("ds"), is(connection));
-        assertThat(sagaTransaction.getConnectionMap().size(), is(1));
-        assertThat(sagaTransaction.getConnectionMap().get("ds"), is(connection));
+        assertThat(sagaTransaction.getConnections().size(), is(1));
+        assertThat(sagaTransaction.getConnections().get("ds"), is(connection));
     }
     
     @Test

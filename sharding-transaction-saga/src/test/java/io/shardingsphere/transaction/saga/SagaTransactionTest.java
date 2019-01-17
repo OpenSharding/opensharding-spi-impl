@@ -87,9 +87,9 @@ public final class SagaTransactionTest {
     public void assertUpdateExecutionResultWithContainsException() {
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
         sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
-        assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.FAILURE));
+        assertThat(sagaTransaction.getExecutionResults().size(), is(1));
+        assertTrue(sagaTransaction.getExecutionResults().containsKey(sagaBranchTransaction));
+        assertThat(sagaTransaction.getExecutionResults().get(sagaBranchTransaction), is(ExecuteStatus.FAILURE));
         assertTrue(sagaTransaction.isContainsException());
     }
     
@@ -97,9 +97,9 @@ public final class SagaTransactionTest {
     public void assertUpdateExecutionResultWithoutContainsException() {
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
         sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
-        assertThat(sagaTransaction.getExecutionResultMap().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResultMap().containsKey(sagaBranchTransaction));
-        assertThat(sagaTransaction.getExecutionResultMap().get(sagaBranchTransaction), is(ExecuteStatus.EXECUTING));
+        assertThat(sagaTransaction.getExecutionResults().size(), is(1));
+        assertTrue(sagaTransaction.getExecutionResults().containsKey(sagaBranchTransaction));
+        assertThat(sagaTransaction.getExecutionResults().get(sagaBranchTransaction), is(ExecuteStatus.EXECUTING));
         assertFalse(sagaTransaction.isContainsException());
     }
     

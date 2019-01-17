@@ -57,7 +57,7 @@ public final class ShardingSQLTransport implements SQLTransport {
     }
     
     private boolean isExecutionSuccess(final SagaBranchTransaction branchTransaction) {
-        return ExecuteStatus.SUCCESS == sagaTransaction.getExecutionResultMap().get(branchTransaction);
+        return ExecuteStatus.SUCCESS == sagaTransaction.getExecutionResults().get(branchTransaction);
     }
     
     private SagaResponse executeSQL(final SagaBranchTransaction branchTransaction) {
@@ -76,7 +76,7 @@ public final class ShardingSQLTransport implements SQLTransport {
     
     private Connection getConnection(final String datasourceName) {
         try {
-            Connection result = sagaTransaction.getConnectionMap().get(datasourceName);
+            Connection result = sagaTransaction.getConnections().get(datasourceName);
             if (!result.getAutoCommit()) {
                 result.setAutoCommit(true);
             }

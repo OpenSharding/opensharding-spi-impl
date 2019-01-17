@@ -70,7 +70,7 @@ public final class ShardingSQLTransportTest {
         List<List<String>> parameters = getParameters();
         recordMockResult(parameters, ExecuteStatus.SUCCESS);
         shardingSQLTransport.with(dataSourceName, sql, parameters);
-        verify(sagaTransaction, never()).getConnectionMap();
+        verify(sagaTransaction, never()).getConnections();
     }
     
     @Test
@@ -79,7 +79,7 @@ public final class ShardingSQLTransportTest {
         List<List<String>> parameters = getParameters();
         recordMockResult(parameters, ExecuteStatus.FAILURE);
         shardingSQLTransport.with(dataSourceName, sql, parameters);
-        verify(sagaTransaction).getConnectionMap();
+        verify(sagaTransaction).getConnections();
         verify(statement, times(2)).addBatch();
         verify(statement).executeBatch();
     }
@@ -115,7 +115,7 @@ public final class ShardingSQLTransportTest {
         ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
         Connection connection = mock(Connection.class);
         connectionMap.put(dataSourceName, connection);
-        when(sagaTransaction.getConnectionMap()).thenReturn(connectionMap);
+        when(sagaTransaction.getConnections()).thenReturn(connectionMap);
         when(connection.getAutoCommit()).thenThrow(new SQLException("test get autocommit fail"));
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> parameters = Lists.newArrayList();
@@ -127,13 +127,13 @@ public final class ShardingSQLTransportTest {
         Connection connection = mock(Connection.class);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
         connectionMap.put(dataSourceName, connection);
-        when(sagaTransaction.getConnectionMap()).thenReturn(connectionMap);
+        when(sagaTransaction.getConnections()).thenReturn(connectionMap);
     }
     
     private void recordMockResult(final List<List<String>> parameters, final ExecuteStatus executeStatus) {
         Map<SagaBranchTransaction, ExecuteStatus> resultMap = new ConcurrentHashMap<>();
         resultMap.put(new SagaBranchTransaction(dataSourceName, sql, copyList(parameters)), executeStatus);
-        when(sagaTransaction.getExecutionResultMap()).thenReturn(resultMap);
+        when(sagaTransaction.getExecutionResults()).thenReturn(resultMap);
     }
     
     private List<List<Object>> copyList(final List<List<String>> origin) {
