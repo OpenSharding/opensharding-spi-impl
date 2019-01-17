@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.persistence;
 
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.revert.RevertResult;
+import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +38,7 @@ public final class SagaSnapshot {
     
     private final SagaBranchTransaction transactionContext;
     
-    private final RevertResult revertContext;
+    private final SQLRevertResult revertContext;
     
     private final ExecuteStatus executeStatus;
 }

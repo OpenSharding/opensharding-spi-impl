@@ -17,36 +17,26 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
+import org.junit.Test;
+
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
-/**
- * Revert engine.
- *
- * @author yangyi
- */
-public interface RevertEngine {
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public final class SQLRevertEngineTest {
     
-    /**
-     * Get revert result.
-     *
-     * @param datasourceName data source name
-     * @param sql execute SQL
-     * @param parameters SQL parameters
-     * @return revert result
-     * @throws SQLException SQL exception
-     */
-    RevertResult revert(String datasourceName, String sql, List<List<Object>> parameters) throws SQLException;
+    private final SQLRevertEngine revertEngine = new SQLRevertEngine(new HashMap<String, Connection>());
     
-    /**
-     * Get revert result.
-     *
-     * @param datasourceName data source name
-     * @param sql execute SQL
-     * @param parameters SQL parameters
-     * @return revert result
-     * @throws SQLException SQL exception
-     */
-    RevertResult revert(String datasourceName, String sql, Object[] parameters) throws SQLException;
-    
+    @Test
+    public void assertRevert() throws SQLException {
+        // TODO rewrite after SnapShotEngine complete
+        SQLRevertResult result = revertEngine.revert("", "", Collections.<List<Object>>emptyList());
+        assertThat(result.getSql(), is(""));
+        assertThat(result.getParameterSets().size(), is(0));
+    }
 }

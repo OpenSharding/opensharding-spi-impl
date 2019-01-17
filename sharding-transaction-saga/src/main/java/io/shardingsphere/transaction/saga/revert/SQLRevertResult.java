@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Revert result.
+ * SQL revert result.
  *
  * @author yangyi
  */
@@ -35,10 +35,10 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public final class RevertResult {
+public final class SQLRevertResult {
     
-    private String revertSQL = "";
+    private String sql = "";
     
-    private final List<Collection<Object>> revertSQLParameters = new ArrayList<>();
+    private final List<Collection<Object>> parameterSets = new ArrayList<>();
     
 }

@@ -21,9 +21,8 @@ import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
-import io.shardingsphere.transaction.saga.revert.RevertEngine;
-import io.shardingsphere.transaction.saga.revert.RevertResult;
-import io.shardingsphere.transaction.saga.revert.impl.RevertEngineImpl;
+import io.shardingsphere.transaction.saga.revert.SQLRevertEngine;
+import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +59,7 @@ public final class SagaTransaction {
     
     private final Map<SagaBranchTransaction, ExecuteStatus> executionResults = new ConcurrentHashMap<>();
     
-    private final Map<SagaBranchTransaction, RevertResult> revertResults = new ConcurrentHashMap<>();
+    private final Map<SagaBranchTransaction, SQLRevertResult> revertResults = new ConcurrentHashMap<>();
     
     private final List<Queue<SagaBranchTransaction>> branchTransactionGroups = new LinkedList<>();
     
@@ -101,9 +100,9 @@ public final class SagaTransaction {
     }
     
     private void sqlRevert(final SagaBranchTransaction sagaBranchTransaction) {
-        RevertEngine revertEngine = new RevertEngineImpl(connections);
+        SQLRevertEngine sqlRevertEngine = new SQLRevertEngine(connections);
         try {
-            revertResults.put(sagaBranchTransaction, revertEngine.revert(sagaBranchTransaction.getDataSourceName(), sagaBranchTransaction.getSql(), sagaBranchTransaction.getParameterSets()));
+            revertResults.put(sagaBranchTransaction, sqlRevertEngine.revert(sagaBranchTransaction.getDataSourceName(), sagaBranchTransaction.getSql(), sagaBranchTransaction.getParameterSets()));
         } catch (final SQLException ex) {
             throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
         }
@@ -136,9 +135,9 @@ public final class SagaTransaction {
     
     private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final Queue<SagaBranchTransaction> sagaBranchTransactionGroup) {
         for (SagaBranchTransaction each : sagaBranchTransactionGroup) {
-            RevertResult revertResult = revertResults.containsKey(each) ? revertResults.get(each) : new RevertResult();
+            SQLRevertResult revertResult = revertResults.containsKey(each) ? revertResults.get(each) : new SQLRevertResult();
             sagaDefinitionBuilder.addChildRequest(
-                    String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getRevertSQL(), revertResult.getRevertSQLParameters());
+                    String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getSql(), revertResult.getParameterSets());
         }
     }
     

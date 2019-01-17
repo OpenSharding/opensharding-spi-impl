@@ -15,42 +15,42 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl;
+package io.shardingsphere.transaction.saga.revert;
 
-import io.shardingsphere.transaction.saga.revert.RevertEngine;
-import io.shardingsphere.transaction.saga.revert.RevertResult;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Default implement for RevertEngine.
+ * SQL revert engine.
  *
  * @author yangyi
  */
 @RequiredArgsConstructor
-public final class RevertEngineImpl implements RevertEngine {
+public final class SQLRevertEngine {
     
     private final Map<String, Connection> connectionMap;
     
-    @Override
-    public RevertResult revert(final String datasourceName, final String sql, final List<List<Object>> parameters) {
-        RevertResult result = new RevertResult();
-        result.setRevertSQL("");
-        for (List<Object> each : parameters) {
+    /**
+     * Get revert result.
+     *
+     * @param datasourceName data source name
+     * @param sql SQL to be reverted
+     * @param parameterSets SQL parameters
+     * @return revert result
+     * @throws SQLException SQL exception
+     */
+    public SQLRevertResult revert(final String datasourceName, final String sql, final List<List<Object>> parameterSets) throws SQLException {
+        SQLRevertResult result = new SQLRevertResult();
+        result.setSql("");
+        for (List<Object> each : parameterSets) {
             // TODO use new SnapShotEngine to get revert result.
-            result.getRevertSQLParameters().add(new ArrayList<>());
+            result.getParameterSets().add(new ArrayList<>());
         }
-        return result;
-    }
-    
-    @Override
-    public RevertResult revert(final String datasourceName, final String sql, final Object[] parameters) {
-        RevertResult result = new RevertResult();
-        result.setRevertSQL(sql);
         return result;
     }
 }

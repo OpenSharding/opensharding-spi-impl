@@ -17,11 +17,10 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
-import io.shardingsphere.transaction.saga.revert.impl.RevertEngineImplTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses(RevertEngineImplTest.class)
+@Suite.SuiteClasses(SQLRevertEngineTest.class)
 public final class AllRevertTests {
 }
