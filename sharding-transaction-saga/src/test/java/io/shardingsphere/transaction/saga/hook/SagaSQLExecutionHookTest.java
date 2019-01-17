@@ -56,7 +56,7 @@ public final class SagaSQLExecutionHookTest {
     @Before
     public void setUp() {
         Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put(SagaShardingTransactionManager.TRANSACTION_KEY, sagaTransaction);
+        dataMap.put(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY, sagaTransaction);
         ShardingExecuteDataMap.setDataMap(dataMap);
     }
     

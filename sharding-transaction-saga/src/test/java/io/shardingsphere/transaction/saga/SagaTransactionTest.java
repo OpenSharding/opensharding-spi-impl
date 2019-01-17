@@ -123,7 +123,7 @@ public final class SagaTransactionTest {
         assertTrue(request.containsKey("id"));
         assertTrue(request.containsKey("datasource"));
         assertTrue(request.containsKey("type"));
-        assertTrue(request.containsKey(SagaShardingTransactionManager.TRANSACTION_KEY));
+        assertTrue(request.containsKey("transaction"));
         assertTrue(request.containsKey("compensation"));
         assertTrue(request.containsKey("parents"));
         assertTrue(request.containsKey("failRetryDelayMilliseconds"));

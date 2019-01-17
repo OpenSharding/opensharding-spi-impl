@@ -125,8 +125,8 @@ public final class SagaShardingTransactionManagerTest {
     public void assertBegin() {
         sagaShardingTransactionManager.begin();
         assertNotNull(SagaShardingTransactionManager.getCurrentTransaction());
-        assertTrue(ShardingExecuteDataMap.getDataMap().containsKey(SagaShardingTransactionManager.TRANSACTION_KEY));
-        assertThat(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.TRANSACTION_KEY), instanceOf(SagaTransaction.class));
+        assertTrue(ShardingExecuteDataMap.getDataMap().containsKey(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY));
+        assertThat(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY), instanceOf(SagaTransaction.class));
         assertThat(ShardingTransportFactory.getInstance().getTransport(), instanceOf(ShardingSQLTransport.class));
     }
     
@@ -146,7 +146,7 @@ public final class SagaShardingTransactionManagerTest {
         sagaShardingTransactionManager.begin();
         Field containExceptionField = SagaTransaction.class.getDeclaredField("containsException");
         containExceptionField.setAccessible(true);
-        containExceptionField.set(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.TRANSACTION_KEY), true);
+        containExceptionField.set(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY), true);
         sagaShardingTransactionManager.commit();
         verify(sagaExecutionComponent).run(anyString());
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());

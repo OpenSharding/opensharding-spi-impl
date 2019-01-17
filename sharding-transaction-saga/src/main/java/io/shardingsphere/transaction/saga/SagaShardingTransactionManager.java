@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public final class SagaShardingTransactionManager implements ShardingTransactionManager {
     
-    public static final String TRANSACTION_KEY = "transaction";
+    public static final String CURRENT_TRANSACTION_KEY = "current_transaction";
     
     private static final ThreadLocal<SagaTransaction> TRANSACTION = new ThreadLocal<>();
     
@@ -90,7 +90,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     public void begin() {
         if (null == TRANSACTION.get()) {
             SagaTransaction transaction = new SagaTransaction(sagaConfiguration, resourceManager.getSagaPersistence());
-            ShardingExecuteDataMap.getDataMap().put(TRANSACTION_KEY, transaction);
+            ShardingExecuteDataMap.getDataMap().put(CURRENT_TRANSACTION_KEY, transaction);
             TRANSACTION.set(transaction);
             ShardingTransportFactory.getInstance().cacheTransport(transaction);
         }
@@ -123,7 +123,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
             TRANSACTION.get().cleanSnapshot();
         }
         ShardingTransportFactory.getInstance().remove();
-        ShardingExecuteDataMap.getDataMap().remove(TRANSACTION_KEY);
+        ShardingExecuteDataMap.getDataMap().remove(CURRENT_TRANSACTION_KEY);
         TRANSACTION.remove();
     }
     
