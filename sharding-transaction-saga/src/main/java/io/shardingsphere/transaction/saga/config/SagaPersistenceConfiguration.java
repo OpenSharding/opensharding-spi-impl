@@ -20,8 +20,6 @@ package io.shardingsphere.transaction.saga.config;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Map;
-
 /**
  * Saga persistence configuration.
  *

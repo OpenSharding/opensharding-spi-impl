@@ -135,6 +135,11 @@ public final class SagaConfigurationLoader {
     }
     
     private static void initPersistenceDataSourceProperties(final SagaPersistenceConfiguration result, final Properties sagaProperties) {
+        initCommonDataSourceProperties(result, sagaProperties);
+        initHikariPoolProperties(result, sagaProperties);
+    }
+    
+    private static void initCommonDataSourceProperties(final SagaPersistenceConfiguration result, final Properties sagaProperties) {
         String url = sagaProperties.getProperty(URL);
         if (null != url) {
             result.setUrl(url);
@@ -147,6 +152,9 @@ public final class SagaConfigurationLoader {
         if (null != password) {
             result.setPassword(password);
         }
+    }
+    
+    private static void initHikariPoolProperties(final SagaPersistenceConfiguration result, final Properties sagaProperties) {
         String connectionTimeoutMilliseconds = sagaProperties.getProperty(CONNECTION_TIMEOUT_MILLISECONDS);
         if (!Strings.isNullOrEmpty(connectionTimeoutMilliseconds)) {
             result.setConnectionTimeoutMilliseconds(Long.parseLong(connectionTimeoutMilliseconds));
