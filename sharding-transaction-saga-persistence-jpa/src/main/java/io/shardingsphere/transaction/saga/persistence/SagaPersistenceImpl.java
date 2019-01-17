@@ -72,11 +72,6 @@ public final class SagaPersistenceImpl implements SagaPersistence {
     }
     
     @Override
-    public void cleanSagaEvent(final String sagaId) {
-        sagaEventRepository.deleteBySagaId(sagaId);
-    }
-    
-    @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
         List<SagaEventEntity> events = sagaEventRepository.findIncompleteSagaEventsGroupBySagaId();
     

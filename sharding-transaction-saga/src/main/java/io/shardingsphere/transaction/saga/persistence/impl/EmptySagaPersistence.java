@@ -47,10 +47,6 @@ public final class EmptySagaPersistence implements SagaPersistence {
     }
     
     @Override
-    public void cleanSagaEvent(final String sagaId) {
-    }
-    
-    @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
         return new HashMap<>(1);
     }

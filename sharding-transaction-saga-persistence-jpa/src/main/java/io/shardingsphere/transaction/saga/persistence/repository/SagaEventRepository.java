@@ -54,16 +54,4 @@ public class SagaEventRepository {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         return entityManager.createNamedQuery("findIncompleteSagaEventsGroupBySagaId", SagaEventEntity.class).getResultList();
     }
-    
-    /**
-     * Delete saga event by saga id.
-     *
-     * @param sagaId saga id
-     */
-    public void deleteBySagaId(final String sagaId) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        entityManager.createNativeQuery("DELETE FROM saga_event WHERE saga_id = ?").setParameter(1, sagaId).executeUpdate();
-        entityManager.getTransaction().commit();
-    }
 }

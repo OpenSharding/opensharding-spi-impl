@@ -49,11 +49,4 @@ public interface SagaPersistence extends PersistentStore {
      * @param transactionId transaction id
      */
     void cleanSnapshot(String transactionId);
-    
-    /**
-     * Clean saga event.
-     *
-     * @param sagaId saga id
-     */
-    void cleanSagaEvent(String sagaId);
 }
