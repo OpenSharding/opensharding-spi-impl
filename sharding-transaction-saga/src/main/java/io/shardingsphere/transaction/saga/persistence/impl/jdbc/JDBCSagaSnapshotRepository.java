@@ -54,8 +54,8 @@ public final class JDBCSagaSnapshotRepository {
             PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
             statement.setObject(1, sagaSnapshot.getTransactionId());
             statement.setObject(2, sagaSnapshot.getSnapshotId());
-            statement.setObject(3, sagaSnapshot.getTransactionContext());
-            statement.setObject(4, sagaSnapshot.getRevertContext());
+            statement.setObject(3, sagaSnapshot.getTransactionContext().toString());
+            statement.setObject(4, sagaSnapshot.getRevertContext().toString());
             statement.setObject(5, sagaSnapshot.getExecuteStatus().name());
             statement.executeUpdate();
         } catch (SQLException ex) {

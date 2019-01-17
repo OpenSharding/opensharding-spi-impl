@@ -55,8 +55,8 @@ public final class SagaPersistenceImpl implements SagaPersistence {
         SagaSnapshotEntity snapshotEntity = new SagaSnapshotEntity();
         snapshotEntity.setTransactionId(snapshot.getTransactionId());
         snapshotEntity.setSnapshotId(snapshot.getSnapshotId());
-        snapshotEntity.setTransactionContext(snapshot.getTransactionContext());
-        snapshotEntity.setRevertContext(snapshot.getRevertContext());
+        snapshotEntity.setTransactionContext(snapshot.getTransactionContext().toString());
+        snapshotEntity.setRevertContext(snapshot.getRevertContext().toString());
         snapshotEntity.setExecuteStatus(snapshot.getExecuteStatus().name());
         sagaSnapshotRepository.insert(snapshotEntity);
     }

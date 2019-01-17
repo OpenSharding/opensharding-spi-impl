@@ -77,8 +77,7 @@ public final class SagaTransaction {
     public void recordStart(final SagaBranchTransaction sagaBranchTransaction) {
         sagaBranchTransactionGroup.add(sagaBranchTransaction);
         sqlRevert(sagaBranchTransaction);
-        persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction.toString(), revertResultMap.get(
-            sagaBranchTransaction).toString(), ExecuteStatus.EXECUTING));
+        persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResultMap.get(sagaBranchTransaction), ExecuteStatus.EXECUTING));
         executionResultMap.put(sagaBranchTransaction, ExecuteStatus.EXECUTING);
     }
     
