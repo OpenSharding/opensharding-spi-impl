@@ -85,7 +85,7 @@ public final class SagaShardingTransactionManagerTest {
     @SuppressWarnings("unchecked")
     @SneakyThrows
     private ThreadLocal<SagaTransaction> getTransactionThreadLocal() {
-        Field transactionField = SagaShardingTransactionManager.class.getDeclaredField("TRANSACTION");
+        Field transactionField = SagaShardingTransactionManager.class.getDeclaredField("CURRENT_TRANSACTION");
         transactionField.setAccessible(true);
         return (ThreadLocal<SagaTransaction>) transactionField.get(SagaShardingTransactionManager.class);
     }
