@@ -47,7 +47,7 @@ public final class SagaResourceManager {
     private final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<>();
     
     public SagaResourceManager(final SagaConfiguration sagaConfiguration) {
-        sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.isEnablePersistence());
+        sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
         sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, sagaPersistence);
     }
     

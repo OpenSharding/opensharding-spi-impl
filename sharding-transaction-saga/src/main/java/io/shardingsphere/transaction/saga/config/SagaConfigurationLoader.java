@@ -25,6 +25,8 @@ import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -37,21 +39,23 @@ public final class SagaConfigurationLoader {
     
     private static final String CONFIGURATION_FILE = "saga.properties";
     
-    private static final String PREFIX = "saga.actuator.";
+    private static final String ACTUATOR_PREFIX = "saga.actuator.";
     
-    private static final String EXECUTOR_SIZE = PREFIX + "executor.size";
+    private static final String EXECUTOR_SIZE = ACTUATOR_PREFIX + "executor.size";
     
-    private static final String TRANSACTION_MAX_RETRIES = PREFIX + "transaction.max.retries";
+    private static final String TRANSACTION_MAX_RETRIES = ACTUATOR_PREFIX + "transaction.max.retries";
     
-    private static final String COMPENSATION_MAX_RETRIES = PREFIX + "compensation.max.retries";
+    private static final String COMPENSATION_MAX_RETRIES = ACTUATOR_PREFIX + "compensation.max.retries";
     
-    private static final String TRANSACTION_RETRY_DELAY_MILLISECONDS = PREFIX + "transaction.retry.delay.milliseconds";
+    private static final String TRANSACTION_RETRY_DELAY_MILLISECONDS = ACTUATOR_PREFIX + "transaction.retry.delay.milliseconds";
     
-    private static final String COMPENSATION_RETRY_DELAY_MILLISECONDS = PREFIX + "compensation.retry.delay.milliseconds";
+    private static final String COMPENSATION_RETRY_DELAY_MILLISECONDS = ACTUATOR_PREFIX + "compensation.retry.delay.milliseconds";
     
-    private static final String RECOVERY_POLICY = PREFIX + "recovery.policy";
+    private static final String RECOVERY_POLICY = ACTUATOR_PREFIX + "recovery.policy";
     
     private static final String ENABLED_PERSISTENCE = "saga.persistence.enabled";
+    
+    private static final String PERSISTENCE_DS_PREFIX = "saga.persistence.ds.";
     
     /**
      * Load saga configuration from properties file.
@@ -100,10 +104,29 @@ public final class SagaConfigurationLoader {
         if (RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(recoveryPolicy) || RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(recoveryPolicy)) {
             result.setRecoveryPolicy(recoveryPolicy);
         }
+        result.setSagaPersistenceConfiguration(createSagaPersistenceConfiguration(sagaProperties));
+        return result;
+    }
+    
+    private static SagaPersistenceConfiguration createSagaPersistenceConfiguration(final Properties sagaProperties) {
+        SagaPersistenceConfiguration result = new SagaPersistenceConfiguration();
         String enabledPersistence = sagaProperties.getProperty(ENABLED_PERSISTENCE);
         if (!Strings.isNullOrEmpty(enabledPersistence)) {
             result.setEnablePersistence(Boolean.parseBoolean(enabledPersistence));
         }
+        if (result.isEnablePersistence()) {
+            initPersistenceDataSourceProperties(result, sagaProperties);
+        }
         return result;
+    }
+    
+    private static void initPersistenceDataSourceProperties(final SagaPersistenceConfiguration result, final Properties sagaProperties) {
+        Map<String, String> datasourceProperties = new HashMap<>();
+        for (String each : sagaProperties.stringPropertyNames()) {
+            if (each.startsWith(PERSISTENCE_DS_PREFIX)) {
+                datasourceProperties.put(each.substring(PERSISTENCE_DS_PREFIX.length()), sagaProperties.getProperty(each));
+            }
+        }
+        result.setDataSourceProperties(datasourceProperties);
     }
 }

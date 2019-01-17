@@ -19,28 +19,19 @@ package io.shardingsphere.transaction.saga.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.servicecomb.saga.core.RecoveryPolicy;
+
+import java.util.Map;
 
 /**
- * Saga configuration.
+ * Saga persistence configuration.
  *
  * @author yangyi
  */
 @Getter
 @Setter
-public final class SagaConfiguration {
+public class SagaPersistenceConfiguration {
     
-    private int executorSize = 5;
+    private boolean enablePersistence;
     
-    private int transactionMaxRetries = 5;
-    
-    private int compensationMaxRetries = 3;
-    
-    private int transactionRetryDelay = 5000;
-    
-    private int compensationRetryDelay = 3000;
-    
-    private String recoveryPolicy = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY;
-    
-    private SagaPersistenceConfiguration sagaPersistenceConfiguration = new SagaPersistenceConfiguration();
+    private Map<String, String> dataSourceProperties;
 }

@@ -20,6 +20,8 @@ package io.shardingsphere.transaction.saga.config;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -35,6 +37,19 @@ public final class SagaConfigurationLoaderTest {
         assertThat(sagaConfiguration.getTransactionRetryDelay(), is(1000));
         assertThat(sagaConfiguration.getCompensationRetryDelay(), is(2000));
         assertThat(sagaConfiguration.getRecoveryPolicy(), is(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY));
-        assertTrue(sagaConfiguration.isEnablePersistence());
+        assertSagaPersistenceConfiguration(sagaConfiguration.getSagaPersistenceConfiguration());
+    }
+    
+    private void assertSagaPersistenceConfiguration(final SagaPersistenceConfiguration sagaPersistenceConfiguration) {
+        assertTrue(sagaPersistenceConfiguration.isEnablePersistence());
+        Map<String, String> dataSourceProperties = sagaPersistenceConfiguration.getDataSourceProperties();
+        assertThat(dataSourceProperties.size(), is(7));
+        assertThat(dataSourceProperties.get("url"), is("jdbc:mysql://localhost:3306/saga"));
+        assertThat(dataSourceProperties.get("username"), is("root"));
+        assertThat(dataSourceProperties.get("password"), is(""));
+        assertThat(dataSourceProperties.get("type"), is("com.alibaba.druid.pool.DruidDataSource"));
+        assertThat(dataSourceProperties.get("driver-class-name"), is("com.mysql.jdbc.Driver"));
+        assertThat(dataSourceProperties.get("maxActive"), is("32"));
+        assertThat(dataSourceProperties.get("minIdle"), is("5"));
     }
 }
