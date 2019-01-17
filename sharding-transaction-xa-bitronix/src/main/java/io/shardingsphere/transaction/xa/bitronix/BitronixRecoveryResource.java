@@ -22,9 +22,9 @@ import bitronix.tm.resource.common.ResourceBean;
 import bitronix.tm.resource.common.XAResourceHolder;
 import bitronix.tm.resource.common.XAResourceProducer;
 import bitronix.tm.resource.common.XAStatefulHolder;
-import io.shardingsphere.transaction.xa.spi.SingleXAResource;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.shardingsphere.transaction.xa.spi.SingleXAResource;
 
 import javax.naming.Reference;
 import javax.sql.XAConnection;

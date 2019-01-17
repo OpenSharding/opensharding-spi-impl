@@ -20,9 +20,9 @@ package io.shardingsphere.transaction.xa.bitronix;
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.ResourceRegistrar;
-import io.shardingsphere.transaction.xa.spi.SingleXAResource;
-import io.shardingsphere.transaction.xa.spi.XATransactionManager;
 import lombok.SneakyThrows;
+import org.apache.shardingsphere.transaction.xa.spi.SingleXAResource;
+import org.apache.shardingsphere.transaction.xa.spi.XATransactionManager;
 
 import javax.sql.XADataSource;
 import javax.transaction.TransactionManager;
@@ -32,25 +32,29 @@ import javax.transaction.TransactionManager;
  *
  * @author zhaojun
  */
-public class BitronixXATransactionManager implements XATransactionManager {
+public final class BitronixXATransactionManager implements XATransactionManager {
     
     private final BitronixTransactionManager bitronixTransactionManager = TransactionManagerServices.getTransactionManager();
     
+    @Override
     public void init() {
     }
     
     @SneakyThrows
-    public void registerRecoveryResource(String dataSourceName, XADataSource xaDataSource) {
+    @Override
+    public void registerRecoveryResource(final String dataSourceName, final XADataSource xaDataSource) {
         ResourceRegistrar.register(new BitronixRecoveryResource(dataSourceName, xaDataSource));
     }
     
     @SneakyThrows
-    public void removeRecoveryResource(String dataSourceName, XADataSource xaDataSource) {
+    @Override
+    public void removeRecoveryResource(final String dataSourceName, final XADataSource xaDataSource) {
         ResourceRegistrar.unregister(new BitronixRecoveryResource(dataSourceName, xaDataSource));
     }
     
     @SneakyThrows
-    public void enlistResource(SingleXAResource singleXAResource) {
+    @Override
+    public void enlistResource(final SingleXAResource singleXAResource) {
         bitronixTransactionManager.getTransaction().enlistResource(singleXAResource);
     }
     
