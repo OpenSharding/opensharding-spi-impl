@@ -25,8 +25,6 @@ import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -56,6 +54,24 @@ public final class SagaConfigurationLoader {
     private static final String ENABLED_PERSISTENCE = "saga.persistence.enabled";
     
     private static final String PERSISTENCE_DS_PREFIX = "saga.persistence.ds.";
+    
+    private static final String URL = PERSISTENCE_DS_PREFIX + "url";
+    
+    private static final String USERNAME = PERSISTENCE_DS_PREFIX + "username";
+    
+    private static final String PASSWORD = PERSISTENCE_DS_PREFIX + "password";
+    
+    private static final String CONNECTION_TIMEOUT_MILLISECONDS = PERSISTENCE_DS_PREFIX + "connection.timeout.milliseconds";
+    
+    private static final String IDLE_TIMEOUT_MILLISECONDS = PERSISTENCE_DS_PREFIX + "idle.timeout.milliseconds";
+    
+    private static final String MAINTENANCE_INTERVAL_MILLISECONDS = PERSISTENCE_DS_PREFIX + "maintenance.interval.milliseconds";
+    
+    private static final String MAX_LIFE_TIME_MILLISECONDS = PERSISTENCE_DS_PREFIX + "max.life.time.milliseconds";
+    
+    private static final String MAX_POOL_SIZE = PERSISTENCE_DS_PREFIX + "max.pool.size";
+    
+    private static final String MIN_POOL_SIZE = PERSISTENCE_DS_PREFIX + "min.pool.size";
     
     /**
      * Load saga configuration from properties file.
@@ -89,15 +105,15 @@ public final class SagaConfigurationLoader {
             result.setTransactionMaxRetries(Integer.parseInt(transactionMaxRetries));
         }
         String compensationMaxRetries = sagaProperties.getProperty(COMPENSATION_MAX_RETRIES);
-        if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
+        if (!Strings.isNullOrEmpty(compensationMaxRetries)) {
             result.setCompensationMaxRetries(Integer.parseInt(compensationMaxRetries));
         }
         String transactionRetryDelay = sagaProperties.getProperty(TRANSACTION_RETRY_DELAY_MILLISECONDS);
-        if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
+        if (!Strings.isNullOrEmpty(transactionRetryDelay)) {
             result.setTransactionRetryDelay(Integer.parseInt(transactionRetryDelay));
         }
         String compensationRetryDelay = sagaProperties.getProperty(COMPENSATION_RETRY_DELAY_MILLISECONDS);
-        if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
+        if (!Strings.isNullOrEmpty(compensationRetryDelay)) {
             result.setCompensationRetryDelay(Integer.parseInt(compensationRetryDelay));
         }
         String recoveryPolicy = sagaProperties.getProperty(RECOVERY_POLICY);
@@ -121,12 +137,41 @@ public final class SagaConfigurationLoader {
     }
     
     private static void initPersistenceDataSourceProperties(final SagaPersistenceConfiguration result, final Properties sagaProperties) {
-        Map<String, String> datasourceProperties = new HashMap<>();
-        for (String each : sagaProperties.stringPropertyNames()) {
-            if (each.startsWith(PERSISTENCE_DS_PREFIX)) {
-                datasourceProperties.put(each.substring(PERSISTENCE_DS_PREFIX.length()), sagaProperties.getProperty(each));
-            }
+        String url = sagaProperties.getProperty(URL);
+        if (null != url) {
+            result.setUrl(url);
         }
-        result.setDataSourceProperties(datasourceProperties);
+        String username = sagaProperties.getProperty(USERNAME);
+        if (null != username) {
+            result.setUsername(username);
+        }
+        String password = sagaProperties.getProperty(PASSWORD);
+        if (null != password) {
+            result.setPassword(password);
+        }
+        String connectionTimeoutMilliseconds = sagaProperties.getProperty(CONNECTION_TIMEOUT_MILLISECONDS);
+        if (!Strings.isNullOrEmpty(connectionTimeoutMilliseconds)) {
+            result.setConnectionTimeoutMilliseconds(Long.parseLong(connectionTimeoutMilliseconds));
+        }
+        String idleTimeoutMilliseconds = sagaProperties.getProperty(IDLE_TIMEOUT_MILLISECONDS);
+        if (!Strings.isNullOrEmpty(idleTimeoutMilliseconds)) {
+            result.setIdleTimeoutMilliseconds(Long.parseLong(idleTimeoutMilliseconds));
+        }
+        String maintenanceIntervalMilliseconds = sagaProperties.getProperty(MAINTENANCE_INTERVAL_MILLISECONDS);
+        if (!Strings.isNullOrEmpty(maintenanceIntervalMilliseconds)) {
+            result.setMaintenanceIntervalMilliseconds(Long.parseLong(maintenanceIntervalMilliseconds));
+        }
+        String maxLifeTimeMilliseconds = sagaProperties.getProperty(MAX_LIFE_TIME_MILLISECONDS);
+        if (!Strings.isNullOrEmpty(maxLifeTimeMilliseconds)) {
+            result.setMaxLifetimeMilliseconds(Long.parseLong(maxLifeTimeMilliseconds));
+        }
+        String maxPoolSize = sagaProperties.getProperty(MAX_POOL_SIZE);
+        if (!Strings.isNullOrEmpty(maxPoolSize)) {
+            result.setMaxPoolSize(Integer.parseInt(maxPoolSize));
+        }
+        String minPoolSize = sagaProperties.getProperty(MIN_POOL_SIZE);
+        if (!Strings.isNullOrEmpty(minPoolSize)) {
+            result.setMinPoolSize(Integer.parseInt(minPoolSize));
+        }
     }
 }

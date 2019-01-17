@@ -31,7 +31,35 @@ import java.util.Map;
 @Setter
 public class SagaPersistenceConfiguration {
     
+    private static final long DEFAULT_CONNECTION_TIMEOUT_MILLISECONDS = 30 * 1000;
+    
+    private static final long DEFAULT_IDLE_TIMEOUT_MILLISECONDS = 60 * 1000;
+    
+    private static final long DEFAULT_MAINTENANCE_INTERVAL_MILLISECONDS = 30 * 1000;
+    
+    private static final long DEFAULT_MAX_LIFE_TIME_MILLISECONDS = 0;
+    
+    private static final int DEFAULT_MAX_POOL_SIZE = 50;
+    
+    private static final int DEFAULT_MIN_POOL_SIZE = 1;
+    
     private boolean enablePersistence;
     
-    private Map<String, String> dataSourceProperties;
+    private String url;
+    
+    private String username;
+    
+    private String password;
+    
+    private long connectionTimeoutMilliseconds = DEFAULT_CONNECTION_TIMEOUT_MILLISECONDS;
+    
+    private long idleTimeoutMilliseconds = DEFAULT_IDLE_TIMEOUT_MILLISECONDS;
+    
+    private long maxLifetimeMilliseconds = DEFAULT_MAX_LIFE_TIME_MILLISECONDS;
+    
+    private int maxPoolSize = DEFAULT_MAX_POOL_SIZE;
+    
+    private int minPoolSize = DEFAULT_MIN_POOL_SIZE;
+    
+    private long maintenanceIntervalMilliseconds = DEFAULT_MAINTENANCE_INTERVAL_MILLISECONDS;
 }
