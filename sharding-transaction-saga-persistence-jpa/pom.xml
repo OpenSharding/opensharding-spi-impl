@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.shardingsphere</groupId>
-        <artifactId>ShardingSphere-experimental</artifactId>
+        <artifactId>shardingsphere-spi-impl</artifactId>
         <version>4.0.0.M1-SNAPSHOT</version>
     </parent>
     <artifactId>sharding-transaction-saga-persistence-jpa</artifactId>
