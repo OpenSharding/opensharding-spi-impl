@@ -9,6 +9,7 @@
         <version>4.0.0.M1-SNAPSHOT</version>
     </parent>
     <artifactId>sharding-transaction-saga-persistence-jpa</artifactId>
+    <version>4.0.0.M1-SNAPSHOT</version>
     
     <properties>
         <hibernate.version>5.4.0.Final</hibernate.version>

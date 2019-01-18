@@ -6,10 +6,11 @@
     <groupId>io.shardingsphere</groupId>
     <artifactId>shardingsphere-spi-impl</artifactId>
     <version>4.0.0.M1-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     
     <modules>
-        <module>sharding-orchestration-reg-native-zookeeper</module>
+        <module>sharding-orchestration-reg-spi-impl</module>
         <module>sharding-transaction-saga</module>
         <module>sharding-transaction-saga-persistence-jpa</module>
         <module>sharding-transaction-xa-bitronix</module>
