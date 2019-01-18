@@ -11,9 +11,9 @@
     
     <modules>
         <module>sharding-orchestration-reg-spi-impl</module>
+        <module>sharding-transaction-spi-impl</module>
         <module>sharding-transaction-saga</module>
         <module>sharding-transaction-saga-persistence-jpa</module>
-        <module>sharding-transaction-xa-bitronix</module>
     </modules>
     
     <properties>
