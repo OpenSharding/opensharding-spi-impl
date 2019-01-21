@@ -16,16 +16,15 @@
 
 package io.shardingsphere.transaction.xa.narayana;
 
-import java.sql.SQLException;
+import com.arjuna.ats.jta.recovery.XAResourceRecoveryHelper;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-
-import com.arjuna.ats.jta.recovery.XAResourceRecoveryHelper;
-import lombok.extern.slf4j.Slf4j;
+import java.sql.SQLException;
 
 /**
  * XAResourceRecoveryHelper implementation which gets XIDs, which needs to be recovered, from the database.
@@ -33,55 +32,55 @@ import lombok.extern.slf4j.Slf4j;
  * @author Gytis Trikleris
  */
 @Slf4j
-public class DataSourceXAResourceRecoveryHelper implements XAResourceRecoveryHelper, XAResource {
-
+public final class DataSourceXAResourceRecoveryHelper implements XAResourceRecoveryHelper, XAResource {
+    
     private static final XAResource[] NO_XA_RESOURCES = {};
-
+    
     private final XADataSource xaDataSource;
-
+    
     private final String user;
-
+    
     private final String password;
-
+    
     private XAConnection xaConnection;
-
+    
     private XAResource delegate;
-
+    
     /**
      * Create a new {@link DataSourceXAResourceRecoveryHelper} instance.
      *
      * @param xaDataSource the XA data source
      */
-    public DataSourceXAResourceRecoveryHelper(XADataSource xaDataSource) {
+    public DataSourceXAResourceRecoveryHelper(final XADataSource xaDataSource) {
         this(xaDataSource, null, null);
     }
-
+    
     /**
      * Create a new {@link DataSourceXAResourceRecoveryHelper} instance.
      *
      * @param xaDataSource the XA data source
-     * @param user         the database user or {@code null}
-     * @param password     the database password or {@code null}
+     * @param user the database user or {@code null}
+     * @param password the database password or {@code null}
      */
-    public DataSourceXAResourceRecoveryHelper(XADataSource xaDataSource, String user, String password) {
+    public DataSourceXAResourceRecoveryHelper(final XADataSource xaDataSource, final String user, final String password) {
         this.xaDataSource = xaDataSource;
         this.user = user;
         this.password = password;
     }
-
+    
     @Override
-    public boolean initialise(String properties) {
+    public boolean initialise(final String properties) {
         return true;
     }
-
+    
     @Override
     public XAResource[] getXAResources() {
         if (connect()) {
-            return new XAResource[]{ this };
+            return new XAResource[] {this};
         }
         return NO_XA_RESOURCES;
     }
-
+    
     private boolean connect() {
         if (this.delegate == null) {
             try {
@@ -94,16 +93,16 @@ public class DataSourceXAResourceRecoveryHelper implements XAResourceRecoveryHel
         }
         return true;
     }
-
+    
     private XAConnection getXaConnection() throws SQLException {
         if (this.user == null && this.password == null) {
             return this.xaDataSource.getXAConnection();
         }
         return this.xaDataSource.getXAConnection(this.user, this.password);
     }
-
+    
     @Override
-    public Xid[] recover(int flag) throws XAException {
+    public Xid[] recover(final int flag) throws XAException {
         try {
             return getDelegate(true).recover(flag);
         } finally {
@@ -112,8 +111,8 @@ public class DataSourceXAResourceRecoveryHelper implements XAResourceRecoveryHel
             }
         }
     }
-
-    private void disconnect() throws XAException {
+    
+    private void disconnect() {
         try {
             this.xaConnection.close();
         } catch (SQLException e) {
@@ -123,57 +122,56 @@ public class DataSourceXAResourceRecoveryHelper implements XAResourceRecoveryHel
             this.delegate = null;
         }
     }
-
+    
     @Override
-    public void start(Xid xid, int flags) throws XAException {
+    public void start(final Xid xid, final int flags) throws XAException {
         getDelegate(true).start(xid, flags);
     }
-
+    
     @Override
-    public void end(Xid xid, int flags) throws XAException {
+    public void end(final Xid xid, final int flags) throws XAException {
         getDelegate(true).end(xid, flags);
     }
-
+    
     @Override
-    public int prepare(Xid xid) throws XAException {
+    public int prepare(final Xid xid) throws XAException {
         return getDelegate(true).prepare(xid);
     }
-
+    
     @Override
-    public void commit(Xid xid, boolean onePhase) throws XAException {
+    public void commit(final Xid xid, final boolean onePhase) throws XAException {
         getDelegate(true).commit(xid, onePhase);
     }
-
+    
     @Override
-    public void rollback(Xid xid) throws XAException {
+    public void rollback(final Xid xid) throws XAException {
         getDelegate(true).rollback(xid);
     }
-
+    
     @Override
-    public boolean isSameRM(XAResource xaResource) throws XAException {
+    public boolean isSameRM(final XAResource xaResource) throws XAException {
         return getDelegate(true).isSameRM(xaResource);
     }
-
+    
     @Override
-    public void forget(Xid xid) throws XAException {
+    public void forget(final Xid xid) throws XAException {
         getDelegate(true).forget(xid);
     }
-
+    
     @Override
     public int getTransactionTimeout() throws XAException {
         return getDelegate(true).getTransactionTimeout();
     }
-
+    
     @Override
-    public boolean setTransactionTimeout(int seconds) throws XAException {
+    public boolean setTransactionTimeout(final int seconds) throws XAException {
         return getDelegate(true).setTransactionTimeout(seconds);
     }
-
-    private XAResource getDelegate(boolean required) {
+    
+    private XAResource getDelegate(final boolean required) {
         if (this.delegate == null && required) {
             throw new IllegalStateException("Connection has not been opened");
         }
         return this.delegate;
     }
-
 }
