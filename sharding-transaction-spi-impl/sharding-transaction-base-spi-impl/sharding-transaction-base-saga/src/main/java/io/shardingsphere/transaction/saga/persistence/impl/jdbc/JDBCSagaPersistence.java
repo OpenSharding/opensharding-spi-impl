@@ -22,6 +22,7 @@ import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import org.apache.servicecomb.saga.core.EventEnvelope;
 import org.apache.servicecomb.saga.core.SagaEvent;
+import org.apache.shardingsphere.core.constant.DatabaseType;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -33,15 +34,21 @@ import java.util.Map;
  *
  * @author yangyi
  */
-public final class JDBCSagaPersistence implements SagaPersistence {
+public final class JDBCSagaPersistence implements SagaPersistence, TableCreator {
     
     private final JDBCSagaSnapshotRepository snapshotRepository;
     
     private final JDBCSagaEventRepository eventRepository;
     
-    public JDBCSagaPersistence(final DataSource dataSource) {
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource);
-        eventRepository = new JDBCSagaEventRepository(dataSource);
+    public JDBCSagaPersistence(final DataSource dataSource, final DatabaseType databaseType) {
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, databaseType);
+        eventRepository = new JDBCSagaEventRepository(dataSource, databaseType);
+    }
+    
+    @Override
+    public void createTableIfNotExists() {
+        snapshotRepository.createTableIfNotExists();
+        eventRepository.createTableIfNotExists();
     }
     
     @Override
