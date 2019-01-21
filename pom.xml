@@ -1,44 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.shardingsphere</groupId>
     <artifactId>shardingsphere-spi-impl</artifactId>
     <version>4.0.0.M1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <packaging>pom</packaging>
-    
+
     <modules>
         <module>sharding-orchestration-reg-spi-impl</module>
         <module>sharding-transaction-spi-impl</module>
     </modules>
-    
+
     <properties>
         <java.version>1.7</java.version>
         <maven.version.range>[3.0.4,)</maven.version.range>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.locale>zh_CN</project.build.locale>
-        
+
         <guava.version>18.0</guava.version>
         <slf4j.version>1.7.7</slf4j.version>
-    
+
         <javax.transaction.version>1.1</javax.transaction.version>
         <servicecomb.saga.version>0.3.0</servicecomb.saga.version>
         <btm.version>2.1.3</btm.version>
-        
+        <narayana.version>5.9.1.Final</narayana.version>
+        <jboss-transaction-spi.version>7.6.0.Final</jboss-transaction-spi.version>
+
         <zookeeper.version>3.4.6</zookeeper.version>
         <curator.version>2.10.0</curator.version>
         <grpc.version>1.7.0</grpc.version>
         <protobuf.version>3.4.0</protobuf.version>
-        
+
         <lombok.version>1.16.4</lombok.version>
-        
+
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
         <mockito.version>2.7.21</mockito.version>
         <logback.version>1.2.0</logback.version>
-        
+
         <hikari-cp.version>2.4.11</hikari-cp.version>
         <alibaba.druid.version>1.1.11</alibaba.druid.version>
         <commons-dbcp2.version>2.2.0</commons-dbcp2.version>
@@ -48,7 +50,7 @@
         <mysql-connector-java.version>5.1.42</mysql-connector-java.version>
         <postgresql.version>9.4.1212</postgresql.version>
         <mssql.version>6.1.7.jre7-preview</mssql.version>
-        
+
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
@@ -74,10 +76,10 @@
         <protobuf-maven-plugin.version>0.5.0</protobuf-maven-plugin.version>
         <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
         <docker-maven-plugin.version>0.4.14</docker-maven-plugin.version>
-        
+
         <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
     </properties>
-    
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -105,7 +107,7 @@
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>javax.transaction</groupId>
                 <artifactId>jta</artifactId>
@@ -121,20 +123,36 @@
                 <artifactId>saga-format</artifactId>
                 <version>${servicecomb.saga.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
-            
+
+            <dependency>
+                <groupId>org.jboss.narayana.jta</groupId>
+                <artifactId>jta</artifactId>
+                <version>${narayana.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.narayana.jts</groupId>
+                <artifactId>narayana-jts-integration</artifactId>
+                <version>${narayana.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss</groupId>
+                <artifactId>jboss-transaction-spi</artifactId>
+                <version>${jboss-transaction-spi.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -177,14 +195,14 @@
                 </exclusions>
                 <scope>test</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-test</artifactId>
                 <version>${curator.version}</version>
                 <scope>test</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP-java7</artifactId>
@@ -247,7 +265,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -261,12 +279,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -288,7 +306,7 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <extensions>
             <extension>
@@ -556,7 +574,7 @@
              -->
         </plugins>
     </build>
-    
+
     <repositories>
         <repository>
             <id>alfresco-maven-repo</id>
@@ -583,7 +601,7 @@
             </releases>
         </repository>
     </repositories>
-    
+
     <url>http://shardingsphere.io</url>
     <description>Distributed database middleware ecosphere</description>
     <licenses>
@@ -593,13 +611,13 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <scm>
         <connection>scm:https://github.com/sharding-sphere/shardingsphere-spi-impl</connection>
         <developerConnection>scm:https://github.com/sharding-sphere/shardingsphere-spi-impl</developerConnection>
         <url>https://github.com/sharding-sphere/shardingsphere-spi-impl</url>
     </scm>
-    
+
     <distributionManagement>
         <snapshotRepository>
             <id>sonatype-nexus-snapshots</id>
