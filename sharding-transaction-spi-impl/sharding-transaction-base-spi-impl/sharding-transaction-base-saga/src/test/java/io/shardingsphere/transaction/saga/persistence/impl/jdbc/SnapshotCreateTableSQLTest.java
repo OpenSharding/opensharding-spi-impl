@@ -15,17 +15,12 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.persistence;
+package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-
-import io.shardingsphere.transaction.saga.persistence.impl.jdbc.AllJDBCPersistenceTests;
-
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        SagaPersistenceLoaderTest.class,
-        AllJDBCPersistenceTests.class
-})
-public class AllPersistenceTests {
+public final class SnapshotCreateTableSQLTest extends AbstractCreateTableSQLTest {
+    
+    @Override
+    protected AbstractCreateTableSQLAdapter getCreateTableSQLAdapter() {
+        return new SnapshotCreateTableSQL();
+    }
 }

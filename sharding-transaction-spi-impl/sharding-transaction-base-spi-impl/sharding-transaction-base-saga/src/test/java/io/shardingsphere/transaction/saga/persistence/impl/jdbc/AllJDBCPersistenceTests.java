@@ -15,17 +15,18 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.persistence;
+package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import io.shardingsphere.transaction.saga.persistence.impl.jdbc.AllJDBCPersistenceTests;
-
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        SagaPersistenceLoaderTest.class,
-        AllJDBCPersistenceTests.class
+        EventCreateTableSQLTest.class,
+        SnapshotCreateTableSQLTest.class,
+        JDBCSagaEventRepositoryTest.class,
+        JDBCSagaPersistenceTest.class,
+        JDBCSagaSnapshotRepositoryTest.class
 })
-public class AllPersistenceTests {
+public class AllJDBCPersistenceTests {
 }
