@@ -14,5 +14,6 @@
     
     <modules>
         <module>sharding-transaction-xa-bitronix</module>
+        <module>sharding-transaction-xa-narayana</module>
     </modules>
 </project>
