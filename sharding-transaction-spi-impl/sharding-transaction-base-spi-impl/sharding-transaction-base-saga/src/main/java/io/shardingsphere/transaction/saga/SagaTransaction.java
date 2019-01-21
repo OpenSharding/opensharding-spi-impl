@@ -95,8 +95,8 @@ public final class SagaTransaction {
         currentBranchTransactionGroup.add(sagaBranchTransaction);
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy())) {
             sqlRevert(sagaBranchTransaction);
+            persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResults.get(sagaBranchTransaction), ExecuteStatus.EXECUTING));
         }
-        persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResults.get(sagaBranchTransaction), ExecuteStatus.EXECUTING));
     }
     
     private void sqlRevert(final SagaBranchTransaction sagaBranchTransaction) {
@@ -115,7 +115,9 @@ public final class SagaTransaction {
      * @param executeStatus execute status
      */
     public void updateSnapshot(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        persistence.updateSnapshotStatus(id, sagaBranchTransaction.hashCode(), executeStatus);
+        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy())) {
+            persistence.updateSnapshotStatus(id, sagaBranchTransaction.hashCode(), executeStatus);
+        }
     }
     
     /**

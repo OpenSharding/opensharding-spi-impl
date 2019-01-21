@@ -43,6 +43,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,6 +73,9 @@ public final class SagaTransactionTest {
         sagaTransaction.nextBranchTransactionGroup();
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
         sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
+        verify(persistence, never()).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
+        sagaTransaction.getSagaConfiguration().setRecoveryPolicy(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
+        sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
         verify(persistence).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
     }
     
@@ -79,6 +83,9 @@ public final class SagaTransactionTest {
     public void assertUpdateSnapshot() {
         sagaTransaction.nextBranchTransactionGroup();
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
+        verify(persistence, never()).updateSnapshotStatus(ArgumentMatchers.<String>any(), eq(sagaBranchTransaction.hashCode()), eq(ExecuteStatus.SUCCESS));
+        sagaTransaction.getSagaConfiguration().setRecoveryPolicy(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
         sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         verify(persistence).updateSnapshotStatus(ArgumentMatchers.<String>any(), eq(sagaBranchTransaction.hashCode()), eq(ExecuteStatus.SUCCESS));
     }
@@ -127,5 +134,11 @@ public final class SagaTransactionTest {
         assertTrue(request.containsKey("compensation"));
         assertTrue(request.containsKey("parents"));
         assertTrue(request.containsKey("failRetryDelayMilliseconds"));
+    }
+    
+    @Test
+    public void assertCleanSnapshot() {
+        sagaTransaction.cleanSnapshot();
+        verify(persistence).cleanSnapshot(ArgumentMatchers.<String>any());
     }
 }
