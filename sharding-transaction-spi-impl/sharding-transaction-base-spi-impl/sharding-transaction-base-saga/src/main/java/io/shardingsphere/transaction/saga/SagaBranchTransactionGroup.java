@@ -15,38 +15,31 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.hook;
+package io.shardingsphere.transaction.saga;
 
-import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
-import io.shardingsphere.transaction.saga.SagaTransaction;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
-import org.apache.shardingsphere.spi.parsing.ParsingHook;
+
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Saga SQL parsing hook.
+ * Saga branch transaction Group.
  *
  * @author yangyi
  */
-public final class SagaSQLParsingHook implements ParsingHook {
+@RequiredArgsConstructor
+@Getter
+public class SagaBranchTransactionGroup {
     
-    private final SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
+    private final String logicSQL;
     
-    private String sql;
+    private final SQLStatement sqlStatement;
     
-    @Override
-    public void start(final String sql) {
-        this.sql = sql;
-    }
+    private final ShardingTableMetaData shardingTableMetaData;
     
-    @Override
-    public void finishSuccess(final SQLStatement sqlStatement, final ShardingTableMetaData shardingTableMetaData) {
-        if (null != sagaTransaction) {
-            sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
-        }
-    }
-    
-    @Override
-    public void finishFailure(final Exception cause) {
-    }
+    private final Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
 }

@@ -57,6 +57,7 @@ public final class SagaSQLExecutionHookTest {
     public void setUp() {
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY, sagaTransaction);
+        when(sagaTransaction.isDMLBranchTransactionGroup()).thenReturn(true);
         ShardingExecuteDataMap.setDataMap(dataMap);
     }
     

@@ -27,17 +27,18 @@ import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionB
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
+import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.exception.ShardingException;
+import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -61,18 +62,33 @@ public final class SagaTransaction {
     
     private final Map<SagaBranchTransaction, SQLRevertResult> revertResults = new ConcurrentHashMap<>();
     
-    private final List<Queue<SagaBranchTransaction>> branchTransactionGroups = new LinkedList<>();
+    private final List<SagaBranchTransactionGroup> branchTransactionGroups = new LinkedList<>();
     
-    private Queue<SagaBranchTransaction> currentBranchTransactionGroup;
+    private SagaBranchTransactionGroup currentBranchTransactionGroup;
     
     private volatile boolean containsException;
     
     /**
      * Go to next branch transaction group.
+     *
+     * @param logicSQL logic sql
+     * @param sqlStatement sql statement
+     * @param shardingTableMetaData sharding table meta data
      */
-    public void nextBranchTransactionGroup() {
-        currentBranchTransactionGroup = new ConcurrentLinkedQueue<>();
-        branchTransactionGroups.add(currentBranchTransactionGroup);
+    public void nextBranchTransactionGroup(final String logicSQL, final SQLStatement sqlStatement, final ShardingTableMetaData shardingTableMetaData) {
+        currentBranchTransactionGroup = new SagaBranchTransactionGroup(logicSQL, sqlStatement, shardingTableMetaData);
+        if (isDMLBranchTransactionGroup()) {
+            branchTransactionGroups.add(currentBranchTransactionGroup);
+        }
+    }
+    
+    /**
+     * Whether current branch transaction group is DML.
+     *
+     * @return current branch transaction group is DML
+     */
+    public boolean isDMLBranchTransactionGroup() {
+        return SQLType.DML == currentBranchTransactionGroup.getSqlStatement().getType();
     }
     
     /**
@@ -92,7 +108,7 @@ public final class SagaTransaction {
      * @param sagaBranchTransaction saga branch transaction
      */
     public void saveNewSnapshot(final SagaBranchTransaction sagaBranchTransaction) {
-        currentBranchTransactionGroup.add(sagaBranchTransaction);
+        currentBranchTransactionGroup.getBranchTransactions().add(sagaBranchTransaction);
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy())) {
             sqlRevert(sagaBranchTransaction);
             persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResults.get(sagaBranchTransaction), ExecuteStatus.EXECUTING));
@@ -128,15 +144,15 @@ public final class SagaTransaction {
     public SagaDefinitionBuilder getSagaDefinitionBuilder() {
         SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(), 
                 sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
-        for (Queue<SagaBranchTransaction> each : branchTransactionGroups) {
+        for (SagaBranchTransactionGroup each : branchTransactionGroups) {
             result.switchParents();
             initSagaDefinitionForGroup(result, each);
         }
         return result;
     }
     
-    private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final Queue<SagaBranchTransaction> sagaBranchTransactionGroup) {
-        for (SagaBranchTransaction each : sagaBranchTransactionGroup) {
+    private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final SagaBranchTransactionGroup sagaBranchTransactionGroup) {
+        for (SagaBranchTransaction each : sagaBranchTransactionGroup.getBranchTransactions()) {
             SQLRevertResult revertResult = revertResults.containsKey(each) ? revertResults.get(each) : new SQLRevertResult();
             sagaDefinitionBuilder.addChildRequest(
                     String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getSql(), revertResult.getParameterSets());
