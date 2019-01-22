@@ -118,7 +118,7 @@ public final class SagaTransaction {
     private void sqlRevert(final SagaBranchTransaction sagaBranchTransaction) {
         SQLRevertEngine sqlRevertEngine = new SQLRevertEngine(connections);
         try {
-            revertResults.put(sagaBranchTransaction, sqlRevertEngine.revert(sagaBranchTransaction.getDataSourceName(), sagaBranchTransaction.getSql(), sagaBranchTransaction.getParameterSets()));
+            revertResults.put(sagaBranchTransaction, sqlRevertEngine.revert(sagaBranchTransaction, currentBranchTransactionGroup));
         } catch (final SQLException ex) {
             throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
         }

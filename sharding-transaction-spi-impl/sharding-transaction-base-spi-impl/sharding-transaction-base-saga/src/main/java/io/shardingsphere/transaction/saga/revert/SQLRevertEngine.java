@@ -17,6 +17,8 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
+import io.shardingsphere.transaction.saga.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.SagaBranchTransactionGroup;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
@@ -38,16 +40,15 @@ public final class SQLRevertEngine {
     /**
      * Get revert result.
      *
-     * @param datasourceName data source name
-     * @param sql SQL to be reverted
-     * @param parameterSets SQL parameters
+     * @param sagaBranchTransaction saga branch transaction
+     * @param sagaBranchTransactionGroup saga branch transaction group
      * @return revert result
      * @throws SQLException SQL exception
      */
-    public SQLRevertResult revert(final String datasourceName, final String sql, final List<List<Object>> parameterSets) throws SQLException {
+    public SQLRevertResult revert(final SagaBranchTransaction sagaBranchTransaction, final SagaBranchTransactionGroup sagaBranchTransactionGroup) throws SQLException {
         SQLRevertResult result = new SQLRevertResult();
         result.setSql("");
-        for (List<Object> each : parameterSets) {
+        for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
             // TODO use new SnapShotEngine to get revert result.
             result.getParameterSets().add(new ArrayList<>());
         }
