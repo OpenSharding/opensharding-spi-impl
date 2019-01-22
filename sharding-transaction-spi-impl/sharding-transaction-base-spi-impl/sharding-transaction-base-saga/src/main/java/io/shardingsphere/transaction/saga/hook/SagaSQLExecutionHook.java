@@ -46,6 +46,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
             if (sagaTransaction.isDMLBranchTransactionGroup()) {
                 sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
+                sagaBranchTransaction.setActualTableName(routeUnit.getTableUnit().getRoutingTables().get(0).getActualTableName());
                 sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
                 sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
             }

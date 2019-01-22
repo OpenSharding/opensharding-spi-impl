@@ -28,11 +28,14 @@ public final class SagaBranchTransactionTest {
     
     private String dataSourceName = "dataSourceName";
     
+    private String actualTableName = "actualTableName";
+    
     private String sql = "sql";
     
     @Test
     public void assertHashCode() {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
+        sagaBranchTransaction.setActualTableName(actualTableName);
         assertTrue(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).hashCode() == sagaBranchTransaction.hashCode());
         assertTrue(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()).hashCode() == sagaBranchTransaction.hashCode());
     }
@@ -40,6 +43,7 @@ public final class SagaBranchTransactionTest {
     @Test
     public void assertEquals() {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
+        sagaBranchTransaction.setActualTableName(actualTableName);
         assertTrue(sagaBranchTransaction.equals(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets())));
         assertTrue(sagaBranchTransaction.equals(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets())));
     }
@@ -47,6 +51,7 @@ public final class SagaBranchTransactionTest {
     @Test
     public void assertToString() {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
+        sagaBranchTransaction.setActualTableName(actualTableName);
         assertTrue(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).toString().equals(sagaBranchTransaction.toString()));
         assertTrue(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()).toString().equals(sagaBranchTransaction.toString()));
     }
