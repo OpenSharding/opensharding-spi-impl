@@ -19,6 +19,9 @@ package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
+import org.apache.shardingsphere.core.constant.DatabaseType;
+import org.apache.shardingsphere.core.exception.ShardingException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +29,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * JDBC saga snapshot repository.
@@ -34,7 +38,11 @@ import java.sql.SQLException;
  */
 @RequiredArgsConstructor
 @Slf4j
-public final class JDBCSagaSnapshotRepository {
+public final class JDBCSagaSnapshotRepository implements TableCreator {
+    
+    private static final String SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL = "CREATE INDEX transaction_id_index ON saga_snapshot(transaction_id)";
+    
+    private static final String SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL = "CREATE INDEX snapshot_id_index ON saga_snapshot(snapshot_id)";
     
     private static final String INSERT_SQL = "INSERT INTO saga_snapshot (transaction_id, snapshot_id, transaction_context, revert_context, execute_status) values (?, ?, ?, ?, ?)";
     
@@ -43,6 +51,25 @@ public final class JDBCSagaSnapshotRepository {
     private static final String DELETE_SQL = "DELETE FROM saga_snapshot WHERE transaction_id = ?";
     
     private final DataSource dataSource;
+    
+    private final DatabaseType databaseType;
+    
+    @Override
+    public void createTableIfNotExists() {
+        SnapshotCreateTableSQL createTableSQL = new SnapshotCreateTableSQL();
+        try (Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement()) {
+            statement.executeUpdate(createTableSQL.getCreateTableSQL(databaseType));
+            createIndex(statement);
+        } catch (SQLException ex) {
+            throw new ShardingException("Create saga snapshot persistence table failed", ex);
+        }
+    }
+    
+    private void createIndex(final Statement statement) throws SQLException {
+        statement.executeUpdate(SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL);
+        statement.executeUpdate(SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL);
+    }
     
     /**
      * Insert new saga snapshot.

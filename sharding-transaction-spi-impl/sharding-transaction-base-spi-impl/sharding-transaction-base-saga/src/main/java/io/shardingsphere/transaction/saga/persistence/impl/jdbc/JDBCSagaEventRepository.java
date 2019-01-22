@@ -22,11 +22,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.servicecomb.saga.core.JacksonToJsonFormat;
 import org.apache.servicecomb.saga.core.SagaEvent;
 import org.apache.servicecomb.saga.core.ToJsonFormat;
+import org.apache.shardingsphere.core.constant.DatabaseType;
+import org.apache.shardingsphere.core.exception.ShardingException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * JDBC saga event repository.
@@ -35,15 +38,33 @@ import java.sql.SQLException;
  */
 @RequiredArgsConstructor
 @Slf4j
-public final class JDBCSagaEventRepository {
+public final class JDBCSagaEventRepository implements TableCreator {
+    
+    private static final String CREATE_INDEX_SQL = "CREATE INDEX running_sagas_index ON saga_event (saga_id, type)";
     
     private static final String INSERT_SQL = "INSERT INTO saga_event (saga_id, type, content_json) values (?, ?, ?)";
-    
-    private static final String FIND_INCOMPLETE_SAGA_EVENTS_SQL = "SELECT * FROM saga_event WHERE saga_id NOT IN (SELECT DISTINCT saga_id FROM saga_event WHERE type = 'SagaEndedEvent')";
-    
+
     private final DataSource dataSource;
     
+    private final DatabaseType databaseType;
+    
     private final ToJsonFormat toJsonFormat = new JacksonToJsonFormat();
+    
+    @Override
+    public void createTableIfNotExists() {
+        EventCreateTableSQL createTableSQL = new EventCreateTableSQL();
+        try (Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement()) {
+            statement.executeUpdate(createTableSQL.getCreateTableSQL(databaseType));
+            createIndex(statement);
+        } catch (SQLException ex) {
+            throw new ShardingException("Create saga event persistence table failed", ex);
+        }
+    }
+    
+    private void createIndex(final Statement statement) throws SQLException {
+        statement.executeUpdate(CREATE_INDEX_SQL);
+    }
     
     /**
      * Insert new saga event.
@@ -52,11 +73,11 @@ public final class JDBCSagaEventRepository {
      */
     public void insert(final SagaEvent sagaEvent) {
         try (Connection connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
-            statement.setObject(1, sagaEvent.sagaId);
-            statement.setObject(2, sagaEvent.getClass().getSimpleName());
-            statement.setObject(3, sagaEvent.json(toJsonFormat));
-            statement.executeUpdate();
+            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
+            preparedStatement.setObject(1, sagaEvent.sagaId);
+            preparedStatement.setObject(2, sagaEvent.getClass().getSimpleName());
+            preparedStatement.setObject(3, sagaEvent.json(toJsonFormat));
+            preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             log.warn("Persist saga event failed", ex);
         }

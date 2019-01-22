@@ -20,6 +20,8 @@ package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.SagaEvent;
 import org.apache.servicecomb.saga.core.ToJsonFormat;
+import org.apache.shardingsphere.core.constant.DatabaseType;
+import org.apache.shardingsphere.core.exception.ShardingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,10 +32,13 @@ import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,10 +53,31 @@ public class JDBCSagaEventRepositoryTest {
     @Before
     @SneakyThrows
     public void setUp() {
-        eventRepository = new JDBCSagaEventRepository(dataSource);
+        eventRepository = new JDBCSagaEventRepository(dataSource, DatabaseType.MySQL);
         Field dataSourceField = JDBCSagaEventRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(eventRepository, dataSource);
+    }
+    
+    @Test
+    @SneakyThrows
+    public void assertCreateTableIfNotExistsSuccess() {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.createStatement()).thenReturn(statement);
+        eventRepository.createTableIfNotExists();
+        verify(statement, times(2)).executeUpdate(anyString());
+    }
+    
+    @Test(expected = ShardingException.class)
+    public void assertCreateTableIfNotExistsFailure() throws SQLException {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.createStatement()).thenReturn(statement);
+        when(statement.executeUpdate(anyString())).thenThrow(new SQLException("test execute fail"));
+        eventRepository.createTableIfNotExists();
     }
     
     @Test

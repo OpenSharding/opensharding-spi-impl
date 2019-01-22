@@ -24,6 +24,9 @@ import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
+import org.apache.shardingsphere.core.constant.SQLType;
+import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +46,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class SagaTransactionTest {
@@ -53,32 +58,47 @@ public final class SagaTransactionTest {
     @Mock
     private SagaPersistence persistence;
     
+    @Mock
+    private SQLStatement sqlStatement;
+    
+    @Mock
+    private ShardingTableMetaData shardingTableMetaData;
+    
+    private final String sql = "UPDATE";
+    
     @Before
     public void setUp() {
         sagaTransaction = new SagaTransaction(new SagaConfiguration(), persistence);
+        when(sqlStatement.getType()).thenReturn(SQLType.DML);
     }
     
     @Test
     public void assertNextBranchTransactionGroup() {
-        sagaTransaction.nextBranchTransactionGroup();
+        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
         assertNotNull(sagaTransaction.getCurrentBranchTransactionGroup());
         assertThat(sagaTransaction.getBranchTransactionGroups().size(), is(1));
-        sagaTransaction.nextBranchTransactionGroup();
+        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
         assertThat(sagaTransaction.getBranchTransactionGroups().size(), is(2));
     }
     
     @Test
     public void assertSaveNewSnapshot() {
-        sagaTransaction.nextBranchTransactionGroup();
+        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
+        verify(persistence, never()).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
+        sagaTransaction.getSagaConfiguration().setRecoveryPolicy(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
         sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
         verify(persistence).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
     }
     
     @Test
     public void assertUpdateSnapshot() {
-        sagaTransaction.nextBranchTransactionGroup();
+        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
+        verify(persistence, never()).updateSnapshotStatus(ArgumentMatchers.<String>any(), eq(sagaBranchTransaction.hashCode()), eq(ExecuteStatus.SUCCESS));
+        sagaTransaction.getSagaConfiguration().setRecoveryPolicy(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
         sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         verify(persistence).updateSnapshotStatus(ArgumentMatchers.<String>any(), eq(sagaBranchTransaction.hashCode()), eq(ExecuteStatus.SUCCESS));
     }
@@ -106,7 +126,7 @@ public final class SagaTransactionTest {
     @SuppressWarnings("unchecked")
     @Test
     public void assertGetSagaDefinitionBuilder() throws IOException {
-        sagaTransaction.nextBranchTransactionGroup();
+        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
         sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
         sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
@@ -127,5 +147,11 @@ public final class SagaTransactionTest {
         assertTrue(request.containsKey("compensation"));
         assertTrue(request.containsKey("parents"));
         assertTrue(request.containsKey("failRetryDelayMilliseconds"));
+    }
+    
+    @Test
+    public void assertCleanSnapshot() {
+        sagaTransaction.cleanSnapshot();
+        verify(persistence).cleanSnapshot(ArgumentMatchers.<String>any());
     }
 }

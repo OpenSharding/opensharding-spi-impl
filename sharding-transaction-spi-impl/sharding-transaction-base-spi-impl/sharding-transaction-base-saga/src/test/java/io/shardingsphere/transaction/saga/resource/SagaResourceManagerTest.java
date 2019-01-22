@@ -31,6 +31,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public final class SagaResourceManagerTest {
     
@@ -71,6 +72,17 @@ public final class SagaResourceManagerTest {
         assertThat(getDataSourceMap().size(), is(3));
         resourceManager.releaseDataSourceMap();
         assertTrue(getDataSourceMap().isEmpty());
+    }
+    
+    @Test
+    @SneakyThrows
+    public void assertGetConnection() {
+        Map<String, DataSource> dataSourceMap = new HashMap<>();
+        DataSource dataSource = mock(DataSource.class);
+        dataSourceMap.put("ds1", dataSource);
+        resourceManager.registerDataSourceMap(dataSourceMap);
+        resourceManager.getConnection("ds1");
+        verify(dataSource).getConnection();
     }
     
     @SuppressWarnings("unchecked")

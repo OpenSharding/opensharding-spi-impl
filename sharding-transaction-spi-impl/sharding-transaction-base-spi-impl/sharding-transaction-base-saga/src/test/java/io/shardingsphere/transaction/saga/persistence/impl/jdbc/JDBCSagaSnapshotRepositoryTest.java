@@ -22,6 +22,9 @@ import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import lombok.SneakyThrows;
+
+import org.apache.shardingsphere.core.constant.DatabaseType;
+import org.apache.shardingsphere.core.exception.ShardingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,9 +35,12 @@ import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,10 +55,31 @@ public class JDBCSagaSnapshotRepositoryTest {
     @Before
     @SneakyThrows
     public void setUp() {
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource);
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, DatabaseType.MySQL);
         Field dataSourceField = JDBCSagaSnapshotRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(snapshotRepository, dataSource);
+    }
+    
+    @Test
+    @SneakyThrows
+    public void assertCreateTableIfNotExistsSuccess() {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.createStatement()).thenReturn(statement);
+        snapshotRepository.createTableIfNotExists();
+        verify(statement, times(3)).executeUpdate(anyString());
+    }
+    
+    @Test(expected = ShardingException.class)
+    public void assertCreateTableIfNotExistsFailure() throws SQLException {
+        Connection connection = mock(Connection.class);
+        Statement statement = mock(Statement.class);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.createStatement()).thenReturn(statement);
+        when(statement.executeUpdate(anyString())).thenThrow(new SQLException("test execute fail"));
+        snapshotRepository.createTableIfNotExists();
     }
     
     @Test
