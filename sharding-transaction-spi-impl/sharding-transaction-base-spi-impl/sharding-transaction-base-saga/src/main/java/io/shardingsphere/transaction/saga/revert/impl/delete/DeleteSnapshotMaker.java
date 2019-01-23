@@ -57,7 +57,7 @@ public class DeleteSnapshotMaker {
         fillSelectItem(builder, snapshotParameter, keys);
         builder.append(DefaultKeyword.FROM).append(" ");
         builder.append(snapshotParameter.getActualTable());
-        if(!snapshotParameter.getStatement().getUpdateTables().isEmpty()) {
+        if (!snapshotParameter.getStatement().getUpdateTables().isEmpty()) {
             String alias = snapshotParameter.getStatement().getUpdateTables().keySet().iterator().next();
             if (null != alias) {
                 builder.append(" ").append(alias).append(" ");
