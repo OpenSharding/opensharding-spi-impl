@@ -17,13 +17,15 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
+import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaBranchTransactionGroup;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,10 +49,20 @@ public final class SQLRevertEngine {
      */
     public SQLRevertResult revert(final SagaBranchTransaction sagaBranchTransaction, final SagaBranchTransactionGroup sagaBranchTransactionGroup) throws SQLException {
         SQLRevertResult result = new SQLRevertResult();
-        result.setSql("");
+        DMLStatement dmlStatement = (DMLStatement) sagaBranchTransactionGroup.getSqlStatement();
+        TableMetaData tableMetaData = sagaBranchTransactionGroup.getShardingTableMetaData().get(dmlStatement.getTables().getSingleTableName());
+        Connection actualConnection = connectionMap.get(sagaBranchTransaction.getDataSourceName());
+        String actualTableName = sagaBranchTransaction.getActualTableName();
+        String logicSQL = sagaBranchTransactionGroup.getLogicSQL();
+        String actualSQL = sagaBranchTransaction.getSql();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
-            // TODO use new SnapShotEngine to get revert result.
-            result.getParameterSets().add(new ArrayList<>());
+            SnapshotParameter snapshotParameter = new SnapshotParameter(tableMetaData, dmlStatement, actualConnection, actualTableName, logicSQL, actualSQL, each);
+            RevertOperate revertOperate = new MockRevertOperate();
+            Optional<SQLRevertResult> revertResultOptional = revertOperate.snapshot(snapshotParameter);
+            if (revertResultOptional.isPresent()) {
+                result.setSql(revertResultOptional.get().getSql());
+                result.getParameterSets().addAll(revertResultOptional.get().getParameterSets());
+            }
         }
         return result;
     }

@@ -20,7 +20,8 @@ package io.shardingsphere.transaction.saga.revert;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaBranchTransactionGroup;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
+import org.apache.shardingsphere.core.parsing.parser.context.table.Tables;
+import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -32,6 +33,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public final class SQLRevertEngineTest {
     
@@ -41,7 +43,9 @@ public final class SQLRevertEngineTest {
     public void assertRevert() throws SQLException {
         // TODO rewrite after SnapShotEngine complete
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction("", "", Collections.<List<Object>>emptyList());
-        SagaBranchTransactionGroup sagaBranchTransactionGroup = new SagaBranchTransactionGroup("", mock(SQLStatement.class), mock(ShardingTableMetaData.class));
+        DMLStatement dmlStatement = mock(DMLStatement.class);
+        when(dmlStatement.getTables()).thenReturn(mock(Tables.class));
+        SagaBranchTransactionGroup sagaBranchTransactionGroup = new SagaBranchTransactionGroup("", dmlStatement, mock(ShardingTableMetaData.class));
         SQLRevertResult result = revertEngine.revert(sagaBranchTransaction, sagaBranchTransactionGroup);
         assertThat(result.getSql(), is(""));
         assertThat(result.getParameterSets().size(), is(0));
