@@ -15,41 +15,12 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
-import java.util.List;
-
-/**
- * Saga branch transaction.
- *
- * @author yangyi
- */
-@RequiredArgsConstructor
-@Getter
-@Setter
-@ToString(exclude = "actualTableName")
-public final class SagaBranchTransaction {
-    
-    private final String dataSourceName;
-    
-    private final String sql;
-    
-    private final List<List<Object>> parameterSets;
-    
-    private String actualTableName;
+public final class SnapshotCreateTableSQLTest extends AbstractCreateTableSQLTest {
     
     @Override
-    public int hashCode() {
-        return toString().hashCode();
-    }
-    
-    @Override
-    public boolean equals(final Object obj) {
-        return this == obj || obj instanceof SagaBranchTransaction && this.toString().equals(obj.toString());
+    protected AbstractCreateTableSQLAdapter getCreateTableSQLAdapter() {
+        return new SnapshotCreateTableSQL();
     }
 }

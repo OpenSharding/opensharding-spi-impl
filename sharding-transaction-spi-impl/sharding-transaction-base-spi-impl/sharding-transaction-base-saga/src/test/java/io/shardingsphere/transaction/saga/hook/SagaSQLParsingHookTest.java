@@ -18,6 +18,8 @@
 package io.shardingsphere.transaction.saga.hook;
 
 import io.shardingsphere.transaction.saga.SagaTransaction;
+import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,7 +48,11 @@ public final class SagaSQLParsingHookTest {
     
     @Test
     public void assertFinishSuccess() {
-        sagaSQLParsingHook.finishSuccess();
-        verify(sagaTransaction).nextBranchTransactionGroup();
+        String sql = "UPDATE";
+        SQLStatement sqlStatement = mock(SQLStatement.class);
+        ShardingTableMetaData shardingTableMetaData = mock(ShardingTableMetaData.class);
+        sagaSQLParsingHook.start(sql);
+        sagaSQLParsingHook.finishSuccess(sqlStatement, shardingTableMetaData);
+        verify(sagaTransaction).nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
     }
 }

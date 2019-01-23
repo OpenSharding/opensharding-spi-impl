@@ -21,6 +21,7 @@ import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.SagaEvent;
+import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,13 +50,20 @@ public final class JDBCSagaPersistenceTest {
     @Before
     @SneakyThrows
     public void setUp() {
-        sagaPersistence = new JDBCSagaPersistence(mock(DataSource.class));
+        sagaPersistence = new JDBCSagaPersistence(mock(DataSource.class), DatabaseType.MySQL);
         Field snapshotRepositoryField = JDBCSagaPersistence.class.getDeclaredField("snapshotRepository");
         snapshotRepositoryField.setAccessible(true);
         snapshotRepositoryField.set(sagaPersistence, snapshotRepository);
         Field eventRepositoryField = JDBCSagaPersistence.class.getDeclaredField("eventRepository");
         eventRepositoryField.setAccessible(true);
         eventRepositoryField.set(sagaPersistence, eventRepository);
+    }
+    
+    @Test
+    public void assertCreateTableIfNotExists() {
+        sagaPersistence.createTableIfNotExists();
+        verify(snapshotRepository).createTableIfNotExists();
+        verify(eventRepository).createTableIfNotExists();
     }
     
     @Test

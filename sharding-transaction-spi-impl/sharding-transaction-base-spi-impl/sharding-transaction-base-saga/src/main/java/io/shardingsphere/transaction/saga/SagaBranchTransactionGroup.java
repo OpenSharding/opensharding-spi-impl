@@ -19,37 +19,27 @@ package io.shardingsphere.transaction.saga;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
-import java.util.List;
+import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
+
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Saga branch transaction.
+ * Saga branch transaction Group.
  *
  * @author yangyi
  */
 @RequiredArgsConstructor
 @Getter
-@Setter
-@ToString(exclude = "actualTableName")
-public final class SagaBranchTransaction {
+public class SagaBranchTransactionGroup {
     
-    private final String dataSourceName;
+    private final String logicSQL;
     
-    private final String sql;
+    private final SQLStatement sqlStatement;
     
-    private final List<List<Object>> parameterSets;
+    private final ShardingTableMetaData shardingTableMetaData;
     
-    private String actualTableName;
-    
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
-    }
-    
-    @Override
-    public boolean equals(final Object obj) {
-        return this == obj || obj instanceof SagaBranchTransaction && this.toString().equals(obj.toString());
-    }
+    private final Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
 }

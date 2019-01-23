@@ -20,6 +20,8 @@ package io.shardingsphere.transaction.saga.persistence;
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 import io.shardingsphere.transaction.saga.config.SagaPersistenceConfiguration;
 import io.shardingsphere.transaction.saga.persistence.impl.EmptySagaPersistence;
+import io.shardingsphere.transaction.saga.persistence.impl.jdbc.JDBCSagaPersistence;
+import org.apache.shardingsphere.core.exception.ShardingException;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -38,6 +40,22 @@ public final class SagaPersistenceLoaderTest {
         SagaPersistenceConfiguration persistenceConfiguration = new SagaPersistenceConfiguration();
         persistenceConfiguration.setEnablePersistence(true);
         persistenceConfiguration.setUrl("jdbc:mysql://localhost:3306/saga");
+        SagaPersistenceLoader.load(persistenceConfiguration);
+    }
+    
+    @Test
+    public void assertLoadDefaultPersistenceWithH2() {
+        SagaPersistenceConfiguration persistenceConfiguration = new SagaPersistenceConfiguration();
+        persistenceConfiguration.setEnablePersistence(true);
+        persistenceConfiguration.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;");
+        assertThat(SagaPersistenceLoader.load(persistenceConfiguration), instanceOf(JDBCSagaPersistence.class));
+    }
+    
+    @Test(expected = ShardingException.class)
+    public void assertWithoutJDBCDriver() {
+        SagaPersistenceConfiguration persistenceConfiguration = new SagaPersistenceConfiguration();
+        persistenceConfiguration.setEnablePersistence(true);
+        persistenceConfiguration.setUrl("jdbc:postgresql://localhost:5432/saga");
         SagaPersistenceLoader.load(persistenceConfiguration);
     }
 }

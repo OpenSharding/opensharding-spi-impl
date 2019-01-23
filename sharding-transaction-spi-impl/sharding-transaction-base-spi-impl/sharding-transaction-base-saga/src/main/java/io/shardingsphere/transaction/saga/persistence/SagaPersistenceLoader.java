@@ -24,10 +24,11 @@ import io.shardingsphere.transaction.saga.persistence.impl.EmptySagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.impl.jdbc.JDBCSagaPersistence;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.exception.ShardingException;
-import org.apache.shardingsphere.core.metadata.datasource.dialect.MySQLDataSourceMetaData;
 
 import javax.sql.DataSource;
 import java.util.ServiceLoader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Saga persistence loader.
@@ -35,6 +36,8 @@ import java.util.ServiceLoader;
  * @author yangyi
  */
 public final class SagaPersistenceLoader {
+    
+    private static final Pattern JDBC_DATABASE_TYPE_JDBC_URL_PATTERN = Pattern.compile("jdbc:(.*?):.*", Pattern.CASE_INSENSITIVE);
     
     /**
      * Load saga persistence.
@@ -59,14 +62,24 @@ public final class SagaPersistenceLoader {
     private static SagaPersistence loadDefaultPersistence(final SagaPersistenceConfiguration persistenceConfiguration) {
         DatabaseType databaseType = judgeDatabaseType(persistenceConfiguration.getUrl());
         String driverClassName = getJDBCDriverClassName(databaseType);
-        return new JDBCSagaPersistence(initDataSource(driverClassName, persistenceConfiguration));
+        JDBCSagaPersistence result = new JDBCSagaPersistence(initDataSource(driverClassName, persistenceConfiguration), databaseType);
+        result.createTableIfNotExists();
+        return result;
     }
     
     private static DatabaseType judgeDatabaseType(final String url) {
-        try {
-            new MySQLDataSourceMetaData(url);
-            return DatabaseType.MySQL;
-        } catch (final ShardingException ignore) {
+        Matcher matcher = JDBC_DATABASE_TYPE_JDBC_URL_PATTERN.matcher(url);
+        if (matcher.find()) {
+            String databaseType = matcher.group(1).toLowerCase();
+            switch (databaseType) {
+                case "mysql":
+                    return DatabaseType.MySQL;
+                case "h2":
+                    return DatabaseType.H2;
+                case "postgresql":
+                    return DatabaseType.PostgreSQL;
+                default:
+            }
         }
         throw new UnsupportedOperationException(String.format("Cannot support url `%s`", url));
     }
@@ -75,6 +88,10 @@ public final class SagaPersistenceLoader {
         switch (databaseType) {
             case MySQL:
                 return "com.mysql.jdbc.Driver";
+            case H2:
+                return "org.h2.Driver";
+            case PostgreSQL:
+                return "org.postgresql.Driver";
             default:
                 return "";
         }

@@ -20,16 +20,12 @@ package io.shardingsphere.transaction.saga.persistence;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import io.shardingsphere.transaction.saga.persistence.impl.jdbc.JDBCSagaEventRepositoryTest;
-import io.shardingsphere.transaction.saga.persistence.impl.jdbc.JDBCSagaPersistenceTest;
-import io.shardingsphere.transaction.saga.persistence.impl.jdbc.JDBCSagaSnapshotRepositoryTest;
+import io.shardingsphere.transaction.saga.persistence.impl.jdbc.AllJDBCPersistenceTests;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         SagaPersistenceLoaderTest.class,
-        JDBCSagaEventRepositoryTest.class,
-        JDBCSagaPersistenceTest.class,
-        JDBCSagaSnapshotRepositoryTest.class
+        AllJDBCPersistenceTests.class
 })
 public class AllPersistenceTests {
 }

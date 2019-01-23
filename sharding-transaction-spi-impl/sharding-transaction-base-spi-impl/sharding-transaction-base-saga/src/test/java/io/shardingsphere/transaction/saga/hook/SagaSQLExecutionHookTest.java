@@ -27,6 +27,8 @@ import org.apache.shardingsphere.core.executor.ShardingExecuteDataMap;
 import org.apache.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.routing.RouteUnit;
 import org.apache.shardingsphere.core.routing.SQLUnit;
+import org.apache.shardingsphere.core.routing.type.RoutingTable;
+import org.apache.shardingsphere.core.routing.type.TableUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,8 +57,12 @@ public final class SagaSQLExecutionHookTest {
     
     @Before
     public void setUp() {
+        TableUnit tableUnit = new TableUnit("");
+        tableUnit.getRoutingTables().add(new RoutingTable("", ""));
+        routeUnit.setTableUnit(tableUnit);
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY, sagaTransaction);
+        when(sagaTransaction.isDMLBranchTransactionGroup()).thenReturn(true);
         ShardingExecuteDataMap.setDataMap(dataMap);
     }
     
