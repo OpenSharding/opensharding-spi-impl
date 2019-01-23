@@ -25,6 +25,8 @@ import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.routing.RouteUnit;
+import org.apache.shardingsphere.core.routing.SQLUnit;
+import org.apache.shardingsphere.core.routing.type.TableUnit;
 import org.apache.shardingsphere.spi.executor.SQLExecutionHook;
 
 import java.util.Map;
@@ -46,11 +48,17 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
             if (sagaTransaction.isDMLBranchTransactionGroup()) {
                 sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
-                sagaBranchTransaction.setActualTableName(routeUnit.getTableUnit().getRoutingTables().get(0).getActualTableName());
+                sagaBranchTransaction.setActualTableName(getAcutalTableName(routeUnit.getSqlUnit()));
                 sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
                 sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
             }
         }
+    }
+    
+    private String getAcutalTableName(final SQLUnit sqlUnit) {
+        Map<SQLUnit, TableUnit> tableUnitMap = sagaTransaction.getTableUnitMap();
+        return tableUnitMap.containsKey(sqlUnit)
+            ? tableUnitMap.get(sqlUnit).getRoutingTables().get(0).getActualTableName() : sagaTransaction.getCurrentBranchTransactionGroup().getSqlStatement().getTables().getSingleTableName();
     }
     
     @Override
