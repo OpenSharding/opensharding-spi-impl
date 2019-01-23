@@ -20,6 +20,10 @@ package io.shardingsphere.transaction.saga.revert;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaBranchTransactionGroup;
+import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
+import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.revert.impl.factory.RevertOperateFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
@@ -57,11 +61,11 @@ public final class SQLRevertEngine {
         String actualSQL = sagaBranchTransaction.getSql();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
             SnapshotParameter snapshotParameter = new SnapshotParameter(tableMetaData, dmlStatement, actualConnection, actualTableName, logicSQL, actualSQL, each);
-            RevertOperate revertOperate = new MockRevertOperate();
-            Optional<SQLRevertResult> revertResultOptional = revertOperate.snapshot(snapshotParameter);
-            if (revertResultOptional.isPresent()) {
-                result.setSql(revertResultOptional.get().getSql());
-                result.getParameterSets().addAll(revertResultOptional.get().getParameterSets());
+            RevertOperate revertOperate = RevertOperateFactory.getRevertSQLCreator(dmlStatement);
+            Optional<RevertContext> revertContextOptional = revertOperate.snapshot(snapshotParameter);
+            if (revertContextOptional.isPresent()) {
+                result.setSql(revertContextOptional.get().getRevertSQL());
+                result.getParameterSets().addAll(revertContextOptional.get().getRevertParams());
             }
         }
         return result;
