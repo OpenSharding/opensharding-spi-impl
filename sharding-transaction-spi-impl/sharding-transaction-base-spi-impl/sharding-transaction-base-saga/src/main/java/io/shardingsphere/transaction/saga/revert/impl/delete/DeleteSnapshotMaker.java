@@ -51,7 +51,7 @@ public class DeleteSnapshotMaker {
         return JDBCUtil.executeQuery(snapshotParameter.getConnection(), selectSQL, selectParams);
     }
     
-    protected String makeSelectSql(final SnapshotParameter snapshotParameter, final List<String> keys) {
+    private String makeSelectSql(final SnapshotParameter snapshotParameter, final List<String> keys) {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.SELECT).append(" ");
         fillSelectItem(builder, snapshotParameter, keys);
