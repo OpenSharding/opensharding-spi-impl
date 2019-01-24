@@ -81,11 +81,19 @@ public final class ShardingSQLTransportTest {
         verify(sagaTransaction, never()).getConnections();
     }
     
-    @Test
+    @Test(expected = TransportFailedException.class)
     public void assertWithFailureResult() throws SQLException {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> parameterSets = getParameterSets();
         mockExecutionResults(parameterSets, ExecuteStatus.FAILURE);
+        shardingSQLTransport.with(dataSourceName, sql, parameterSets);
+    }
+    
+    @Test
+    public void assertWithCompensatingResult() throws SQLException {
+        ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
+        List<List<String>> parameterSets = getParameterSets();
+        mockExecutionResults(parameterSets, ExecuteStatus.COMPENSATING);
         shardingSQLTransport.with(dataSourceName, sql, parameterSets);
         verify(sagaTransaction).getConnections();
         verify(statement, times(2)).addBatch();
