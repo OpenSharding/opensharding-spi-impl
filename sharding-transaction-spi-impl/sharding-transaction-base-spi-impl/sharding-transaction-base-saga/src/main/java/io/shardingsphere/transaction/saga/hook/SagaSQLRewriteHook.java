@@ -41,7 +41,9 @@ public final class SagaSQLRewriteHook implements RewriteHook {
     
     @Override
     public void finishSuccess(final SQLUnit sqlUnit) {
-        sagaTransaction.getTableUnitMap().put(sqlUnit, tableUnit);
+        if (null != sagaTransaction) {
+            sagaTransaction.getTableUnitMap().put(sqlUnit, tableUnit);
+        }
     }
     
     @Override
