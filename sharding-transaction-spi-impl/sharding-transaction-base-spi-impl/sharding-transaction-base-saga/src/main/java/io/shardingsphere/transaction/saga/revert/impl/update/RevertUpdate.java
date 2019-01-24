@@ -18,8 +18,15 @@
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.shardingsphere.core.parsing.parser.expression.SQLExpression;
+import org.apache.shardingsphere.core.parsing.parser.expression.SQLNumberExpression;
+import org.apache.shardingsphere.core.parsing.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parsing.parser.expression.SQLTextExpression;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
@@ -40,7 +47,16 @@ public final class RevertUpdate extends RevertDelete {
     @Override
     protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
         List<Map<String, Object>> selectSnapshot = this.getSnapshotMaker().make(snapshotParameter, keys);
-        return new RevertUpdateGeneratorParameter(snapshotParameter.getActualTable(), selectSnapshot, snapshotParameter.getStatement().getUpdateColumns(), keys,
-                snapshotParameter.getActualSQLParams());
+        Map<String, Object> updateColumns = new LinkedHashMap<>();
+        for (Entry<String, SQLExpression> each : snapshotParameter.getStatement().getUpdateColumns().entrySet()) {
+            if (each.getValue() instanceof SQLPlaceholderExpression) {
+                updateColumns.put(each.getKey(), snapshotParameter.getActualSQLParams().get(((SQLPlaceholderExpression) each.getValue()).getIndex()));
+            } else if (each.getValue() instanceof SQLTextExpression) {
+                updateColumns.put(each.getKey(), ((SQLTextExpression) each.getValue()).getText());
+            } else if (each.getValue() instanceof SQLNumberExpression) {
+                updateColumns.put(each.getKey(), ((SQLNumberExpression) each.getValue()).getNumber());
+            }
+        }
+        return new RevertUpdateGeneratorParameter(snapshotParameter.getActualTable(), selectSnapshot, updateColumns, keys, snapshotParameter.getActualSQLParams());
     }
 }
