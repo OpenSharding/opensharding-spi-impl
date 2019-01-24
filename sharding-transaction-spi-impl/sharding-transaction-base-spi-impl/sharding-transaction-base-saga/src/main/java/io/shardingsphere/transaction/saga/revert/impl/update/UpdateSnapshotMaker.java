@@ -30,6 +30,7 @@ import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteSnapshotMaker
  */
 public final class UpdateSnapshotMaker extends DeleteSnapshotMaker {
     
+    @Override
     protected void fillSelectItem(final StringBuilder builder, final SnapshotParameter snapshotParameter, final List<String> keys) {
         if (keys.isEmpty()) {
             super.fillSelectItem(builder, snapshotParameter, keys);

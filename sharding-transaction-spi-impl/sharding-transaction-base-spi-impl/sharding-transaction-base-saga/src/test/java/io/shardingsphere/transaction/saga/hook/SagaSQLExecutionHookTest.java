@@ -38,10 +38,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,12 +59,14 @@ public final class SagaSQLExecutionHookTest {
     
     @Before
     public void setUp() {
-        TableUnit tableUnit = new TableUnit("");
-        tableUnit.getRoutingTables().add(new RoutingTable("", ""));
-        routeUnit.setTableUnit(tableUnit);
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY, sagaTransaction);
+        Map<SQLUnit, TableUnit> tableUnitMap = new ConcurrentHashMap<>();
+        TableUnit tableUnit = new TableUnit("");
+        tableUnit.getRoutingTables().add(mock(RoutingTable.class));
+        tableUnitMap.put(routeUnit.getSqlUnit(), tableUnit);
         when(sagaTransaction.isDMLBranchTransactionGroup()).thenReturn(true);
+        when(sagaTransaction.getTableUnitMap()).thenReturn(tableUnitMap);
         ShardingExecuteDataMap.setDataMap(dataMap);
     }
     
@@ -85,7 +89,6 @@ public final class SagaSQLExecutionHookTest {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
         verify(sagaTransaction).updateSnapshot(any(SagaBranchTransaction.class), eq(ExecuteStatus.FAILURE));
-        
         assertFalse(ExecutorExceptionHandler.isExceptionThrown());
     }
 }

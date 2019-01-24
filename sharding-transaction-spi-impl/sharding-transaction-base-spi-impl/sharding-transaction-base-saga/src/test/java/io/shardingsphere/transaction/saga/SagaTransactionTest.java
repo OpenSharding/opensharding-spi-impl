@@ -26,7 +26,8 @@ import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionB
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
+import org.apache.shardingsphere.core.parsing.parser.context.table.Tables;
+import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +61,7 @@ public final class SagaTransactionTest {
     private SagaPersistence persistence;
     
     @Mock
-    private SQLStatement sqlStatement;
+    private DMLStatement sqlStatement;
     
     @Mock
     private ShardingTableMetaData shardingTableMetaData;
@@ -83,8 +85,11 @@ public final class SagaTransactionTest {
     
     @Test
     public void assertSaveNewSnapshot() {
+        when(sqlStatement.getTables()).thenReturn(mock(Tables.class));
         sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
+        when(sagaBranchTransaction.getDataSourceName()).thenReturn("ds");
+        when(sagaBranchTransaction.getParameterSets()).thenReturn(Collections.<List<Object>>emptyList());
         sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
         verify(persistence, never()).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
         sagaTransaction.getSagaConfiguration().setRecoveryPolicy(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);

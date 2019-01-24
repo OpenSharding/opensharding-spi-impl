@@ -31,6 +31,8 @@ import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
+import org.apache.shardingsphere.core.routing.SQLUnit;
+import org.apache.shardingsphere.core.routing.type.TableUnit;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -57,6 +59,8 @@ public final class SagaTransaction {
     private final SagaPersistence persistence;
     
     private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
+    
+    private final Map<SQLUnit, TableUnit> tableUnitMap = new ConcurrentHashMap<>();
     
     private final Map<SagaBranchTransaction, ExecuteStatus> executionResults = new ConcurrentHashMap<>();
     
@@ -98,7 +102,7 @@ public final class SagaTransaction {
      * @param executeStatus execute status
      */
     public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        containsException = ExecuteStatus.FAILURE == executeStatus;
+        containsException |= ExecuteStatus.FAILURE == executeStatus;
         executionResults.put(sagaBranchTransaction, executeStatus);
     }
     
