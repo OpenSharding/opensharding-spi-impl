@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.shardingsphere.core.parsing.lexer.token.DefaultKeyword;
@@ -78,23 +80,21 @@ public final class RevertInsertGenerator implements RevertContextGenerator {
         return builder.toString();
     }
     
-    private void fillRevertParams(final RevertContext revertContext,
-            final RevertInsertGeneratorParameter insertParameter, final Set<Integer> keyColumnIndexs) {
-        int index = 0;
-        for (Object each : insertParameter.getParams()) {
-            Collection<Object> currentSQLParams;
-            int columnIndex = index % insertParameter.getTableColumns().size();
-            if (0 == columnIndex) {
-                currentSQLParams = new LinkedList<>();
+    private void fillRevertParams(final RevertContext revertContext, final RevertInsertGeneratorParameter insertParameter, final Set<Integer> keyColumnIndexs) {
+        if (insertParameter.isGenerateKey()) {
+            for (int i = 0; i < insertParameter.getBatchSize(); i++) {
+                Collection<Object> currentSQLParams = new LinkedList<>();
+                currentSQLParams.add(insertParameter.getParams().get(i * insertParameter.getTableColumns().size()));
                 revertContext.getRevertParams().add(currentSQLParams);
-            } else {
-                currentSQLParams = revertContext.getRevertParams().get(revertContext.getRevertParams().size() - 1);
             }
-            if (keyColumnIndexs.isEmpty() || keyColumnIndexs.contains(columnIndex)) {
-                currentSQLParams.add(each);
+            return;
+        }
+        for (Map<String, Object> each : insertParameter.getKeyValues()) {
+            Collection<Object> currentSQLParams = new LinkedList<>();
+            revertContext.getRevertParams().add(currentSQLParams);
+            for (Entry<String, Object> eachEntry : each.entrySet()) {
+                currentSQLParams.add(eachEntry.getValue());
             }
-            index++;
         }
     }
-
 }

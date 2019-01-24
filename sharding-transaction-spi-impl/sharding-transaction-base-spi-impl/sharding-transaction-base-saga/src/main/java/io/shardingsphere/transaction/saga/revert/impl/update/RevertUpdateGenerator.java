@@ -48,7 +48,7 @@ public final class RevertUpdateGenerator implements RevertContextGenerator {
         builder.append(DefaultKeyword.SET).append(" ");
         int pos = 0;
         int size = updateParameter.getUpdateColumns().size();
-        for (String updateColumn : updateParameter.getUpdateColumns()) {
+        for (String updateColumn : updateParameter.getUpdateColumns().keySet()) {
             builder.append(updateColumn).append(" = ?");
             if (pos < size - 1) {
                 builder.append(",");
@@ -72,13 +72,13 @@ public final class RevertUpdateGenerator implements RevertContextGenerator {
         for (Map<String, Object> each : updateParameter.getSelectSnapshot()) {
             List<Object> eachSQLParams = new LinkedList<>();
             result.getRevertParams().add(eachSQLParams);
-            for (String updateColumn : updateParameter.getUpdateColumns()) {
+            for (String updateColumn : updateParameter.getUpdateColumns().keySet()) {
                 eachSQLParams.add(each.get(updateColumn));
             }
             for (String key : updateParameter.getKeys()) {
-                int keyIndexInUpdateColumn = updateParameter.getUpdateColumns().indexOf(key);
-                if (-1 != keyIndexInUpdateColumn) {
-                    eachSQLParams.add(updateParameter.getParams().get(keyIndexInUpdateColumn));
+                Object value = updateParameter.getUpdateColumns().get(key);
+                if (null != value) {
+                    eachSQLParams.add(value);
                 } else {
                     eachSQLParams.add(each.get(key));
                 }

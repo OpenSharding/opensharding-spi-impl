@@ -37,7 +37,7 @@ public final class UpdateSnapshotMaker extends DeleteSnapshotMaker {
         }
         List<String> tableKeys = new LinkedList<>(keys);
         boolean first = true;
-        for (String each : snapshotParameter.getStatement().getUpdateColumns()) {
+        for (String each : snapshotParameter.getStatement().getUpdateColumns().keySet()) {
             int dotPos = each.indexOf('.');
             String realColumnName = null;
             if (dotPos > 0) {

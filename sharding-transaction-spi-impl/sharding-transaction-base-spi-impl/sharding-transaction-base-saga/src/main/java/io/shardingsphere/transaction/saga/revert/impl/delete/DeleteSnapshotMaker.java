@@ -51,13 +51,13 @@ public class DeleteSnapshotMaker {
         return JDBCUtil.executeQuery(snapshotParameter.getConnection(), selectSQL, selectParams);
     }
     
-    private String makeSelectSql(final SnapshotParameter snapshotParameter, final List<String> keys) {
+    protected String makeSelectSql(final SnapshotParameter snapshotParameter, final List<String> keys) {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.SELECT).append(" ");
         fillSelectItem(builder, snapshotParameter, keys);
         builder.append(DefaultKeyword.FROM).append(" ");
         builder.append(snapshotParameter.getActualTable());
-        if(!snapshotParameter.getStatement().getUpdateTables().isEmpty()) {
+        if (!snapshotParameter.getStatement().getUpdateTables().isEmpty()) {
             String alias = snapshotParameter.getStatement().getUpdateTables().keySet().iterator().next();
             if (null != alias) {
                 builder.append(" ").append(alias).append(" ");
