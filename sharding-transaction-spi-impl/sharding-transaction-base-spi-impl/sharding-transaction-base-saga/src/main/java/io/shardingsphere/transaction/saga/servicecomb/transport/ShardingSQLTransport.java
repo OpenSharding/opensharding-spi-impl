@@ -17,12 +17,14 @@
 
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
+import org.apache.servicecomb.saga.core.SuccessfulSagaResponse;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.apache.servicecomb.saga.transports.SQLTransport;
@@ -44,6 +46,9 @@ public final class ShardingSQLTransport implements SQLTransport {
     
     @Override
     public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> parameterSets) {
+        if (Strings.isNullOrEmpty(sql)) {
+            return new SuccessfulSagaResponse("Skip empty transaction/compensation");
+        }
         SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, transferList(parameterSets));
         return isExecutionSuccess(branchTransaction) ? new JsonSuccessfulSagaResponse("{}") : executeSQL(branchTransaction);
     }
