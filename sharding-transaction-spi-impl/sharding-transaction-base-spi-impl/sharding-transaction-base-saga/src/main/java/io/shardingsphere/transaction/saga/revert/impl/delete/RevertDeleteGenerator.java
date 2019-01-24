@@ -44,7 +44,7 @@ public final class RevertDeleteGenerator implements RevertContextGenerator {
         builder.append(DefaultKeyword.INSERT).append(" ");
         builder.append(DefaultKeyword.INTO).append(" ");
         builder.append(parameter.getActualTable()).append(" ");
-        builder.append(DefaultKeyword.VALUES).append(" ");;
+        builder.append(DefaultKeyword.VALUES).append(" ");
         builder.append("(");
         int columnCount = deleteParameter.getSelectSnapshot().get(0).size();
         for (int i = 0; i < columnCount; i++) {
