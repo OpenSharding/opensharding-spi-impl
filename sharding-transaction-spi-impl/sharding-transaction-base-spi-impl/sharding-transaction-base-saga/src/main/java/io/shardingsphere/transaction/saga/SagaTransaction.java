@@ -102,7 +102,7 @@ public final class SagaTransaction {
      * @param executeStatus execute status
      */
     public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        containsException = ExecuteStatus.FAILURE == executeStatus;
+        containsException |= ExecuteStatus.FAILURE == executeStatus;
         executionResults.put(sagaBranchTransaction, executeStatus);
     }
     
