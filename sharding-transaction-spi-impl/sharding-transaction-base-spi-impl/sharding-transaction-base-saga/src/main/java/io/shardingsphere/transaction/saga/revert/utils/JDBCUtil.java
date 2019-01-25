@@ -49,7 +49,6 @@ public class JDBCUtil {
         List<Map<String, Object>> result = new ArrayList<>();
         PreparedStatement preparedStatement = null;
         try {
-            System.err.println(sql);
             preparedStatement = connection.prepareStatement(sql);
             fillParamter(preparedStatement, params);
             ResultSet rs = preparedStatement.executeQuery();
