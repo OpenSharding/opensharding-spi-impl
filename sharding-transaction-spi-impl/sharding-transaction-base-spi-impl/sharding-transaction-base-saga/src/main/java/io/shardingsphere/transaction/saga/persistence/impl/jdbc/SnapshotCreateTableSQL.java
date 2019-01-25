@@ -28,7 +28,6 @@ public final class SnapshotCreateTableSQL extends AbstractCreateTableSQLAdapter 
         + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
         + "transaction_id VARCHAR(255) null, "
         + "snapshot_id int null, "
-        + "execute_status VARCHAR(255) null, "
         + "revert_context VARCHAR(255) null, "
         + "transaction_context VARCHAR(255) null, "
         + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
@@ -39,7 +38,6 @@ public final class SnapshotCreateTableSQL extends AbstractCreateTableSQLAdapter 
         + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
         + "transaction_id VARCHAR(255) null, "
         + "snapshot_id int null, "
-        + "execute_status VARCHAR(255) null, "
         + "revert_context VARCHAR(255) null, "
         + "transaction_context VARCHAR(255) null, "
         + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
@@ -48,7 +46,6 @@ public final class SnapshotCreateTableSQL extends AbstractCreateTableSQLAdapter 
         + "id BIGSERIAL PRIMARY KEY, "
         + "transaction_id VARCHAR(255) null, "
         + "snapshot_id int null, "
-        + "execute_status VARCHAR(255) null, "
         + "revert_context VARCHAR(255) null, "
         + "transaction_context VARCHAR(255) null, "
         + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";

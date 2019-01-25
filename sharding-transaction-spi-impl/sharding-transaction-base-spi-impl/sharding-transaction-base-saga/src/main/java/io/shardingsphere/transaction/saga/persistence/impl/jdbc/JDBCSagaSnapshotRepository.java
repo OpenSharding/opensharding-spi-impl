@@ -44,9 +44,7 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
     
     private static final String SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL = "CREATE INDEX IF NOT EXISTS snapshot_id_index ON saga_snapshot(snapshot_id)";
     
-    private static final String INSERT_SQL = "INSERT INTO saga_snapshot (transaction_id, snapshot_id, transaction_context, revert_context, execute_status) values (?, ?, ?, ?, ?)";
-    
-    private static final String UPDATE_SQL = "UPDATE saga_snapshot SET execute_status = ? WHERE transaction_id = ? AND snapshot_id = ?";
+    private static final String INSERT_SQL = "INSERT INTO saga_snapshot (transaction_id, snapshot_id, transaction_context, revert_context) values (?, ?, ?, ?)";
     
     private static final String DELETE_SQL = "DELETE FROM saga_snapshot WHERE transaction_id = ?";
     
@@ -85,7 +83,6 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
             statement.setObject(2, sagaSnapshot.getSnapshotId());
             statement.setObject(3, sagaSnapshot.getTransactionContext().toString());
             statement.setObject(4, sagaSnapshot.getRevertContext().toString());
-            statement.setObject(5, sagaSnapshot.getExecuteStatus().name());
             statement.executeUpdate();
         } catch (SQLException ex) {
             log.warn("Persist saga snapshot failed", ex);
