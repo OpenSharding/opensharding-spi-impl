@@ -115,7 +115,7 @@ public final class SagaTransaction {
         currentBranchTransactionGroup.getBranchTransactions().add(sagaBranchTransaction);
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy())) {
             sqlRevert(sagaBranchTransaction);
-            persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResults.get(sagaBranchTransaction), ExecuteStatus.EXECUTING));
+            persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResults.get(sagaBranchTransaction)));
         }
     }
     
@@ -125,18 +125,6 @@ public final class SagaTransaction {
             revertResults.put(sagaBranchTransaction, sqlRevertEngine.revert(sagaBranchTransaction, currentBranchTransactionGroup));
         } catch (final SQLException ex) {
             throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
-        }
-    }
-    
-    /**
-     * Update snapshot.
-     *
-     * @param sagaBranchTransaction saga branch transaction
-     * @param executeStatus execute status
-     */
-    public void updateSnapshot(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy())) {
-            persistence.updateSnapshotStatus(id, sagaBranchTransaction.hashCode(), executeStatus);
         }
     }
     

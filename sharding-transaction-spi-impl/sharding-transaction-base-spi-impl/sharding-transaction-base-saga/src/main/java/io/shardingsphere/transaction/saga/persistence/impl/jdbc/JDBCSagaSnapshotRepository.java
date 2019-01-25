@@ -40,13 +40,11 @@ import java.sql.Statement;
 @Slf4j
 public final class JDBCSagaSnapshotRepository implements TableCreator {
     
-    private static final String SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL = "CREATE INDEX transaction_id_index ON saga_snapshot(transaction_id)";
+    private static final String SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL = "CREATE INDEX IF NOT EXISTS transaction_id_index ON saga_snapshot(transaction_id)";
     
-    private static final String SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL = "CREATE INDEX snapshot_id_index ON saga_snapshot(snapshot_id)";
+    private static final String SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL = "CREATE INDEX IF NOT EXISTS snapshot_id_index ON saga_snapshot(snapshot_id)";
     
-    private static final String INSERT_SQL = "INSERT INTO saga_snapshot (transaction_id, snapshot_id, transaction_context, revert_context, execute_status) values (?, ?, ?, ?, ?)";
-    
-    private static final String UPDATE_SQL = "UPDATE saga_snapshot SET execute_status = ? WHERE transaction_id = ? AND snapshot_id = ?";
+    private static final String INSERT_SQL = "INSERT INTO saga_snapshot (transaction_id, snapshot_id, transaction_context, revert_context) values (?, ?, ?, ?)";
     
     private static final String DELETE_SQL = "DELETE FROM saga_snapshot WHERE transaction_id = ?";
     
@@ -67,8 +65,10 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
     }
     
     private void createIndex(final Statement statement) throws SQLException {
-        statement.executeUpdate(SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL);
-        statement.executeUpdate(SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL);
+        if (DatabaseType.MySQL != databaseType) {
+            statement.executeUpdate(SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL);
+            statement.executeUpdate(SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL);
+        }
     }
     
     /**
@@ -83,29 +83,9 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
             statement.setObject(2, sagaSnapshot.getSnapshotId());
             statement.setObject(3, sagaSnapshot.getTransactionContext().toString());
             statement.setObject(4, sagaSnapshot.getRevertContext().toString());
-            statement.setObject(5, sagaSnapshot.getExecuteStatus().name());
             statement.executeUpdate();
         } catch (SQLException ex) {
             log.warn("Persist saga snapshot failed", ex);
-        }
-    }
-    
-    /**
-     * Update execute status for snapshot.
-     *
-     * @param transactionId transaction id
-     * @param snapshotId snapshot id
-     * @param executeStatus execute status
-     */
-    public void update(final String transactionId, final int snapshotId, final ExecuteStatus executeStatus) {
-        try (Connection connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
-            statement.setObject(1, transactionId);
-            statement.setObject(2, snapshotId);
-            statement.setObject(3, executeStatus.name());
-            statement.executeUpdate();
-        } catch (SQLException ex) {
-            log.warn("Update saga snapshot failed", ex);
         }
     }
     

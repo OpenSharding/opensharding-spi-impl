@@ -55,7 +55,7 @@ public class JDBCSagaSnapshotRepositoryTest {
     @Before
     @SneakyThrows
     public void setUp() {
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, DatabaseType.MySQL);
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, DatabaseType.H2);
         Field dataSourceField = JDBCSagaSnapshotRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(snapshotRepository, dataSource);
@@ -92,19 +92,7 @@ public class JDBCSagaSnapshotRepositoryTest {
         SagaSnapshot sagaSnapshot = mock(SagaSnapshot.class);
         when(sagaSnapshot.getTransactionContext()).thenReturn(mock(SagaBranchTransaction.class));
         when(sagaSnapshot.getRevertContext()).thenReturn(mock(SQLRevertResult.class));
-        when(sagaSnapshot.getExecuteStatus()).thenReturn(ExecuteStatus.EXECUTING);
         snapshotRepository.insert(sagaSnapshot);
-        verify(statement).executeUpdate();
-    }
-    
-    @Test
-    @SneakyThrows
-    public void assertUpdate() {
-        Connection connection = mock(Connection.class);
-        PreparedStatement statement = mock(PreparedStatement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(statement);
-        snapshotRepository.update("1", 1, ExecuteStatus.EXECUTING);
         verify(statement).executeUpdate();
     }
     

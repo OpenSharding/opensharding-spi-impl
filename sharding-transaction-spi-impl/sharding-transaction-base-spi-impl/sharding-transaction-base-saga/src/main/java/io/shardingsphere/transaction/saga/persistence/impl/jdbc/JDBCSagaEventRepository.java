@@ -40,7 +40,7 @@ import java.sql.Statement;
 @Slf4j
 public final class JDBCSagaEventRepository implements TableCreator {
     
-    private static final String CREATE_INDEX_SQL = "CREATE INDEX running_sagas_index ON saga_event (saga_id, type)";
+    private static final String CREATE_INDEX_SQL = "CREATE INDEX IF NOT EXISTS running_sagas_index ON saga_event (saga_id, type)";
     
     private static final String INSERT_SQL = "INSERT INTO saga_event (saga_id, type, content_json) values (?, ?, ?)";
 
@@ -63,7 +63,9 @@ public final class JDBCSagaEventRepository implements TableCreator {
     }
     
     private void createIndex(final Statement statement) throws SQLException {
-        statement.executeUpdate(CREATE_INDEX_SQL);
+        if (DatabaseType.MySQL != databaseType) {
+            statement.executeUpdate(CREATE_INDEX_SQL);
+        }
     }
     
     /**

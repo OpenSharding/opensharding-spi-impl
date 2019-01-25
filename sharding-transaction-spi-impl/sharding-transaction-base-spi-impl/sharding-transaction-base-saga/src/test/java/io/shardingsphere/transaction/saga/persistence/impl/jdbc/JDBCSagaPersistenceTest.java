@@ -74,14 +74,6 @@ public final class JDBCSagaPersistenceTest {
     }
     
     @Test
-    public void assertUpdateSnapshotStatus() {
-        String transactionId = "1";
-        int snapshotId = 1;
-        sagaPersistence.updateSnapshotStatus(transactionId, snapshotId, ExecuteStatus.SUCCESS);
-        verify(snapshotRepository).update(transactionId, snapshotId, ExecuteStatus.SUCCESS);
-    }
-    
-    @Test
     public void assertCleanSnapshot() {
         String transactionId = "1";
         sagaPersistence.cleanSnapshot(transactionId);

@@ -40,8 +40,8 @@ public class JDBCUtil {
      * Execute query use JDBC.
      *
      * @param connection JDBC connection
-     * @param sql        sql
-     * @param params     sql parameters
+     * @param sql sql
+     * @param params sql parameters
      * @return result set
      * @throws SQLException failed to execute SQL, throw this exception
      */
@@ -49,7 +49,6 @@ public class JDBCUtil {
         List<Map<String, Object>> result = new ArrayList<>();
         PreparedStatement preparedStatement = null;
         try {
-            System.err.println(sql);
             preparedStatement = connection.prepareStatement(sql);
             fillParamter(preparedStatement, params);
             ResultSet rs = preparedStatement.executeQuery();
@@ -72,8 +71,8 @@ public class JDBCUtil {
      * Execute query use JDBC.
      *
      * @param connection JDBC connection
-     * @param sql        sql
-     * @param params     sql parameters
+     * @param sql sql
+     * @param params sql parameters
      * @throws SQLException failed to execute SQL, throw this exception
      */
     public static void executeUpdate(final Connection connection, final String sql, final Collection<Object> params) throws SQLException {

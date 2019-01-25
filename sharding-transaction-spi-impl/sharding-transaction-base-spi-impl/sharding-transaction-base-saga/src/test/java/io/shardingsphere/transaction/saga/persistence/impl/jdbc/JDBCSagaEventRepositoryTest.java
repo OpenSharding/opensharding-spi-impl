@@ -53,7 +53,7 @@ public class JDBCSagaEventRepositoryTest {
     @Before
     @SneakyThrows
     public void setUp() {
-        eventRepository = new JDBCSagaEventRepository(dataSource, DatabaseType.MySQL);
+        eventRepository = new JDBCSagaEventRepository(dataSource, DatabaseType.H2);
         Field dataSourceField = JDBCSagaEventRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(eventRepository, dataSource);
