@@ -99,17 +99,6 @@ public class JDBCSagaSnapshotRepositoryTest {
     
     @Test
     @SneakyThrows
-    public void assertUpdate() {
-        Connection connection = mock(Connection.class);
-        PreparedStatement statement = mock(PreparedStatement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(statement);
-        snapshotRepository.update("1", 1, ExecuteStatus.EXECUTING);
-        verify(statement).executeUpdate();
-    }
-    
-    @Test
-    @SneakyThrows
     public void assertDelete() {
         Connection connection = mock(Connection.class);
         PreparedStatement statement = mock(PreparedStatement.class);

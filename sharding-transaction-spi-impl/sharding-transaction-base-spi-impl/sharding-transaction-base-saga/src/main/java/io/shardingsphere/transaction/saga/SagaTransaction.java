@@ -129,18 +129,6 @@ public final class SagaTransaction {
     }
     
     /**
-     * Update snapshot.
-     *
-     * @param sagaBranchTransaction saga branch transaction
-     * @param executeStatus execute status
-     */
-    public void updateSnapshot(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy())) {
-            persistence.updateSnapshotStatus(id, sagaBranchTransaction.hashCode(), executeStatus);
-        }
-    }
-    
-    /**
      * Get saga definition builder.
      *
      * @return saga definition builder

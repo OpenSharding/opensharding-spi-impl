@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -78,9 +77,10 @@ public final class SagaSQLExecutionHookTest {
     
     @Test
     public void assertFinishSuccess() {
+        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishSuccess();
-        verify(sagaTransaction).updateSnapshot(any(SagaBranchTransaction.class), eq(ExecuteStatus.SUCCESS));
+        verify(sagaTransaction).updateExecutionResult(branchTransaction ,ExecuteStatus.SUCCESS);
     }
     
     @Test
@@ -88,7 +88,6 @@ public final class SagaSQLExecutionHookTest {
         when(sagaTransaction.getSagaConfiguration()).thenReturn(new SagaConfiguration());
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
-        verify(sagaTransaction).updateSnapshot(any(SagaBranchTransaction.class), eq(ExecuteStatus.FAILURE));
         assertFalse(ExecutorExceptionHandler.isExceptionThrown());
     }
 }

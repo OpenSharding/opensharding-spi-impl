@@ -93,25 +93,6 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
     }
     
     /**
-     * Update execute status for snapshot.
-     *
-     * @param transactionId transaction id
-     * @param snapshotId snapshot id
-     * @param executeStatus execute status
-     */
-    public void update(final String transactionId, final int snapshotId, final ExecuteStatus executeStatus) {
-        try (Connection connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
-            statement.setObject(1, executeStatus.name());
-            statement.setObject(2, transactionId);
-            statement.setObject(3, snapshotId);
-            statement.executeUpdate();
-        } catch (SQLException ex) {
-            log.warn("Update saga snapshot failed", ex);
-        }
-    }
-    
-    /**
      * Delete all snapshots by transaction id.
      *
      * @param transactionId transaction id

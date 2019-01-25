@@ -65,7 +65,6 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     public void finishSuccess() {
         if (null != sagaTransaction && null != sagaBranchTransaction) {
             sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
-            sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         }
     }
     
@@ -74,7 +73,6 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         if (null != sagaTransaction && null != sagaBranchTransaction) {
             ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getSagaConfiguration().getRecoveryPolicy()));
             sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
-            sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.FAILURE);
         }
     }
 }

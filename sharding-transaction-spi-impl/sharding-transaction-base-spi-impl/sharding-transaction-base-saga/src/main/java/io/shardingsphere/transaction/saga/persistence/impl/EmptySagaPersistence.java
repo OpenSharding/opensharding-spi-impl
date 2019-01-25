@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.persistence.impl;
 
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import org.apache.servicecomb.saga.core.EventEnvelope;
@@ -36,10 +35,6 @@ public final class EmptySagaPersistence implements SagaPersistence {
     
     @Override
     public void persistSnapshot(final SagaSnapshot snapshot) {
-    }
-    
-    @Override
-    public void updateSnapshotStatus(final String transactionId, final int snapshotId, final ExecuteStatus executeStatus) {
     }
     
     @Override

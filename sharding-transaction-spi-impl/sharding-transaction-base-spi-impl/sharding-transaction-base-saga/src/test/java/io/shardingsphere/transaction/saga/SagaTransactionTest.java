@@ -98,17 +98,6 @@ public final class SagaTransactionTest {
     }
     
     @Test
-    public void assertUpdateSnapshot() {
-        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
-        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
-        sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
-        verify(persistence, never()).updateSnapshotStatus(ArgumentMatchers.<String>any(), eq(sagaBranchTransaction.hashCode()), eq(ExecuteStatus.SUCCESS));
-        sagaTransaction.getSagaConfiguration().setRecoveryPolicy(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
-        sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
-        verify(persistence).updateSnapshotStatus(ArgumentMatchers.<String>any(), eq(sagaBranchTransaction.hashCode()), eq(ExecuteStatus.SUCCESS));
-    }
-    
-    @Test
     public void assertUpdateExecutionResultWithContainsException() {
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
         sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
@@ -134,7 +123,6 @@ public final class SagaTransactionTest {
         sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
         sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
-        sagaTransaction.updateSnapshot(sagaBranchTransaction, ExecuteStatus.SUCCESS);
         SagaDefinitionBuilder builder = sagaTransaction.getSagaDefinitionBuilder();
         ObjectMapper jacksonObjectMapper = new ObjectMapper();
         Map sagaDefinitionMap = jacksonObjectMapper.readValue(builder.build(), Map.class);

@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.persistence;
 
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.entity.SagaEventEntity;
 import io.shardingsphere.transaction.saga.persistence.entity.SagaSnapshotEntity;
 import io.shardingsphere.transaction.saga.persistence.repository.SagaEventRepository;
@@ -59,11 +58,6 @@ public final class SagaPersistenceImpl implements SagaPersistence {
         snapshotEntity.setRevertContext(snapshot.getRevertContext().toString());
         snapshotEntity.setExecuteStatus(snapshot.getExecuteStatus().name());
         sagaSnapshotRepository.insert(snapshotEntity);
-    }
-    
-    @Override
-    public void updateSnapshotStatus(final String transactionId, final int snapshotId, final ExecuteStatus executeStatus) {
-        sagaSnapshotRepository.update(transactionId, snapshotId, executeStatus);
     }
     
     @Override
