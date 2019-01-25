@@ -17,12 +17,14 @@
 
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
+import org.apache.servicecomb.saga.core.SuccessfulSagaResponse;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.apache.servicecomb.saga.transports.SQLTransport;
@@ -44,8 +46,11 @@ public final class ShardingSQLTransport implements SQLTransport {
     
     @Override
     public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> parameterSets) {
+        if (Strings.isNullOrEmpty(sql)) {
+            return new SuccessfulSagaResponse("Skip empty transaction/compensation");
+        }
         SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, transferList(parameterSets));
-        return isExecutionSuccess(branchTransaction) ? new JsonSuccessfulSagaResponse("{}") : executeSQL(branchTransaction);
+        return isNeedExecute(branchTransaction) ? executeSQL(branchTransaction) : new JsonSuccessfulSagaResponse("{}");
     }
     
     private List<List<Object>> transferList(final List<List<String>> origin) {
@@ -56,8 +61,16 @@ public final class ShardingSQLTransport implements SQLTransport {
         return result;
     }
     
-    private boolean isExecutionSuccess(final SagaBranchTransaction branchTransaction) {
-        return ExecuteStatus.SUCCESS == sagaTransaction.getExecutionResults().get(branchTransaction);
+    private boolean isNeedExecute(final SagaBranchTransaction branchTransaction) {
+        ExecuteStatus executeStatus = sagaTransaction.getExecutionResults().get(branchTransaction);
+        if (null == executeStatus || ExecuteStatus.COMPENSATING == executeStatus) {
+            return true;
+        }
+        if (ExecuteStatus.SUCCESS == executeStatus) {
+            return false;
+        }
+        sagaTransaction.getExecutionResults().put(branchTransaction, ExecuteStatus.COMPENSATING);
+        throw new TransportFailedException(String.format("branchTransaction %s execute failed, need to compensate", branchTransaction.toString()));
     }
     
     private SagaResponse executeSQL(final SagaBranchTransaction branchTransaction) {
@@ -69,7 +82,7 @@ public final class ShardingSQLTransport implements SQLTransport {
                 executeBatch(preparedStatement, branchTransaction.getParameterSets());
             }
         } catch (SQLException ex) {
-            throw new TransportFailedException(String.format("execute SQL `%s` occur exception: ", branchTransaction.toString()), ex);
+            throw new TransportFailedException(String.format("Execute SQL `%s` occur exception.", branchTransaction.toString()), ex);
         }
         return new JsonSuccessfulSagaResponse("{}");
     }

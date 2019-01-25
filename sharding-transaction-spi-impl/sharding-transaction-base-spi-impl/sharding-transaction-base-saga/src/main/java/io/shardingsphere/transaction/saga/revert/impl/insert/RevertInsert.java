@@ -53,7 +53,7 @@ public final class RevertInsert extends AbstractRevertOperate {
             tableColumns.add(each.getName());
         }
         RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), tableColumns, keys, snapshotParameter.getActualSQLParams(),
-                insertStatement.getInsertValues().getInsertValues().size(), -1 != insertStatement.getGenerateKeyColumnIndex());
+                insertStatement.getInsertValues().getInsertValues().size(), insertStatement.isContainGenerateKey());
         for (InsertValue each : insertStatement.getInsertValues().getInsertValues()) {
             Map<String, Object> keyValue = new HashMap<>();
             result.getKeyValues().add(keyValue);
