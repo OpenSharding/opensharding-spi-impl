@@ -55,7 +55,7 @@ public class JDBCSagaSnapshotRepositoryTest {
     @Before
     @SneakyThrows
     public void setUp() {
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, DatabaseType.MySQL);
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, DatabaseType.H2);
         Field dataSourceField = JDBCSagaSnapshotRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(snapshotRepository, dataSource);
