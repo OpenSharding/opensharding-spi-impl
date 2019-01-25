@@ -63,7 +63,9 @@ public final class JDBCSagaEventRepository implements TableCreator {
     }
     
     private void createIndex(final Statement statement) throws SQLException {
-        statement.executeUpdate(CREATE_INDEX_SQL);
+        if (DatabaseType.MySQL != databaseType) {
+            statement.executeUpdate(CREATE_INDEX_SQL);
+        }
     }
     
     /**

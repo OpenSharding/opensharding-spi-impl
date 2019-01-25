@@ -67,8 +67,10 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
     }
     
     private void createIndex(final Statement statement) throws SQLException {
-        statement.executeUpdate(SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL);
-        statement.executeUpdate(SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL);
+        if (DatabaseType.MySQL != databaseType) {
+            statement.executeUpdate(SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL);
+            statement.executeUpdate(SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL);
+        }
     }
     
     /**
@@ -100,9 +102,9 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
     public void update(final String transactionId, final int snapshotId, final ExecuteStatus executeStatus) {
         try (Connection connection = dataSource.getConnection();
             PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
-            statement.setObject(1, transactionId);
-            statement.setObject(2, snapshotId);
-            statement.setObject(3, executeStatus.name());
+            statement.setObject(1, executeStatus.name());
+            statement.setObject(2, transactionId);
+            statement.setObject(3, snapshotId);
             statement.executeUpdate();
         } catch (SQLException ex) {
             log.warn("Update saga snapshot failed", ex);

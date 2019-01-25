@@ -36,8 +36,9 @@ public abstract class AbstractCreateTableSQLAdapter {
     public String getCreateTableSQL(final DatabaseType databaseType) {
         switch (databaseType) {
             case MySQL:
+                return getMySQLCreateTableSQL();
             case H2:
-                return getCommonCreateTableSQL();
+                return getH2CreateTableSQL();
             case PostgreSQL:
                 return getPostgreCreateTableSQL();
             default:
@@ -46,11 +47,18 @@ public abstract class AbstractCreateTableSQLAdapter {
     }
     
     /**
+     * Get create table SQL for MySQL.
+     *
+     * @return create table SQL
+     */
+    protected abstract String getMySQLCreateTableSQL();
+    
+    /**
      * Get create table SQL for MySQL and H2.
      *
      * @return create table SQL
      */
-    protected abstract String getCommonCreateTableSQL();
+    protected abstract String getH2CreateTableSQL();
     
     /**
      * Get create table SQL for PostgreSQL.

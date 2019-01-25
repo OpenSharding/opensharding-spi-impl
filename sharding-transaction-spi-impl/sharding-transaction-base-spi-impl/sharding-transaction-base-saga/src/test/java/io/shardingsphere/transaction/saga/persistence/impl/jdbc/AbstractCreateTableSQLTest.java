@@ -28,8 +28,8 @@ public abstract class AbstractCreateTableSQLTest {
     @Test
     public void assertGetCreateTableSQL() {
         AbstractCreateTableSQLAdapter createTableSQL = getCreateTableSQLAdapter();
+        assertTrue(createTableSQL.getCreateTableSQL(DatabaseType.MySQL).contains("INDEX"));
         assertTrue(createTableSQL.getCreateTableSQL(DatabaseType.MySQL).contains("BIGINT AUTO_INCREMENT"));
-        assertTrue(createTableSQL.getCreateTableSQL(DatabaseType.H2).contains("BIGINT AUTO_INCREMENT"));
         assertTrue(createTableSQL.getCreateTableSQL(DatabaseType.H2).contains("BIGINT AUTO_INCREMENT"));
         assertTrue(createTableSQL.getCreateTableSQL(DatabaseType.PostgreSQL).contains("BIGSERIAL"));
     }

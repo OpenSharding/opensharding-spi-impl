@@ -24,7 +24,15 @@ package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
  */
 public final class EventCreateTableSQL extends AbstractCreateTableSQLAdapter {
     
-    private static final String COMMON_EVENT_CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS saga_event( "
+    private static final String MYSQL_EVENT_CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS saga_event( "
+        + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
+        + "saga_id VARCHAR(255) null, "
+        + "type VARCHAR(255) null, "
+        + "content_json TEXT null, "
+        + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+        + "INDEX saga_id_index(saga_id))";
+    
+    private static final String H2_EVENT_CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS saga_event( "
         + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
         + "saga_id VARCHAR(255) null, "
         + "type VARCHAR(255) null, "
@@ -39,8 +47,13 @@ public final class EventCreateTableSQL extends AbstractCreateTableSQLAdapter {
         + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
     
     @Override
-    protected String getCommonCreateTableSQL() {
-        return COMMON_EVENT_CREATE_TABLE_SQL;
+    protected String getMySQLCreateTableSQL() {
+        return MYSQL_EVENT_CREATE_TABLE_SQL;
+    }
+    
+    @Override
+    protected String getH2CreateTableSQL() {
+        return H2_EVENT_CREATE_TABLE_SQL;
     }
     
     @Override

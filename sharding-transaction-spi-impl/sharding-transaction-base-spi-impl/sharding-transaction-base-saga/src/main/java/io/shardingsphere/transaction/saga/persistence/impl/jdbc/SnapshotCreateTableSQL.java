@@ -24,7 +24,18 @@ package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
  */
 public final class SnapshotCreateTableSQL extends AbstractCreateTableSQLAdapter {
     
-    private static final String COMMON_SNAPSHOT_CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS saga_snapshot("
+    private static final String MYSQL_SNAPSHOT_CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS saga_snapshot("
+        + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
+        + "transaction_id VARCHAR(255) null, "
+        + "snapshot_id int null, "
+        + "execute_status VARCHAR(255) null, "
+        + "revert_context VARCHAR(255) null, "
+        + "transaction_context VARCHAR(255) null, "
+        + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+        + "INDEX transaction_id_index(transaction_id),"
+        + "INDEX snapshot_id_index(snapshot_id))";
+    
+    private static final String H2_SNAPSHOT_CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS saga_snapshot("
         + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
         + "transaction_id VARCHAR(255) null, "
         + "snapshot_id int null, "
@@ -43,8 +54,13 @@ public final class SnapshotCreateTableSQL extends AbstractCreateTableSQLAdapter 
         + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
     
     @Override
-    protected String getCommonCreateTableSQL() {
-        return COMMON_SNAPSHOT_CREATE_TABLE_SQL;
+    protected String getMySQLCreateTableSQL() {
+        return MYSQL_SNAPSHOT_CREATE_TABLE_SQL;
+    }
+    
+    @Override
+    protected String getH2CreateTableSQL() {
+        return H2_SNAPSHOT_CREATE_TABLE_SQL;
     }
     
     @Override
