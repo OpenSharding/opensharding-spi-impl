@@ -40,9 +40,9 @@ import java.sql.Statement;
 @Slf4j
 public final class JDBCSagaSnapshotRepository implements TableCreator {
     
-    private static final String SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL = "CREATE INDEX transaction_id_index ON saga_snapshot(transaction_id)";
+    private static final String SNAPSHOT_CREATE_TRANSACTION_ID_INDEX_SQL = "CREATE INDEX IF NOT EXISTS transaction_id_index ON saga_snapshot(transaction_id)";
     
-    private static final String SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL = "CREATE INDEX snapshot_id_index ON saga_snapshot(snapshot_id)";
+    private static final String SNAPSHOT_CREATE_SNAPSHOT_ID_INDEX_SQL = "CREATE INDEX IF NOT EXISTS snapshot_id_index ON saga_snapshot(snapshot_id)";
     
     private static final String INSERT_SQL = "INSERT INTO saga_snapshot (transaction_id, snapshot_id, transaction_context, revert_context, execute_status) values (?, ?, ?, ?, ?)";
     
