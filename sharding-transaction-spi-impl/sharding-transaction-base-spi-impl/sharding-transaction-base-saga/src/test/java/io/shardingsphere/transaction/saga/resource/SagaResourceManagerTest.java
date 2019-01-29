@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -39,36 +38,26 @@ public final class SagaResourceManagerTest {
     
     @Test
     public void assertRegisterDataSourceMap() {
-        Map<String, DataSource> dataSourceMap = new HashMap<>();
-        dataSourceMap.put("ds1", mock(DataSource.class));
-        resourceManager.registerDataSourceMap(dataSourceMap);
+        resourceManager.registerDataSourceMap("ds1", mock(DataSource.class));
         assertThat(getDataSourceMap().size(), is(1));
-        dataSourceMap = new HashMap<>();
-        dataSourceMap.put("ds2", mock(DataSource.class));
-        dataSourceMap.put("ds3", mock(DataSource.class));
-        resourceManager.registerDataSourceMap(dataSourceMap);
+        resourceManager.registerDataSourceMap("ds2", mock(DataSource.class));
+        resourceManager.registerDataSourceMap("ds3", mock(DataSource.class));
         assertThat(getDataSourceMap().size(), is(3));
     }
     
     @Test(expected = ShardingException.class)
     public void assertRegisterDuplicateDataSourceMap() {
-        Map<String, DataSource> dataSourceMap = new HashMap<>();
-        dataSourceMap.put("ds1", mock(DataSource.class));
-        resourceManager.registerDataSourceMap(dataSourceMap);
+        resourceManager.registerDataSourceMap("ds1", mock(DataSource.class));
         assertThat(getDataSourceMap().size(), is(1));
-        dataSourceMap = new HashMap<>();
-        dataSourceMap.put("ds2", mock(DataSource.class));
-        dataSourceMap.put("ds1", mock(DataSource.class));
-        resourceManager.registerDataSourceMap(dataSourceMap);
+        resourceManager.registerDataSourceMap("ds2", mock(DataSource.class));
+        resourceManager.registerDataSourceMap("ds1", mock(DataSource.class));
     }
     
     @Test
     public void assertReleaseDataSourceMap() {
-        Map<String, DataSource> dataSourceMap = new HashMap<>();
-        dataSourceMap.put("ds1", mock(DataSource.class));
-        dataSourceMap.put("ds2", mock(DataSource.class));
-        dataSourceMap.put("ds3", mock(DataSource.class));
-        resourceManager.registerDataSourceMap(dataSourceMap);
+        resourceManager.registerDataSourceMap("ds1", mock(DataSource.class));
+        resourceManager.registerDataSourceMap("ds2", mock(DataSource.class));
+        resourceManager.registerDataSourceMap("ds3", mock(DataSource.class));
         assertThat(getDataSourceMap().size(), is(3));
         resourceManager.releaseDataSourceMap();
         assertTrue(getDataSourceMap().isEmpty());
@@ -77,10 +66,8 @@ public final class SagaResourceManagerTest {
     @Test
     @SneakyThrows
     public void assertGetConnection() {
-        Map<String, DataSource> dataSourceMap = new HashMap<>();
         DataSource dataSource = mock(DataSource.class);
-        dataSourceMap.put("ds1", dataSource);
-        resourceManager.registerDataSourceMap(dataSourceMap);
+        resourceManager.registerDataSourceMap("ds1", dataSource);
         resourceManager.getConnection("ds1");
         verify(dataSource).getConnection();
     }
