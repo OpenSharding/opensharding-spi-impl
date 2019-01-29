@@ -25,13 +25,13 @@ import lombok.SneakyThrows;
 
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.executor.ShardingExecuteDataMap;
+import org.apache.shardingsphere.transaction.core.ResourceDataSource;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.apache.shardingsphere.transaction.spi.ShardingTransactionManager;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.Collection;
 
 /**
  * Sharding transaction manager for Saga.
@@ -63,8 +63,10 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     }
     
     @Override
-    public void init(final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap) {
-        resourceManager.registerDataSourceMap(dataSourceMap);
+    public void init(final DatabaseType databaseType, final Collection<ResourceDataSource> resourceDataSources) {
+        for (ResourceDataSource each : resourceDataSources) {
+            resourceManager.registerDataSourceMap(each.getOriginalName(), each.getDataSource());
+        }
     }
     
     @Override

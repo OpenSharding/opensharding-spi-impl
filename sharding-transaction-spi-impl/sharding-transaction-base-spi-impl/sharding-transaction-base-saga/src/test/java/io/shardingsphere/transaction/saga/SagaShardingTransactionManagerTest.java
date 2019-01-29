@@ -25,6 +25,7 @@ import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.executor.ShardingExecuteDataMap;
+import org.apache.shardingsphere.transaction.core.ResourceDataSource;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.junit.After;
 import org.junit.Before;
@@ -37,8 +38,8 @@ import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -97,9 +98,14 @@ public final class SagaShardingTransactionManagerTest {
     
     @Test
     public void assertInit() {
-        Map<String, DataSource> dataSourceMap = new HashMap<>();
-        sagaShardingTransactionManager.init(DatabaseType.MySQL, dataSourceMap);
-        verify(sagaResourceManager).registerDataSourceMap(dataSourceMap);
+        Collection<ResourceDataSource> resourceDataSources = new ArrayList<>();
+        ResourceDataSource resourceDataSource = mock(ResourceDataSource.class);
+        DataSource dataSource = mock(DataSource.class);
+        when(resourceDataSource.getDataSource()).thenReturn(dataSource);
+        when(resourceDataSource.getOriginalName()).thenReturn("ds1");
+        resourceDataSources.add(resourceDataSource);
+        sagaShardingTransactionManager.init(DatabaseType.MySQL, resourceDataSources);
+        verify(sagaResourceManager).registerDataSourceMap("ds1", dataSource);
     }
     
     @Test
