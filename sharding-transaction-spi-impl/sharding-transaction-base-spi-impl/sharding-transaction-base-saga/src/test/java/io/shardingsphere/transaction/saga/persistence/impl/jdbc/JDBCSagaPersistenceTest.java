@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.SagaEvent;

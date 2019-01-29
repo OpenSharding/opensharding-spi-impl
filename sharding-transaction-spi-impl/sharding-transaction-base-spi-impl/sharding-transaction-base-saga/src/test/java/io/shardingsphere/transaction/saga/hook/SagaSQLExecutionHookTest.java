@@ -80,7 +80,7 @@ public final class SagaSQLExecutionHookTest {
         SagaBranchTransaction branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishSuccess();
-        verify(sagaTransaction).updateExecutionResult(branchTransaction ,ExecuteStatus.SUCCESS);
+        verify(sagaTransaction).updateExecutionResult(branchTransaction, ExecuteStatus.SUCCESS);
     }
     
     @Test

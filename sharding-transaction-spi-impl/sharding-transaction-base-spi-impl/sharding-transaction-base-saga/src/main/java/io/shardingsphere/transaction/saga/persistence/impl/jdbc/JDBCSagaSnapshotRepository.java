@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.exception.ShardingException;
