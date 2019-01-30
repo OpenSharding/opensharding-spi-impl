@@ -54,18 +54,17 @@ public final class SagaResourceManager {
     /**
      * Register data source map.
      *
-     * @param dataSourceMap data source map
+     * @param datasourceName data sourceName
+     * @param dataSource data source
      */
-    public void registerDataSourceMap(final Map<String, DataSource> dataSourceMap) {
-        validateDataSourceName(dataSourceMap);
-        this.dataSourceMap.putAll(dataSourceMap);
+    public void registerDataSourceMap(final String datasourceName, final DataSource dataSource) {
+        validateDataSourceName(datasourceName, dataSource);
+        dataSourceMap.put(datasourceName, dataSource);
     }
     
-    private void validateDataSourceName(final Map<String, DataSource> dataSourceMap) {
-        for (String each : dataSourceMap.keySet()) {
-            if (this.dataSourceMap.containsKey(each)) {
-                throw new ShardingException("datasource {} has registered", each);
-            }
+    private void validateDataSourceName(final String datasourceName, final DataSource dataSource) {
+        if (dataSourceMap.containsKey(datasourceName)) {
+            throw new ShardingException("datasource {} has registered", datasourceName);
         }
     }
     

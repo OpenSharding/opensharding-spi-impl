@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import lombok.SneakyThrows;
