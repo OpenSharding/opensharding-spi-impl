@@ -54,17 +54,18 @@ public final class RevertInsert extends AbstractRevertOperate {
         }
         RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), tableColumns, keys, snapshotParameter.getActualSQLParams(),
                 insertStatement.getInsertValues().getInsertValues().size(), insertStatement.isContainGenerateKey());
+        int paramIndex = 0;
         for (InsertValue each : insertStatement.getInsertValues().getInsertValues()) {
             Map<String, Object> keyValue = new HashMap<>();
             result.getKeyValues().add(keyValue);
-            int index = 0;
+            int columnIndex = 0;
             for (SQLExpression expression : each.getColumnValues()) {
-                Column column = insertStatement.getColumns().get(index++);
+                Column column = insertStatement.getColumns().get(columnIndex++);
                 if (!keys.contains(column.getName())) {
                     continue;
                 }
                 if (expression instanceof SQLPlaceholderExpression) {
-                    keyValue.put(column.getName(), snapshotParameter.getActualSQLParams().get(((SQLPlaceholderExpression) expression).getIndex()));
+                    keyValue.put(column.getName(), snapshotParameter.getActualSQLParams().get(paramIndex++));
                 } else if (expression instanceof SQLTextExpression) {
                     keyValue.put(column.getName(), ((SQLTextExpression) expression).getText());
                 } else if (expression instanceof SQLNumberExpression) {

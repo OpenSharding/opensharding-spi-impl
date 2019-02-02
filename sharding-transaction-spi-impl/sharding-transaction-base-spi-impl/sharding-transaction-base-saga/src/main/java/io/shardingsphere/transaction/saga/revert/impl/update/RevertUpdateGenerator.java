@@ -73,7 +73,7 @@ public final class RevertUpdateGenerator implements RevertContextGenerator {
             List<Object> eachSQLParams = new LinkedList<>();
             result.getRevertParams().add(eachSQLParams);
             for (String updateColumn : updateParameter.getUpdateColumns().keySet()) {
-                eachSQLParams.add(each.get(updateColumn));
+                eachSQLParams.add(each.get(updateColumn.toLowerCase()));
             }
             for (String key : updateParameter.getKeys()) {
                 Object value = updateParameter.getUpdateColumns().get(key);
