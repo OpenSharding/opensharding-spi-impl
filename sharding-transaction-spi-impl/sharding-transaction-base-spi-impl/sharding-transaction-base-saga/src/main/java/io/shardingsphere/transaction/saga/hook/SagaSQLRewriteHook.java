@@ -21,7 +21,7 @@ import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import org.apache.shardingsphere.core.routing.SQLUnit;
 import org.apache.shardingsphere.core.routing.type.TableUnit;
-import org.apache.shardingsphere.spi.rewrite.RewriteHook;
+import org.apache.shardingsphere.spi.hook.rewrite.RewriteHook;
 
 /**
  * Saga SQL rewrite hook.
