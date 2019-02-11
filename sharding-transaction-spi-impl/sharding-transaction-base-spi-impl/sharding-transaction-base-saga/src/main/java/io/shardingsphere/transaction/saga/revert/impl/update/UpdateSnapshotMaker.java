@@ -42,9 +42,9 @@ public final class UpdateSnapshotMaker extends DeleteSnapshotMaker {
             int dotPos = each.indexOf('.');
             String realColumnName = null;
             if (dotPos > 0) {
-                realColumnName = each.substring(dotPos + 1);
+                realColumnName = each.substring(dotPos + 1).toLowerCase();
             } else {
-                realColumnName = each;
+                realColumnName = each.toLowerCase();
             }
             if (first) {
                 first = false;
