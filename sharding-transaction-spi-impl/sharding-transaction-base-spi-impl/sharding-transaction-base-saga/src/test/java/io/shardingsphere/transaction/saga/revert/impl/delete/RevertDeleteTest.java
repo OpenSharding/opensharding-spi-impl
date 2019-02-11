@@ -34,7 +34,6 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
 
 public class RevertDeleteTest extends BaseDeleteTest {
     

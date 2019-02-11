@@ -28,14 +28,14 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.shardingsphere.api.config.rule.ShardingRuleConfiguration;
+import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.SQLParsingEngine;
 import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
 import org.apache.shardingsphere.core.rule.ShardingRule;
-import org.apache.shardingsphere.core.yaml.config.sharding.YamlShardingConfiguration;
+import org.apache.shardingsphere.core.yaml.config.sharding.YamlRootShardingConfiguration;
 import org.apache.shardingsphere.core.yaml.engine.YamlEngine;
 import org.apache.shardingsphere.core.yaml.swapper.impl.ShardingRuleConfigurationYamlSwapper;
 import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
@@ -76,10 +76,9 @@ public abstract class BaseRevertTest {
             InputStream inputStream = BaseRevertTest.class.getClassLoader().getResourceAsStream("config-sharding.yaml");
             byte[] bytes = new byte[inputStream.available()];
             inputStream.read(bytes);
-            YamlShardingConfiguration config = YamlEngine.unmarshal(bytes, YamlShardingConfiguration.class);
+            YamlRootShardingConfiguration config = YamlEngine.unmarshal(bytes, YamlRootShardingConfiguration.class);
             ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfigurationYamlSwapper().swap(config.getShardingRule());
-            ShardingDataSource shardingDataSource = (ShardingDataSource) ShardingDataSourceFactory.createDataSource(
-                    config.getDataSources(), shardingRuleConfiguration, config.getConfigMap(), config.getProps());
+            ShardingDataSource shardingDataSource = (ShardingDataSource) ShardingDataSourceFactory.createDataSource(config.getDataSources(), shardingRuleConfiguration, config.getProps());
             shardingRule = new ShardingRule(shardingRuleConfiguration, config.getDataSources().keySet());
             shardingTableMetaData = ((ShardingDataSource) shardingDataSource).getShardingContext().getMetaData().getTable();
             actualDataSource = shardingDataSource.getDataSourceMap().get("ds_1");

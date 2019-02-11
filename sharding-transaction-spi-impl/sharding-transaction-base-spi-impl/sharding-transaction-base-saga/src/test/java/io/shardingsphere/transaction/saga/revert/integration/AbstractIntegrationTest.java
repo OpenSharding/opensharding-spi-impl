@@ -23,10 +23,10 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import org.apache.shardingsphere.api.config.rule.ShardingRuleConfiguration;
+import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.rule.ShardingRule;
-import org.apache.shardingsphere.core.yaml.config.sharding.YamlShardingConfiguration;
+import org.apache.shardingsphere.core.yaml.config.sharding.YamlRootShardingConfiguration;
 import org.apache.shardingsphere.core.yaml.engine.YamlEngine;
 import org.apache.shardingsphere.core.yaml.swapper.impl.ShardingRuleConfigurationYamlSwapper;
 import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
@@ -38,7 +38,7 @@ public abstract class AbstractIntegrationTest {
     // CHECKSTYLE:OFF
     protected static DataSource dataSource;
     
-    protected static YamlShardingConfiguration config;
+    protected static YamlRootShardingConfiguration config;
     
     protected static ShardingRule shardingRule;
     
@@ -71,10 +71,9 @@ public abstract class AbstractIntegrationTest {
         InputStream inputStream = MultiKeyTest.class.getClassLoader().getResourceAsStream("config-sharding.yaml");
         byte[] bytes = new byte[inputStream.available()];
         inputStream.read(bytes);
-        config = YamlEngine.unmarshal(bytes, YamlShardingConfiguration.class);
+        config = YamlEngine.unmarshal(bytes, YamlRootShardingConfiguration.class);
         ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfigurationYamlSwapper().swap(config.getShardingRule());
-        dataSource = ShardingDataSourceFactory.createDataSource(
-                config.getDataSources(), shardingRuleConfiguration, config.getConfigMap(), config.getProps());
+        dataSource = ShardingDataSourceFactory.createDataSource(config.getDataSources(), shardingRuleConfiguration, config.getProps());
         shardingRule = new ShardingRule(shardingRuleConfiguration, config.getDataSources().keySet());
         shardingTableMetaData = ((ShardingDataSource) dataSource).getShardingContext().getMetaData().getTable();
     }

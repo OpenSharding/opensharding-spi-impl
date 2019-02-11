@@ -44,5 +44,6 @@ shardingRule:
     none:
   defaultKeyGenerator: 
     type: SNOWFLAKE
+    column: user_id
 props:
   sql.show: true
