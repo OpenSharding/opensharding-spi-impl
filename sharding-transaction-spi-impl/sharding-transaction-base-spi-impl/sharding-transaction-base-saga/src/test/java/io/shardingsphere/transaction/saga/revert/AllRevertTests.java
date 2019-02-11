@@ -24,13 +24,16 @@ import org.junit.runners.Suite.SuiteClasses;
 import io.shardingsphere.transaction.saga.revert.impl.delete.AllRevertDeleteTests;
 import io.shardingsphere.transaction.saga.revert.impl.insert.AllRevertInsertTests;
 import io.shardingsphere.transaction.saga.revert.impl.update.AllRevertUpdateTests;
+import io.shardingsphere.transaction.saga.revert.integration.MultiKeyTest;
+import io.shardingsphere.transaction.saga.revert.integration.MultiValueTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
         AllRevertInsertTests.class,
         AllRevertUpdateTests.class,
         AllRevertDeleteTests.class,
-        MultiKeyTest.class
+        MultiKeyTest.class,
+        MultiValueTest.class
 })
 public final class AllRevertTests {
 }

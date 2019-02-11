@@ -17,18 +17,16 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
-import static org.junit.Assert.assertTrue;
+import io.shardingsphere.transaction.saga.revert.BaseRevertTest;
+import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-
-import io.shardingsphere.transaction.saga.revert.BaseRevertTest;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.update.UpdateSnapshotMaker;
+import static org.junit.Assert.assertTrue;
 
 public class UpdateSnapshotMakerTest extends BaseRevertTest {
     

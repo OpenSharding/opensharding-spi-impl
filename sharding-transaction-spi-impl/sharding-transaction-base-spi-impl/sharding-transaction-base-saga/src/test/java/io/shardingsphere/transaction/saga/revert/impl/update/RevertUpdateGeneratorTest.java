@@ -17,16 +17,13 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
+import org.junit.Test;
+
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
-
-import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdateGenerator;
-import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdateGeneratorParameter;
 
 public class RevertUpdateGeneratorTest extends BaseUpdateTest {
     
