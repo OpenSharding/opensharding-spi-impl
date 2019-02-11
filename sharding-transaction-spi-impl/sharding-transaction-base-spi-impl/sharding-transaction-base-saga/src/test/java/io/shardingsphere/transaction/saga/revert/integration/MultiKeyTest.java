@@ -15,37 +15,24 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert;
+package io.shardingsphere.transaction.saga.revert.integration;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.apache.shardingsphere.api.config.rule.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.SQLParsingEngine;
 import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
-import org.apache.shardingsphere.core.rule.ShardingRule;
-import org.apache.shardingsphere.core.yaml.config.sharding.YamlShardingConfiguration;
-import org.apache.shardingsphere.core.yaml.engine.YamlEngine;
-import org.apache.shardingsphere.core.yaml.swapper.impl.ShardingRuleConfigurationYamlSwapper;
-import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
-import org.apache.shardingsphere.shardingjdbc.jdbc.core.datasource.ShardingDataSource;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.base.Optional;
@@ -57,49 +44,7 @@ import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdate;
 
-public class MultiKeyTest {
-    
-    private static DataSource dataSource;
-    
-    private static YamlShardingConfiguration config;
-    
-    private static ShardingRule shardingRule;
-    
-    private static ShardingTableMetaData shardingTableMetaData;
-    
-    private static final String DROP_TABLE = "DROP TABLE t_order_history;";
-    
-    private static final String CREATE_TABLE = "CREATE TABLE t_order_history (user_id int(11) NOT NULL,order_id int(11) NOT NULL, "
-            +
-            "status varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL, operate_date datetime(0) NULL DEFAULT NULL,PRIMARY KEY (user_id, order_id) USING BTREE);";
-    
-    @BeforeClass
-    public static void initEnvironment() throws Exception {
-        createShardingDatasource();
-        Connection connection = dataSource.getConnection();
-        Statement statement = connection.createStatement();
-        try {
-            statement.execute(DROP_TABLE);
-            // CHECKSTYLE:OFF
-        } catch (Exception e) {
-            // CHECKSTYLE:ON
-        }
-        statement.execute(CREATE_TABLE);
-        statement.close();
-        connection.close();
-    }
-    
-    private static void createShardingDatasource() throws Exception {
-        InputStream inputStream = MultiKeyTest.class.getClassLoader().getResourceAsStream("config-sharding.yaml");
-        byte[] bytes = new byte[inputStream.available()];
-        inputStream.read(bytes);
-        config = YamlEngine.unmarshal(bytes, YamlShardingConfiguration.class);
-        ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfigurationYamlSwapper().swap(config.getShardingRule());
-        dataSource = ShardingDataSourceFactory.createDataSource(
-                config.getDataSources(), shardingRuleConfiguration, config.getConfigMap(), config.getProps());
-        shardingRule = new ShardingRule(shardingRuleConfiguration, config.getDataSources().keySet());
-        shardingTableMetaData = ((ShardingDataSource) dataSource).getShardingContext().getMetaData().getTable();
-    }
+public class MultiKeyTest extends AbstractIntegrationTest {
     
     @Test
     public void assertInsert() throws Exception {
@@ -153,42 +98,6 @@ public class MultiKeyTest {
         checkUpdate(connection, "1", 2);
         update(connection, "delete from t_order_history", new ArrayList<>());
         connection.close();
-    }
-    
-    @Test
-    public void assertMultiInsert() throws Exception {
-        String insertSQL = "insert into t_order_history values(?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?)";
-        List<Object> params = buildMultiInsertParam();
-        Connection connection = dataSource.getConnection();
-        update(connection, insertSQL, params);
-        checkUpdate(connection, "1", 4);
-        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, insertSQL, shardingRule, shardingTableMetaData).parse(true);
-        String actualSQLTemplate = "insert into t_order_history_%S values(?,?,?,?)";
-        for (int i = 0; i < 2; i++) {
-            String actualSQL = String.format(actualSQLTemplate, i);
-            Connection actualConnection = config.getDataSources().get("ds_" + i).getConnection();
-            List<Object> reverParams = new LinkedList<>();
-            for (int j = 0; j < params.size(); j++) {
-                if (i == ((j / 4) + 1) % 2) {
-                    reverParams.add(params.get(j));
-                }
-            }
-            revertInsert((DMLStatement) statement, actualConnection, insertSQL, actualSQL, "t_order_history_" + i, reverParams);
-            actualConnection.close();
-        }
-        checkUpdate(connection, "1", 0);
-        connection.close();
-    }
-    
-    private List<Object> buildMultiInsertParam() {
-        List<Object> params = new LinkedList<>();
-        for (int i = 1; i <= 4; i++) {
-            params.add(i);
-            params.add(i);
-            params.add("1");
-            params.add(new Date());
-        }
-        return params;
     }
     
     private void insertDataForTest(final Connection connection) throws Exception {
