@@ -27,7 +27,7 @@ import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.routing.RouteUnit;
 import org.apache.shardingsphere.core.routing.SQLUnit;
 import org.apache.shardingsphere.core.routing.type.TableUnit;
-import org.apache.shardingsphere.spi.executor.SQLExecutionHook;
+import org.apache.shardingsphere.spi.hook.SQLExecutionHook;
 
 import java.util.Map;
 

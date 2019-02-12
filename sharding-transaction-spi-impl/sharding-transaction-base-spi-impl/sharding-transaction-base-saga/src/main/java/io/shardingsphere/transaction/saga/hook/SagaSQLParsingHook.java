@@ -21,7 +21,7 @@ import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
-import org.apache.shardingsphere.spi.parsing.ParsingHook;
+import org.apache.shardingsphere.spi.hook.ParsingHook;
 
 /**
  * Saga SQL parsing hook.
