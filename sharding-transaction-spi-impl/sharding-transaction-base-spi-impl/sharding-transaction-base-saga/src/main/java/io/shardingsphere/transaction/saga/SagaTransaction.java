@@ -23,7 +23,6 @@ import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.revert.SQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
-import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
@@ -125,29 +124,6 @@ public final class SagaTransaction {
             revertResults.put(sagaBranchTransaction, sqlRevertEngine.revert(sagaBranchTransaction, currentBranchTransactionGroup));
         } catch (final SQLException ex) {
             throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
-        }
-    }
-    
-    /**
-     * Get saga definition builder.
-     *
-     * @return saga definition builder
-     */
-    public SagaDefinitionBuilder getSagaDefinitionBuilder() {
-        SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(), 
-                sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
-        for (SagaBranchTransactionGroup each : branchTransactionGroups) {
-            result.switchParents();
-            initSagaDefinitionForGroup(result, each);
-        }
-        return result;
-    }
-    
-    private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final SagaBranchTransactionGroup sagaBranchTransactionGroup) {
-        for (SagaBranchTransaction each : sagaBranchTransactionGroup.getBranchTransactions()) {
-            SQLRevertResult revertResult = revertResults.containsKey(each) ? revertResults.get(each) : new SQLRevertResult();
-            sagaDefinitionBuilder.addChildRequest(
-                    String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getSql(), revertResult.getParameterSets());
         }
     }
     

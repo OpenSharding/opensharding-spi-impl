@@ -20,6 +20,8 @@ package io.shardingsphere.transaction.saga;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
+import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
+import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
 import lombok.SneakyThrows;
 
@@ -99,7 +101,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void commit() {
         if (null != CURRENT_TRANSACTION.get() && CURRENT_TRANSACTION.get().isContainsException()) {
-            submitToSagaEngine();
+            submitToSagaEngine(false);
         }
         cleanTransaction();
     }
@@ -107,15 +109,37 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void rollback() {
         if (null != CURRENT_TRANSACTION.get()) {
-            submitToSagaEngine();
+            submitToSagaEngine(!CURRENT_TRANSACTION.get().isContainsException());
         }
         cleanTransaction();
     }
     
     @SneakyThrows
-    private void submitToSagaEngine() {
-        String json = CURRENT_TRANSACTION.get().getSagaDefinitionBuilder().build();
-        resourceManager.getSagaExecutionComponent().run(json);
+    private void submitToSagaEngine(final boolean isForcedRollback) {
+        SagaDefinitionBuilder sagaDefinitionBuilder = getSagaDefinitionBuilder();
+        if (isForcedRollback) {
+            sagaDefinitionBuilder.addRollbackRequest();
+        }
+        resourceManager.getSagaExecutionComponent().run(sagaDefinitionBuilder.build());
+    }
+    
+    private SagaDefinitionBuilder getSagaDefinitionBuilder() {
+        SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(),
+            sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
+        for (SagaBranchTransactionGroup each : CURRENT_TRANSACTION.get().getBranchTransactionGroups()) {
+            result.switchParents();
+            initSagaDefinitionForGroup(result, each);
+        }
+        return result;
+    }
+    
+    private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final SagaBranchTransactionGroup sagaBranchTransactionGroup) {
+        SagaTransaction currentTransaction = CURRENT_TRANSACTION.get();
+        for (SagaBranchTransaction each : sagaBranchTransactionGroup.getBranchTransactions()) {
+            SQLRevertResult revertResult = currentTransaction.getRevertResults().containsKey(each) ? currentTransaction.getRevertResults().get(each) : new SQLRevertResult();
+            sagaDefinitionBuilder.addChildRequest(
+                String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getSql(), revertResult.getParameterSets());
+        }
     }
     
     private void cleanTransaction() {

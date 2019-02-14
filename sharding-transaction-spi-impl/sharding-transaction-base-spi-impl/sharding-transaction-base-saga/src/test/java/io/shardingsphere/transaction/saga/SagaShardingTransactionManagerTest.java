@@ -184,6 +184,10 @@ public final class SagaShardingTransactionManagerTest {
         when(sagaResourceManager.getSagaExecutionComponent()).thenReturn(sagaExecutionComponent);
         when(sagaResourceManager.getSagaPersistence()).thenReturn(sagaPersistence);
         sagaShardingTransactionManager.begin();
+        SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
+        SagaBranchTransactionGroup sagaBranchTransactionGroup = new SagaBranchTransactionGroup("", null, null);
+        sagaBranchTransactionGroup.getBranchTransactions().add(new SagaBranchTransaction("", "", null));
+        sagaTransaction.getBranchTransactionGroups().add(sagaBranchTransactionGroup);
         sagaShardingTransactionManager.rollback();
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
