@@ -25,6 +25,7 @@ import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionB
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
 import lombok.SneakyThrows;
 
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.executor.ShardingExecuteDataMap;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
@@ -109,9 +110,13 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void rollback() {
         if (null != CURRENT_TRANSACTION.get()) {
-            submitToSagaEngine(!CURRENT_TRANSACTION.get().isContainsException());
+            submitToSagaEngine(isforcedRollback());
         }
         cleanTransaction();
+    }
+    
+    private boolean isforcedRollback() {
+        return !CURRENT_TRANSACTION.get().isContainsException() && RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy());
     }
     
     @SneakyThrows

@@ -37,9 +37,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @RequiredArgsConstructor
 public final class SagaDefinitionBuilder {
     
-    private static final String TYPE = "sql";
-    
     public static final String ROLLBACK_TAG = "rollbackTag";
+    
+    private static final String TYPE = "sql";
     
     private final String recoveryPolicy;
     
@@ -85,6 +85,7 @@ public final class SagaDefinitionBuilder {
      * Add rollback request node to definition graph.
      */
     public void addRollbackRequest() {
+        switchParents();
         addChildRequest(ROLLBACK_TAG, ROLLBACK_TAG, ROLLBACK_TAG, Lists.<List<Object>>newArrayList(), ROLLBACK_TAG, Lists.<Collection<Object>>newArrayList());
     }
     

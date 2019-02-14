@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
+import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.junit.Before;
@@ -38,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -151,6 +153,25 @@ public final class ShardingSQLTransportTest {
         List<List<String>> parameterSets = Lists.newArrayList();
         assertThat(shardingSQLTransport.with(dataSourceName, sql, parameterSets), instanceOf(JsonSuccessfulSagaResponse.class));
         verify(statement).executeUpdate();
+    }
+    
+    @Test
+    public void assertWithEmptySQL() throws SQLException {
+        ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
+        List<List<String>> parameterSets = Lists.newArrayList();
+        assertThat(shardingSQLTransport.with(dataSourceName, "", parameterSets).body(), is("Skip empty transaction/compensation"));
+        assertThat(shardingSQLTransport.with(dataSourceName, null, parameterSets).body(), is("Skip empty transaction/compensation"));
+    }
+    
+    @Test
+    public void assertWithRollbackTag() {
+        ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
+        List<List<String>> parameterSets = Lists.newArrayList();
+        try {
+            shardingSQLTransport.with(dataSourceName, SagaDefinitionBuilder.ROLLBACK_TAG, parameterSets);
+        } catch (TransportFailedException ex) {
+            assertThat(ex.getMessage(), is("Forced Rollback tag has been checked, saga will rollback this transaction"));
+        }
     }
     
     @Test(expected = TransportFailedException.class)

@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.core.SuccessfulSagaResponse;
@@ -48,6 +49,9 @@ public final class ShardingSQLTransport implements SQLTransport {
     public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> parameterSets) {
         if (Strings.isNullOrEmpty(sql)) {
             return new SuccessfulSagaResponse("Skip empty transaction/compensation");
+        }
+        if (SagaDefinitionBuilder.ROLLBACK_TAG.equals(sql)) {
+            throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
         SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, transferList(parameterSets));
         return isNeedExecute(branchTransaction) ? executeSQL(branchTransaction) : new JsonSuccessfulSagaResponse("{}");
