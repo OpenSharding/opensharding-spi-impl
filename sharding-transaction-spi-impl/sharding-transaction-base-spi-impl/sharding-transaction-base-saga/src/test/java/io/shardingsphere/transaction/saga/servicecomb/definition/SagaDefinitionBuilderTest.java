@@ -66,6 +66,10 @@ public final class SagaDefinitionBuilderTest {
             + ",{\"id\":\"2\",\"datasource\":\"ds_1\",\"type\":\"sql\",\"transaction\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"yyy\",2]],\"retries\":5}"
             + ",\"compensation\":{\"sql\":\"UPDATE ds_1.tb_1 SET value=? where id=?\",\"params\":[[\"xxx\",2]],\"retries\":5},\"parents\":[\"1\"],\"failRetryDelayMilliseconds\":5000}]}";
     
+    private static final String EXPECT_ROLLBACK_SQL_DEFINITION = "{\"policy\":\"ForwardRecovery\",\"requests\":[{\"id\":\"rollbackTag\",\"datasource\":\"rollbackTag\",\"type\":\"sql\""
+            + ",\"transaction\":{\"sql\":\"rollbackTag\",\"params\":[],\"retries\":5},\"compensation\":{\"sql\":\"rollbackTag\",\"params\":[],\"retries\":5},\"parents\":[]"
+            + ",\"failRetryDelayMilliseconds\":5000}]}";
+    
     private SagaDefinitionBuilder builder;
     
     @BeforeClass
@@ -102,4 +106,9 @@ public final class SagaDefinitionBuilderTest {
         assertThat(builder.build(), is(EXPECT_PARENTS_SQL_DEFINITION));
     }
     
+    @Test
+    public void assertAddRollbackRequest() throws JsonProcessingException {
+        builder.addRollbackRequest();
+        assertThat(builder.build(), is(EXPECT_ROLLBACK_SQL_DEFINITION));
+    }
 }
