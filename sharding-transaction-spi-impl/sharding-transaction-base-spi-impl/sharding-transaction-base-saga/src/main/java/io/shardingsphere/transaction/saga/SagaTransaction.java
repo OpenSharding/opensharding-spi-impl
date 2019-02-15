@@ -18,22 +18,15 @@
 package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
-import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
-import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
-import io.shardingsphere.transaction.saga.revert.SQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.SQLType;
-import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 import org.apache.shardingsphere.core.routing.SQLUnit;
 import org.apache.shardingsphere.core.routing.type.TableUnit;
 
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +45,6 @@ public final class SagaTransaction {
     private final String id = UUID.randomUUID().toString();
     
     private final String recoveryPolicy;
-    
-    private final SagaPersistence persistence;
     
     private final Map<SQLUnit, TableUnit> tableUnitMap = new ConcurrentHashMap<>();
     
@@ -102,24 +93,11 @@ public final class SagaTransaction {
     }
     
     /**
-     * Save new snapshot.
+     * Add new branch transaction to current transaction group.
      *
-     * @param sagaBranchTransaction saga branch transaction
+     * @param branchTransaction saga branch transaction
      */
-    public void saveNewSnapshot(final SagaBranchTransaction sagaBranchTransaction) {
-        currentBranchTransactionGroup.getBranchTransactions().add(sagaBranchTransaction);
-        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(recoveryPolicy)) {
-            sqlRevert(sagaBranchTransaction);
-            persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResults.get(sagaBranchTransaction)));
-        }
-    }
-    
-    private void sqlRevert(final SagaBranchTransaction sagaBranchTransaction) {
-        SQLRevertEngine sqlRevertEngine = new SQLRevertEngine(SagaResourceManager.getTransactionResource(this).getConnections());
-        try {
-            revertResults.put(sagaBranchTransaction, sqlRevertEngine.revert(sagaBranchTransaction, currentBranchTransactionGroup));
-        } catch (final SQLException ex) {
-            throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
-        }
+    public void addBranchTransactionToGroup(final SagaBranchTransaction branchTransaction) {
+        currentBranchTransactionGroup.getBranchTransactions().add(branchTransaction);
     }
 }

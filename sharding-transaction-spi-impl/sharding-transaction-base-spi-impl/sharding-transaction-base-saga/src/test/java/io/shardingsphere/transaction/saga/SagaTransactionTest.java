@@ -18,27 +18,15 @@
 package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
-import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
-import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
-import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
-
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parsing.parser.context.table.Tables;
 import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -46,20 +34,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import lombok.SneakyThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class SagaTransactionTest {
     
     private SagaTransaction sagaTransaction;
-    
-    @Mock
-    private SagaPersistence persistence;
-    
+
     @Mock
     private DMLStatement sqlStatement;
     
@@ -70,7 +51,7 @@ public final class SagaTransactionTest {
     
     @Before
     public void setUp() {
-        sagaTransaction = new SagaTransaction(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, persistence);
+        sagaTransaction = new SagaTransaction(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY);
         when(sqlStatement.getType()).thenReturn(SQLType.DML);
     }
     
@@ -84,24 +65,10 @@ public final class SagaTransactionTest {
     }
     
     @Test
-    @SneakyThrows
-    public void assertSaveNewSnapshot() {
-        Field resourceMapField = SagaResourceManager.class.getDeclaredField("TRANSACTION_RESOURCE_MAP");
-        resourceMapField.setAccessible(true);
-        Map<SagaTransaction, SagaTransactionResource> resourceMap = (Map<SagaTransaction, SagaTransactionResource>) resourceMapField.get(SagaResourceManager.class);
-        resourceMap.put(sagaTransaction, new SagaTransactionResource(persistence));
-        when(sqlStatement.getTables()).thenReturn(mock(Tables.class));
+    public void assertAddBranchTransactionToGroup() {
         sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
-        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
-        when(sagaBranchTransaction.getDataSourceName()).thenReturn("ds");
-        when(sagaBranchTransaction.getParameterSets()).thenReturn(Collections.<List<Object>>emptyList());
-        sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
-        verify(persistence, never()).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
-        Field recoveryPolicyField = SagaTransaction.class.getDeclaredField("recoveryPolicy");
-        recoveryPolicyField.setAccessible(true);
-        recoveryPolicyField.set(sagaTransaction, RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
-        sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
-        verify(persistence).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
+        sagaTransaction.addBranchTransactionToGroup(new SagaBranchTransaction("", sql, null));
+        assertThat(sagaTransaction.getCurrentBranchTransactionGroup().getBranchTransactions().size(), is(1));
     }
     
     @Test

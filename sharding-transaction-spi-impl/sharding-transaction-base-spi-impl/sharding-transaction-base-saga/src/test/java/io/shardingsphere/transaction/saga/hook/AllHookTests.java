@@ -24,7 +24,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
         SagaSQLExecutionHookTest.class,
-        SagaSQLParsingHookTest.class
+        SagaSQLParsingHookTest.class,
+        SagaSQLRewriteHookTest.class
 })
 public final class AllHookTests {
 }
