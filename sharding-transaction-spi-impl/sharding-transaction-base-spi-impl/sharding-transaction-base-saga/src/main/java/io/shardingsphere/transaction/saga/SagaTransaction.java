@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga;
 
-import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
@@ -53,7 +52,7 @@ public final class SagaTransaction {
     
     private final String id = UUID.randomUUID().toString();
     
-    private final SagaConfiguration sagaConfiguration;
+    private final String recoveryPolicy;
     
     private final SagaPersistence persistence;
     
@@ -112,7 +111,7 @@ public final class SagaTransaction {
      */
     public void saveNewSnapshot(final SagaBranchTransaction sagaBranchTransaction) {
         currentBranchTransactionGroup.getBranchTransactions().add(sagaBranchTransaction);
-        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy())) {
+        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(recoveryPolicy)) {
             sqlRevert(sagaBranchTransaction);
             persistence.persistSnapshot(new SagaSnapshot(id, sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResults.get(sagaBranchTransaction)));
         }

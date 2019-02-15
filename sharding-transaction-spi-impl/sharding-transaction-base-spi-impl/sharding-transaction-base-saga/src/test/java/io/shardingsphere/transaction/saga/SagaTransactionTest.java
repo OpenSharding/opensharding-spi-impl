@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga;
 
-import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
@@ -33,6 +32,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,6 +45,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import lombok.SneakyThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class SagaTransactionTest {
@@ -64,7 +66,7 @@ public final class SagaTransactionTest {
     
     @Before
     public void setUp() {
-        sagaTransaction = new SagaTransaction(new SagaConfiguration(), persistence);
+        sagaTransaction = new SagaTransaction(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, persistence);
         when(sqlStatement.getType()).thenReturn(SQLType.DML);
     }
     
@@ -78,6 +80,7 @@ public final class SagaTransactionTest {
     }
     
     @Test
+    @SneakyThrows
     public void assertSaveNewSnapshot() {
         when(sqlStatement.getTables()).thenReturn(mock(Tables.class));
         sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
@@ -86,7 +89,9 @@ public final class SagaTransactionTest {
         when(sagaBranchTransaction.getParameterSets()).thenReturn(Collections.<List<Object>>emptyList());
         sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
         verify(persistence, never()).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
-        sagaTransaction.getSagaConfiguration().setRecoveryPolicy(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
+        Field recoveryPolicyField = SagaTransaction.class.getDeclaredField("recoveryPolicy");
+        recoveryPolicyField.setAccessible(true);
+        recoveryPolicyField.set(sagaTransaction, RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
         sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
         verify(persistence).persistSnapshot(ArgumentMatchers.<SagaSnapshot>any());
     }

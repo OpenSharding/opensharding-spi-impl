@@ -71,7 +71,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     @Override
     public void finishFailure(final Exception cause) {
         if (null != sagaTransaction && null != sagaBranchTransaction) {
-            ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getSagaConfiguration().getRecoveryPolicy()));
+            ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getRecoveryPolicy()));
             sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
         }
     }

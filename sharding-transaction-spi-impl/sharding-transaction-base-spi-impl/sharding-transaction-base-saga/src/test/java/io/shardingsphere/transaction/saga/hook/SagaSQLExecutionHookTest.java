@@ -21,8 +21,8 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
-import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.executor.ShardingExecuteDataMap;
 import org.apache.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.routing.RouteUnit;
@@ -85,7 +85,7 @@ public final class SagaSQLExecutionHookTest {
     
     @Test
     public void assertFinishFailure() {
-        when(sagaTransaction.getSagaConfiguration()).thenReturn(new SagaConfiguration());
+        when(sagaTransaction.getRecoveryPolicy()).thenReturn(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY);
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
         assertFalse(ExecutorExceptionHandler.isExceptionThrown());

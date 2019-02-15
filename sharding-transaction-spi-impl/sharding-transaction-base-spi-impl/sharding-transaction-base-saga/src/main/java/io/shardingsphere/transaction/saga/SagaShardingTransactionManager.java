@@ -92,7 +92,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void begin() {
         if (null == CURRENT_TRANSACTION.get()) {
-            SagaTransaction transaction = new SagaTransaction(sagaConfiguration, resourceManager.getSagaPersistence());
+            SagaTransaction transaction = new SagaTransaction(sagaConfiguration.getRecoveryPolicy(), resourceManager.getSagaPersistence());
             ShardingExecuteDataMap.getDataMap().put(CURRENT_TRANSACTION_KEY, transaction);
             CURRENT_TRANSACTION.set(transaction);
             ShardingTransportFactory.getInstance().cacheTransport(transaction);
