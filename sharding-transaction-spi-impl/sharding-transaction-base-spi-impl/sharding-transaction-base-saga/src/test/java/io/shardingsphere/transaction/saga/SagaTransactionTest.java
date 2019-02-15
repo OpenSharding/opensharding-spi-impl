@@ -115,10 +115,4 @@ public final class SagaTransactionTest {
         assertThat(sagaTransaction.getExecutionResults().get(sagaBranchTransaction), is(ExecuteStatus.EXECUTING));
         assertFalse(sagaTransaction.isContainsException());
     }
-    
-    @Test
-    public void assertCleanSnapshot() {
-        sagaTransaction.cleanSnapshot();
-        verify(persistence).cleanSnapshot(ArgumentMatchers.<String>any());
-    }
 }

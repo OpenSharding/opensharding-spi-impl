@@ -153,7 +153,9 @@ public final class SagaShardingTransactionManagerTest {
         Field containExceptionField = SagaTransaction.class.getDeclaredField("containsException");
         containExceptionField.setAccessible(true);
         containExceptionField.set(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY), true);
+        SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
         sagaShardingTransactionManager.commit();
+        verify(sagaPersistence).cleanSnapshot(sagaTransaction.getId());
         verify(sagaExecutionComponent).run(anyString());
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
@@ -164,7 +166,9 @@ public final class SagaShardingTransactionManagerTest {
     public void assertCommitWithoutException() {
         when(sagaResourceManager.getSagaPersistence()).thenReturn(sagaPersistence);
         sagaShardingTransactionManager.begin();
+        SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
         sagaShardingTransactionManager.commit();
+        verify(sagaPersistence).cleanSnapshot(sagaTransaction.getId());
         verify(sagaExecutionComponent, never()).run(anyString());
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
@@ -192,6 +196,7 @@ public final class SagaShardingTransactionManagerTest {
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
+        verify(sagaPersistence).cleanSnapshot(sagaTransaction.getId());
     }
     
     @Test

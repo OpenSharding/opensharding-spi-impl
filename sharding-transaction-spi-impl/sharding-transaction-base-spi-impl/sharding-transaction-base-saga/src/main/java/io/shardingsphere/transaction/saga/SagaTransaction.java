@@ -125,11 +125,4 @@ public final class SagaTransaction {
             throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
         }
     }
-    
-    /**
-     * Clean snapshot.
-     */
-    public void cleanSnapshot() {
-        persistence.cleanSnapshot(id);
-    }
 }
