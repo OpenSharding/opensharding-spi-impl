@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.resource;
 
+import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.exception.ShardingException;
@@ -24,17 +25,30 @@ import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public final class SagaResourceManagerTest {
     
     private final SagaResourceManager resourceManager = new SagaResourceManager(new SagaConfiguration());
+    
+    @Test
+    public void assertGetSagaTransactionResource() {
+        SagaTransaction sagaTransaction = mock(SagaTransaction.class);
+        resourceManager.registerTransactionResource(sagaTransaction);
+        assertThat(SagaResourceManager.getTransactionResource(sagaTransaction), instanceOf(SagaTransactionResource.class));
+        resourceManager.releaseTransactionResource(sagaTransaction);
+        assertNull(SagaResourceManager.getTransactionResource(sagaTransaction));
+    }
     
     @Test
     public void assertRegisterDataSourceMap() {
@@ -66,9 +80,15 @@ public final class SagaResourceManagerTest {
     @Test
     @SneakyThrows
     public void assertGetConnection() {
+        SagaTransaction sagaTransaction = mock(SagaTransaction.class);
         DataSource dataSource = mock(DataSource.class);
+        Connection connection = mock(Connection.class);
+        when(dataSource.getConnection()).thenReturn(connection);
         resourceManager.registerDataSourceMap("ds1", dataSource);
-        resourceManager.getConnection("ds1");
+        resourceManager.registerTransactionResource(sagaTransaction);
+        assertThat(resourceManager.getConnection("ds1", sagaTransaction), is(connection));
+        assertThat(SagaResourceManager.getTransactionResource(sagaTransaction).getConnections().size(), is(1));
+        assertThat(SagaResourceManager.getTransactionResource(sagaTransaction).getConnections().get("ds1"), is(connection));
         verify(dataSource).getConnection();
     }
     

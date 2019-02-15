@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
+import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.revert.SQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import lombok.Getter;
@@ -32,14 +33,12 @@ import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 import org.apache.shardingsphere.core.routing.SQLUnit;
 import org.apache.shardingsphere.core.routing.type.TableUnit;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Saga transaction.
@@ -55,8 +54,6 @@ public final class SagaTransaction {
     private final String recoveryPolicy;
     
     private final SagaPersistence persistence;
-    
-    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
     
     private final Map<SQLUnit, TableUnit> tableUnitMap = new ConcurrentHashMap<>();
     
@@ -118,7 +115,7 @@ public final class SagaTransaction {
     }
     
     private void sqlRevert(final SagaBranchTransaction sagaBranchTransaction) {
-        SQLRevertEngine sqlRevertEngine = new SQLRevertEngine(connections);
+        SQLRevertEngine sqlRevertEngine = new SQLRevertEngine(SagaResourceManager.getTransactionResource(this).getConnections());
         try {
             revertResults.put(sagaBranchTransaction, sqlRevertEngine.revert(sagaBranchTransaction, currentBranchTransactionGroup));
         } catch (final SQLException ex) {

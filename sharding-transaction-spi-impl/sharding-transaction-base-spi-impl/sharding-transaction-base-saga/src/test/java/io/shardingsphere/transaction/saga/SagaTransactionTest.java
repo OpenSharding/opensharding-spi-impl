@@ -20,6 +20,9 @@ package io.shardingsphere.transaction.saga;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
+import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
+import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
+
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
@@ -35,6 +38,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -82,6 +86,10 @@ public final class SagaTransactionTest {
     @Test
     @SneakyThrows
     public void assertSaveNewSnapshot() {
+        Field resourceMapField = SagaResourceManager.class.getDeclaredField("TRANSACTION_RESOURCE_MAP");
+        resourceMapField.setAccessible(true);
+        Map<SagaTransaction, SagaTransactionResource> resourceMap = (Map<SagaTransaction, SagaTransactionResource>) resourceMapField.get(SagaResourceManager.class);
+        resourceMap.put(sagaTransaction, new SagaTransactionResource(persistence));
         when(sqlStatement.getTables()).thenReturn(mock(Tables.class));
         sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
         SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);

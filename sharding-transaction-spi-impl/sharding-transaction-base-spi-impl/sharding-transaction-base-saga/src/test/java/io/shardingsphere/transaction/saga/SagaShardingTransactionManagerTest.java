@@ -40,8 +40,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -51,6 +49,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -117,19 +116,16 @@ public final class SagaShardingTransactionManagerTest {
     @Test
     public void assertGetConnection() throws SQLException {
         SagaTransaction sagaTransaction = mock(SagaTransaction.class);
-        ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
         Connection connection = mock(Connection.class);
-        when(sagaTransaction.getConnections()).thenReturn(connectionMap);
-        when(sagaResourceManager.getConnection("ds")).thenReturn(connection);
         getTransactionThreadLocal().set(sagaTransaction);
+        when(sagaResourceManager.getConnection("ds", SagaShardingTransactionManager.getCurrentTransaction())).thenReturn(connection);
         assertThat(sagaShardingTransactionManager.getConnection("ds"), is(connection));
-        assertThat(sagaTransaction.getConnections().size(), is(1));
-        assertThat(sagaTransaction.getConnections().get("ds"), is(connection));
     }
     
     @Test
     public void assertBegin() {
         sagaShardingTransactionManager.begin();
+        verify(sagaResourceManager).registerTransactionResource(any(SagaTransaction.class));
         assertNotNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().containsKey(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY));
         assertThat(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY), instanceOf(SagaTransaction.class));
@@ -140,6 +136,7 @@ public final class SagaShardingTransactionManagerTest {
     public void assertCommitWithoutBegin() {
         sagaShardingTransactionManager.commit();
         verify(sagaExecutionComponent, never()).run(anyString());
+        verify(sagaResourceManager, never()).releaseTransactionResource(any(SagaTransaction.class));
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
@@ -157,6 +154,7 @@ public final class SagaShardingTransactionManagerTest {
         sagaShardingTransactionManager.commit();
         verify(sagaPersistence).cleanSnapshot(sagaTransaction.getId());
         verify(sagaExecutionComponent).run(anyString());
+        verify(sagaResourceManager).releaseTransactionResource(any(SagaTransaction.class));
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
@@ -170,6 +168,7 @@ public final class SagaShardingTransactionManagerTest {
         sagaShardingTransactionManager.commit();
         verify(sagaPersistence).cleanSnapshot(sagaTransaction.getId());
         verify(sagaExecutionComponent, never()).run(anyString());
+        verify(sagaResourceManager).releaseTransactionResource(any(SagaTransaction.class));
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
@@ -178,6 +177,7 @@ public final class SagaShardingTransactionManagerTest {
     @Test
     public void assertRollbackWithoutBegin() {
         sagaShardingTransactionManager.rollback();
+        verify(sagaResourceManager, never()).releaseTransactionResource(any(SagaTransaction.class));
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
@@ -197,6 +197,7 @@ public final class SagaShardingTransactionManagerTest {
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
         assertNull(ShardingTransportFactory.getInstance().getTransport());
         verify(sagaPersistence).cleanSnapshot(sagaTransaction.getId());
+        verify(sagaResourceManager).releaseTransactionResource(any(SagaTransaction.class));
     }
     
     @Test

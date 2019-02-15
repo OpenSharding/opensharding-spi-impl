@@ -84,15 +84,14 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     
     @Override
     public Connection getConnection(final String dataSourceName) throws SQLException {
-        Connection result = resourceManager.getConnection(dataSourceName);
-        CURRENT_TRANSACTION.get().getConnections().putIfAbsent(dataSourceName, result);
-        return result;
+        return resourceManager.getConnection(dataSourceName, CURRENT_TRANSACTION.get());
     }
     
     @Override
     public void begin() {
         if (null == CURRENT_TRANSACTION.get()) {
             SagaTransaction transaction = new SagaTransaction(sagaConfiguration.getRecoveryPolicy(), resourceManager.getSagaPersistence());
+            resourceManager.registerTransactionResource(transaction);
             ShardingExecuteDataMap.getDataMap().put(CURRENT_TRANSACTION_KEY, transaction);
             CURRENT_TRANSACTION.set(transaction);
             ShardingTransportFactory.getInstance().cacheTransport(transaction);
@@ -150,6 +149,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     private void cleanTransaction() {
         if (null != CURRENT_TRANSACTION.get()) {
             resourceManager.getSagaPersistence().cleanSnapshot(CURRENT_TRANSACTION.get().getId());
+            resourceManager.releaseTransactionResource(CURRENT_TRANSACTION.get());
         }
         ShardingTransportFactory.getInstance().remove();
         ShardingExecuteDataMap.getDataMap().remove(CURRENT_TRANSACTION_KEY);

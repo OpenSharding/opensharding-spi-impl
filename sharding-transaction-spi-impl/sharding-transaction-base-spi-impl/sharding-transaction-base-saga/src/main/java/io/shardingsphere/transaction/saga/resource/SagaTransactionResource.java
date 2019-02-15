@@ -43,5 +43,4 @@ public class SagaTransactionResource {
         this.persistence = sagaPersistence;
         this.revertEngine = new SQLRevertEngine(connections);
     }
-    
 }

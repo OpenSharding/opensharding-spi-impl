@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
@@ -93,7 +94,7 @@ public final class ShardingSQLTransport implements SQLTransport {
     
     private Connection getConnection(final String datasourceName) {
         try {
-            Connection result = sagaTransaction.getConnections().get(datasourceName);
+            Connection result = SagaResourceManager.getTransactionResource(sagaTransaction).getConnections().get(datasourceName);
             if (!result.getAutoCommit()) {
                 result.setAutoCommit(true);
             }
