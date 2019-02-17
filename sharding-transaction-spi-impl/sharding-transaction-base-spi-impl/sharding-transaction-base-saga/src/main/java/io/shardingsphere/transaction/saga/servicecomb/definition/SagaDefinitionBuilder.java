@@ -19,6 +19,7 @@ package io.shardingsphere.transaction.saga.servicecomb.definition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 @RequiredArgsConstructor
 public final class SagaDefinitionBuilder {
+    
+    public static final String ROLLBACK_TAG = "rollbackTag";
     
     private static final String TYPE = "sql";
     
@@ -76,6 +79,14 @@ public final class SagaDefinitionBuilder {
         Compensation compensation = new Compensation(compensationSQL, compensationParameters, compensationMaxRetries);
         requests.add(new SagaRequest(id, datasourceName, TYPE, transaction, compensation, parents, transactionRetryDelayMilliseconds));
         newRequestIds.add(id);
+    }
+    
+    /**
+     * Add rollback request node to definition graph.
+     */
+    public void addRollbackRequest() {
+        switchParents();
+        addChildRequest(ROLLBACK_TAG, ROLLBACK_TAG, ROLLBACK_TAG, Lists.<List<Object>>newArrayList(), ROLLBACK_TAG, Lists.<Collection<Object>>newArrayList());
     }
     
     /**

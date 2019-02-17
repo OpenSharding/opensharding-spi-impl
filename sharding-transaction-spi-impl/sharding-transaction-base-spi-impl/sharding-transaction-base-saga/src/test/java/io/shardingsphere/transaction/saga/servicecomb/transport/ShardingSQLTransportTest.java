@@ -21,6 +21,10 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
+import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
+import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
+import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
+import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.junit.Before;
@@ -29,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -38,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -55,6 +61,9 @@ public final class ShardingSQLTransportTest {
     @Mock
     private SagaTransaction sagaTransaction;
     
+    @Mock
+    private SagaTransactionResource transactionResource;
+    
     private String dataSourceName = "ds";
     
     private String sql = "SELECT * FROM ds.table WHERE id = ? AND column = ?";
@@ -62,6 +71,7 @@ public final class ShardingSQLTransportTest {
     @Before
     public void setUp() throws SQLException {
         mockGetConnections();
+        mockGetResource();
     }
     
     private void mockGetConnections() throws SQLException {
@@ -69,7 +79,15 @@ public final class ShardingSQLTransportTest {
         Connection connection = mock(Connection.class);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
         connectionMap.put(dataSourceName, connection);
-        when(sagaTransaction.getConnections()).thenReturn(connectionMap);
+        when(transactionResource.getConnections()).thenReturn(connectionMap);
+    }
+    
+    @SneakyThrows
+    private void mockGetResource() {
+        Field resourceMapField = SagaResourceManager.class.getDeclaredField("TRANSACTION_RESOURCE_MAP");
+        resourceMapField.setAccessible(true);
+        Map<SagaTransaction, SagaTransactionResource> resourceMap = (Map<SagaTransaction, SagaTransactionResource>) resourceMapField.get(SagaResourceManager.class);
+        resourceMap.put(sagaTransaction, transactionResource);
     }
     
     @Test
@@ -78,7 +96,7 @@ public final class ShardingSQLTransportTest {
         List<List<String>> parameterSets = getParameterSets();
         mockExecutionResults(parameterSets, ExecuteStatus.SUCCESS);
         shardingSQLTransport.with(dataSourceName, sql, parameterSets);
-        verify(sagaTransaction, never()).getConnections();
+        verify(transactionResource, never()).getConnections();
     }
     
     @Test(expected = TransportFailedException.class)
@@ -95,7 +113,7 @@ public final class ShardingSQLTransportTest {
         List<List<String>> parameterSets = getParameterSets();
         mockExecutionResults(parameterSets, ExecuteStatus.COMPENSATING);
         shardingSQLTransport.with(dataSourceName, sql, parameterSets);
-        verify(sagaTransaction).getConnections();
+        verify(transactionResource).getConnections();
         verify(statement, times(2)).addBatch();
         verify(statement).executeBatch();
     }
@@ -153,12 +171,31 @@ public final class ShardingSQLTransportTest {
         verify(statement).executeUpdate();
     }
     
+    @Test
+    public void assertWithEmptySQL() throws SQLException {
+        ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
+        List<List<String>> parameterSets = Lists.newArrayList();
+        assertThat(shardingSQLTransport.with(dataSourceName, "", parameterSets).body(), is("Skip empty transaction/compensation"));
+        assertThat(shardingSQLTransport.with(dataSourceName, null, parameterSets).body(), is("Skip empty transaction/compensation"));
+    }
+    
+    @Test
+    public void assertWithRollbackTag() {
+        ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
+        List<List<String>> parameterSets = Lists.newArrayList();
+        try {
+            shardingSQLTransport.with(dataSourceName, SagaDefinitionBuilder.ROLLBACK_TAG, parameterSets);
+        } catch (TransportFailedException ex) {
+            assertThat(ex.getMessage(), is("Forced Rollback tag has been checked, saga will rollback this transaction"));
+        }
+    }
+    
     @Test(expected = TransportFailedException.class)
     public void assertGetConnectionFailure() throws SQLException {
         ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
         Connection connection = mock(Connection.class);
         connectionMap.put(dataSourceName, connection);
-        when(sagaTransaction.getConnections()).thenReturn(connectionMap);
+        when(transactionResource.getConnections()).thenReturn(connectionMap);
         when(connection.getAutoCommit()).thenThrow(new SQLException("test get autocommit fail"));
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> parameterSets = Lists.newArrayList();

@@ -21,7 +21,13 @@ import io.shardingsphere.transaction.saga.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
+import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
+import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
+import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
+import io.shardingsphere.transaction.saga.revert.SQLRevertEngine;
+import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
+import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.routing.RouteUnit;
@@ -29,6 +35,7 @@ import org.apache.shardingsphere.core.routing.SQLUnit;
 import org.apache.shardingsphere.core.routing.type.TableUnit;
 import org.apache.shardingsphere.spi.hook.SQLExecutionHook;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -50,8 +57,26 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
                 sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
                 sagaBranchTransaction.setActualTableName(getAcutalTableName(routeUnit.getSqlUnit()));
                 sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
-                sagaTransaction.saveNewSnapshot(sagaBranchTransaction);
+                sagaTransaction.addBranchTransactionToGroup(sagaBranchTransaction);
+                saveNewSnapshot();
             }
+        }
+    }
+    
+    private void saveNewSnapshot() {
+        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getRecoveryPolicy())) {
+            SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(sagaTransaction);
+            SQLRevertResult revertResult = sqlRevert(transactionResource.getRevertEngine());
+            sagaTransaction.getRevertResults().put(sagaBranchTransaction, revertResult);
+            transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(sagaTransaction.getId(), sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResult));
+        }
+    }
+    
+    private SQLRevertResult sqlRevert(final SQLRevertEngine revertEngine) {
+        try {
+            return revertEngine.revert(sagaBranchTransaction, sagaTransaction.getCurrentBranchTransactionGroup());
+        } catch (final SQLException ex) {
+            throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
         }
     }
     
@@ -71,7 +96,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     @Override
     public void finishFailure(final Exception cause) {
         if (null != sagaTransaction && null != sagaBranchTransaction) {
-            ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getSagaConfiguration().getRecoveryPolicy()));
+            ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getRecoveryPolicy()));
             sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
         }
     }

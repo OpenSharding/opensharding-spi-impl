@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.resource;
 
+import io.shardingsphere.transaction.saga.SagaTransaction;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistenceLoader;
@@ -38,6 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class SagaResourceManager {
     
+    private static final Map<SagaTransaction, SagaTransactionResource> TRANSACTION_RESOURCE_MAP = new ConcurrentHashMap<>();
+    
     @Getter
     private final SagaPersistence sagaPersistence;
     
@@ -49,6 +52,34 @@ public final class SagaResourceManager {
     public SagaResourceManager(final SagaConfiguration sagaConfiguration) {
         sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
         sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, sagaPersistence);
+    }
+    
+    /**
+     * Get saga transaction resource.
+     *
+     * @param sagaTransaction saga transaction
+     * @return saga transaction resource
+     */
+    public static SagaTransactionResource getTransactionResource(final SagaTransaction sagaTransaction) {
+        return TRANSACTION_RESOURCE_MAP.get(sagaTransaction);
+    }
+    
+    /**
+     * Register transaction resource.
+     *
+     * @param sagaTransaction saga transaction
+     */
+    public void registerTransactionResource(final SagaTransaction sagaTransaction) {
+        TRANSACTION_RESOURCE_MAP.put(sagaTransaction, new SagaTransactionResource(sagaPersistence));
+    }
+    
+    /**
+     * Release transaction resource.
+     *
+     * @param sagaTransaction saga transaction
+     */
+    public void releaseTransactionResource(final SagaTransaction sagaTransaction) {
+        TRANSACTION_RESOURCE_MAP.remove(sagaTransaction);
     }
     
     /**
@@ -72,11 +103,14 @@ public final class SagaResourceManager {
      * Get connection.
      * 
      * @param dataSourceName data source name
+     * @param sagaTransaction saga transaction
      * @return connection
      * @throws SQLException SQL exception
      */
-    public Connection getConnection(final String dataSourceName) throws SQLException {
-        return dataSourceMap.get(dataSourceName).getConnection();
+    public Connection getConnection(final String dataSourceName, final SagaTransaction sagaTransaction) throws SQLException {
+        Connection result = dataSourceMap.get(dataSourceName).getConnection();
+        TRANSACTION_RESOURCE_MAP.get(sagaTransaction).getConnections().putIfAbsent(dataSourceName, result);
+        return result;
     }
     
     /**
