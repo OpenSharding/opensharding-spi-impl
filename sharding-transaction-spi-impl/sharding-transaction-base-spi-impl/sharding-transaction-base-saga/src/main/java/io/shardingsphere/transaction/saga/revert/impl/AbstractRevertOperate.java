@@ -31,7 +31,7 @@ import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
 import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.utils.JDBCUtil;
+import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 
 /**
  * Abstract revert operate.

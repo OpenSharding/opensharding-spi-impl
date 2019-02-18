@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.utils;
+package io.shardingsphere.transaction.saga.utils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

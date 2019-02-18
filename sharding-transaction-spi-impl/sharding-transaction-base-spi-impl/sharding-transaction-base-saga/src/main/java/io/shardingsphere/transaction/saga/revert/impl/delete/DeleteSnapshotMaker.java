@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.shardingsphere.core.parsing.lexer.token.DefaultKeyword;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.utils.JDBCUtil;
+import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 
 /**
  * Delete snapshot maker.
