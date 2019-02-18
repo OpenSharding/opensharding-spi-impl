@@ -21,7 +21,6 @@ import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import lombok.SneakyThrows;
-
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.junit.Before;
@@ -35,7 +34,6 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -49,6 +47,12 @@ public class JDBCSagaSnapshotRepositoryTest {
     @Mock
     private DataSource dataSource;
     
+    @Mock
+    private Connection connection;
+    
+    @Mock
+    private PreparedStatement statement;
+    
     private JDBCSagaSnapshotRepository snapshotRepository;
     
     @Before
@@ -58,36 +62,26 @@ public class JDBCSagaSnapshotRepositoryTest {
         Field dataSourceField = JDBCSagaSnapshotRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(snapshotRepository, dataSource);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(statement);
     }
     
     @Test
     @SneakyThrows
     public void assertCreateTableIfNotExistsSuccess() {
-        Connection connection = mock(Connection.class);
-        Statement statement = mock(Statement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.createStatement()).thenReturn(statement);
         snapshotRepository.createTableIfNotExists();
-        verify(statement, times(3)).executeUpdate(anyString());
+        verify(statement, times(2)).executeUpdate();
     }
     
     @Test(expected = ShardingException.class)
     public void assertCreateTableIfNotExistsFailure() throws SQLException {
-        Connection connection = mock(Connection.class);
-        Statement statement = mock(Statement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.createStatement()).thenReturn(statement);
-        when(statement.executeUpdate(anyString())).thenThrow(new SQLException("test execute fail"));
+        when(statement.executeUpdate()).thenThrow(new SQLException("test execute fail"));
         snapshotRepository.createTableIfNotExists();
     }
     
     @Test
     @SneakyThrows
     public void assertInsert() {
-        Connection connection = mock(Connection.class);
-        PreparedStatement statement = mock(PreparedStatement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(statement);
         SagaSnapshot sagaSnapshot = mock(SagaSnapshot.class);
         when(sagaSnapshot.getTransactionContext()).thenReturn(mock(SagaBranchTransaction.class));
         when(sagaSnapshot.getRevertContext()).thenReturn(mock(SQLRevertResult.class));
@@ -98,10 +92,6 @@ public class JDBCSagaSnapshotRepositoryTest {
     @Test
     @SneakyThrows
     public void assertDelete() {
-        Connection connection = mock(Connection.class);
-        PreparedStatement statement = mock(PreparedStatement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(statement);
         snapshotRepository.delete("1");
         verify(statement).executeUpdate();
     }

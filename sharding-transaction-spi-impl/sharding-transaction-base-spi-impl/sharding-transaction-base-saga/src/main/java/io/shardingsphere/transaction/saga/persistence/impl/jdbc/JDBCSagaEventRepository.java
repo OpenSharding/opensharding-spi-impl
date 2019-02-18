@@ -17,6 +17,8 @@
 
 package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
+import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.servicecomb.saga.core.JacksonToJsonFormat;
@@ -27,9 +29,8 @@ import org.apache.shardingsphere.core.exception.ShardingException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.List;
 
 /**
  * JDBC saga event repository.
@@ -53,18 +54,17 @@ public final class JDBCSagaEventRepository implements TableCreator {
     @Override
     public void createTableIfNotExists() {
         EventCreateTableSQL createTableSQL = new EventCreateTableSQL();
-        try (Connection connection = dataSource.getConnection();
-            Statement statement = connection.createStatement()) {
-            statement.executeUpdate(createTableSQL.getCreateTableSQL(databaseType));
-            createIndex(statement);
+        try (Connection connection = dataSource.getConnection()) {
+            JDBCUtil.executeUpdate(connection, createTableSQL.getCreateTableSQL(databaseType), Lists.newArrayList());
+            createIndex(connection);
         } catch (SQLException ex) {
             throw new ShardingException("Create saga event persistence table failed", ex);
         }
     }
     
-    private void createIndex(final Statement statement) throws SQLException {
+    private void createIndex(final Connection connection) throws SQLException {
         if (DatabaseType.MySQL != databaseType) {
-            statement.executeUpdate(CREATE_INDEX_SQL);
+            JDBCUtil.executeUpdate(connection, CREATE_INDEX_SQL, Lists.newArrayList());
         }
     }
     
@@ -74,14 +74,18 @@ public final class JDBCSagaEventRepository implements TableCreator {
      * @param sagaEvent saga event
      */
     public void insert(final SagaEvent sagaEvent) {
-        try (Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
-            preparedStatement.setObject(1, sagaEvent.sagaId);
-            preparedStatement.setObject(2, sagaEvent.getClass().getSimpleName());
-            preparedStatement.setObject(3, sagaEvent.json(toJsonFormat));
-            preparedStatement.executeUpdate();
+        try (Connection connection = dataSource.getConnection()) {
+            JDBCUtil.executeUpdate(connection, INSERT_SQL, generateParams(sagaEvent));
         } catch (SQLException ex) {
             log.warn("Persist saga event failed", ex);
         }
+    }
+    
+    private List<Object> generateParams(final SagaEvent sagaEvent) {
+        List<Object> result = Lists.newArrayList();
+        result.add(sagaEvent.sagaId);
+        result.add(sagaEvent.getClass().getSimpleName());
+        result.add(sagaEvent.json(toJsonFormat));
+        return result;
     }
 }

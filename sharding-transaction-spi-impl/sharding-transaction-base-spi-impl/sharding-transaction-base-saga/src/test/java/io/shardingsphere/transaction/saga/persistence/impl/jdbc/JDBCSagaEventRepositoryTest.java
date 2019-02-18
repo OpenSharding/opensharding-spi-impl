@@ -33,7 +33,6 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -48,6 +47,12 @@ public class JDBCSagaEventRepositoryTest {
     @Mock
     private DataSource dataSource;
     
+    @Mock
+    private Connection connection;
+    
+    @Mock
+    private PreparedStatement statement;
+    
     private JDBCSagaEventRepository eventRepository;
     
     @Before
@@ -57,36 +62,26 @@ public class JDBCSagaEventRepositoryTest {
         Field dataSourceField = JDBCSagaEventRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(eventRepository, dataSource);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(statement);
     }
     
     @Test
     @SneakyThrows
     public void assertCreateTableIfNotExistsSuccess() {
-        Connection connection = mock(Connection.class);
-        Statement statement = mock(Statement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.createStatement()).thenReturn(statement);
         eventRepository.createTableIfNotExists();
-        verify(statement, times(2)).executeUpdate(anyString());
+        verify(statement, times(2)).executeUpdate();
     }
     
     @Test(expected = ShardingException.class)
     public void assertCreateTableIfNotExistsFailure() throws SQLException {
-        Connection connection = mock(Connection.class);
-        Statement statement = mock(Statement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.createStatement()).thenReturn(statement);
-        when(statement.executeUpdate(anyString())).thenThrow(new SQLException("test execute fail"));
+        when(statement.executeUpdate()).thenThrow(new SQLException("test execute fail"));
         eventRepository.createTableIfNotExists();
     }
     
     @Test
     @SneakyThrows
     public void assertInsert() {
-        Connection connection = mock(Connection.class);
-        PreparedStatement statement = mock(PreparedStatement.class);
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(statement);
         SagaEvent sagaEvent = mock(SagaEvent.class);
         when(sagaEvent.json(any(ToJsonFormat.class))).thenReturn("{}");
         eventRepository.insert(sagaEvent);

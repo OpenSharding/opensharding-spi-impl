@@ -17,18 +17,18 @@
 
 package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
+import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
+import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.exception.ShardingException;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.List;
 
 /**
  * JDBC saga snapshot repository.
@@ -52,18 +52,17 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
     @Override
     public void createTableIfNotExists() {
         SnapshotCreateTableSQL createTableSQL = new SnapshotCreateTableSQL();
-        try (Connection connection = dataSource.getConnection();
-            Statement statement = connection.createStatement()) {
-            statement.executeUpdate(createTableSQL.getCreateTableSQL(databaseType));
-            createIndex(statement);
+        try (Connection connection = dataSource.getConnection()) {
+            JDBCUtil.executeUpdate(connection, createTableSQL.getCreateTableSQL(databaseType), Lists.newArrayList());
+            createIndex(connection);
         } catch (SQLException ex) {
             throw new ShardingException("Create saga snapshot persistence table failed", ex);
         }
     }
     
-    private void createIndex(final Statement statement) throws SQLException {
+    private void createIndex(final Connection connection) throws SQLException {
         if (DatabaseType.MySQL != databaseType) {
-            statement.executeUpdate(SNAPSHOT_CREATE_INDEX_SQL);
+            JDBCUtil.executeUpdate(connection, SNAPSHOT_CREATE_INDEX_SQL, Lists.newArrayList());
         }
     }
     
@@ -73,16 +72,20 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
      * @param sagaSnapshot saga snapshot
      */
     public void insert(final SagaSnapshot sagaSnapshot) {
-        try (Connection connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
-            statement.setObject(1, sagaSnapshot.getTransactionId());
-            statement.setObject(2, sagaSnapshot.getSnapshotId());
-            statement.setObject(3, sagaSnapshot.getTransactionContext().toString());
-            statement.setObject(4, sagaSnapshot.getRevertContext().toString());
-            statement.executeUpdate();
+        try (Connection connection = dataSource.getConnection()) {
+            JDBCUtil.executeUpdate(connection, INSERT_SQL, generateParams(sagaSnapshot));
         } catch (SQLException ex) {
             log.warn("Persist saga snapshot failed", ex);
         }
+    }
+    
+    private List<Object> generateParams(final SagaSnapshot sagaSnapshot) {
+        List<Object> result = Lists.newArrayList();
+        result.add(sagaSnapshot.getTransactionId());
+        result.add(sagaSnapshot.getSnapshotId());
+        result.add(sagaSnapshot.getTransactionContext().toString());
+        result.add(sagaSnapshot.getRevertContext().toString());
+        return result;
     }
     
     /**
@@ -91,10 +94,10 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
      * @param transactionId transaction id
      */
     public void delete(final String transactionId) {
-        try (Connection connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
-            statement.setObject(1, transactionId);
-            statement.executeUpdate();
+        List<Object> params = Lists.newArrayList();
+        params.add(transactionId);
+        try (Connection connection = dataSource.getConnection()) {
+            JDBCUtil.executeUpdate(connection, DELETE_SQL, params);
         } catch (SQLException ex) {
             log.warn("Delete saga snapshot failed", ex);
         }
