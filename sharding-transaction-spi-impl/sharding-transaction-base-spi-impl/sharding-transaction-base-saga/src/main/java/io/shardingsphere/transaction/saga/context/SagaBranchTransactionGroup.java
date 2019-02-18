@@ -15,27 +15,31 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.persistence;
+package io.shardingsphere.transaction.saga.context;
 
-import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
+
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /**
- * Saga snapshot bean.
+ * Saga branch transaction Group.
  *
  * @author yangyi
  */
 @RequiredArgsConstructor
 @Getter
-public final class SagaSnapshot {
+public class SagaBranchTransactionGroup {
     
-    private final String transactionId;
+    private final String logicSQL;
     
-    private final int snapshotId;
+    private final SQLStatement sqlStatement;
     
-    private final SagaBranchTransaction transactionContext;
+    private final ShardingTableMetaData shardingTableMetaData;
     
-    private final SQLRevertResult revertContext;
+    private final Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
 }

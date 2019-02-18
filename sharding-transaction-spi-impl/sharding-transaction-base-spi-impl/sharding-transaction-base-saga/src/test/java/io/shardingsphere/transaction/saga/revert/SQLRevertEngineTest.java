@@ -17,8 +17,8 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
-import io.shardingsphere.transaction.saga.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.SagaBranchTransactionGroup;
+import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.parser.context.table.Tables;
 import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;

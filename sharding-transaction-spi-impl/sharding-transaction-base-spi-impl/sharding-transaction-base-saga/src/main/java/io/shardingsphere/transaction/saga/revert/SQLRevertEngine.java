@@ -18,8 +18,8 @@
 package io.shardingsphere.transaction.saga.revert;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.SagaBranchTransactionGroup;
+import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;

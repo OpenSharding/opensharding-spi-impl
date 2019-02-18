@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.hook;
 
-import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 import org.junit.Before;
