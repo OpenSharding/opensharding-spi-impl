@@ -37,15 +37,17 @@ import static org.mockito.Mockito.when;
 
 public final class SQLRevertEngineTest {
     
-    private final SQLRevertEngine revertEngine = new SQLRevertEngine(new HashMap<String, Connection>());
+    private static final String LOGIC_SQL = "UPDATE t_order SET status='UPDATE' where id = ?";
+    
+    private static final String DS_NAME = "ds";
     
     @Test
     public void assertRevert() throws SQLException {
-        // TODO rewrite after SnapShotEngine complete
-        SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction("", "", Collections.<List<Object>>emptyList());
+        SQLRevertEngine revertEngine = new SQLRevertEngine(new HashMap<String, Connection>());
+        SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(DS_NAME, LOGIC_SQL, Collections.<List<Object>>emptyList());
         DMLStatement dmlStatement = mock(DMLStatement.class);
         when(dmlStatement.getTables()).thenReturn(mock(Tables.class));
-        SagaBranchTransactionGroup sagaBranchTransactionGroup = new SagaBranchTransactionGroup("", dmlStatement, mock(ShardingTableMetaData.class));
+        SagaBranchTransactionGroup sagaBranchTransactionGroup = new SagaBranchTransactionGroup(LOGIC_SQL, dmlStatement, mock(ShardingTableMetaData.class));
         SQLRevertResult result = revertEngine.revert(sagaBranchTransaction, sagaBranchTransactionGroup);
         assertThat(result.getSql(), is(""));
         assertThat(result.getParameterSets().size(), is(0));

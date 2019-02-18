@@ -84,7 +84,7 @@ public class JDBCSagaSnapshotRepositoryTest {
     public void assertInsert() {
         SagaSnapshot sagaSnapshot = mock(SagaSnapshot.class);
         when(sagaSnapshot.getTransactionContext()).thenReturn(mock(SagaBranchTransaction.class));
-        when(sagaSnapshot.getRevertContext()).thenReturn(mock(SQLRevertResult.class));
+        when(sagaSnapshot.getRevertContext()).thenReturn(new SQLRevertResult());
         snapshotRepository.insert(sagaSnapshot);
         verify(statement).executeUpdate();
     }
