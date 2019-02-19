@@ -86,6 +86,28 @@ public class JDBCUtil {
         }
     }
     
+    /**
+     * Execute batch use JDBC.
+     *
+     * @param connection JDBC connection
+     * @param sql sql
+     * @param paramsCollection sql parameters collection
+     * @throws SQLException failed to execute SQL, throw this exception
+     */
+    public static void executeBatch(final Connection connection, final String sql, final Collection<Collection<Object>> paramsCollection) throws SQLException {
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(sql);
+            for (Collection<Object> params : paramsCollection) {
+                fillParamter(preparedStatement, params);
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+        } finally {
+            closeStatement(preparedStatement);
+        }
+    }
+    
     private static void fillParamter(final PreparedStatement preparedStatement, final Collection<Object> params) throws SQLException {
         Iterator<Object> iterator = params.iterator();
         int index = 0;

@@ -53,15 +53,21 @@ public class JDBCSagaSnapshotRepositoryTest {
     @Mock
     private PreparedStatement statement;
     
+    @Mock
+    private AsyncSnapshotPersistence asyncSnapshotPersistence;
+    
     private JDBCSagaSnapshotRepository snapshotRepository;
     
     @Before
     @SneakyThrows
     public void setUp() {
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, DatabaseType.H2);
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, DatabaseType.H2, null);
         Field dataSourceField = JDBCSagaSnapshotRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(snapshotRepository, dataSource);
+        Field asyncSnapshotPersistenceField = JDBCSagaSnapshotRepository.class.getDeclaredField("asyncSnapshotPersistence");
+        asyncSnapshotPersistenceField.setAccessible(true);
+        asyncSnapshotPersistenceField.set(snapshotRepository, asyncSnapshotPersistence);
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
     }
@@ -93,6 +99,6 @@ public class JDBCSagaSnapshotRepositoryTest {
     @SneakyThrows
     public void assertDelete() {
         snapshotRepository.delete("1");
-        verify(statement).executeUpdate();
+        verify(asyncSnapshotPersistence).delete("1");
     }
 }

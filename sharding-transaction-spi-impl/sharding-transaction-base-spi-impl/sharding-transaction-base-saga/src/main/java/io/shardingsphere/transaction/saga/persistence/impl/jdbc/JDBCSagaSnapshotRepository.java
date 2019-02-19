@@ -49,6 +49,8 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
     
     private final DatabaseType databaseType;
     
+    private final AsyncSnapshotPersistence asyncSnapshotPersistence;
+    
     @Override
     public void createTableIfNotExists() {
         SnapshotCreateTableSQL createTableSQL = new SnapshotCreateTableSQL();
@@ -94,12 +96,6 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
      * @param transactionId transaction id
      */
     public void delete(final String transactionId) {
-        List<Object> params = Lists.newArrayList();
-        params.add(transactionId);
-        try (Connection connection = dataSource.getConnection()) {
-            JDBCUtil.executeUpdate(connection, DELETE_SQL, params);
-        } catch (SQLException ex) {
-            log.warn("Delete saga snapshot failed", ex);
-        }
+        asyncSnapshotPersistence.delete(transactionId);
     }
 }
