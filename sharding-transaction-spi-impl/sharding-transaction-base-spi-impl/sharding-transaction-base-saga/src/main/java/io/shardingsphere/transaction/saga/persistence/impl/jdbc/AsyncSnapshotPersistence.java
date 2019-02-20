@@ -27,7 +27,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,7 +51,7 @@ public class AsyncSnapshotPersistence {
     
     public AsyncSnapshotPersistence(final DataSource dataSource) {
         this.dataSource = dataSource;
-        COMMITTED_TRANSACTION_ID_BUFFER.add(Collections.synchronizedCollection(Lists.<String>newArrayList()));
+        COMMITTED_TRANSACTION_ID_BUFFER.add(Lists.<String>newArrayList());
         timerExecutor = Executors.newSingleThreadScheduledExecutor(ShardingThreadFactoryBuilder.build("AsyncPersistence"));
         MoreExecutors.addDelayedShutdownHook(timerExecutor, 30, TimeUnit.SECONDS);
         timerExecutor.scheduleAtFixedRate(new Runnable() {
@@ -70,7 +69,7 @@ public class AsyncSnapshotPersistence {
                 return;
             }
             transactionIds = COMMITTED_TRANSACTION_ID_BUFFER.remove(0);
-            COMMITTED_TRANSACTION_ID_BUFFER.add(Collections.synchronizedCollection(Lists.<String>newArrayList()));
+            COMMITTED_TRANSACTION_ID_BUFFER.add(Lists.<String>newArrayList());
         }
         List<Collection<Object>> committedTransactionIds = Lists.newArrayList();
         for (String transactionId : transactionIds) {
