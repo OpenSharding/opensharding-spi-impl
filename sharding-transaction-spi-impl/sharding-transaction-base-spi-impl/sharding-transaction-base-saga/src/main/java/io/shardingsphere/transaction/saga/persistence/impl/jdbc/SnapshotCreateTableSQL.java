@@ -31,8 +31,7 @@ public final class SnapshotCreateTableSQL extends AbstractCreateTableSQLAdapter 
         + "revert_context VARCHAR(255) null, "
         + "transaction_context VARCHAR(255) null, "
         + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-        + "INDEX transaction_id_index(transaction_id),"
-        + "INDEX snapshot_id_index(snapshot_id))";
+        + "INDEX transaction_snapshot_index(transaction_id, snapshot_id))";
     
     private static final String H2_SNAPSHOT_CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS saga_snapshot("
         + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "

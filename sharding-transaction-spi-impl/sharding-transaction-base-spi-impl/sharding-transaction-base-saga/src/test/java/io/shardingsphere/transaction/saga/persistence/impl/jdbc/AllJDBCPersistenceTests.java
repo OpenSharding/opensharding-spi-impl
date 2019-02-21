@@ -22,6 +22,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        AsyncSnapshotPersistenceTest.class,
         EventCreateTableSQLTest.class,
         SnapshotCreateTableSQLTest.class,
         JDBCSagaEventRepositoryTest.class,

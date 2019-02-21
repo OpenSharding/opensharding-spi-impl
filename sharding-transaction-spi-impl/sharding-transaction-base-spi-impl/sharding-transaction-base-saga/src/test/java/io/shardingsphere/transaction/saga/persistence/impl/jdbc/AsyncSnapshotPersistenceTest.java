@@ -18,10 +18,6 @@
 package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
 import lombok.SneakyThrows;
-import org.apache.servicecomb.saga.core.SagaEvent;
-import org.apache.servicecomb.saga.core.ToJsonFormat;
-import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.exception.ShardingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,20 +25,15 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class JDBCSagaEventRepositoryTest {
+public class AsyncSnapshotPersistenceTest {
     
     @Mock
     private DataSource dataSource;
@@ -53,38 +44,20 @@ public class JDBCSagaEventRepositoryTest {
     @Mock
     private PreparedStatement statement;
     
-    private JDBCSagaEventRepository eventRepository;
-    
     @Before
     @SneakyThrows
     public void setUp() {
-        eventRepository = new JDBCSagaEventRepository(dataSource, DatabaseType.H2);
-        Field dataSourceField = JDBCSagaEventRepository.class.getDeclaredField("dataSource");
-        dataSourceField.setAccessible(true);
-        dataSourceField.set(eventRepository, dataSource);
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
     }
     
     @Test
     @SneakyThrows
-    public void assertCreateTableIfNotExistsSuccess() {
-        eventRepository.createTableIfNotExists();
-        verify(statement, times(2)).executeUpdate();
-    }
-    
-    @Test(expected = ShardingException.class)
-    public void assertCreateTableIfNotExistsFailure() throws SQLException {
-        when(statement.executeUpdate()).thenThrow(new SQLException("test execute fail"));
-        eventRepository.createTableIfNotExists();
-    }
-    
-    @Test
-    @SneakyThrows
-    public void assertInsert() {
-        SagaEvent sagaEvent = mock(SagaEvent.class);
-        when(sagaEvent.json(any(ToJsonFormat.class))).thenReturn("{}");
-        eventRepository.insert(sagaEvent);
-        verify(statement).executeUpdate();
+    public void assertDelete() {
+        AsyncSnapshotPersistence asyncSnapshotPersistence = new AsyncSnapshotPersistence(dataSource);
+        asyncSnapshotPersistence.delete("1");
+        Thread.sleep(1000);
+        verify(statement).executeBatch();
+        verify(connection).commit();
     }
 }

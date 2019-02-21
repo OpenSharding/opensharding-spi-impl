@@ -40,7 +40,7 @@ public final class JDBCSagaPersistence implements SagaPersistence, TableCreator 
     private final JDBCSagaEventRepository eventRepository;
     
     public JDBCSagaPersistence(final DataSource dataSource, final DatabaseType databaseType) {
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, databaseType);
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, databaseType, new AsyncSnapshotPersistence(dataSource));
         eventRepository = new JDBCSagaEventRepository(dataSource, databaseType);
     }
     
