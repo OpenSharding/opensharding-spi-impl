@@ -17,15 +17,14 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
-import static org.junit.Assert.assertEquals;
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.BaseRevertTest;
+import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 
 import java.sql.SQLException;
 import java.util.Iterator;
 
-import com.google.common.base.Optional;
-
-import io.shardingsphere.transaction.saga.revert.BaseRevertTest;
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import static org.junit.Assert.assertEquals;
 
 public class BaseDeleteTest extends BaseRevertTest {
     

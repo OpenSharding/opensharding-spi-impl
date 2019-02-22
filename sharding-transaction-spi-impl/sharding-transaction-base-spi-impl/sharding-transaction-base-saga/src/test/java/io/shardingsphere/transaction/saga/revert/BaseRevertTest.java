@@ -17,17 +17,10 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
@@ -43,11 +36,15 @@ import org.apache.shardingsphere.shardingjdbc.jdbc.core.datasource.ShardingDataS
 import org.junit.After;
 import org.junit.Before;
 
-import com.google.common.base.Optional;
+import javax.sql.DataSource;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.utils.JDBCUtil;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public abstract class BaseRevertTest {
     

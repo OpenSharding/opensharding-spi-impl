@@ -17,17 +17,16 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
+import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.utils.JDBCUtil;
+import org.apache.shardingsphere.core.parsing.lexer.token.DefaultKeyword;
+
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.shardingsphere.core.parsing.lexer.token.DefaultKeyword;
-
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 
 /**
  * Delete snapshot maker.
