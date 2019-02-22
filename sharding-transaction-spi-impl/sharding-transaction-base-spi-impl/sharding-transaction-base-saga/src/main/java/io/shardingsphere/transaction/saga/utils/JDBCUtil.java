@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.utils;
+package io.shardingsphere.transaction.saga.utils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -81,6 +81,28 @@ public class JDBCUtil {
             preparedStatement = connection.prepareStatement(sql);
             fillParamter(preparedStatement, params);
             preparedStatement.executeUpdate();
+        } finally {
+            closeStatement(preparedStatement);
+        }
+    }
+    
+    /**
+     * Execute batch use JDBC.
+     *
+     * @param connection JDBC connection
+     * @param sql sql
+     * @param paramsCollection sql parameters collection
+     * @throws SQLException failed to execute SQL, throw this exception
+     */
+    public static void executeBatch(final Connection connection, final String sql, final Collection<Collection<Object>> paramsCollection) throws SQLException {
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(sql);
+            for (Collection<Object> params : paramsCollection) {
+                fillParamter(preparedStatement, params);
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
         } finally {
             closeStatement(preparedStatement);
         }

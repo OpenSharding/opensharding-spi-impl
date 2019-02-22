@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.context;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

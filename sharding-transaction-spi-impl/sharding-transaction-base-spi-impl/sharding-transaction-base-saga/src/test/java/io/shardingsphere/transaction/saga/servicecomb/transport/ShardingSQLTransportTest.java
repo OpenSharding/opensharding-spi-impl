@@ -18,8 +18,8 @@
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;

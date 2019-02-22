@@ -17,7 +17,16 @@
 
 package io.shardingsphere.transaction.saga.revert.integration;
 
-import static org.junit.Assert.assertEquals;
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
+import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
+import org.apache.shardingsphere.core.constant.DatabaseType;
+import org.apache.shardingsphere.core.parsing.SQLParsingEngine;
+import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
+import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,18 +36,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.parsing.SQLParsingEngine;
-import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
-import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
-import org.junit.Test;
-
-import com.google.common.base.Optional;
-
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
+import static org.junit.Assert.assertEquals;
 
 public class MultiValueTest extends AbstractIntegrationTest {
     

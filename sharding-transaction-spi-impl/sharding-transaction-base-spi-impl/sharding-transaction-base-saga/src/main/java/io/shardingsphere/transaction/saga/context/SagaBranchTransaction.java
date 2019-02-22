@@ -15,36 +15,41 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert;
+package io.shardingsphere.transaction.saga.context;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.sql.Connection;
 import java.util.List;
 
 /**
- * Snapshot parameter.
+ * Saga branch transaction.
  *
- * @author duhongjun
+ * @author yangyi
  */
 @RequiredArgsConstructor
 @Getter
-public final class SnapshotParameter {
+@Setter
+@ToString(exclude = "actualTableName")
+public final class SagaBranchTransaction {
     
-    private final TableMetaData tableMeta;
+    private final String dataSourceName;
     
-    private final DMLStatement statement;
+    private final String sql;
     
-    private final Connection connection;
+    private final List<List<Object>> parameterSets;
     
-    private final String actualTable;
+    private String actualTableName;
     
-    private final String logicSQL;
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
     
-    private final String actualSQL;
-    
-    private final List<Object> actualSQLParams;
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj instanceof SagaBranchTransaction && this.toString().equals(obj.toString());
+    }
 }

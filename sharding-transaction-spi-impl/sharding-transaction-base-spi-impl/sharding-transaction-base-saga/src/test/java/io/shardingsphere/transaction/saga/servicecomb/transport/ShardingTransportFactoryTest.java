@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
-import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.context;
 
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;

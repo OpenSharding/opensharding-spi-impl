@@ -17,12 +17,6 @@
 
 package io.shardingsphere.transaction.saga.revert.integration;
 
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.Statement;
-
-import javax.sql.DataSource;
-
 import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.rule.ShardingRule;
@@ -32,6 +26,11 @@ import org.apache.shardingsphere.core.yaml.swapper.impl.ShardingRuleConfiguratio
 import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
 import org.apache.shardingsphere.shardingjdbc.jdbc.core.datasource.ShardingDataSource;
 import org.junit.BeforeClass;
+
+import javax.sql.DataSource;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.Statement;
 
 public abstract class AbstractIntegrationTest {
     
@@ -49,7 +48,7 @@ public abstract class AbstractIntegrationTest {
     
     private static final String CREATE_TABLE = "CREATE TABLE t_order_history (user_id int(11) NOT NULL,order_id int(11) NOT NULL, "
             +
-            "status varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL, operate_date datetime(0) NULL DEFAULT NULL,PRIMARY KEY (user_id, order_id) USING BTREE);";
+            "status varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL, operate_date datetime(0) NULL DEFAULT NULL,PRIMARY KEY (user_id, order_id) USING BTREE);";
     
     @BeforeClass
     public static void initEnvironment() throws Exception {

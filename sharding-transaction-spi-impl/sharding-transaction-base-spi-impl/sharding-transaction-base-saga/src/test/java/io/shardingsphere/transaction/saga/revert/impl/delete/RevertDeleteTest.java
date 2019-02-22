@@ -17,8 +17,11 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
+import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,13 +30,8 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Test;
-
-import com.google.common.base.Optional;
-
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RevertDeleteTest extends BaseDeleteTest {
     

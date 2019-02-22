@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.hook;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
-import io.shardingsphere.transaction.saga.SagaTransaction;
+import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
@@ -35,6 +35,7 @@ import org.apache.shardingsphere.core.routing.RouteUnit;
 import org.apache.shardingsphere.core.routing.SQLUnit;
 import org.apache.shardingsphere.core.routing.type.RoutingTable;
 import org.apache.shardingsphere.core.routing.type.TableUnit;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -131,5 +132,10 @@ public final class SagaSQLExecutionHookTest {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
         assertFalse(ExecutorExceptionHandler.isExceptionThrown());
+    }
+    
+    @After
+    public void tearDown() {
+        ShardingExecuteDataMap.getDataMap().remove(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
     }
 }
