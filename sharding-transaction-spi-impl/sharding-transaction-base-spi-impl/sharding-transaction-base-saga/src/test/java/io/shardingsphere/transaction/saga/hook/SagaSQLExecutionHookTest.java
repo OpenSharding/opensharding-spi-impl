@@ -35,6 +35,7 @@ import org.apache.shardingsphere.core.routing.RouteUnit;
 import org.apache.shardingsphere.core.routing.SQLUnit;
 import org.apache.shardingsphere.core.routing.type.RoutingTable;
 import org.apache.shardingsphere.core.routing.type.TableUnit;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -131,5 +132,10 @@ public final class SagaSQLExecutionHookTest {
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
         assertFalse(ExecutorExceptionHandler.isExceptionThrown());
+    }
+    
+    @After
+    public void tearDown() {
+        ShardingExecuteDataMap.getDataMap().remove(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
     }
 }
