@@ -112,12 +112,12 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void rollback() {
         if (null != CURRENT_TRANSACTION.get()) {
-            submitToSagaEngine(isforcedRollback());
+            submitToSagaEngine(isForcedRollback());
         }
         cleanTransaction();
     }
     
-    private boolean isforcedRollback() {
+    private boolean isForcedRollback() {
         return !CURRENT_TRANSACTION.get().isContainsException() && RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy());
     }
     
