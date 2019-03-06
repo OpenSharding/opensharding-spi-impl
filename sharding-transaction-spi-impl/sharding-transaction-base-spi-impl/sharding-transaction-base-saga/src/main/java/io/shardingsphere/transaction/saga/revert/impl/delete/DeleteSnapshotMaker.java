@@ -57,7 +57,7 @@ public class DeleteSnapshotMaker {
         builder.append(DefaultKeyword.FROM).append(" ");
         builder.append(snapshotParameter.getActualTable());
         if (!snapshotParameter.getStatement().getUpdateTableAlias().isEmpty()) {
-            Map.Entry<String, String> entry= snapshotParameter.getStatement().getUpdateTableAlias().entrySet().iterator().next();
+            Map.Entry<String, String> entry = snapshotParameter.getStatement().getUpdateTableAlias().entrySet().iterator().next();
             if (!entry.getKey().equals(entry.getValue())) {
                 builder.append(" ").append(entry.getKey()).append(" ");
             }
