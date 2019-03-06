@@ -30,12 +30,12 @@ public class BaseDeleteTest extends BaseRevertTest {
     
     public static final String REVERT_SQL = "INSERT INTO t_order_item_1 VALUES (?,?,?,?)";
     
-    protected void asertRevertContext(final Optional<RevertContext> revertContext, final String revertSQL) throws SQLException {
+    protected void assertRevertContext(final Optional<RevertContext> revertContext, final String revertSQL) throws SQLException {
         super.asertRevertContext(revertContext, revertSQL, 4);
         Iterator<Object> iterator = revertContext.get().getRevertParams().get(0).iterator();
-        assertEquals("Assert ORDER_ITEM_ID value error: ", iterator.next(), ORDER_ITEM_ID);
-        assertEquals("Assert ORDER_ID value error: ", iterator.next(), ORDER_ID);
-        assertEquals("Assert USER_ID value error: ", iterator.next(), USER_ID);
-        assertEquals("Assert STATUS value error: ", iterator.next(), STATUS);
+        assertEquals("Assert ORDER_ITEM_ID value error: ", ORDER_ITEM_ID, iterator.next());
+        assertEquals("Assert USER_ID value error: ", USER_ID, iterator.next());
+        assertEquals("Assert ORDER_ID value error: ", ORDER_ID, iterator.next());
+        assertEquals("Assert STATUS value error: ", STATUS, iterator.next());
     }
 }

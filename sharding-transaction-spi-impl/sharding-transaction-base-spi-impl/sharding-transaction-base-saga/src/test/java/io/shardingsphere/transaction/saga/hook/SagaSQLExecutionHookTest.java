@@ -59,7 +59,7 @@ public final class SagaSQLExecutionHookTest {
     
     private final SagaSQLExecutionHook sagaSQLExecutionHook = new SagaSQLExecutionHook();
     
-    private final RouteUnit routeUnit = new RouteUnit("", new SQLUnit("", Lists.<List<Object>>newArrayList()));
+    private final RouteUnit routeUnit = new RouteUnit("", new SQLUnit("", Lists.newArrayList()));
     
     @Mock
     private SagaTransaction sagaTransaction;
@@ -120,7 +120,7 @@ public final class SagaSQLExecutionHookTest {
     
     @Test
     public void assertFinishSuccess() {
-        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
+        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), Lists.<List<Object>>newArrayList(routeUnit.getSqlUnit().getParameters()));
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishSuccess();
         verify(sagaTransaction).updateExecutionResult(branchTransaction, ExecuteStatus.SUCCESS);

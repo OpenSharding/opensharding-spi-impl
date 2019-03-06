@@ -38,7 +38,7 @@ public class RevertDeleteTest extends BaseDeleteTest {
     @Test
     public void asertSnapshot() throws SQLException {
         Connection connection = getConnection();
-        asertRevertContext(createSnapshot(connection), REVERT_SQL);
+        assertRevertContext(createSnapshot(connection), REVERT_SQL);
         connection.close();
     }
     
