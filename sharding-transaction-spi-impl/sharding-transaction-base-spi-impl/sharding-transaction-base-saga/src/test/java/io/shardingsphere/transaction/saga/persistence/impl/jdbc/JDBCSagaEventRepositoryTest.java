@@ -58,25 +58,12 @@ public class JDBCSagaEventRepositoryTest {
     @Before
     @SneakyThrows
     public void setUp() {
-        eventRepository = new JDBCSagaEventRepository(dataSource, DatabaseType.H2);
+        eventRepository = new JDBCSagaEventRepository(dataSource);
         Field dataSourceField = JDBCSagaEventRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(eventRepository, dataSource);
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
-    }
-    
-    @Test
-    @SneakyThrows
-    public void assertCreateTableIfNotExistsSuccess() {
-        eventRepository.createTableIfNotExists();
-        verify(statement, times(2)).executeUpdate();
-    }
-    
-    @Test(expected = ShardingException.class)
-    public void assertCreateTableIfNotExistsFailure() throws SQLException {
-        when(statement.executeUpdate()).thenThrow(new SQLException("test execute fail"));
-        eventRepository.createTableIfNotExists();
     }
     
     @Test

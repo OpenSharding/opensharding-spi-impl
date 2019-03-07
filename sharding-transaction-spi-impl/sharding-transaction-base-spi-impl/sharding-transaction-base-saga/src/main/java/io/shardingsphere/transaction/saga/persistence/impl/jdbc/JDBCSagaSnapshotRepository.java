@@ -37,9 +37,7 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 @Slf4j
-public final class JDBCSagaSnapshotRepository implements TableCreator {
-    
-    private static final String SNAPSHOT_CREATE_INDEX_SQL = "CREATE INDEX IF NOT EXISTS transaction_snapshot_index ON saga_snapshot(transaction_id, snapshot_id)";
+public final class JDBCSagaSnapshotRepository {
     
     private static final String INSERT_SQL = "INSERT INTO saga_snapshot (transaction_id, snapshot_id, transaction_context, revert_context) values (?, ?, ?, ?)";
     
@@ -47,26 +45,7 @@ public final class JDBCSagaSnapshotRepository implements TableCreator {
     
     private final DataSource dataSource;
     
-    private final DatabaseType databaseType;
-    
     private final AsyncSnapshotPersistence asyncSnapshotPersistence;
-    
-    @Override
-    public void createTableIfNotExists() {
-        SnapshotCreateTableSQL createTableSQL = new SnapshotCreateTableSQL();
-        try (Connection connection = dataSource.getConnection()) {
-            JDBCUtil.executeUpdate(connection, createTableSQL.getCreateTableSQL(databaseType), Lists.newArrayList());
-            createIndex(connection);
-        } catch (SQLException ex) {
-            throw new ShardingException("Create saga snapshot persistence table failed", ex);
-        }
-    }
-    
-    private void createIndex(final Connection connection) throws SQLException {
-        if (DatabaseType.MySQL != databaseType) {
-            JDBCUtil.executeUpdate(connection, SNAPSHOT_CREATE_INDEX_SQL, Lists.newArrayList());
-        }
-    }
     
     /**
      * Insert new saga snapshot.

@@ -60,9 +60,8 @@ public final class SagaPersistenceLoader {
     }
     
     private static SagaPersistence loadDefaultPersistence(final SagaPersistenceConfiguration persistenceConfiguration) {
-        DatabaseType databaseType = judgeDatabaseType(persistenceConfiguration.getUrl());
-        String driverClassName = getJDBCDriverClassName(databaseType);
-        JDBCSagaPersistence result = new JDBCSagaPersistence(initDataSource(driverClassName, persistenceConfiguration), databaseType);
+        String driverClassName = getJDBCDriverClassName(judgeDatabaseType(persistenceConfiguration.getUrl()));
+        JDBCSagaPersistence result = new JDBCSagaPersistence(initDataSource(driverClassName, persistenceConfiguration));
         result.createTableIfNotExists();
         return result;
     }

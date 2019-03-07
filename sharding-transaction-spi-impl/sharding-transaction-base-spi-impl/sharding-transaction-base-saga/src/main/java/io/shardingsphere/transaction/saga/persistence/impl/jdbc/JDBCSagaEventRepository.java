@@ -39,34 +39,13 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 @Slf4j
-public final class JDBCSagaEventRepository implements TableCreator {
-    
-    private static final String CREATE_INDEX_SQL = "CREATE INDEX IF NOT EXISTS running_sagas_index ON saga_event (saga_id, type)";
+public final class JDBCSagaEventRepository {
     
     private static final String INSERT_SQL = "INSERT INTO saga_event (saga_id, type, content_json) values (?, ?, ?)";
 
     private final DataSource dataSource;
     
-    private final DatabaseType databaseType;
-    
     private final ToJsonFormat toJsonFormat = new JacksonToJsonFormat();
-    
-    @Override
-    public void createTableIfNotExists() {
-        EventCreateTableSQL createTableSQL = new EventCreateTableSQL();
-        try (Connection connection = dataSource.getConnection()) {
-            JDBCUtil.executeUpdate(connection, createTableSQL.getCreateTableSQL(databaseType), Lists.newArrayList());
-            createIndex(connection);
-        } catch (SQLException ex) {
-            throw new ShardingException("Create saga event persistence table failed", ex);
-        }
-    }
-    
-    private void createIndex(final Connection connection) throws SQLException {
-        if (DatabaseType.MySQL != databaseType) {
-            JDBCUtil.executeUpdate(connection, CREATE_INDEX_SQL, Lists.newArrayList());
-        }
-    }
     
     /**
      * Insert new saga event.

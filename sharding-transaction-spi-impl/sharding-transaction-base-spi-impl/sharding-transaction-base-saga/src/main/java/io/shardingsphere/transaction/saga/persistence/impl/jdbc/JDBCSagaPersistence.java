@@ -17,13 +17,18 @@
 
 package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
+import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
+import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import org.apache.servicecomb.saga.core.EventEnvelope;
 import org.apache.servicecomb.saga.core.SagaEvent;
-import org.apache.shardingsphere.core.constant.DatabaseType;
+import org.apache.shardingsphere.core.exception.ShardingException;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,21 +38,35 @@ import java.util.Map;
  *
  * @author yangyi
  */
-public final class JDBCSagaPersistence implements SagaPersistence, TableCreator {
+public final class JDBCSagaPersistence implements SagaPersistence {
+    
+    private final DataSource dataSource;
     
     private final JDBCSagaSnapshotRepository snapshotRepository;
     
     private final JDBCSagaEventRepository eventRepository;
     
-    public JDBCSagaPersistence(final DataSource dataSource, final DatabaseType databaseType) {
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, databaseType, new AsyncSnapshotPersistence(dataSource));
-        eventRepository = new JDBCSagaEventRepository(dataSource, databaseType);
+    public JDBCSagaPersistence(final DataSource dataSource) {
+        this.dataSource = dataSource;
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, new AsyncSnapshotPersistence(dataSource));
+        eventRepository = new JDBCSagaEventRepository(dataSource);
     }
     
-    @Override
+    /**
+     * Create table if not exists.
+     */
     public void createTableIfNotExists() {
-        snapshotRepository.createTableIfNotExists();
-        eventRepository.createTableIfNotExists();
+        Collection<String> sqls = SQLFileReader.readSQLs();
+        if (0 == sqls.size()) {
+            return;
+        }
+        try (Connection connection = dataSource.getConnection()) {
+            for (String each : sqls) {
+                JDBCUtil.executeUpdate(connection, each, Lists.newArrayList());
+            }
+        } catch (SQLException ex) {
+            throw new ShardingException("Create saga persistence table failed", ex);
+        }
     }
     
     @Override

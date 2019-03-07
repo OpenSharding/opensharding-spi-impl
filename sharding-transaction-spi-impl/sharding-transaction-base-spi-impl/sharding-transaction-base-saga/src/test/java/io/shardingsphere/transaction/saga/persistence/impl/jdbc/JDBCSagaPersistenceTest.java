@@ -20,7 +20,6 @@ package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.SagaEvent;
-import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,11 +28,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class JDBCSagaPersistenceTest {
@@ -44,12 +48,15 @@ public final class JDBCSagaPersistenceTest {
     @Mock
     private JDBCSagaEventRepository eventRepository;
     
+    @Mock
+    private PreparedStatement statement;
+    
     private JDBCSagaPersistence sagaPersistence;
     
     @Before
     @SneakyThrows
     public void setUp() {
-        sagaPersistence = new JDBCSagaPersistence(mock(DataSource.class), DatabaseType.MySQL);
+        sagaPersistence = new JDBCSagaPersistence(mockDataSource());
         Field snapshotRepositoryField = JDBCSagaPersistence.class.getDeclaredField("snapshotRepository");
         snapshotRepositoryField.setAccessible(true);
         snapshotRepositoryField.set(sagaPersistence, snapshotRepository);
@@ -58,11 +65,20 @@ public final class JDBCSagaPersistenceTest {
         eventRepositoryField.set(sagaPersistence, eventRepository);
     }
     
+    @SneakyThrows
+    private DataSource mockDataSource() {
+        DataSource result = mock(DataSource.class);
+        Connection connection = mock(Connection.class);
+        when(result.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(statement);
+        return result;
+    }
+    
     @Test
+    @SneakyThrows
     public void assertCreateTableIfNotExists() {
         sagaPersistence.createTableIfNotExists();
-        verify(snapshotRepository).createTableIfNotExists();
-        verify(eventRepository).createTableIfNotExists();
+        verify(statement, times(4)).executeUpdate();
     }
     
     @Test
