@@ -83,7 +83,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         int currentIndex = 0;
         while (-1 != (currentIndex = sql.indexOf(SQL_PLACE_HOLDER, currentIndex))) {
             result++;
-            currentIndex += sql.length();
+            currentIndex += 1;
         }
         return result;
     }
