@@ -50,14 +50,10 @@ public abstract class AbstractIntegrationTest {
     private static final String CREATE_HISTORY_TABLE = "CREATE TABLE t_order_history (user_id int(11) NOT NULL,order_id int(11) NOT NULL, "
         + "status varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL, operate_date datetime(0) NULL DEFAULT NULL,PRIMARY KEY (user_id, order_id) USING BTREE);";
     
-    private static final String DROP_ORDER_TABLE = "DROP TABLE IF EXISTS t_order";
-    
-    private static final String CREATE_ORDER_TABLE = "CREATE TABLE IF NOT EXISTS t_order(order_id bigint AUTO_INCREMENT PRIMARY KEY, status varchar(255), user_id int(11) NOT NULL);";
-    
     private static final String DROP_ITEM_TABLE = "DROP TABLE IF EXISTS t_order_item";
     
     private static final String CREATE_ITEM_TABLE = "CREATE TABLE IF NOT EXISTS t_order_item(order_item_id bigint AUTO_INCREMENT PRIMARY KEY, "
-        + "user_id int(11) NOT NULL, order_id bigint NOT NULL, status varchar(255));";
+        + "order_id bigint NOT NULL, user_id int(11) NOT NULL, status varchar(255));";
     
     @BeforeClass
     public static void initEnvironment() throws Exception {
@@ -65,7 +61,6 @@ public abstract class AbstractIntegrationTest {
         Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement();
         initTables(statement, DROP_HISTORY_TABLE, CREATE_HISTORY_TABLE);
-        initTables(statement, DROP_ORDER_TABLE, CREATE_ORDER_TABLE);
         initTables(statement, DROP_ITEM_TABLE, CREATE_ITEM_TABLE);
         statement.close();
         connection.close();

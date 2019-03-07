@@ -30,10 +30,10 @@ public class RevertInsertGeneratorTest extends BaseInsertTest {
     @Test
     public void testGenerate() throws SQLException {
         List<String> tableColumns = new LinkedList<>();
-        tableColumns.add("STATUS");
+        tableColumns.add("ORDER_ITEM_ID");
         tableColumns.add("ORDER_ID");
         tableColumns.add("USER_ID");
-        tableColumns.add("ORDER_ITEM_ID");
+        tableColumns.add("STATUS");
         List<String> keys = new LinkedList<>();
         keys.add("ORDER_ITEM_ID");
         List<Object> params = new LinkedList<>();

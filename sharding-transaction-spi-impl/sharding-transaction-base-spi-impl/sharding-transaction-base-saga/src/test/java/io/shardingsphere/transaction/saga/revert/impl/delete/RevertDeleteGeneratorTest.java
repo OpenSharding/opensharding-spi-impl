@@ -33,8 +33,8 @@ public class RevertDeleteGeneratorTest extends BaseDeleteTest {
         Map<String, Object> values = new LinkedHashMap<>();
         selectSnapshot.add(values);
         values.put("ORDER_ITEM_ID", ORDER_ITEM_ID);
-        values.put("USER_ID", USER_ID);
         values.put("ORDER_ID", ORDER_ID);
+        values.put("USER_ID", USER_ID);
         values.put("STATUS", STATUS);
         RevertDeleteParameter revertDeleteParameter = new RevertDeleteParameter("t_order_item_1", selectSnapshot);
         RevertDeleteGenerator revertDeleteGenerator = new RevertDeleteGenerator();

@@ -39,10 +39,10 @@ public class RevertUpdateGeneratorTest extends BaseUpdateTest {
         updateColumns.put("user_id", USER_ID);
         values.putAll(updateColumns);
         List<Object> params = new LinkedList<>();
-        params.add(STATUS);
+        params.add(ORDER_ITEM_ID);
         params.add(ORDER_ID);
         params.add(USER_ID);
-        params.add(ORDER_ITEM_ID);
+        params.add(STATUS);
         List<String> keys = new LinkedList<>();
         keys.add("ORDER_ITEM_ID");
         RevertUpdateGeneratorParameter revertUpdateParameter = new RevertUpdateGeneratorParameter("t_order_item_1", selectSnapshot, updateColumns, keys, params);

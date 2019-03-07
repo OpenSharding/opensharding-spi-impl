@@ -30,7 +30,8 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class RevertDeleteTest extends BaseDeleteTest {
@@ -66,10 +67,10 @@ public class RevertDeleteTest extends BaseDeleteTest {
         preparedStatement.setObject(1, ORDER_ITEM_ID);
         ResultSet resultSet = preparedStatement.executeQuery();
         assertTrue("Assert next result set: ", resultSet.next());
-        assertEquals("Assert ORDER_ITEM_ID value error: ", resultSet.getObject("ORDER_ITEM_ID"), ORDER_ITEM_ID);
-        assertEquals("Assert USER_ID value error: ", resultSet.getObject("USER_ID"), USER_ID);
-        assertEquals("Assert ORDER_ID value error: ", resultSet.getObject("ORDER_ID"), ORDER_ID);
-        assertEquals("Assert STATUS value error: ", resultSet.getObject("STATUS"), STATUS);
+        assertThat("Assert ORDER_ITEM_ID value error: ", resultSet.getLong("ORDER_ITEM_ID"), is(ORDER_ITEM_ID));
+        assertThat("Assert ORDER_ID value error: ", resultSet.getLong("ORDER_ID"), is(ORDER_ID));
+        assertThat("Assert USER_ID value error: ", resultSet.getInt("USER_ID"), is(USER_ID));
+        assertThat("Assert STATUS value error: ", resultSet.getString("STATUS"), is(STATUS));
         assertTrue("Assert result set has no next: ", !resultSet.next());
         connection.close();
     }

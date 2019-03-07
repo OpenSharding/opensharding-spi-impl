@@ -24,7 +24,8 @@ import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import java.sql.SQLException;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class BaseUpdateTest extends BaseRevertTest {
     
@@ -33,9 +34,9 @@ public class BaseUpdateTest extends BaseRevertTest {
     protected void asertRevertContext(final Optional<RevertContext> revertContext, final String revertSQL) throws SQLException {
         super.asertRevertContext(revertContext, revertSQL, 4);
         Iterator<Object> iterator = revertContext.get().getRevertParams().get(0).iterator();
-        assertEquals("Assert STATUS value error: ", iterator.next(), STATUS);
-        assertEquals("Assert ORDER_ID value error: ", iterator.next(), ORDER_ID);
-        assertEquals("Assert USER_ID value error: ", iterator.next(), USER_ID);
-        assertEquals("Assert ORDER_ITEM_ID value error: ", iterator.next(), ORDER_ITEM_ID);
+        assertThat("Assert STATUS value error: ", iterator.next().toString(), is(STATUS));
+        assertThat("Assert ORDER_ID value error: ", (long) iterator.next(), is(ORDER_ID));
+        assertThat("Assert USER_ID value error: ", (int) iterator.next(), is(USER_ID));
+        assertThat("Assert ORDER_ITEM_ID value error: ", (long) iterator.next(), is(ORDER_ITEM_ID));
     }
 }

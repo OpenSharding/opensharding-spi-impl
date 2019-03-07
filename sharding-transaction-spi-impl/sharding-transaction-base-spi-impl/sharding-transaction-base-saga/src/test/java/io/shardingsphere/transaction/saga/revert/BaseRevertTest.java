@@ -43,7 +43,8 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public abstract class BaseRevertTest {
@@ -90,8 +91,8 @@ public abstract class BaseRevertTest {
     public void setup() throws Exception {
         List<Object> params = new LinkedList<>();
         params.add(ORDER_ITEM_ID);
-        params.add(USER_ID);
         params.add(ORDER_ID);
+        params.add(USER_ID);
         params.add(STATUS);
         Connection connection = getConnection();
         String insertSQL = "insert into t_order_item_1 values(?,?,?,?)";
@@ -111,9 +112,9 @@ public abstract class BaseRevertTest {
     
     protected void asertRevertContext(final Optional<RevertContext> revertContext, final String revertSQL, final int expectedParamSize) throws SQLException {
         assertTrue("Assert revert context exists: ", revertContext.isPresent());
-        assertEquals("Assert revert sql: ", revertSQL.toLowerCase(), revertContext.get().getRevertSQL().toLowerCase());
-        assertEquals("Assert revert execute times: ", 1, revertContext.get().getRevertParams().size());
-        assertEquals("Assert revert param size: ", expectedParamSize, revertContext.get().getRevertParams().get(0).size());
+        assertThat("Assert revert sql: ", revertSQL.toLowerCase(), is(revertContext.get().getRevertSQL().toLowerCase()));
+        assertThat("Assert revert execute times: ", revertContext.get().getRevertParams().size(), is(1));
+        assertThat("Assert revert param size: ", revertContext.get().getRevertParams().get(0).size(), is(expectedParamSize));
     }
     
     protected SnapshotParameter createParameter(final Connection connection, final String logicTable,
