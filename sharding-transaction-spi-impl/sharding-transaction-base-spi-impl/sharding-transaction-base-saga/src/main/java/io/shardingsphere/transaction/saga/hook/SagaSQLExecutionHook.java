@@ -29,12 +29,12 @@ import io.shardingsphere.transaction.saga.revert.SQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.exception.ShardingException;
+import org.apache.shardingsphere.core.executor.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.routing.RouteUnit;
 import org.apache.shardingsphere.core.routing.SQLUnit;
 import org.apache.shardingsphere.core.routing.type.TableUnit;
-import org.apache.shardingsphere.spi.hook.SQLExecutionHook;
 
 import java.sql.SQLException;
 import java.util.List;
