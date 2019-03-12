@@ -19,6 +19,7 @@ package io.shardingsphere.transaction.saga.revert.integration;
 
 import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.parsing.cache.ParsingResultCache;
 import org.apache.shardingsphere.core.rule.ShardingRule;
 import org.apache.shardingsphere.core.yaml.config.sharding.YamlRootShardingConfiguration;
 import org.apache.shardingsphere.core.yaml.engine.YamlEngine;
@@ -43,6 +44,8 @@ public abstract class AbstractIntegrationTest {
     protected static ShardingRule shardingRule;
     
     protected static ShardingTableMetaData shardingTableMetaData;
+    
+    protected static ParsingResultCache parsingResultCache;
     // CHECKSTYLE:ON
     
     private static final String DROP_HISTORY_TABLE = "DROP TABLE t_order_history;";
@@ -85,6 +88,7 @@ public abstract class AbstractIntegrationTest {
         dataSource = ShardingDataSourceFactory.createDataSource(config.getDataSources(), shardingRuleConfiguration, config.getProps());
         shardingRule = new ShardingRule(shardingRuleConfiguration, config.getDataSources().keySet());
         shardingTableMetaData = ((ShardingDataSource) dataSource).getShardingContext().getMetaData().getTable();
+        parsingResultCache = new ParsingResultCache();
     }
     
 }

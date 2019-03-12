@@ -58,7 +58,7 @@ public class MultiKeyTest extends AbstractIntegrationTest {
         assertSelect(connection, true, new Object[]{1, 1});
         Connection actualConnection = config.getDataSources().get("ds_1").getConnection();
         String actualSQL = "insert into t_order_history values(?,?,?,?)";
-        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, insertSQL, shardingRule, shardingTableMetaData).parse(true);
+        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, insertSQL, shardingRule, shardingTableMetaData, parsingResultCache).parse(true);
         revertInsert((DMLStatement) statement, actualConnection, insertSQL, actualSQL, "t_order_history_1", params);
         assertSelect(connection, false, new Object[]{1, 1});
         update(connection, "delete from t_order_history", new ArrayList<>());
@@ -73,7 +73,7 @@ public class MultiKeyTest extends AbstractIntegrationTest {
         Connection connection = dataSource.getConnection();
         insertDataForTest(connection);
         String updateSQL = "update t_order_history set status = ? where status = ?";
-        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, updateSQL, shardingRule, shardingTableMetaData).parse(true);
+        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, updateSQL, shardingRule, shardingTableMetaData, parsingResultCache).parse(true);
         List<RevertContext> updateRevertContexts = createRevertUpdateContext((DMLStatement) statement, updateSQL, params);
         updateStatus(connection, updateSQL);
         checkUpdate(connection, "2", 2);
@@ -89,7 +89,7 @@ public class MultiKeyTest extends AbstractIntegrationTest {
         List<Object> params = new LinkedList<>();
         Connection connection = dataSource.getConnection();
         insertDataForTest(connection);
-        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, updateSQL, shardingRule, shardingTableMetaData).parse(true);
+        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, updateSQL, shardingRule, shardingTableMetaData, parsingResultCache).parse(true);
         List<RevertContext> updateRevertContexts = createRevertDeleteContext((DMLStatement) statement, updateSQL, params);
         update(connection, "delete from t_order_history", new ArrayList<>());
         checkUpdate(connection, "1", 0);
