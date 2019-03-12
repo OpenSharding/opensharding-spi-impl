@@ -25,6 +25,7 @@ import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parsing.SQLParsingEngine;
+import org.apache.shardingsphere.core.parsing.cache.ParsingResultCache;
 import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
 import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
 import org.apache.shardingsphere.core.rule.ShardingRule;
@@ -69,6 +70,8 @@ public abstract class BaseRevertTest {
     
     private static ShardingTableMetaData shardingTableMetaData;
     
+    private static ParsingResultCache parsingResultCache;
+    
     static {
         try {
             InputStream inputStream = BaseRevertTest.class.getClassLoader().getResourceAsStream("config-sharding.yaml");
@@ -80,6 +83,7 @@ public abstract class BaseRevertTest {
             shardingRule = new ShardingRule(shardingRuleConfiguration, config.getDataSources().keySet());
             shardingTableMetaData = ((ShardingDataSource) shardingDataSource).getShardingContext().getMetaData().getTable();
             actualDataSource = shardingDataSource.getDataSourceMap().get("ds_1");
+            parsingResultCache = new ParsingResultCache();
             // CHECKSTYLE:OFF
         } catch (Exception e) {
             // CHECKSTYLE:ON
@@ -119,7 +123,7 @@ public abstract class BaseRevertTest {
     
     protected SnapshotParameter createParameter(final Connection connection, final String logicTable,
                                                 final String actualTable, final String logicSQL, final String actualSQL, final List<Object> params) {
-        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, logicSQL, shardingRule, shardingTableMetaData).parse(true);
+        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, logicSQL, shardingRule, shardingTableMetaData, parsingResultCache).parse(true);
         assertTrue("SQL Revert must be DML statemeent", statement instanceof DMLStatement);
         return new SnapshotParameter(shardingTableMetaData.get(logicTable), (DMLStatement) statement, connection, actualTable,
                 logicSQL, actualSQL, params);

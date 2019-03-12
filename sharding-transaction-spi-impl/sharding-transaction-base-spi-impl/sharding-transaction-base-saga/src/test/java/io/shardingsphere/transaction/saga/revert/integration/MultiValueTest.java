@@ -48,7 +48,7 @@ public class MultiValueTest extends AbstractIntegrationTest {
         Connection connection = dataSource.getConnection();
         update(connection, insertSQL, params);
         checkUpdate(connection, "1", 4);
-        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, insertSQL, shardingRule, shardingTableMetaData).parse(true);
+        SQLStatement statement = new SQLParsingEngine(DatabaseType.MySQL, insertSQL, shardingRule, shardingTableMetaData, parsingResultCache).parse(true);
         String actualSQLTemplate = "insert into t_order_history_%S values(?,?,?,?)";
         for (int i = 0; i < 2; i++) {
             String actualSQL = String.format(actualSQLTemplate, i);
