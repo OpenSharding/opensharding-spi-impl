@@ -40,7 +40,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class MultiKeyTest extends AbstractIntegrationTest {
     
@@ -148,7 +149,7 @@ public class MultiKeyTest extends AbstractIntegrationTest {
         queryStatement.setObject(1, staus);
         ResultSet resultSet = queryStatement.executeQuery();
         resultSet.next();
-        assertEquals("Assert updated row count: ", expectCount, resultSet.getInt(1));
+        assertThat("Assert updated row count: ", resultSet.getInt(1), is(expectCount));
     }
     
     private void revertUpdate(final List<RevertContext> revertContexts, final DMLStatement dmlStatement) throws Exception {
@@ -204,7 +205,7 @@ public class MultiKeyTest extends AbstractIntegrationTest {
         queryStatement.setObject(1, params[0]);
         queryStatement.setObject(2, params[1]);
         ResultSet resultSet = queryStatement.executeQuery();
-        assertEquals("Assert result exist: ", expected, resultSet.next());
+        assertThat("Assert result exist: ", resultSet.next(), is(expected));
     }
     
     private void revertInsert(final DMLStatement dmlStatement, final Connection actualConnection, final String insertSQL, final String actualSQL, final String actualTable,

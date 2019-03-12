@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.hook;
 
+import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
@@ -36,6 +37,7 @@ import org.apache.shardingsphere.core.routing.type.TableUnit;
 import org.apache.shardingsphere.spi.hook.SQLExecutionHook;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,6 +46,8 @@ import java.util.Map;
  * @author yangyi
  */
 public final class SagaSQLExecutionHook implements SQLExecutionHook {
+    
+    private static final String SQL_PLACE_HOLDER = "?";
     
     private SagaTransaction sagaTransaction;
     
@@ -54,13 +58,34 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY)) {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
             if (sagaTransaction.isDMLBranchTransactionGroup()) {
-                sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameterSets());
+                sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()));
                 sagaBranchTransaction.setActualTableName(getAcutalTableName(routeUnit.getSqlUnit()));
                 sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
                 sagaTransaction.addBranchTransactionToGroup(sagaBranchTransaction);
                 saveNewSnapshot();
             }
         }
+    }
+    
+    private List<List<Object>> splitParameters(final SQLUnit sqlUnit) {
+        List<List<Object>> result = Lists.newArrayList();
+        int placeholderCount = countPlaceholder(sqlUnit.getSql());
+        if (placeholderCount == sqlUnit.getParameters().size()) {
+            result.add(sqlUnit.getParameters());
+        } else {
+            result.addAll(Lists.partition(sqlUnit.getParameters(), placeholderCount));
+        }
+        return result;
+    }
+    
+    private int countPlaceholder(final String sql) {
+        int result = 0;
+        int currentIndex = 0;
+        while (-1 != (currentIndex = sql.indexOf(SQL_PLACE_HOLDER, currentIndex))) {
+            result++;
+            currentIndex += 1;
+        }
+        return result;
     }
     
     private void saveNewSnapshot() {

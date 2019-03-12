@@ -48,7 +48,7 @@ public abstract class AbstractRevertOperate implements RevertOperate {
     public Optional<RevertContext> snapshot(final SnapshotParameter snapshotParameter) throws SQLException {
         List<String> keys = getKeyColumns(snapshotParameter);
         if (keys.isEmpty()) {
-            throw new RuntimeException("Not supported table witout primary key");
+            throw new RuntimeException("Not supported table without primary key");
         }
         return revertSQLGenerator.generate(createRevertContext(snapshotParameter, keys));
     }

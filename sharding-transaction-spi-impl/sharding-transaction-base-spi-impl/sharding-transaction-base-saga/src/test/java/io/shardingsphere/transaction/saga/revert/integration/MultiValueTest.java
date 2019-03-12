@@ -36,7 +36,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class MultiValueTest extends AbstractIntegrationTest {
     
@@ -81,7 +82,7 @@ public class MultiValueTest extends AbstractIntegrationTest {
         queryStatement.setObject(1, staus);
         ResultSet resultSet = queryStatement.executeQuery();
         resultSet.next();
-        assertEquals("Assert updated row count: ", expectCount, resultSet.getInt(1));
+        assertThat("Assert updated row count: ", resultSet.getInt(1), is(expectCount));
     }
     
     private void update(final Connection connection, final String insertSQL, final List<Object> params) throws Exception {

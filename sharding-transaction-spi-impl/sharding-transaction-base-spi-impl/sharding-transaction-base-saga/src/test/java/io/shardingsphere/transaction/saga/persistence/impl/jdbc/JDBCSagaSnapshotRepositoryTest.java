@@ -61,7 +61,7 @@ public class JDBCSagaSnapshotRepositoryTest {
     @Before
     @SneakyThrows
     public void setUp() {
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, DatabaseType.H2, null);
+        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, null);
         Field dataSourceField = JDBCSagaSnapshotRepository.class.getDeclaredField("dataSource");
         dataSourceField.setAccessible(true);
         dataSourceField.set(snapshotRepository, dataSource);
@@ -70,19 +70,6 @@ public class JDBCSagaSnapshotRepositoryTest {
         asyncSnapshotPersistenceField.set(snapshotRepository, asyncSnapshotPersistence);
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
-    }
-    
-    @Test
-    @SneakyThrows
-    public void assertCreateTableIfNotExistsSuccess() {
-        snapshotRepository.createTableIfNotExists();
-        verify(statement, times(2)).executeUpdate();
-    }
-    
-    @Test(expected = ShardingException.class)
-    public void assertCreateTableIfNotExistsFailure() throws SQLException {
-        when(statement.executeUpdate()).thenThrow(new SQLException("test execute fail"));
-        snapshotRepository.createTableIfNotExists();
     }
     
     @Test

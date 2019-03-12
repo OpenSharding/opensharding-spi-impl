@@ -38,6 +38,6 @@ public class RevertDeleteGeneratorTest extends BaseDeleteTest {
         values.put("STATUS", STATUS);
         RevertDeleteParameter revertDeleteParameter = new RevertDeleteParameter("t_order_item_1", selectSnapshot);
         RevertDeleteGenerator revertDeleteGenerator = new RevertDeleteGenerator();
-        asertRevertContext(revertDeleteGenerator.generate(revertDeleteParameter), REVERT_SQL);
+        assertRevertContext(revertDeleteGenerator.generate(revertDeleteParameter), REVERT_SQL);
     }
 }
