@@ -34,7 +34,7 @@ public final class RevertInsertGeneratorParameter extends RevertContextGenerator
 
     private final List<String> keys = new LinkedList<>();
 
-    private final List<String> tableColumns = new LinkedList<>();
+    private final List<String> insertColumns = new LinkedList<>();
 
     private final List<Object> params = new LinkedList<>();
     
@@ -46,7 +46,7 @@ public final class RevertInsertGeneratorParameter extends RevertContextGenerator
     
     public RevertInsertGeneratorParameter(final String tableName, final List<String> tableColumns, final List<String> keys, final List<Object> params, final int batchSize, final boolean generateKey) {
         super(tableName);
-        this.tableColumns.addAll(tableColumns);
+        this.insertColumns.addAll(tableColumns);
         this.keys.addAll(keys);
         this.params.addAll(params);
         this.batchSize = batchSize;

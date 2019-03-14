@@ -47,12 +47,12 @@ public final class RevertInsert extends AbstractRevertOperate {
     }
     
     protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
-        List<String> tableColumns = new LinkedList<>();
+        List<String> insertColumns = new LinkedList<>();
         InsertStatement insertStatement = (InsertStatement) snapshotParameter.getStatement();
         for (Column each : insertStatement.getColumns()) {
-            tableColumns.add(each.getName());
+            insertColumns.add(each.getName());
         }
-        RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), tableColumns, keys, snapshotParameter.getActualSQLParams(),
+        RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), insertColumns, keys, snapshotParameter.getActualSQLParams(),
                 insertStatement.getInsertValues().getInsertValues().size(), insertStatement.isContainGenerateKey());
         int paramIndex = 0;
         for (InsertValue each : insertStatement.getInsertValues().getInsertValues()) {

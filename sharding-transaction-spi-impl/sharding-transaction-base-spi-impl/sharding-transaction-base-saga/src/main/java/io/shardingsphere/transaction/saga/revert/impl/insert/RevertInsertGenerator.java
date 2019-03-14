@@ -48,7 +48,7 @@ public final class RevertInsertGenerator implements RevertContextGenerator {
         Set<Integer> keyColumnIndexs = new HashSet<>();
         List<String> allColumns = new LinkedList<>();
         int index = 0;
-        for (String each : insertParameter.getTableColumns()) {
+        for (String each : insertParameter.getInsertColumns()) {
             allColumns.add(each);
             for (String key : insertParameter.getKeys()) {
                 if (key.equalsIgnoreCase(each)) {
