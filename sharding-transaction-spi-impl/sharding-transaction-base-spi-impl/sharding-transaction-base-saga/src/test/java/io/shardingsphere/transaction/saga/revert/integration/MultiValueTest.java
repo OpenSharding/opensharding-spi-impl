@@ -23,9 +23,9 @@ import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.parsing.SQLParsingEngine;
-import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
-import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.SQLParsingEngine;
+import org.apache.shardingsphere.core.parse.parser.sql.SQLStatement;
+import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
 import org.junit.Test;
 
 import java.sql.Connection;

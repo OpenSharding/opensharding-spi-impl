@@ -20,8 +20,8 @@ package io.shardingsphere.transaction.saga.hook;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import org.apache.shardingsphere.core.rewrite.hook.RewriteHook;
-import org.apache.shardingsphere.core.routing.SQLUnit;
-import org.apache.shardingsphere.core.routing.type.TableUnit;
+import org.apache.shardingsphere.core.route.SQLUnit;
+import org.apache.shardingsphere.core.route.type.TableUnit;
 
 /**
  * Saga SQL rewrite hook.

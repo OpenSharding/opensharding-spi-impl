@@ -17,13 +17,12 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.shardingsphere.core.parsing.parser.context.condition.Column;
-
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteSnapshotMaker;
+import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Update snapshot maker.

@@ -17,12 +17,12 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
+import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import lombok.Getter;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
-import lombok.Getter;
 
 /**
  * Revert insert generator parameter.

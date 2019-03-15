@@ -26,7 +26,7 @@ import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.factory.RevertOperateFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
 
 import java.sql.Connection;
 import java.sql.SQLException;

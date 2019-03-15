@@ -21,7 +21,7 @@ import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
