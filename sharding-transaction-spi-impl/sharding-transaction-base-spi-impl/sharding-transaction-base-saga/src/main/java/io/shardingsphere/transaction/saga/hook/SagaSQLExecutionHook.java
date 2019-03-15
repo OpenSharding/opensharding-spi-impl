@@ -32,9 +32,9 @@ import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.executor.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.executor.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
-import org.apache.shardingsphere.core.routing.RouteUnit;
-import org.apache.shardingsphere.core.routing.SQLUnit;
-import org.apache.shardingsphere.core.routing.type.TableUnit;
+import org.apache.shardingsphere.core.route.RouteUnit;
+import org.apache.shardingsphere.core.route.SQLUnit;
+import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.SQLException;
 import java.util.List;

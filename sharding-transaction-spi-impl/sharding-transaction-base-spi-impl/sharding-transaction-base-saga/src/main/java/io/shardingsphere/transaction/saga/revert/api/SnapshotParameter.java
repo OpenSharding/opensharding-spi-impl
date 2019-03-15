@@ -17,14 +17,13 @@
 
 package io.shardingsphere.transaction.saga.revert.api;
 
-import java.sql.Connection;
-import java.util.List;
-
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.parsing.parser.sql.dml.DMLStatement;
-
+import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.sql.Connection;
+import java.util.List;
 
 /**
  * Snapshot parameter.

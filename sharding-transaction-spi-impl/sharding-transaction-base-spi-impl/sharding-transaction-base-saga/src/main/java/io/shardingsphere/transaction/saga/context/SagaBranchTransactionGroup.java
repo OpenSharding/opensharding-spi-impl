@@ -19,9 +19,8 @@ package io.shardingsphere.transaction.saga.context;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parsing.parser.sql.SQLStatement;
+import org.apache.shardingsphere.core.parse.parser.sql.SQLStatement;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;

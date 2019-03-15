@@ -17,17 +17,15 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.shardingsphere.core.parsing.lexer.token.DefaultKeyword;
-
 import com.google.common.base.Optional;
-
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGenerator;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Revert update generator.

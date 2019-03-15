@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
-import org.apache.shardingsphere.core.parsing.lexer.token.DefaultKeyword;
+import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
 import java.util.Collection;
