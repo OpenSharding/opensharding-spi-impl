@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shardingsphere.core.execute.ShardingThreadFactoryBuilder;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -30,9 +31,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.shardingsphere.core.execute.ShardingThreadFactoryBuilder;
-
 
 /**
  * Asynchronous saga snapshot persistence.
