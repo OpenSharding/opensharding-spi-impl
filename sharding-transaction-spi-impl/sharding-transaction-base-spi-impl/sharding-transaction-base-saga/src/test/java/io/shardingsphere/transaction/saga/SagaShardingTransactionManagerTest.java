@@ -27,7 +27,7 @@ import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTranspor
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.executor.ShardingExecuteDataMap;
+import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.junit.After;
