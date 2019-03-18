@@ -47,9 +47,7 @@ public class JDBCUtil {
      */
     public static List<Map<String, Object>> executeQuery(final Connection connection, final String sql, final Collection<Object> params) throws SQLException {
         List<Map<String, Object>> result = new ArrayList<>();
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             fillParamter(preparedStatement, params);
             ResultSet rs = preparedStatement.executeQuery();
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -61,8 +59,6 @@ public class JDBCUtil {
                     rowResultMap.put(rsMeta.getColumnName(i), rs.getObject(i));
                 }
             }
-        } finally {
-            closeStatement(preparedStatement);
         }
         return result;
     }
@@ -76,13 +72,9 @@ public class JDBCUtil {
      * @throws SQLException failed to execute SQL, throw this exception
      */
     public static void executeUpdate(final Connection connection, final String sql, final Collection<Object> params) throws SQLException {
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             fillParamter(preparedStatement, params);
             preparedStatement.executeUpdate();
-        } finally {
-            closeStatement(preparedStatement);
         }
     }
     
@@ -95,16 +87,12 @@ public class JDBCUtil {
      * @throws SQLException failed to execute SQL, throw this exception
      */
     public static void executeBatch(final Connection connection, final String sql, final Collection<Collection<Object>> paramsCollection) throws SQLException {
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = connection.prepareStatement(sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);) {
             for (Collection<Object> params : paramsCollection) {
                 fillParamter(preparedStatement, params);
                 preparedStatement.addBatch();
             }
             preparedStatement.executeBatch();
-        } finally {
-            closeStatement(preparedStatement);
         }
     }
     
@@ -113,20 +101,6 @@ public class JDBCUtil {
         int index = 0;
         while (iterator.hasNext()) {
             preparedStatement.setObject(++index, iterator.next());
-        }
-    }
-    
-    /**
-     * Close statement.
-     *
-     * @param preparedStatement JDBC prepare statement
-     */
-    public static void closeStatement(final PreparedStatement preparedStatement) {
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-            } catch (SQLException ignore) {
-            }
         }
     }
 }
