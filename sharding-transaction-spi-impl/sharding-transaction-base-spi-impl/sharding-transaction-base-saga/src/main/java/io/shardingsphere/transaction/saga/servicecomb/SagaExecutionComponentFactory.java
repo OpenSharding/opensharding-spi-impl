@@ -29,7 +29,7 @@ import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
 import org.apache.servicecomb.saga.core.dag.GraphBasedSagaFactory;
 import org.apache.servicecomb.saga.format.ChildrenExtractor;
 import org.apache.servicecomb.saga.format.JacksonFromJsonFormat;
-import org.apache.shardingsphere.core.executor.ShardingThreadFactoryBuilder;
+import org.apache.shardingsphere.core.execute.ShardingThreadFactoryBuilder;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
