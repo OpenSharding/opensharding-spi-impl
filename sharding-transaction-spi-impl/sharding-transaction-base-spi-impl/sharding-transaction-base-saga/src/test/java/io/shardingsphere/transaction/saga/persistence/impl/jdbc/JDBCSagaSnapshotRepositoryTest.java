@@ -21,8 +21,6 @@ import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import lombok.SneakyThrows;
-import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.exception.ShardingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,11 +31,9 @@ import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

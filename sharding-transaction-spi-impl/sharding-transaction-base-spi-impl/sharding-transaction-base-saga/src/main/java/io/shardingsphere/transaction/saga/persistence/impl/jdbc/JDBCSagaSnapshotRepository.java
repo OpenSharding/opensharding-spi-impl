@@ -20,8 +20,6 @@ package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
-import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.exception.ShardingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
