@@ -24,8 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.servicecomb.saga.core.JacksonToJsonFormat;
 import org.apache.servicecomb.saga.core.SagaEvent;
 import org.apache.servicecomb.saga.core.ToJsonFormat;
-import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.exception.ShardingException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
