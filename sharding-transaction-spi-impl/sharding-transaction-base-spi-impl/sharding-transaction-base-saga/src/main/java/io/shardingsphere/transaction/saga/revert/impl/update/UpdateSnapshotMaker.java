@@ -23,6 +23,7 @@ import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Update snapshot maker.
@@ -30,6 +31,16 @@ import java.util.List;
  * @author duhongjun
  */
 public final class UpdateSnapshotMaker extends DeleteSnapshotMaker {
+    
+    @Override
+    protected void fillAlias(final StringBuilder builder, final SnapshotParameter snapshotParameter) {
+        if (!snapshotParameter.getStatement().getUpdateTableAlias().isEmpty()) {
+            Map.Entry<String, String> entry = snapshotParameter.getStatement().getUpdateTableAlias().entrySet().iterator().next();
+            if (!entry.getKey().equals(entry.getValue())) {
+                builder.append(" ").append(entry.getKey()).append(" ");
+            }
+        }
+    }
     
     @Override
     protected void fillSelectItem(final StringBuilder builder, final SnapshotParameter snapshotParameter, final List<String> keys) {

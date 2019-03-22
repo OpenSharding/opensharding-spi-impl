@@ -56,18 +56,16 @@ public class DeleteSnapshotMaker {
         fillSelectItem(builder, snapshotParameter, keys);
         builder.append(DefaultKeyword.FROM).append(" ");
         builder.append(snapshotParameter.getActualTable());
-        if (!snapshotParameter.getStatement().getUpdateTableAlias().isEmpty()) {
-            Map.Entry<String, String> entry = snapshotParameter.getStatement().getUpdateTableAlias().entrySet().iterator().next();
-            if (!entry.getKey().equals(entry.getValue())) {
-                builder.append(" ").append(entry.getKey()).append(" ");
-            }
-        }
+        fillAlias(builder, snapshotParameter);
         if (0 < snapshotParameter.getStatement().getWhereStartIndex()) {
             builder.append(" ").append(
                     snapshotParameter.getLogicSQL().substring(snapshotParameter.getStatement().getWhereStartIndex(),
                             snapshotParameter.getStatement().getWhereStopIndex() + 1));
         }
         return builder.toString();
+    }
+    
+    protected void fillAlias(final StringBuilder builder, final SnapshotParameter snapshotParameter) {
     }
     
     protected void fillSelectItem(final StringBuilder builder, final SnapshotParameter snapshotParameter, final List<String> keys) {
