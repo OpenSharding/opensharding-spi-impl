@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert;
+package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -23,6 +23,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+    DeleteSnapshotMakerTest.class,
+    RevertDeleteGeneratorTest.class,
+    RevertDeleteTest.class
 })
-public final class AllRevertTests {
+public class AllDeleteTests {
 }
