@@ -28,11 +28,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        MultiKeyTest.class,
-        MultiValueTest.class,
-        AllRevertInsertTests.class,
-        AllRevertUpdateTests.class,
-        AllRevertDeleteTests.class
 })
 public final class AllRevertTests {
 }
