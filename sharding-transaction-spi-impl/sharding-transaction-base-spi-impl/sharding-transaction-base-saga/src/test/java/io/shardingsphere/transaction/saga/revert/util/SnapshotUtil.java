@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.revert.util;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import lombok.SneakyThrows;
 
 import java.sql.Connection;
@@ -36,7 +35,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 public class SnapshotUtil {
     

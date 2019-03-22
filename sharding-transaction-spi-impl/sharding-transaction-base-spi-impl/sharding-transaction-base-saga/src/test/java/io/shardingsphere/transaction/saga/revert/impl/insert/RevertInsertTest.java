@@ -63,6 +63,7 @@ public class RevertInsertTest {
         List<Column> columns = Lists.newArrayList();
         InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
         InsertValues insertValues = new InsertValues();
+        insertValues.getInsertValues().add(insertValue);
         columns.add(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.LOGIC_TABLE_NAME));
         insertValue.getColumnValues().add(new SQLPlaceholderExpression(0));
         columns.add(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.LOGIC_TABLE_NAME));
@@ -74,7 +75,6 @@ public class RevertInsertTest {
         columns.add(new Column(TableMetaDataUtil.COLUMN_STATUS, TableMetaDataUtil.LOGIC_TABLE_NAME));
         insertValue.getColumnValues().add(new SQLTextExpression("test"));
         when(insertStatement.getColumns()).thenReturn(columns);
-        insertValues.getInsertValues().add(insertValue);
         when(insertStatement.getInsertValues()).thenReturn(insertValues);
     }
     
