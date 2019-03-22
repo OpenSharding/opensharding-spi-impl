@@ -19,6 +19,7 @@ package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 
 import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
@@ -43,6 +44,10 @@ public class DeleteSnapshotMakerTest {
     
     private static final String LOGIC_SQL_WITHOUT_PLACEHOLDER = "DELETE FROM t_order WHERE order_id = 1";
     
+    private static final String EXPECTED_SQL = "SELECT * FROM t_order_1 WHERE order_id = ?";
+    
+    private static final String EXPECTED_SQL_WITHOUT_PLACEHOLDER = "SELECT * FROM t_order_1 WHERE order_id = 1";
+    
     private static final List<Object> ACTUAL_PARAMS = Lists.<Object>newArrayList(1);
     
     private static final List<String> KEYS = Lists.newArrayList("order_id");
@@ -62,21 +67,21 @@ public class DeleteSnapshotMakerTest {
     
     @Test
     public void assertMake() throws SQLException {
-        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, DeleteSnapshot.mockGetSnapshotConnection(),
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, SnapshotUtil.mockGetSnapshotConnection(EXPECTED_SQL),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, LOGIC_SQL, null, ACTUAL_PARAMS);
         DeleteSnapshotMaker maker = new DeleteSnapshotMaker();
         List<Map<String, Object>> snapshots = maker.make(snapshotParameter, KEYS);
         assertThat(snapshots.size(), is(1));
-        DeleteSnapshot.assertSnapshot(snapshots.get(0));
+        SnapshotUtil.assertSnapshot(snapshots.get(0));
     }
     
     @Test
     public void assertMakeEmptyActualParams() throws SQLException {
-        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, DeleteSnapshot.mockGetSnapshotConnection(),
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, SnapshotUtil.mockGetSnapshotConnection(EXPECTED_SQL_WITHOUT_PLACEHOLDER),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, LOGIC_SQL_WITHOUT_PLACEHOLDER, null, null);
         DeleteSnapshotMaker maker = new DeleteSnapshotMaker();
         List<Map<String, Object>> snapshots = maker.make(snapshotParameter, KEYS);
         assertThat(snapshots.size(), is(1));
-        DeleteSnapshot.assertSnapshot(snapshots.get(0));
+        SnapshotUtil.assertSnapshot(snapshots.get(0));
     }
 }

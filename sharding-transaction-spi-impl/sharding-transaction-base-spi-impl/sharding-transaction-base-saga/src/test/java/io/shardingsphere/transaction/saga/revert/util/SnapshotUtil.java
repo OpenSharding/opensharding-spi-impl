@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.delete;
+package io.shardingsphere.transaction.saga.revert.util;
 
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
@@ -38,13 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-public class DeleteSnapshot {
-    
-    private static final String EXPECTED_SQL = "SELECT * FROM t_order_1 WHERE order_id = ?";
-    
-    private static final String EXPECTED_SQL_WITH_UPDATE_COLUMN = "SELECT status, order_id FROM t_order alias  WHERE order_id = ?";
-    
-    private static final String EXPECTED_SQL_WITHOUT_PLACEHOLDER = "SELECT * FROM t_order_1 WHERE order_id = 1";
+public class SnapshotUtil {
     
     /**
      * Get snapshot list for unit test.
@@ -62,16 +56,16 @@ public class DeleteSnapshot {
     /**
      * Mock {@code Connection} to get snapshot.
      *
+     * @param exceptedSQL excepted select snapshot SQL
      * @return mock connection
      */
     @SneakyThrows
-    public static Connection mockGetSnapshotConnection() {
+    public static Connection mockGetSnapshotConnection(final String exceptedSQL) {
         Connection result = mock(Connection.class);
         PreparedStatement statement = mock(PreparedStatement.class);
         ResultSet resultSet = mock(ResultSet.class);
         ResultSetMetaData metaData = mock(ResultSetMetaData.class);
-        when(result.prepareStatement(EXPECTED_SQL)).thenReturn(statement);
-        when(result.prepareStatement(EXPECTED_SQL_WITHOUT_PLACEHOLDER)).thenReturn(statement);
+        when(result.prepareStatement(exceptedSQL)).thenReturn(statement);
         when(statement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getMetaData()).thenReturn(metaData);
