@@ -33,11 +33,12 @@ public class RevertOperateFactoryTest {
     
     @Test
     public void assertGetRevertSQLCreator() throws Exception {
+        RevertOperateFactory factory = new RevertOperateFactory();
         DMLStatement dmlStatement = mock(InsertStatement.class);
-        assertThat(RevertOperateFactory.getRevertSQLCreator(dmlStatement), instanceOf(RevertInsert.class));
+        assertThat(factory.getRevertSQLCreator(dmlStatement), instanceOf(RevertInsert.class));
         dmlStatement = mock(DMLStatement.class);
-        assertThat(RevertOperateFactory.getRevertSQLCreator(dmlStatement), instanceOf(RevertUpdate.class));
+        assertThat(factory.getRevertSQLCreator(dmlStatement), instanceOf(RevertUpdate.class));
         when(dmlStatement.isDeleteStatement()).thenReturn(true);
-        assertThat(RevertOperateFactory.getRevertSQLCreator(dmlStatement), instanceOf(RevertDelete.class));
+        assertThat(factory.getRevertSQLCreator(dmlStatement), instanceOf(RevertDelete.class));
     }
 }
