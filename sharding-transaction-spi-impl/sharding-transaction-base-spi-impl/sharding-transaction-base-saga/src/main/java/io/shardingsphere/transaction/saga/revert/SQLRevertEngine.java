@@ -23,7 +23,7 @@ import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.factory.RevertOperateFactory;
+import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;

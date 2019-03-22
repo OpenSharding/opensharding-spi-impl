@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.factory;
+package io.shardingsphere.transaction.saga.revert.impl;
 
 import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
 import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
