@@ -37,7 +37,7 @@ public final class RevertOperateFactory {
      * @param dmlStatement  DML statement
      * @return Revert Operate
      */
-    public static RevertOperate getRevertSQLCreator(final DMLStatement dmlStatement) {
+    public RevertOperate getRevertSQLCreator(final DMLStatement dmlStatement) {
         if (dmlStatement instanceof InsertStatement) {
             return new RevertInsert();
         }
