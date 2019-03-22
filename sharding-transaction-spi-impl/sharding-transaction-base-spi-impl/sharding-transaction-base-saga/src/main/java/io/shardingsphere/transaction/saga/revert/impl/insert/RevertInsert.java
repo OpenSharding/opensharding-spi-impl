@@ -45,6 +45,7 @@ public final class RevertInsert extends AbstractRevertOperate {
         this.setRevertSQLGenerator(new RevertInsertGenerator());
     }
     
+    @Override
     protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
         List<String> insertColumns = new LinkedList<>();
         InsertStatement insertStatement = (InsertStatement) snapshotParameter.getStatement();

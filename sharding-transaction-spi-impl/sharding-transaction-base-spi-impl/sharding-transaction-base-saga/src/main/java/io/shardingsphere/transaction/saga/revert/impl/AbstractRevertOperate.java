@@ -64,11 +64,4 @@ public abstract class AbstractRevertOperate implements RevertOperate {
     }
     
     protected abstract RevertContextGeneratorParameter createRevertContext(SnapshotParameter snapshotParameter, List<String> keys) throws SQLException;
-    
-    // CHECKSTYLE:OFF
-    @Override
-    // CHECKSTYLE:ON
-    public void revert(final RevertParameter parameter) throws SQLException {
-        JDBCUtil.executeUpdate(parameter.getConnection(), parameter.getSql(), parameter.getParams());
-    }
 }
