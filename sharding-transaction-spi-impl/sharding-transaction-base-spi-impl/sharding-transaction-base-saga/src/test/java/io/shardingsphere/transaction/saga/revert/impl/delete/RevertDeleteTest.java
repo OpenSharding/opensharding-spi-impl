@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class RevertDeleteTest {
     
     @Before
     public void setUp() throws Exception {
-        snapshotParameter = new SnapshotParameter(SnapshotUtil.mockTableMetaData(), null, null, "t_order_1", null, null, null);
+        snapshotParameter = new SnapshotParameter(TableMetaDataUtil.mockTableMetaData(), null, null, TableMetaDataUtil.ACTUAL_TABLE_NAME, null, null, null);
     }
     
     @Test
@@ -63,7 +63,7 @@ public class RevertDeleteTest {
         RevertDelete revertDelete = new RevertDelete();
         revertDelete.setSnapshotMaker(snapshotMaker);
         revertDelete.setRevertSQLGenerator(revertDeleteGenerator);
-        snapshotParameter.getTableMeta().getColumns().put(SnapshotUtil.COLUMN_ORDER_ID, new ColumnMetaData(SnapshotUtil.COLUMN_ORDER_ID, "", false));
+        snapshotParameter.getTableMeta().getColumns().put(TableMetaDataUtil.COLUMN_ORDER_ID, new ColumnMetaData(TableMetaDataUtil.COLUMN_ORDER_ID, "", false));
         revertDelete.snapshot(snapshotParameter);
     }
 }

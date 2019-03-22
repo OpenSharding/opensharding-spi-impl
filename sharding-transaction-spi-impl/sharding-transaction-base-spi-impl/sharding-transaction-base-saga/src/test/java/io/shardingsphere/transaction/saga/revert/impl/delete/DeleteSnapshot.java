@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.util;
+package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import lombok.SneakyThrows;
 
 import java.sql.Connection;
@@ -36,24 +37,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
-import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 
-public class SnapshotUtil {
-    
-    public static final String COLUMN_ORDER_ID = "order_id";
-    
-    public static final String COLUMN_USER_ID = "user_id";
-    
-    public static final String COLUMN_STATUS = "status_id";
-    
-    public static final long ORDER_ID_VALUE = 1;
-    
-    public static final int USER_ID_VALUE = 2;
-    
-    public static final String STATUS_VALUE = "test";
+public class DeleteSnapshot {
     
     private static final String EXPECTED_SQL = "SELECT * FROM t_order_1 WHERE order_id = ?";
+    
+    private static final String EXPECTED_SQL_WITH_UPDATE_COLUMN = "SELECT status, order_id FROM t_order alias  WHERE order_id = ?";
     
     private static final String EXPECTED_SQL_WITHOUT_PLACEHOLDER = "SELECT * FROM t_order_1 WHERE order_id = 1";
     
@@ -64,9 +53,9 @@ public class SnapshotUtil {
      */
     public static List<Map<String, Object>> getSnapshot() {
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put(COLUMN_ORDER_ID, ORDER_ID_VALUE);
-        result.put(COLUMN_USER_ID, USER_ID_VALUE);
-        result.put(COLUMN_STATUS, STATUS_VALUE);
+        result.put(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.ORDER_ID_VALUE);
+        result.put(TableMetaDataUtil.COLUMN_USER_ID, TableMetaDataUtil.USER_ID_VALUE);
+        result.put(TableMetaDataUtil.COLUMN_STATUS, TableMetaDataUtil.STATUS_VALUE);
         return Lists.newArrayList(result);
     }
     
@@ -86,28 +75,13 @@ public class SnapshotUtil {
         when(statement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getMetaData()).thenReturn(metaData);
-        when(resultSet.getObject(1)).thenReturn(ORDER_ID_VALUE);
-        when(resultSet.getObject(2)).thenReturn(USER_ID_VALUE);
-        when(resultSet.getObject(3)).thenReturn(STATUS_VALUE);
+        when(resultSet.getObject(1)).thenReturn(TableMetaDataUtil.ORDER_ID_VALUE);
+        when(resultSet.getObject(2)).thenReturn(TableMetaDataUtil.USER_ID_VALUE);
+        when(resultSet.getObject(3)).thenReturn(TableMetaDataUtil.STATUS_VALUE);
         when(metaData.getColumnCount()).thenReturn(3);
-        when(metaData.getColumnName(1)).thenReturn(COLUMN_ORDER_ID);
-        when(metaData.getColumnName(2)).thenReturn(COLUMN_USER_ID);
-        when(metaData.getColumnName(3)).thenReturn(COLUMN_STATUS);
-        return result;
-    }
-    
-    /**
-     * Mock {@code TableMetaData} to get snapshot.
-     *
-     * @return mock table meta data
-     */
-    public static TableMetaData mockTableMetaData() {
-        TableMetaData result = mock(TableMetaData.class);
-        Map<String, ColumnMetaData> columnMetaDataMap = new LinkedHashMap<>();
-        when(result.getColumns()).thenReturn(columnMetaDataMap);
-        columnMetaDataMap.put(COLUMN_ORDER_ID, new ColumnMetaData(COLUMN_ORDER_ID, "BIGINT", true));
-        columnMetaDataMap.put(COLUMN_USER_ID, new ColumnMetaData(COLUMN_USER_ID, "INT", false));
-        columnMetaDataMap.put(COLUMN_STATUS, new ColumnMetaData(COLUMN_STATUS, "VARCHAR", false));
+        when(metaData.getColumnName(1)).thenReturn(TableMetaDataUtil.COLUMN_ORDER_ID);
+        when(metaData.getColumnName(2)).thenReturn(TableMetaDataUtil.COLUMN_USER_ID);
+        when(metaData.getColumnName(3)).thenReturn(TableMetaDataUtil.COLUMN_STATUS);
         return result;
     }
     
@@ -117,12 +91,12 @@ public class SnapshotUtil {
      * @param snapshot snapshot for assert
      */
     public static void assertSnapshot(final Map<String, Object> snapshot) {
-        assertTrue(snapshot.containsKey(COLUMN_ORDER_ID));
-        assertThat((long) snapshot.get(COLUMN_ORDER_ID), equalTo(ORDER_ID_VALUE));
-        assertTrue(snapshot.containsKey(COLUMN_USER_ID));
-        assertThat((int) snapshot.get(COLUMN_USER_ID), equalTo(USER_ID_VALUE));
-        assertTrue(snapshot.containsKey(COLUMN_STATUS));
-        assertThat(snapshot.get(COLUMN_STATUS).toString(), is(STATUS_VALUE));
+        assertTrue(snapshot.containsKey(TableMetaDataUtil.COLUMN_ORDER_ID));
+        assertThat((long) snapshot.get(TableMetaDataUtil.COLUMN_ORDER_ID), equalTo(TableMetaDataUtil.ORDER_ID_VALUE));
+        assertTrue(snapshot.containsKey(TableMetaDataUtil.COLUMN_USER_ID));
+        assertThat((int) snapshot.get(TableMetaDataUtil.COLUMN_USER_ID), equalTo(TableMetaDataUtil.USER_ID_VALUE));
+        assertTrue(snapshot.containsKey(TableMetaDataUtil.COLUMN_STATUS));
+        assertThat(snapshot.get(TableMetaDataUtil.COLUMN_STATUS).toString(), is(TableMetaDataUtil.STATUS_VALUE));
     }
     
     /**
@@ -131,8 +105,8 @@ public class SnapshotUtil {
      * @param snapshot snapshot for assert
      */
     public static void assertSnapshot(final Iterator snapshot) {
-        assertThat((long) snapshot.next(), equalTo(ORDER_ID_VALUE));
-        assertThat((int) snapshot.next(), equalTo(USER_ID_VALUE));
-        assertThat(snapshot.next().toString(), is(STATUS_VALUE));
+        assertThat((long) snapshot.next(), equalTo(TableMetaDataUtil.ORDER_ID_VALUE));
+        assertThat((int) snapshot.next(), equalTo(TableMetaDataUtil.USER_ID_VALUE));
+        assertThat(snapshot.next().toString(), is(TableMetaDataUtil.STATUS_VALUE));
     }
 }

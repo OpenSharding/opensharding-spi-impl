@@ -19,7 +19,8 @@ package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
+
 import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,19 +62,21 @@ public class DeleteSnapshotMakerTest {
     
     @Test
     public void assertMake() throws SQLException {
-        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, SnapshotUtil.mockGetSnapshotConnection(), "t_order_1", LOGIC_SQL, null, ACTUAL_PARAMS);
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, DeleteSnapshot.mockGetSnapshotConnection(),
+            TableMetaDataUtil.ACTUAL_TABLE_NAME, LOGIC_SQL, null, ACTUAL_PARAMS);
         DeleteSnapshotMaker maker = new DeleteSnapshotMaker();
         List<Map<String, Object>> snapshots = maker.make(snapshotParameter, KEYS);
         assertThat(snapshots.size(), is(1));
-        SnapshotUtil.assertSnapshot(snapshots.get(0));
+        DeleteSnapshot.assertSnapshot(snapshots.get(0));
     }
     
     @Test
     public void assertMakeEmptyActualParams() throws SQLException {
-        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, SnapshotUtil.mockGetSnapshotConnection(), "t_order_1", LOGIC_SQL_WITHOUT_PLACEHOLDER, null, null);
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, DeleteSnapshot.mockGetSnapshotConnection(),
+            TableMetaDataUtil.ACTUAL_TABLE_NAME, LOGIC_SQL_WITHOUT_PLACEHOLDER, null, null);
         DeleteSnapshotMaker maker = new DeleteSnapshotMaker();
         List<Map<String, Object>> snapshots = maker.make(snapshotParameter, KEYS);
         assertThat(snapshots.size(), is(1));
-        SnapshotUtil.assertSnapshot(snapshots.get(0));
+        DeleteSnapshot.assertSnapshot(snapshots.get(0));
     }
 }
