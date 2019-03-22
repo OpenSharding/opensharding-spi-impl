@@ -49,8 +49,6 @@ public class DeleteSnapshotMakerTest {
     private static final String EXPECTED_SQL_WITHOUT_PLACEHOLDER = "SELECT * FROM t_order_1 WHERE order_id = 1";
     
     private static final List<Object> ACTUAL_PARAMS = Lists.<Object>newArrayList(1);
-    
-    private static final List<String> KEYS = Lists.newArrayList("order_id");
 
     @Mock
     private DMLStatement dmlStatement;
@@ -70,7 +68,7 @@ public class DeleteSnapshotMakerTest {
         SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, SnapshotUtil.mockGetSnapshotConnection(EXPECTED_SQL),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, LOGIC_SQL, null, ACTUAL_PARAMS);
         DeleteSnapshotMaker maker = new DeleteSnapshotMaker();
-        List<Map<String, Object>> snapshots = maker.make(snapshotParameter, KEYS);
+        List<Map<String, Object>> snapshots = maker.make(snapshotParameter, TableMetaDataUtil.KEYS);
         assertThat(snapshots.size(), is(1));
         SnapshotUtil.assertSnapshot(snapshots.get(0));
     }
@@ -80,7 +78,7 @@ public class DeleteSnapshotMakerTest {
         SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, SnapshotUtil.mockGetSnapshotConnection(EXPECTED_SQL_WITHOUT_PLACEHOLDER),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, LOGIC_SQL_WITHOUT_PLACEHOLDER, null, null);
         DeleteSnapshotMaker maker = new DeleteSnapshotMaker();
-        List<Map<String, Object>> snapshots = maker.make(snapshotParameter, KEYS);
+        List<Map<String, Object>> snapshots = maker.make(snapshotParameter, TableMetaDataUtil.KEYS);
         assertThat(snapshots.size(), is(1));
         SnapshotUtil.assertSnapshot(snapshots.get(0));
     }

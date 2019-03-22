@@ -54,8 +54,6 @@ public class UpdateSnapshotMakerTest {
     private static final String EXCEPTED_SQL_WITHOUT_KEY = "SELECT user_id, status, order_id FROM t_order_1 alias   WHERE order_id = ?";
     
     private static final List<Object> ACTUAL_PARAMS_WITHOUT_KEY = Lists.<Object>newArrayList(2, "xxx", 1);
-
-    private static final List<String> KEYS = Lists.newArrayList("order_id");
     
     private static final String EXCEPTED_SQL = "SELECT * FROM t_order_1 alias   WHERE order_id = ?";
     
@@ -71,7 +69,7 @@ public class UpdateSnapshotMakerTest {
         SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatementWithKey, SnapshotUtil.mockGetSnapshotConnection(EXCEPTED_SQL_WITH_KEY),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, UPDATE_SQL_WITH_KEY, null, ACTUAL_PARAMS_WITH_KEY);
         UpdateSnapshotMaker snapshotMaker = new UpdateSnapshotMaker();
-        List<Map<String, Object>> snapshots = snapshotMaker.make(snapshotParameter, KEYS);
+        List<Map<String, Object>> snapshots = snapshotMaker.make(snapshotParameter, TableMetaDataUtil.KEYS);
         assertThat(snapshots.size(), is(1));
         SnapshotUtil.assertSnapshot(snapshots.get(0));
     }
@@ -95,7 +93,7 @@ public class UpdateSnapshotMakerTest {
         SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatementWithoutKey, SnapshotUtil.mockGetSnapshotConnection(EXCEPTED_SQL_WITHOUT_KEY),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, UPDATE_SQL_WITHOUT_KEY, null, ACTUAL_PARAMS_WITHOUT_KEY);
         UpdateSnapshotMaker snapshotMaker = new UpdateSnapshotMaker();
-        List<Map<String, Object>> snapshots = snapshotMaker.make(snapshotParameter, KEYS);
+        List<Map<String, Object>> snapshots = snapshotMaker.make(snapshotParameter, TableMetaDataUtil.KEYS);
         assertThat(snapshots.size(), is(1));
         SnapshotUtil.assertSnapshot(snapshots.get(0));
     }

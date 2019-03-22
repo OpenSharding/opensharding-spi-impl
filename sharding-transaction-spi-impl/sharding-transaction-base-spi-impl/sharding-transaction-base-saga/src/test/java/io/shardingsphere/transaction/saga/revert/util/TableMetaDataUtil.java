@@ -17,9 +17,11 @@
 
 package io.shardingsphere.transaction.saga.revert.util;
 
+import com.google.common.collect.Lists;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 
+import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
@@ -43,6 +45,8 @@ public class TableMetaDataUtil {
     public static final int USER_ID_VALUE = 2;
     
     public static final String STATUS_VALUE = "test";
+    
+    public static final List<String> KEYS = Lists.newArrayList("order_id");
     
     /**
      * Mock {@code TableMetaData} to get snapshot.
