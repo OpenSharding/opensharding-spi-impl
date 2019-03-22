@@ -36,12 +36,4 @@ public interface RevertOperate {
      * @throws SQLException failed to execute SQL, throw this exception
      */
     Optional<RevertContext> snapshot(SnapshotParameter snapshotParameter) throws SQLException;
-    
-    /**
-     *  Revert data by snapshot.
-     *  
-     * @param parameter revert parameter
-     * @throws SQLException failed to execute SQL, throw this exception
-     */
-    void revert(RevertParameter parameter) throws SQLException;
 }

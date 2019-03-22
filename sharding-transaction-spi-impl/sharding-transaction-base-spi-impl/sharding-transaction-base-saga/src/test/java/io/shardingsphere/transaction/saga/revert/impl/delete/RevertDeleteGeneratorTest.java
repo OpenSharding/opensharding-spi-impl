@@ -17,27 +17,38 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import org.junit.Test;
 
-import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-public class RevertDeleteGeneratorTest extends BaseDeleteTest {
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+public class RevertDeleteGeneratorTest {
     
     @Test
-    public void testGenerate() throws SQLException {
-        List<Map<String, Object>> selectSnapshot = new LinkedList<>();
-        Map<String, Object> values = new LinkedHashMap<>();
-        selectSnapshot.add(values);
-        values.put("ORDER_ITEM_ID", ORDER_ITEM_ID);
-        values.put("ORDER_ID", ORDER_ID);
-        values.put("USER_ID", USER_ID);
-        values.put("STATUS", STATUS);
-        RevertDeleteParameter revertDeleteParameter = new RevertDeleteParameter("t_order_item_1", selectSnapshot);
+    public void assertGenerate() throws Exception {
         RevertDeleteGenerator revertDeleteGenerator = new RevertDeleteGenerator();
-        assertRevertContext(revertDeleteGenerator.generate(revertDeleteParameter), REVERT_SQL);
+        Optional<RevertContext> revertContext = revertDeleteGenerator.generate(new RevertDeleteParameter(
+            TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot()));
+        assertTrue(revertContext.isPresent());
+        assertThat(revertContext.get().getRevertSQL(), is("INSERT INTO t_order_1 VALUES (?,?,?)"));
+        assertThat(revertContext.get().getRevertParams().size(), is(1));
+        assertThat(revertContext.get().getRevertParams().get(0).size(), is(3));
+        SnapshotUtil.assertSnapshot(revertContext.get().getRevertParams().get(0).iterator());
+    }
+    
+    @Test
+    public void assertGenerateWithEmptyParameters() {
+        RevertDeleteGenerator revertDeleteGenerator = new RevertDeleteGenerator();
+        Optional<RevertContext> revertContext = revertDeleteGenerator.generate(new RevertDeleteParameter(TableMetaDataUtil.ACTUAL_TABLE_NAME, Lists.<Map<String, Object>>newArrayList()));
+        assertFalse(revertContext.isPresent());
     }
 }

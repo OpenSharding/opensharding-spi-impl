@@ -17,35 +17,69 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
+import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
+
+import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
-public class DeleteSnapshotMakerTest extends BaseDeleteTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DeleteSnapshotMakerTest {
+    
+    private static final String LOGIC_SQL = "DELETE FROM t_order WHERE order_id = ?";
+    
+    private static final String LOGIC_SQL_WITHOUT_PLACEHOLDER = "DELETE FROM t_order WHERE order_id = 1";
+    
+    private static final String EXPECTED_SQL = "SELECT * FROM t_order_1 WHERE order_id = ?";
+    
+    private static final String EXPECTED_SQL_WITHOUT_PLACEHOLDER = "SELECT * FROM t_order_1 WHERE order_id = 1";
+    
+    private static final List<Object> ACTUAL_PARAMS = Lists.<Object>newArrayList(1);
+
+    @Mock
+    private DMLStatement dmlStatement;
+    
+    @Before
+    public void setUp() throws Exception {
+        mockStatement();
+    }
+    
+    private void mockStatement() {
+        when(dmlStatement.getWhereStartIndex()).thenReturn(20);
+        when(dmlStatement.getWhereStopIndex()).thenReturn(37);
+    }
     
     @Test
     public void assertMake() throws SQLException {
-        List<Object> params = new LinkedList<>();
-        params.add(ORDER_ITEM_ID);
-        String logicSQL = "delete from t_order_item where order_item_id=?";
-        String actualSQL = "delete t_order_item_1 t_order_item where order_item_id=?";
-        SnapshotParameter snapshotParameter = this.createParameter(getConnection(), "t_order_item", "t_order_item_1", logicSQL, actualSQL, params);
-        List<String> keys = new LinkedList<>();
-        keys.add("order_item_id");
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, SnapshotUtil.mockGetSnapshotConnection(EXPECTED_SQL),
+            TableMetaDataUtil.ACTUAL_TABLE_NAME, LOGIC_SQL, null, ACTUAL_PARAMS);
         DeleteSnapshotMaker maker = new DeleteSnapshotMaker();
-        List<Map<String, Object>> snapshot = maker.make(snapshotParameter, keys);
-        assertTrue("Snapshot size error: ", snapshot.size() == 1);
-        Map<String, Object> row = snapshot.get(0);
-        assertTrue("Assert ORDER_ITEM_ID value error: ", row.get("order_item_id").equals(ORDER_ITEM_ID));
-        assertTrue("Assert ORDER_ID value error: ", row.get("order_id").equals(ORDER_ID));
-        assertTrue("Assert USER_ID value error: ", row.get("user_id").equals(USER_ID));
-        assertTrue("Assert STATUS value error: ", row.get("status").equals(STATUS));
-        snapshotParameter.getConnection().close();
+        List<Map<String, Object>> snapshots = maker.make(snapshotParameter, TableMetaDataUtil.KEYS);
+        assertThat(snapshots.size(), is(1));
+        SnapshotUtil.assertSnapshot(snapshots.get(0));
+    }
+    
+    @Test
+    public void assertMakeEmptyActualParams() throws SQLException {
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatement, SnapshotUtil.mockGetSnapshotConnection(EXPECTED_SQL_WITHOUT_PLACEHOLDER),
+            TableMetaDataUtil.ACTUAL_TABLE_NAME, LOGIC_SQL_WITHOUT_PLACEHOLDER, null, null);
+        DeleteSnapshotMaker maker = new DeleteSnapshotMaker();
+        List<Map<String, Object>> snapshots = maker.make(snapshotParameter, TableMetaDataUtil.KEYS);
+        assertThat(snapshots.size(), is(1));
+        SnapshotUtil.assertSnapshot(snapshots.get(0));
     }
 }

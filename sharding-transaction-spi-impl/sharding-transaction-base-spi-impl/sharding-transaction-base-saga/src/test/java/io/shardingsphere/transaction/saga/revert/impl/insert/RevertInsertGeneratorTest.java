@@ -17,32 +17,86 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
+import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
+import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValue;
+import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValues;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
 import org.junit.Test;
 
-import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class RevertInsertGeneratorTest extends BaseInsertTest {
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+public class RevertInsertGeneratorTest {
+    
+    private RevertInsertGeneratorParameter insertGeneratorParameter;
     
     @Test
-    public void testGenerate() throws SQLException {
-        List<String> tableColumns = new LinkedList<>();
-        tableColumns.add("ORDER_ITEM_ID");
-        tableColumns.add("ORDER_ID");
-        tableColumns.add("USER_ID");
-        tableColumns.add("STATUS");
-        List<String> keys = new LinkedList<>();
-        keys.add("ORDER_ITEM_ID");
-        List<Object> params = new LinkedList<>();
-        params.add(ORDER_ITEM_ID);
-        RevertInsertGeneratorParameter revertInsertParameter = new RevertInsertGeneratorParameter("t_order_item_1", tableColumns, keys, params, 1, false);
-        Map<String, Object> keyValues = new LinkedHashMap<>();
-        keyValues.put("ORDER_ITEM_ID", ORDER_ITEM_ID);
-        revertInsertParameter.getKeyValues().add(keyValues);
-        RevertInsertGenerator revertInsertGenerator = new RevertInsertGenerator();
-        asertRevertContext(revertInsertGenerator.generate(revertInsertParameter), REVERT_SQL);
+    public void generateWithKeyGenerator() throws Exception {
+        mockInsertStatementWithKeyGenerator();
+        RevertInsertGenerator insertGenerator = new RevertInsertGenerator();
+        Optional<RevertContext> revertContext = insertGenerator.generate(insertGeneratorParameter);
+        assertTrue(revertContext.isPresent());
+        assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
+        assertThat(revertContext.get().getRevertParams().size(), is(1));
+        assertThat(revertContext.get().getRevertParams().get(0).size(), is(1));
+        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
+        assertThat((long) iterator.next(), equalTo(TableMetaDataUtil.ORDER_ID_VALUE));
+    }
+    
+    private void mockInsertStatementWithKeyGenerator() {
+        List<String> columnNames = Lists.newArrayList();
+        InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
+        columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
+        columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
+        InsertValues insertValues = new InsertValues();
+        insertValue.getColumnValues().add(new SQLNumberExpression(TableMetaDataUtil.USER_ID_VALUE));
+        insertValue.getColumnValues().add(new SQLTextExpression(TableMetaDataUtil.STATUS_VALUE));
+        insertValues.getInsertValues().add(insertValue);
+        insertGeneratorParameter = new RevertInsertGeneratorParameter(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
+            TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE, TableMetaDataUtil.ORDER_ID_VALUE), 1, true);
+    }
+    
+    @Test
+    public void generateWithoutKeyGenerator() throws Exception {
+        mockInsertStatementWithoutKeyGenerator();
+        RevertInsertGenerator insertGenerator = new RevertInsertGenerator();
+        Optional<RevertContext> revertContext = insertGenerator.generate(insertGeneratorParameter);
+        assertTrue(revertContext.isPresent());
+        assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
+        assertThat(revertContext.get().getRevertParams().size(), is(1));
+        assertThat(revertContext.get().getRevertParams().get(0).size(), is(1));
+        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
+        assertThat((long) iterator.next(), equalTo(1L));
+    }
+    
+    private void mockInsertStatementWithoutKeyGenerator() {
+        Map<String, Object> keyValue = new HashMap<>();
+        List<String> columnNames = Lists.newArrayList();
+        InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
+        InsertValues insertValues = new InsertValues();
+        insertValues.getInsertValues().add(insertValue);
+        columnNames.add(TableMetaDataUtil.COLUMN_ORDER_ID);
+        keyValue.put(TableMetaDataUtil.COLUMN_ORDER_ID, 1L);
+        insertValue.getColumnValues().add(new SQLPlaceholderExpression(0));
+        columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
+        insertValue.getColumnValues().add(new SQLNumberExpression(TableMetaDataUtil.USER_ID_VALUE));
+        columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
+        insertValue.getColumnValues().add(new SQLTextExpression(TableMetaDataUtil.STATUS_VALUE));
+        insertGeneratorParameter = new RevertInsertGeneratorParameter(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
+            TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE, TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE), 1, false);
+        insertGeneratorParameter.getKeyValues().add(keyValue);
     }
 }

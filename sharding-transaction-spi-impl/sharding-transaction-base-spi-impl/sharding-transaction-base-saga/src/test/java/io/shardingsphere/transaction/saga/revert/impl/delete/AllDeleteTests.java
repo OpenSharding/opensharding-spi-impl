@@ -23,9 +23,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        DeleteSnapshotMakerTest.class,
-        RevertDeleteGeneratorTest.class,
-        RevertDeleteTest.class
+    DeleteSnapshotMakerTest.class,
+    RevertDeleteGeneratorTest.class,
+    RevertDeleteTest.class
 })
-public final class AllRevertDeleteTests {
+public class AllDeleteTests {
 }

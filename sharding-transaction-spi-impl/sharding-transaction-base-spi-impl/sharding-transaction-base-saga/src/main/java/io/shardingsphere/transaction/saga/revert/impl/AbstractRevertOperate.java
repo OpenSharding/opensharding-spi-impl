@@ -20,10 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
-import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.utils.JDBCUtil;
-import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 
@@ -36,7 +33,6 @@ import java.util.List;
  *
  * @author duhongjun
  */
-@Getter
 @Setter
 public abstract class AbstractRevertOperate implements RevertOperate {
     
@@ -64,11 +60,4 @@ public abstract class AbstractRevertOperate implements RevertOperate {
     }
     
     protected abstract RevertContextGeneratorParameter createRevertContext(SnapshotParameter snapshotParameter, List<String> keys) throws SQLException;
-    
-    // CHECKSTYLE:OFF
-    @Override
-    // CHECKSTYLE:ON
-    public void revert(final RevertParameter parameter) throws SQLException {
-        JDBCUtil.executeUpdate(parameter.getConnection(), parameter.getSql(), parameter.getParams());
-    }
 }

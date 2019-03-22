@@ -17,36 +17,44 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+
+import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import org.junit.Test;
 
-import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-public class RevertUpdateGeneratorTest extends BaseUpdateTest {
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+public class RevertUpdateGeneratorTest {
     
     @Test
-    public void testGenerate() throws SQLException {
-        List<Map<String, Object>> selectSnapshot = new LinkedList<>();
-        Map<String, Object> values = new LinkedHashMap<>();
-        values.put("ORDER_ITEM_ID", ORDER_ITEM_ID);
-        selectSnapshot.add(values);
-        Map<String, Object> updateColumns = new LinkedHashMap<>();
-        updateColumns.put("status", STATUS);
-        updateColumns.put("order_id", ORDER_ID);
-        updateColumns.put("user_id", USER_ID);
-        values.putAll(updateColumns);
-        List<Object> params = new LinkedList<>();
-        params.add(ORDER_ITEM_ID);
-        params.add(ORDER_ID);
-        params.add(USER_ID);
-        params.add(STATUS);
-        List<String> keys = new LinkedList<>();
-        keys.add("ORDER_ITEM_ID");
-        RevertUpdateGeneratorParameter revertUpdateParameter = new RevertUpdateGeneratorParameter("t_order_item_1", selectSnapshot, updateColumns, keys, params);
+    public void assertGenerate() throws Exception {
         RevertUpdateGenerator revertUpdateGenerator = new RevertUpdateGenerator();
-        asertRevertContext(revertUpdateGenerator.generate(revertUpdateParameter), REVERT_SQL);
+        Optional<RevertContext> revertContext = revertUpdateGenerator.generate(new RevertUpdateGeneratorParameter(
+            TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot(), genUpdateColumns(), TableMetaDataUtil.KEYS, Lists.newArrayList()));
+        assertTrue(revertContext.isPresent());
+        assertThat(revertContext.get().getRevertSQL(), is("UPDATE t_order_1 SET order_id = ?,user_id = ?,status = ? WHERE order_id = ? "));
+        assertThat(revertContext.get().getRevertParams().size(), is(1));
+        assertThat(revertContext.get().getRevertParams().get(0).size(), is(4));
+        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
+        SnapshotUtil.assertSnapshot(iterator);
+        assertThat((long) iterator.next(), equalTo(TableMetaDataUtil.ORDER_ID_VALUE));
+    }
+    
+    private Map<String, Object> genUpdateColumns() {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.ORDER_ID_VALUE);
+        result.put(TableMetaDataUtil.COLUMN_USER_ID, TableMetaDataUtil.USER_ID_VALUE);
+        result.put(TableMetaDataUtil.COLUMN_STATUS, TableMetaDataUtil.STATUS_VALUE);
+        return result;
     }
 }

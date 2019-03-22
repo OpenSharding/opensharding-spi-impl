@@ -17,61 +17,53 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
-import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
+
+import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-public class RevertDeleteTest extends BaseDeleteTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RevertDeleteTest {
     
-    @Test
-    public void asertSnapshot() throws SQLException {
-        Connection connection = getConnection();
-        assertRevertContext(createSnapshot(connection), REVERT_SQL);
-        connection.close();
-    }
+    @Mock
+    private RevertDeleteGenerator revertDeleteGenerator;
     
-    private Optional<RevertContext> createSnapshot(final Connection connection) throws SQLException {
-        List<Object> params = new LinkedList<>();
-        params.add(ORDER_ITEM_ID);
-        String logicSQL = "delete from t_order_item where order_item_id=?";
-        String actualSQL = "delete t_order_item_1 t_order_item where order_item_id=?";
-        SnapshotParameter snapshotParameter = this.createParameter(connection, "t_order_item", "t_order_item_1", logicSQL, actualSQL, params);
-        RevertDelete revertDelete = new RevertDelete();
-        return revertDelete.snapshot(snapshotParameter);
+    @Mock
+    private DeleteSnapshotMaker snapshotMaker;
+    
+    private SnapshotParameter snapshotParameter;
+    
+    @Before
+    public void setUp() throws Exception {
+        snapshotParameter = new SnapshotParameter(TableMetaDataUtil.mockTableMetaData(), null, null, TableMetaDataUtil.ACTUAL_TABLE_NAME, null, null, null);
     }
     
     @Test
-    public void asertRevert() throws Exception {
-        Connection connection = getConnection();
-        Optional<RevertContext> revertContext = createSnapshot(connection);
-        this.teardown();
-        RevertParameter revertParameter = new RevertParameter(connection, revertContext.get().getRevertSQL(), revertContext.get().getRevertParams().get(0));
-        List<String> keys = new LinkedList<>();
-        keys.add("order_item_id");
+    public void assertSnapshot() throws Exception {
         RevertDelete revertDelete = new RevertDelete();
-        revertDelete.revert(revertParameter);
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from t_order_item_1 where order_item_id=?");
-        preparedStatement.setObject(1, ORDER_ITEM_ID);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        assertTrue("Assert next result set: ", resultSet.next());
-        assertThat("Assert ORDER_ITEM_ID value error: ", resultSet.getLong("ORDER_ITEM_ID"), is(ORDER_ITEM_ID));
-        assertThat("Assert ORDER_ID value error: ", resultSet.getLong("ORDER_ID"), is(ORDER_ID));
-        assertThat("Assert USER_ID value error: ", resultSet.getInt("USER_ID"), is(USER_ID));
-        assertThat("Assert STATUS value error: ", resultSet.getString("STATUS"), is(STATUS));
-        assertTrue("Assert result set has no next: ", !resultSet.next());
-        connection.close();
+        revertDelete.setSnapshotMaker(snapshotMaker);
+        revertDelete.setRevertSQLGenerator(revertDeleteGenerator);
+        revertDelete.snapshot(snapshotParameter);
+        verify(snapshotMaker).make(eq(snapshotParameter), ArgumentMatchers.<String>anyList());
+        verify(revertDeleteGenerator).generate(any(RevertDeleteParameter.class));
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void assertSnapshotNoKey() throws Exception {
+        RevertDelete revertDelete = new RevertDelete();
+        revertDelete.setSnapshotMaker(snapshotMaker);
+        revertDelete.setRevertSQLGenerator(revertDeleteGenerator);
+        snapshotParameter.getTableMeta().getColumns().put(TableMetaDataUtil.COLUMN_ORDER_ID, new ColumnMetaData(TableMetaDataUtil.COLUMN_ORDER_ID, "", false));
+        revertDelete.snapshot(snapshotParameter);
     }
 }

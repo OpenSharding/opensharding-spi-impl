@@ -17,22 +17,21 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
-import io.shardingsphere.transaction.saga.revert.impl.delete.AllRevertDeleteTests;
-import io.shardingsphere.transaction.saga.revert.impl.insert.AllRevertInsertTests;
-import io.shardingsphere.transaction.saga.revert.impl.update.AllRevertUpdateTests;
-import io.shardingsphere.transaction.saga.revert.integration.MultiKeyTest;
-import io.shardingsphere.transaction.saga.revert.integration.MultiValueTest;
+import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactoryTest;
+import io.shardingsphere.transaction.saga.revert.impl.delete.AllDeleteTests;
+import io.shardingsphere.transaction.saga.revert.impl.insert.AllInsertTests;
+import io.shardingsphere.transaction.saga.revert.impl.update.AllUpdateTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        MultiKeyTest.class,
-        MultiValueTest.class,
-        AllRevertInsertTests.class,
-        AllRevertUpdateTests.class,
-        AllRevertDeleteTests.class
+    SQLRevertEngineTest.class,
+    RevertOperateFactoryTest.class,
+    AllDeleteTests.class,
+    AllInsertTests.class,
+    AllUpdateTests.class
 })
 public final class AllRevertTests {
 }

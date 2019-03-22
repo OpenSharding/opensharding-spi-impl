@@ -17,62 +17,61 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
-import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
+import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
+import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLExpression;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
+import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class RevertUpdateTest extends BaseUpdateTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RevertUpdateTest {
     
-    @Test
-    public void asertSnapshot() throws SQLException {
-        Connection connection = getConnection();
-        asertRevertContext(createSnapshot(connection), REVERT_SQL);
-        connection.close();
+    @Mock
+    private RevertUpdateGenerator revertUpdateGenerator;
+    
+    @Mock
+    private UpdateSnapshotMaker snapshotMaker;
+    
+    @Mock
+    private DMLStatement dmlStatement;
+    
+    private SnapshotParameter snapshotParameter;
+    
+    @Before
+    public void setUp() throws Exception {
+        Map<Column, SQLExpression> columnValues = new LinkedHashMap<>();
+        columnValues.put(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, "t_order"), new SQLPlaceholderExpression(0));
+        columnValues.put(new Column(TableMetaDataUtil.COLUMN_USER_ID, "t_order"), new SQLNumberExpression(2));
+        columnValues.put(new Column(TableMetaDataUtil.COLUMN_STATUS, "t_order"), new SQLTextExpression(TableMetaDataUtil.STATUS_VALUE));
+        when(dmlStatement.getUpdateColumnValues()).thenReturn(columnValues);
+        snapshotParameter = new SnapshotParameter(TableMetaDataUtil.mockTableMetaData(), dmlStatement, null, TableMetaDataUtil.ACTUAL_TABLE_NAME, null, null, Lists.<Object>newArrayList(1L));
     }
     
-    private Optional<RevertContext> createSnapshot(final Connection connection) throws SQLException {
-        List<Object> params = new LinkedList<>();
-        params.add(NEW_STATUS);
-        params.add(NEW_ORDER_ID);
-        params.add(NEW_USER_ID);
-        params.add(ORDER_ITEM_ID);
-        String logicSQL = "update t_order_item set STATUS =?, ORDER_ID =?, USER_ID =? where ORDER_ITEM_ID=?";
-        String actualSQL = "update t_order_item_1 set status =?, order_id =?, user_id =?  where ORDER_ITEM_ID=?";
-        SnapshotParameter snapshotParameter = this.createParameter(connection, "t_order_item", "t_order_item_1", logicSQL, actualSQL, params);
-        RevertUpdate revertUpdate = new RevertUpdate();
-        return revertUpdate.snapshot(snapshotParameter);
-    }
-    
     @Test
-    public void asertRevert() throws Exception {
-        Connection connection = getConnection();
-        Optional<RevertContext> revertContext = createSnapshot(connection);
-        RevertParameter revertParameter = new RevertParameter(connection, revertContext.get().getRevertSQL(), revertContext.get().getRevertParams().get(0));
-        List<String> keys = new LinkedList<>();
-        keys.add("ORDER_ITEM_ID");
+    public void assertSnapshot() throws Exception {
         RevertUpdate revertUpdate = new RevertUpdate();
-        revertUpdate.revert(revertParameter);
-        PreparedStatement preparedStatement = connection.prepareStatement("select STATUS, ORDER_ID, USER_ID  from t_order_item_1 where ORDER_ITEM_ID=?");
-        preparedStatement.setObject(1, ORDER_ITEM_ID);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        assertTrue("Assert next result set: ", resultSet.next());
-        assertThat("Assert ORDER_ID value error: ", resultSet.getLong("ORDER_ID"), is(ORDER_ID));
-        assertThat("Assert USER_ID value error: ", resultSet.getInt("USER_ID"), is(USER_ID));
-        assertThat("Assert STATUS value error: ", resultSet.getString("STATUS"), is(STATUS));
-        assertTrue("Assert result set has no next: ", !resultSet.next());
-        connection.close();
+        revertUpdate.setSnapshotMaker(snapshotMaker);
+        revertUpdate.setRevertSQLGenerator(revertUpdateGenerator);
+        revertUpdate.snapshot(snapshotParameter);
+        verify(snapshotMaker).make(eq(snapshotParameter), ArgumentMatchers.<String>anyList());
+        verify(revertUpdateGenerator).generate(any(RevertUpdateGeneratorParameter.class));
     }
 }

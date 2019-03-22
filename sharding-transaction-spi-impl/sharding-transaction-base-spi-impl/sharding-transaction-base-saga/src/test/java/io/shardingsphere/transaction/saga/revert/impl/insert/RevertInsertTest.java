@@ -17,56 +17,73 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
-import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.api.RevertParameter;
+import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
+import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
+import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
+import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValue;
+import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValues;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
+import org.apache.shardingsphere.core.parse.parser.sql.dml.insert.InsertStatement;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class RevertInsertTest extends BaseInsertTest {
+@RunWith(MockitoJUnitRunner.class)
+public class RevertInsertTest {
     
-    @Test
-    public void asertSnapshot() throws SQLException {
-        Connection connection = getConnection();
-        asertRevertContext(createSnapshot(connection), REVERT_SQL);
-        connection.close();
+    @Mock
+    private RevertInsertGenerator revertInsertGenerator;
+    
+    @Mock
+    private InsertStatement insertStatement;
+    
+    private SnapshotParameter snapshotParameter;
+    
+    @Before
+    public void setUp() throws Exception {
+        snapshotParameter = new SnapshotParameter(TableMetaDataUtil.mockTableMetaData(), insertStatement, null,
+            TableMetaDataUtil.ACTUAL_TABLE_NAME, null, null, Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE));
     }
     
-    private Optional<RevertContext> createSnapshot(final Connection connection) throws SQLException {
-        List<Object> params = new LinkedList<>();
-        params.add(ORDER_ITEM_ID);
-        params.add(ORDER_ID);
-        params.add(USER_ID);
-        params.add(STATUS);
-        String logicSQL = "INSERT INTO t_order_item VALUES (?,?,?,?)";
-        String actualSQL = "INSERT INTO t_order_item_1 VALUES (?,?,?,?)";
-        SnapshotParameter snapshotParameter = this.createParameter(connection, "t_order_item", "t_order_item_1", logicSQL, actualSQL, params);
-        RevertInsert revertInsert = new RevertInsert();
-        return revertInsert.snapshot(snapshotParameter);
+    private void mockInsertStatement() {
+        when(insertStatement.isContainGenerateKey()).thenReturn(true);
+        List<Column> columns = Lists.newArrayList();
+        InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
+        InsertValues insertValues = new InsertValues();
+        insertValues.getInsertValues().add(insertValue);
+        columns.add(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.LOGIC_TABLE_NAME));
+        insertValue.getColumnValues().add(new SQLPlaceholderExpression(0));
+        columns.add(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.LOGIC_TABLE_NAME));
+        insertValue.getColumnValues().add(new SQLNumberExpression(2));
+        columns.add(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.LOGIC_TABLE_NAME));
+        insertValue.getColumnValues().add(new SQLTextExpression("test"));
+        columns.add(new Column(TableMetaDataUtil.COLUMN_USER_ID, TableMetaDataUtil.LOGIC_TABLE_NAME));
+        insertValue.getColumnValues().add(new SQLNumberExpression(2));
+        columns.add(new Column(TableMetaDataUtil.COLUMN_STATUS, TableMetaDataUtil.LOGIC_TABLE_NAME));
+        insertValue.getColumnValues().add(new SQLTextExpression("test"));
+        when(insertStatement.getColumns()).thenReturn(columns);
+        when(insertStatement.getInsertValues()).thenReturn(insertValues);
     }
     
     @Test
-    public void asertRevert() throws Exception {
-        Connection connection = getConnection();
-        Optional<RevertContext> revertContext = createSnapshot(connection);
-        RevertParameter revertParameter = new RevertParameter(connection, revertContext.get().getRevertSQL(), revertContext.get().getRevertParams().get(0));
-        List<String> keys = new LinkedList<>();
-        keys.add("order_item_id");
+    public void assertSnapshot() throws SQLException {
+        mockInsertStatement();
         RevertInsert revertInsert = new RevertInsert();
-        revertInsert.revert(revertParameter);
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from t_order_item_1 where order_item_id=?");
-        preparedStatement.setObject(1, ORDER_ITEM_ID);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        assertTrue("Assert next result set: ", !resultSet.next());
-        connection.close();
+        revertInsert.setRevertSQLGenerator(revertInsertGenerator);
+        revertInsert.snapshot(snapshotParameter);
+        verify(revertInsertGenerator).generate(any(RevertInsertGeneratorParameter.class));
     }
 }

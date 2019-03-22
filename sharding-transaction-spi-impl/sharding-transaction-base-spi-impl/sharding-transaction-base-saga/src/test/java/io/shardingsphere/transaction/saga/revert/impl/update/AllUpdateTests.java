@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.insert;
+package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -23,8 +23,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        RevertInsertGeneratorTest.class,
-        RevertInsertTest.class
+    RevertUpdateGeneratorTest.class,
+    RevertUpdateTest.class,
+    UpdateSnapshotMakerTest.class
 })
-public final class AllRevertInsertTests {
+public class AllUpdateTests {
 }
