@@ -29,6 +29,8 @@
     <modules>
         <module>sharding-orchestration-reg-spi-impl</module>
         <module>sharding-transaction-spi-impl</module>
+        <module>sharding-transaction-spring</module>
+        <module>sharding-spring</module>
     </modules>
     
     <properties>
