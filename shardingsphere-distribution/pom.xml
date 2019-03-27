@@ -28,4 +28,46 @@
     
     <artifactId>shardingsphere-distribution</artifactId>
     <name>${project.artifactId}</name>
+    
+    <profiles>
+        <profile>
+            <id>saga</id>
+            <dependencies>
+                <dependency>
+                    <groupId>io.shardingsphere</groupId>
+                    <artifactId>sharding-transaction-base-saga</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.shardingsphere</groupId>
+                    <artifactId>sharding-transaction-base-saga-persistence-jpa</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>assembly</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/spi-distribution.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>spi-impl</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
