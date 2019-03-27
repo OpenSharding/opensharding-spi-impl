@@ -28,5 +28,10 @@
     <artifactId>sharding-spring</artifactId>
     <name>${project.artifactId}</name>
     <packaging>pom</packaging>
+
+    <modules>
+        <module>sharding-transaction-spring</module>
+        <module>sharding-transaction-spring-boot-starter</module>
+    </modules>
 </project>
 
