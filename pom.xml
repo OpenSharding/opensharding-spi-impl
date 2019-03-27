@@ -29,6 +29,7 @@
     <modules>
         <module>sharding-orchestration-reg-spi-impl</module>
         <module>sharding-transaction-spi-impl</module>
+        <module>sharding-spring</module>
     </modules>
     
     <properties>
@@ -51,7 +52,12 @@
         <grpc.version>1.7.0</grpc.version>
         <protobuf.version>3.4.0</protobuf.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
-        
+
+        <springframework.version>[4.3.6.RELEASE,5.0.0.M1)</springframework.version>
+        <spring-boot.version>[1.5.0.RELEASE,2.0.0.M1)</spring-boot.version>
+        <aspectjweaver.version>1.8.9</aspectjweaver.version>
+        <hibernate.version>5.3.7.Final</hibernate.version>
+
         <lombok.version>1.16.4</lombok.version>
         
         <junit.version>4.12</junit.version>
@@ -170,13 +176,6 @@
             </dependency>
             
             <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            
-            <dependency>
                 <groupId>org.jboss.narayana.jta</groupId>
                 <artifactId>jta</artifactId>
                 <version>${narayana.version}</version>
@@ -190,6 +189,70 @@
                 <groupId>org.jboss</groupId>
                 <artifactId>jboss-transaction-spi</artifactId>
                 <version>${jboss-transaction-spi.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectjweaver.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${springframework.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${springframework.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-jdbc</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${springframework.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
             </dependency>
             
             <dependency>
@@ -300,6 +363,18 @@
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${mssql.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${springframework.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
