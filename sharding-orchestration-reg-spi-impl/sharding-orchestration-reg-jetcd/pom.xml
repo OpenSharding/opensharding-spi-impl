@@ -22,16 +22,30 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.shardingsphere</groupId>
-        <artifactId>shardingsphere-spi-impl</artifactId>
+        <artifactId>sharding-orchestration-reg-spi-impl</artifactId>
         <version>4.0.0-RC1-SNAPSHOT</version>
     </parent>
-    <artifactId>sharding-orchestration-reg-spi-impl</artifactId>
+    <artifactId>sharding-orchestration-reg-jetcd</artifactId>
     <name>${project.artifactId}</name>
-    <packaging>pom</packaging>
     
-    <modules>
-        <module>sharding-orchestration-reg-native-zookeeper</module>
-        <module>sharding-orchestration-reg-etcd</module>
-        <module>sharding-orchestration-reg-jetcd</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>sharding-orchestration-reg-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
