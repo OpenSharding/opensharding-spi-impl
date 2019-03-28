@@ -46,6 +46,47 @@
             </dependencies>
         </profile>
         <profile>
+            <id>bitronix</id>
+            <dependencies>
+                <dependency>
+                    <groupId>io.shardingsphere</groupId>
+                    <artifactId>sharding-transaction-xa-bitronix</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>narayana</id>
+            <dependencies>
+                <dependency>
+                    <groupId>io.shardingsphere</groupId>
+                    <artifactId>sharding-transaction-xa-narayana</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>etcd</id>
+            <dependencies>
+                <dependency>
+                    <groupId>io.shardingsphere</groupId>
+                    <artifactId>sharding-orchestration-reg-etcd</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>native-zk</id>
+            <dependencies>
+                <dependency>
+                    <groupId>io.shardingsphere</groupId>
+                    <artifactId>sharding-orchestration-reg-native-zookeeper</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        
+        <profile>
             <id>assembly</id>
             <build>
                 <plugins>
