@@ -28,11 +28,20 @@
     <artifactId>sharding-orchestration-reg-jetcd</artifactId>
     <name>${project.artifactId}</name>
     
+    <properties>
+        <grpc.version>1.17.1</grpc.version>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.shardingsphere</groupId>
             <artifactId>sharding-orchestration-reg-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.etcd</groupId>
+            <artifactId>jetcd-core</artifactId>
+            <version>0.3.0</version>
         </dependency>
     </dependencies>
     
