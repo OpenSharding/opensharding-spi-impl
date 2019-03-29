@@ -43,12 +43,6 @@
             <artifactId>jetcd-core</artifactId>
             <version>0.3.0</version>
         </dependency>
-        <dependency>
-            <groupId>io.etcd</groupId>
-            <artifactId>jetcd-launcher</artifactId>
-            <version>0.3.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     
     <build>
