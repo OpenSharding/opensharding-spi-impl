@@ -17,6 +17,13 @@
 
 package io.shardingsphere.orchestration.reg.etcd;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
+import io.etcd.jetcd.ByteSequence;
+import io.etcd.jetcd.Client;
+import io.etcd.jetcd.KeyValue;
+import io.etcd.jetcd.Util;
+import lombok.SneakyThrows;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenter;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
 import org.apache.shardingsphere.orchestration.reg.listener.DataChangedEventListener;
@@ -30,19 +37,23 @@ import java.util.List;
  */
 public final class EtcdRegistryCenter implements RegistryCenter {
     
+    private Client client;
+    
     @Override
     public void init(final RegistryCenterConfiguration config) {
-    
+        client = Client.builder().endpoints(Util.toURIs(Splitter.on(",").trimResults().splitToList(config.getServerLists()))).build();
     }
     
     @Override
+    @SneakyThrows
     public String get(final String key) {
-        return null;
+        List<KeyValue> keyValues = client.getKVClient().get(ByteSequence.from(key, Charsets.UTF_8)).get().getKvs();
+        return keyValues.isEmpty() ? null : keyValues.iterator().next().getValue().toString(Charsets.UTF_8);
     }
     
     @Override
     public String getDirectly(final String key) {
-        return null;
+        return get(key);
     }
     
     @Override
