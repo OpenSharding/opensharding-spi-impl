@@ -24,6 +24,7 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.kv.GetResponse;
 import lombok.SneakyThrows;
+import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,5 +79,15 @@ public class EtcdRegistryCenterTest {
         etcdRegistryCenter.get("key");
         verify(kv).get(ByteSequence.from("key", Charsets.UTF_8));
         verify(getResponse).getKvs();
+    }
+    
+    @Test
+    @SneakyThrows
+    public void localTest() {
+        EtcdRegistryCenter etcdRegistryCenter = new EtcdRegistryCenter();
+        RegistryCenterConfiguration configuration = new RegistryCenterConfiguration();
+        configuration.setServerLists("http://localhost:2379");
+        etcdRegistryCenter.init(configuration);
+        etcdRegistryCenter.get("key");
     }
 }

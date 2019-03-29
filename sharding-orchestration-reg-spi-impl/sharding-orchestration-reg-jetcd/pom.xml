@@ -30,6 +30,7 @@
     
     <properties>
         <grpc.version>1.17.1</grpc.version>
+        <guava.version>20.0</guava.version>
     </properties>
     
     <dependencies>
