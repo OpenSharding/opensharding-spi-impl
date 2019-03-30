@@ -23,12 +23,14 @@ import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.Util;
+import io.etcd.jetcd.options.GetOption;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenter;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
 import org.apache.shardingsphere.orchestration.reg.listener.DataChangedEventListener;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ETCD registry center.
@@ -58,12 +60,16 @@ public final class EtcdRegistryCenter implements RegistryCenter {
     
     @Override
     public boolean isExisted(final String key) {
-        return false;
+        return null != get(key);
     }
     
     @Override
+    @SneakyThrows
     public List<String> getChildrenKeys(final String key) {
-        return null;
+        ByteSequence keyByteSequence = ByteSequence.from(key, Charsets.UTF_8);
+        GetOption getOption = GetOption.newBuilder().withPrefix(keyByteSequence).withSortOrder(GetOption.SortOrder.DESCEND).build();
+        List<KeyValue> keyValues = client.getKVClient().get(keyByteSequence, getOption).get().getKvs();
+        return keyValues.stream().map(e -> e.getKey().toString(Charsets.UTF_8)).collect(Collectors.toList());
     }
     
     @Override

@@ -17,67 +17,15 @@
 
 package io.shardingsphere.orchestration.reg.etcd;
 
-import com.google.common.base.Charsets;
-import io.etcd.jetcd.ByteSequence;
-import io.etcd.jetcd.Client;
-import io.etcd.jetcd.KV;
-import io.etcd.jetcd.kv.GetResponse;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
-import org.junit.Before;
+import org.apache.shardingsphere.orchestration.reg.etcd.EtcdRegistryCenter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.lang.reflect.Field;
-import java.util.concurrent.CompletableFuture;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EtcdRegistryCenterTest {
-    
-    @Mock
-    private Client client;
-    
-    @Mock
-    private KV kv;
-    
-    @Mock
-    private CompletableFuture getFuture;
-    
-    @Mock
-    private GetResponse getResponse;
-    
-    private EtcdRegistryCenter etcdRegistryCenter = new EtcdRegistryCenter();
-    
-    @Before
-    @SneakyThrows
-    public void setUp() {
-        mockClient();
-        Field field = etcdRegistryCenter.getClass().getDeclaredField("client");
-        field.setAccessible(true);
-        field.set(etcdRegistryCenter, client);
-    }
-    
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
-    private Client mockClient() {
-        when(client.getKVClient()).thenReturn(kv);
-        when(kv.get(any())).thenReturn(getFuture);
-        when(getFuture.get()).thenReturn(getResponse);
-        return client;
-    }
-    
-    @Test
-    public void assertGetKey() {
-        etcdRegistryCenter.get("key");
-        verify(kv).get(ByteSequence.from("key", Charsets.UTF_8));
-        verify(getResponse).getKvs();
-    }
     
     @Test
     @SneakyThrows
@@ -86,6 +34,6 @@ public class EtcdRegistryCenterTest {
         RegistryCenterConfiguration configuration = new RegistryCenterConfiguration();
         configuration.setServerLists("http://localhost:2379");
         etcdRegistryCenter.init(configuration);
-        etcdRegistryCenter.getChildrenKeys("/testdir/");
+        etcdRegistryCenter.getChildrenKeys("/testdir");
     }
 }
