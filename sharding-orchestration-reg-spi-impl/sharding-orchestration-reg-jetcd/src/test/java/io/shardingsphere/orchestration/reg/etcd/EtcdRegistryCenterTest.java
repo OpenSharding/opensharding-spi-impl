@@ -18,10 +18,14 @@
 package io.shardingsphere.orchestration.reg.etcd;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.protobuf.ByteString;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
+import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.options.GetOption;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
 import org.junit.Before;
@@ -31,9 +35,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,6 +76,7 @@ public class EtcdRegistryCenterTest {
     private Client mockClient() {
         when(client.getKVClient()).thenReturn(kv);
         when(kv.get(any(ByteSequence.class))).thenReturn(getFuture);
+        when(kv.get(any(ByteSequence.class), any(GetOption.class))).thenReturn(getFuture);
         when(getFuture.get()).thenReturn(getResponse);
         return client;
     }
@@ -78,6 +86,23 @@ public class EtcdRegistryCenterTest {
         etcdRegistryCenter.get("key");
         verify(kv).get(ByteSequence.from("key", Charsets.UTF_8));
         verify(getResponse).getKvs();
+    }
+    
+    @Test
+    public void assertGetChildrenKeys() {
+        io.etcd.jetcd.api.KeyValue keyValue1 = io.etcd.jetcd.api.KeyValue.newBuilder()
+            .setKey(ByteString.copyFromUtf8("/key/key1/key1-1"))
+            .setValue(ByteString.copyFromUtf8("value1")).build();
+        io.etcd.jetcd.api.KeyValue keyValue2 = io.etcd.jetcd.api.KeyValue.newBuilder()
+            .setKey(ByteString.copyFromUtf8("/key/key2"))
+            .setValue(ByteString.copyFromUtf8("value3")).build();
+        List<KeyValue> keyValues = Lists.newArrayList(new KeyValue(keyValue1), new KeyValue(keyValue2), new KeyValue(keyValue1));
+        when(getResponse.getKvs()).thenReturn(keyValues);
+        List<String> actual = etcdRegistryCenter.getChildrenKeys("/key");
+        assertThat(actual.size(), is(2));
+        Iterator<String> iterator = actual.iterator();
+        assertThat(iterator.next(), is("key1"));
+        assertThat(iterator.next(), is("key2"));
     }
     
     @Test
