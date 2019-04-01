@@ -68,7 +68,7 @@ public class EtcdRegistryCenterTest {
     @SuppressWarnings("unchecked")
     private Client mockClient() {
         when(client.getKVClient()).thenReturn(kv);
-        when(kv.get(any())).thenReturn(getFuture);
+        when(kv.get(any(ByteSequence.class))).thenReturn(getFuture);
         when(getFuture.get()).thenReturn(getResponse);
         return client;
     }
