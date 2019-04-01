@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -86,6 +87,7 @@ public class EtcdRegistryCenterTest {
         RegistryCenterConfiguration configuration = new RegistryCenterConfiguration();
         configuration.setServerLists("http://localhost:2379");
         etcdRegistryCenter.init(configuration);
-        etcdRegistryCenter.getChildrenKeys("/testdir/");
+        List<String> subKeys = etcdRegistryCenter.getChildrenKeys("/foo");
+        System.out.println(subKeys);
     }
 }

@@ -66,10 +66,16 @@ public final class EtcdRegistryCenter implements RegistryCenter {
     @Override
     @SneakyThrows
     public List<String> getChildrenKeys(final String key) {
-        ByteSequence keyByteSequence = ByteSequence.from(key, Charsets.UTF_8);
-        GetOption getOption = GetOption.newBuilder().withPrefix(keyByteSequence).withSortOrder(GetOption.SortOrder.DESCEND).build();
-        List<KeyValue> keyValues = client.getKVClient().get(keyByteSequence, getOption).get().getKvs();
-        return keyValues.stream().map(e -> e.getKey().toString(Charsets.UTF_8)).collect(Collectors.toList());
+        String prefix = key + "/";
+        ByteSequence prefixByteSequence = ByteSequence.from(prefix, Charsets.UTF_8);
+        GetOption getOption = GetOption.newBuilder().withPrefix(prefixByteSequence).withSortOrder(GetOption.SortOrder.ASCEND).build();
+        List<KeyValue> keyValues = client.getKVClient().get(prefixByteSequence, getOption).get().getKvs();
+        return keyValues.stream().map(e -> getSubNodeKeyName(prefix, e.getKey().toString(Charsets.UTF_8))).distinct().collect(Collectors.toList());
+    }
+    
+    private String getSubNodeKeyName(final String prefix, final String fullPath) {
+        String pathWithoutPrefix = fullPath.substring(prefix.length());
+        return pathWithoutPrefix.contains("/") ? pathWithoutPrefix.substring(0, pathWithoutPrefix.indexOf("/")) : pathWithoutPrefix;
     }
     
     @Override
