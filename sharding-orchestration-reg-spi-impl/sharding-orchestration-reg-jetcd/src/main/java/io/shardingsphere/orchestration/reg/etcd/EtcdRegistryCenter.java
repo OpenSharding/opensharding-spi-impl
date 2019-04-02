@@ -24,11 +24,14 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.Observers;
 import io.etcd.jetcd.Util;
+import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
+import io.etcd.jetcd.watch.WatchEvent;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenter;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
+import org.apache.shardingsphere.orchestration.reg.listener.DataChangedEvent;
 import org.apache.shardingsphere.orchestration.reg.listener.DataChangedEventListener;
 
 import java.util.List;
@@ -105,7 +108,26 @@ public final class EtcdRegistryCenter implements RegistryCenter {
     
     @Override
     public void watch(final String key, final DataChangedEventListener dataChangedEventListener) {
+        Watch.Listener listener = Watch.listener(response -> {
+            for (WatchEvent each : response.getEvents()) {
+                DataChangedEvent.ChangedType changedType = getEventChangedType(each);
+                if (DataChangedEvent.ChangedType.IGNORED != changedType) {
+                    dataChangedEventListener.onChange(new DataChangedEvent(each.getKeyValue().getKey().toString(Charsets.UTF_8), each.getKeyValue().getValue().toString(Charsets.UTF_8), changedType));
+                }
+            }
+        });
+        client.getWatchClient().watch(ByteSequence.from(key, Charsets.UTF_8), listener);
+    }
     
+    private DataChangedEvent.ChangedType getEventChangedType(final WatchEvent event) {
+        switch (event.getEventType()) {
+            case PUT:
+                return DataChangedEvent.ChangedType.UPDATED;
+            case DELETE:
+                return DataChangedEvent.ChangedType.DELETED;
+            default:
+                return DataChangedEvent.ChangedType.IGNORED;
+        }
     }
     
     @Override

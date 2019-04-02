@@ -43,6 +43,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -164,7 +165,7 @@ public class EtcdRegistryCenterTest {
 //        List<String> subKeys = etcdRegistryCenter.getChildrenKeys("/foo");
 //        System.out.println(subKeys);
     
-//        CountDownLatch latch = new CountDownLatch(10000);
+        CountDownLatch latch = new CountDownLatch(10000);
 //        ExecutorService executorService = Executors.newFixedThreadPool(100);
         AtomicLong atomicLong = new AtomicLong();
 //        for (int i = 0; i < 10000; i++) {
@@ -174,6 +175,9 @@ public class EtcdRegistryCenterTest {
 //            });
 //        }
 //        latch.await();
-        etcdRegistryCenter.persist("/foo", "foo" + atomicLong.incrementAndGet());
+//        etcdRegistryCenter.persist("/foo", "foo" + atomicLong.incrementAndGet());
+        etcdRegistryCenter.persistEphemeral("/foo9", "333");
+        latch.await();
+        
     }
 }
