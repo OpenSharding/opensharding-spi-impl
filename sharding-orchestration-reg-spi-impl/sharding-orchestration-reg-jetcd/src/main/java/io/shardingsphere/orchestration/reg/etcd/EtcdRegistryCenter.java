@@ -132,6 +132,6 @@ public final class EtcdRegistryCenter implements RegistryCenter {
     
     @Override
     public void close() {
-    
+        client.close();
     }
 }
