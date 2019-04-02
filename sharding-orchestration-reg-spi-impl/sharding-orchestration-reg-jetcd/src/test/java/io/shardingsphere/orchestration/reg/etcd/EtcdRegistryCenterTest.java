@@ -24,8 +24,13 @@ import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
+import io.etcd.jetcd.Lease;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.kv.PutResponse;
+import io.etcd.jetcd.lease.LeaseGrantResponse;
 import io.etcd.jetcd.options.GetOption;
+import io.etcd.jetcd.options.PutOption;
+import io.grpc.stub.StreamObserver;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
 import org.junit.Before;
@@ -43,6 +48,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,16 +62,36 @@ public class EtcdRegistryCenterTest {
     private KV kv;
     
     @Mock
+    private Lease lease;
+    
+    @Mock
     private CompletableFuture getFuture;
+    
+    @Mock
+    private CompletableFuture leaseFuture;
+    
+    @Mock
+    private LeaseGrantResponse leaseGrantResponse;
     
     @Mock
     private GetResponse getResponse;
     
+    @Mock
+    private PutResponse putResponse;
+    
+    @Mock
+    private CompletableFuture putFuture;
+    
     private EtcdRegistryCenter etcdRegistryCenter = new EtcdRegistryCenter();
     
     @Before
-    @SneakyThrows
     public void setUp() {
+        setClient();
+        setConfiguration();
+    }
+    
+    @SneakyThrows
+    private void setClient() {
         mockClient();
         Field field = etcdRegistryCenter.getClass().getDeclaredField("client");
         field.setAccessible(true);
@@ -78,8 +104,20 @@ public class EtcdRegistryCenterTest {
         when(client.getKVClient()).thenReturn(kv);
         when(kv.get(any(ByteSequence.class))).thenReturn(getFuture);
         when(kv.get(any(ByteSequence.class), any(GetOption.class))).thenReturn(getFuture);
+        when(kv.put(any(ByteSequence.class), any(ByteSequence.class), any(PutOption.class))).thenReturn(putFuture);
         when(getFuture.get()).thenReturn(getResponse);
+        when(client.getLeaseClient()).thenReturn(lease);
+        when(lease.grant(anyLong())).thenReturn(leaseFuture);
+        when(leaseFuture.get()).thenReturn(leaseGrantResponse);
+        when(leaseGrantResponse.getID()).thenReturn(123L);
         return client;
+    }
+    
+    @SneakyThrows
+    private void setConfiguration() {
+        Field field = etcdRegistryCenter.getClass().getDeclaredField("config");
+        field.setAccessible(true);
+        field.set(etcdRegistryCenter, new RegistryCenterConfiguration());
     }
     
     @Test
@@ -104,6 +142,15 @@ public class EtcdRegistryCenterTest {
         Iterator<String> iterator = actual.iterator();
         assertThat(iterator.next(), is("key1"));
         assertThat(iterator.next(), is("key2"));
+    }
+    
+    @Test
+    @SuppressWarnings("unchecked")
+    public void assertPersistEphemeral() {
+        etcdRegistryCenter.persistEphemeral("key1", "value1");
+        verify(lease).grant(anyLong());
+        verify(lease).keepAlive(anyLong(), any(StreamObserver.class));
+        verify(kv).put(any(ByteSequence.class), any(ByteSequence.class), any(PutOption.class));
     }
     
     @Test
