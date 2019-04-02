@@ -22,8 +22,10 @@ import com.google.common.base.Splitter;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KeyValue;
+import io.etcd.jetcd.Observers;
 import io.etcd.jetcd.Util;
 import io.etcd.jetcd.options.GetOption;
+import io.etcd.jetcd.options.PutOption;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenter;
 import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
@@ -41,8 +43,11 @@ public final class EtcdRegistryCenter implements RegistryCenter {
     
     private Client client;
     
+    private RegistryCenterConfiguration config;
+    
     @Override
     public void init(final RegistryCenterConfiguration config) {
+        this.config = config;
         client = Client.builder().endpoints(Util.toURIs(Splitter.on(",").trimResults().splitToList(config.getServerLists()))).build();
     }
     
@@ -68,7 +73,7 @@ public final class EtcdRegistryCenter implements RegistryCenter {
     public List<String> getChildrenKeys(final String key) {
         String prefix = key + "/";
         ByteSequence prefixByteSequence = ByteSequence.from(prefix, Charsets.UTF_8);
-        GetOption getOption = GetOption.newBuilder().withPrefix(prefixByteSequence).withSortOrder(GetOption.SortOrder.ASCEND).build();
+        GetOption getOption = GetOption.newBuilder().withPrefix(prefixByteSequence).withSortField(GetOption.SortTarget.KEY).withSortOrder(GetOption.SortOrder.ASCEND).build();
         List<KeyValue> keyValues = client.getKVClient().get(prefixByteSequence, getOption).get().getKvs();
         return keyValues.stream().map(e -> getSubNodeKeyName(prefix, e.getKey().toString(Charsets.UTF_8))).distinct().collect(Collectors.toList());
     }
@@ -79,18 +84,23 @@ public final class EtcdRegistryCenter implements RegistryCenter {
     }
     
     @Override
+    @SneakyThrows
     public void persist(final String key, final String value) {
-    
+        client.getKVClient().put(ByteSequence.from(key, Charsets.UTF_8), ByteSequence.from(value, Charsets.UTF_8)).get();
     }
     
     @Override
+    @SneakyThrows
     public void update(final String key, final String value) {
-    
+        persist(key, value);
     }
     
     @Override
+    @SneakyThrows
     public void persistEphemeral(final String key, final String value) {
-    
+        long leaseId = client.getLeaseClient().grant(config.getTimeToLiveSeconds()).get().getID();
+        client.getLeaseClient().keepAlive(leaseId, Observers.observer(response -> { }));
+        client.getKVClient().put(ByteSequence.from(key, Charsets.UTF_8), ByteSequence.from(value, Charsets.UTF_8), PutOption.newBuilder().withLeaseId(leaseId).build()).get();
     }
     
     @Override

@@ -38,6 +38,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -112,7 +113,20 @@ public class EtcdRegistryCenterTest {
         RegistryCenterConfiguration configuration = new RegistryCenterConfiguration();
         configuration.setServerLists("http://localhost:2379");
         etcdRegistryCenter.init(configuration);
-        List<String> subKeys = etcdRegistryCenter.getChildrenKeys("/foo");
-        System.out.println(subKeys);
+//        etcdRegistryCenter.get("/foo");
+//        List<String> subKeys = etcdRegistryCenter.getChildrenKeys("/foo");
+//        System.out.println(subKeys);
+    
+//        CountDownLatch latch = new CountDownLatch(10000);
+//        ExecutorService executorService = Executors.newFixedThreadPool(100);
+        AtomicLong atomicLong = new AtomicLong();
+//        for (int i = 0; i < 10000; i++) {
+//            executorService.submit(() -> {
+//                etcdRegistryCenter.persist("/foo", "foo" + atomicLong.incrementAndGet());
+//                latch.countDown();
+//            });
+//        }
+//        latch.await();
+        etcdRegistryCenter.persist("/foo", "foo" + atomicLong.incrementAndGet());
     }
 }
