@@ -25,6 +25,7 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
 import io.etcd.jetcd.Lease;
+import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.kv.PutResponse;
 import io.etcd.jetcd.lease.LeaseGrantResponse;
@@ -61,6 +62,9 @@ public class EtcdRegistryCenterTest {
     
     @Mock
     private KV kv;
+    
+    @Mock
+    private Watch watch;
     
     @Mock
     private Lease lease;
@@ -111,6 +115,7 @@ public class EtcdRegistryCenterTest {
         when(lease.grant(anyLong())).thenReturn(leaseFuture);
         when(leaseFuture.get()).thenReturn(leaseGrantResponse);
         when(leaseGrantResponse.getID()).thenReturn(123L);
+        when(client.getWatchClient()).thenReturn(watch);
         return client;
     }
     
@@ -155,6 +160,13 @@ public class EtcdRegistryCenterTest {
     }
     
     @Test
+    public void assertWatch() {
+        etcdRegistryCenter.watch("key1", dataChangedEvent -> {
+        });
+        verify(watch).watch(any(ByteSequence.class), any(Watch.Listener.class));
+    }
+    
+    @Test
     @SneakyThrows
     public void localTest() {
         EtcdRegistryCenter etcdRegistryCenter = new EtcdRegistryCenter();
@@ -176,7 +188,9 @@ public class EtcdRegistryCenterTest {
 //        }
 //        latch.await();
 //        etcdRegistryCenter.persist("/foo", "foo" + atomicLong.incrementAndGet());
-        etcdRegistryCenter.persistEphemeral("/foo9", "333");
+//        etcdRegistryCenter.persistEphemeral("/foo9", "333");
+        etcdRegistryCenter.watch("/foo", dataChangedEvent ->
+            System.out.println(String.format("type:%s, key:%s, value:%s", dataChangedEvent.getChangedType(), dataChangedEvent.getKey(), dataChangedEvent.getValue())));
         latch.await();
         
     }
