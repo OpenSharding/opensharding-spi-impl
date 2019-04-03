@@ -44,8 +44,6 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -169,17 +167,17 @@ public class EtcdRegistryCenterTest {
     @Test
     @SneakyThrows
     public void localTest() {
-        EtcdRegistryCenter etcdRegistryCenter = new EtcdRegistryCenter();
-        RegistryCenterConfiguration configuration = new RegistryCenterConfiguration();
-        configuration.setServerLists("http://localhost:2379");
-        etcdRegistryCenter.init(configuration);
+//        EtcdRegistryCenter etcdRegistryCenter = new EtcdRegistryCenter();
+//        RegistryCenterConfiguration configuration = new RegistryCenterConfiguration();
+//        configuration.setServerLists("http://localhost:2379");
+//        etcdRegistryCenter.init(configuration);
 //        etcdRegistryCenter.get("/foo");
 //        List<String> subKeys = etcdRegistryCenter.getChildrenKeys("/foo");
 //        System.out.println(subKeys);
     
-        CountDownLatch latch = new CountDownLatch(10000);
+//        CountDownLatch latch = new CountDownLatch(10000);
 //        ExecutorService executorService = Executors.newFixedThreadPool(100);
-        AtomicLong atomicLong = new AtomicLong();
+//        AtomicLong atomicLong = new AtomicLong();
 //        for (int i = 0; i < 10000; i++) {
 //            executorService.submit(() -> {
 //                etcdRegistryCenter.persist("/foo", "foo" + atomicLong.incrementAndGet());
@@ -189,9 +187,8 @@ public class EtcdRegistryCenterTest {
 //        latch.await();
 //        etcdRegistryCenter.persist("/foo", "foo" + atomicLong.incrementAndGet());
 //        etcdRegistryCenter.persistEphemeral("/foo9", "333");
-        etcdRegistryCenter.watch("/foo", dataChangedEvent ->
-            System.out.println(String.format("type:%s, key:%s, value:%s", dataChangedEvent.getChangedType(), dataChangedEvent.getKey(), dataChangedEvent.getValue())));
-        latch.await();
-        
+//        etcdRegistryCenter.watch("/foo", dataChangedEvent ->
+//            System.out.println(String.format("type:%s, key:%s, value:%s", dataChangedEvent.getChangedType(), dataChangedEvent.getKey(), dataChangedEvent.getValue())));
+//        latch.await();
     }
 }

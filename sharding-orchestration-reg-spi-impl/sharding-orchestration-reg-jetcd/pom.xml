@@ -30,7 +30,6 @@
     
     <properties>
         <grpc.version>1.17.1</grpc.version>
-        <guava.version>20.0</guava.version>
     </properties>
     
     <dependencies>
@@ -43,6 +42,12 @@
             <groupId>io.etcd</groupId>
             <artifactId>jetcd-core</artifactId>
             <version>0.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     
@@ -54,6 +59,8 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <testSource>1.8</testSource>
+                    <testTarget>1.8</testTarget>
                 </configuration>
             </plugin>
         </plugins>
