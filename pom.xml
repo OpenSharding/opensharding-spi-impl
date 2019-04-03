@@ -39,7 +39,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.locale>zh_CN</project.build.locale>
 
-        <guava.version>20.0</guava.version>
+        <guava.version>18.0</guava.version>
         <slf4j.version>1.7.7</slf4j.version>
         
         <javax.transaction.version>1.1</javax.transaction.version>
@@ -50,9 +50,6 @@
         
         <zookeeper.version>3.4.6</zookeeper.version>
         <curator.version>2.10.0</curator.version>
-        <grpc.version>1.7.0</grpc.version>
-        <protobuf.version>3.4.0</protobuf.version>
-        <guava-retrying.version>2.0.0</guava-retrying.version>
     
         <springframework.version>[4.3.6.RELEASE,5.0.0.M1)</springframework.version>
         <spring-boot.version>[1.5.0.RELEASE,2.0.0.M1)</spring-boot.version>
@@ -155,27 +152,27 @@
                 <version>${zookeeper.version}</version>
             </dependency>
             
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-netty</artifactId>
-                <version>${grpc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-protobuf</artifactId>
-                <version>${grpc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.grpc</groupId>
-                <artifactId>grpc-stub</artifactId>
-                <version>${grpc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.rholder</groupId>
-                <artifactId>guava-retrying</artifactId>
-                <version>${guava-retrying.version}</version>
-            </dependency>
-            
+            <!--<dependency>-->
+                <!--<groupId>io.grpc</groupId>-->
+                <!--<artifactId>grpc-netty</artifactId>-->
+                <!--<version>${grpc.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>io.grpc</groupId>-->
+                <!--<artifactId>grpc-protobuf</artifactId>-->
+                <!--<version>${grpc.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>io.grpc</groupId>-->
+                <!--<artifactId>grpc-stub</artifactId>-->
+                <!--<version>${grpc.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>com.github.rholder</groupId>-->
+                <!--<artifactId>guava-retrying</artifactId>-->
+                <!--<version>${guava-retrying.version}</version>-->
+            <!--</dependency>-->
+            <!---->
             <dependency>
                 <groupId>org.jboss.narayana.jta</groupId>
                 <artifactId>jta</artifactId>
