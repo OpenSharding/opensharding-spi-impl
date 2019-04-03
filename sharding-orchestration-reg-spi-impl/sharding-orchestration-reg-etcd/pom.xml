@@ -25,7 +25,7 @@
         <artifactId>sharding-orchestration-reg-spi-impl</artifactId>
         <version>4.0.0-RC1-SNAPSHOT</version>
     </parent>
-    <artifactId>sharding-orchestration-reg-jetcd</artifactId>
+    <artifactId>sharding-orchestration-reg-etcd</artifactId>
     <name>${project.artifactId}</name>
     
     <properties>
