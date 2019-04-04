@@ -152,27 +152,6 @@
                 <version>${zookeeper.version}</version>
             </dependency>
             
-            <!--<dependency>-->
-                <!--<groupId>io.grpc</groupId>-->
-                <!--<artifactId>grpc-netty</artifactId>-->
-                <!--<version>${grpc.version}</version>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-                <!--<groupId>io.grpc</groupId>-->
-                <!--<artifactId>grpc-protobuf</artifactId>-->
-                <!--<version>${grpc.version}</version>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-                <!--<groupId>io.grpc</groupId>-->
-                <!--<artifactId>grpc-stub</artifactId>-->
-                <!--<version>${grpc.version}</version>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-                <!--<groupId>com.github.rholder</groupId>-->
-                <!--<artifactId>guava-retrying</artifactId>-->
-                <!--<version>${guava-retrying.version}</version>-->
-            <!--</dependency>-->
-            <!---->
             <dependency>
                 <groupId>org.jboss.narayana.jta</groupId>
                 <artifactId>jta</artifactId>
