@@ -20,10 +20,6 @@ package io.shardingsphere.orchestration.reg.zookeeper.natived;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import io.shardingsphere.orchestration.reg.api.RegistryCenter;
-import io.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
-import io.shardingsphere.orchestration.reg.listener.DataChangedEvent;
-import io.shardingsphere.orchestration.reg.listener.EventListener;
 import io.shardingsphere.orchestration.reg.zookeeper.natived.client.action.IZookeeperClient;
 import io.shardingsphere.orchestration.reg.zookeeper.natived.client.cache.PathTree;
 import io.shardingsphere.orchestration.reg.zookeeper.natived.client.retry.DelayRetryPolicy;
@@ -31,6 +27,12 @@ import io.shardingsphere.orchestration.reg.zookeeper.natived.client.utility.Zook
 import io.shardingsphere.orchestration.reg.zookeeper.natived.client.zookeeper.ClientFactory;
 import io.shardingsphere.orchestration.reg.zookeeper.natived.client.zookeeper.section.StrategyType;
 import io.shardingsphere.orchestration.reg.zookeeper.natived.client.zookeeper.section.ZookeeperEventListener;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.shardingsphere.orchestration.reg.api.RegistryCenter;
+import org.apache.shardingsphere.orchestration.reg.api.RegistryCenterConfiguration;
+import org.apache.shardingsphere.orchestration.reg.listener.DataChangedEvent;
+import org.apache.shardingsphere.orchestration.reg.listener.DataChangedEventListener;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -43,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,6 +58,10 @@ public final class NativeZookeeperRegistryCenter implements RegistryCenter {
     private final Map<String, PathTree> caches = new HashMap<>();
     
     private IZookeeperClient client;
+    
+    @Getter
+    @Setter
+    private Properties properties;
     
     @Override
     public void init(final RegistryCenterConfiguration config) {
@@ -183,7 +190,7 @@ public final class NativeZookeeperRegistryCenter implements RegistryCenter {
     }
     
     @Override
-    public void watch(final String key, final EventListener eventListener) {
+    public void watch(final String key, final DataChangedEventListener eventListener) {
         String path = key + "/";
         if (!caches.containsKey(path)) {
             addCacheData(key);
@@ -194,21 +201,21 @@ public final class NativeZookeeperRegistryCenter implements RegistryCenter {
             @Override
             public void process(final WatchedEvent event) {
                 if (!Strings.isNullOrEmpty(event.getPath())) {
-                    eventListener.onChange(new DataChangedEvent(extractEventType(event), event.getPath(), getWithoutCache(event.getPath())));
+                    eventListener.onChange(new DataChangedEvent(event.getPath(), getWithoutCache(event.getPath()), getEventChangedType(event)));
                 }
             }
         });
     }
     
-    private DataChangedEvent.Type extractEventType(final WatchedEvent event) {
+    private DataChangedEvent.ChangedType getEventChangedType(final WatchedEvent event) {
         switch (event.getType()) {
             case NodeDataChanged:
             case NodeChildrenChanged:
-                return DataChangedEvent.Type.UPDATED;
+                return DataChangedEvent.ChangedType.UPDATED;
             case NodeDeleted:
-                return DataChangedEvent.Type.DELETED;
+                return DataChangedEvent.ChangedType.DELETED;
             default:
-                return DataChangedEvent.Type.IGNORED;
+                return DataChangedEvent.ChangedType.IGNORED;
         }
     }
     
@@ -241,5 +248,10 @@ public final class NativeZookeeperRegistryCenter implements RegistryCenter {
             each.getValue().close();
         }
         client.close();
+    }
+    
+    @Override
+    public String getType() {
+        return "native-zookeeper";
     }
 }

@@ -29,9 +29,9 @@
     
     <dependencies>
         <dependency>
-            <groupId>io.shardingsphere</groupId>
+            <groupId>org.apache.shardingsphere</groupId>
             <artifactId>sharding-orchestration-reg-api</artifactId>
-            <version>3.0.0</version>
+            <version>${project.version}</version>
         </dependency>
         
         <dependency>
