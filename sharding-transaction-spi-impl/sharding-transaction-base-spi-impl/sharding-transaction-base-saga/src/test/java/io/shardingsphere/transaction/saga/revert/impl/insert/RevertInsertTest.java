@@ -20,14 +20,13 @@ package io.shardingsphere.transaction.saga.revert.impl.insert;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
-import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValue;
 import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValues;
 import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
 import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
 import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
-import org.apache.shardingsphere.core.parse.parser.sql.dml.insert.InsertStatement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,9 +60,9 @@ public class RevertInsertTest {
     private void mockInsertStatement() {
         when(insertStatement.isContainGenerateKey()).thenReturn(true);
         List<Column> columns = Lists.newArrayList();
-        InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
+        InsertValue insertValue = new InsertValue(2);
         InsertValues insertValues = new InsertValues();
-        insertValues.getInsertValues().add(insertValue);
+        insertValues.getValues().add(insertValue);
         columns.add(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.LOGIC_TABLE_NAME));
         insertValue.getColumnValues().add(new SQLPlaceholderExpression(0));
         columns.add(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.LOGIC_TABLE_NAME));

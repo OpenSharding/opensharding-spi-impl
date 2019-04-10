@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
-import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
 import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValue;
 import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValues;
 import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
@@ -58,13 +57,13 @@ public class RevertInsertGeneratorTest {
     
     private void mockInsertStatementWithKeyGenerator() {
         List<String> columnNames = Lists.newArrayList();
-        InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
+        InsertValue insertValue = new InsertValue(2);
         columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
         InsertValues insertValues = new InsertValues();
         insertValue.getColumnValues().add(new SQLNumberExpression(TableMetaDataUtil.USER_ID_VALUE));
         insertValue.getColumnValues().add(new SQLTextExpression(TableMetaDataUtil.STATUS_VALUE));
-        insertValues.getInsertValues().add(insertValue);
+        insertValues.getValues().add(insertValue);
         insertGeneratorParameter = new RevertInsertGeneratorParameter(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
             TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE, TableMetaDataUtil.ORDER_ID_VALUE), 1, true);
     }
@@ -85,9 +84,9 @@ public class RevertInsertGeneratorTest {
     private void mockInsertStatementWithoutKeyGenerator() {
         Map<String, Object> keyValue = new HashMap<>();
         List<String> columnNames = Lists.newArrayList();
-        InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
+        InsertValue insertValue = new InsertValue(2);
         InsertValues insertValues = new InsertValues();
-        insertValues.getInsertValues().add(insertValue);
+        insertValues.getValues().add(insertValue);
         columnNames.add(TableMetaDataUtil.COLUMN_ORDER_ID);
         keyValue.put(TableMetaDataUtil.COLUMN_ORDER_ID, 1L);
         insertValue.getColumnValues().add(new SQLPlaceholderExpression(0));

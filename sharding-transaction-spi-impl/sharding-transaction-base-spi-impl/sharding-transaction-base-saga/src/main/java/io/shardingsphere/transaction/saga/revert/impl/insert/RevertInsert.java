@@ -20,13 +20,13 @@ package io.shardingsphere.transaction.saga.revert.impl.insert;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.AbstractRevertOperate;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValue;
 import org.apache.shardingsphere.core.parse.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
 import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
 import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
-import org.apache.shardingsphere.core.parse.parser.sql.dml.insert.InsertStatement;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -53,9 +53,9 @@ public final class RevertInsert extends AbstractRevertOperate {
             insertColumns.add(each.getName());
         }
         RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), insertColumns, keys, snapshotParameter.getActualSQLParams(),
-                insertStatement.getInsertValues().getInsertValues().size(), insertStatement.isContainGenerateKey());
+                insertStatement.getInsertValues().getValues().size(), insertStatement.isContainGenerateKey());
         int paramIndex = 0;
-        for (InsertValue each : insertStatement.getInsertValues().getInsertValues()) {
+        for (InsertValue each : insertStatement.getInsertValues().getValues()) {
             Map<String, Object> keyValue = new HashMap<>();
             result.getKeyValues().add(keyValue);
             int columnIndex = 0;
