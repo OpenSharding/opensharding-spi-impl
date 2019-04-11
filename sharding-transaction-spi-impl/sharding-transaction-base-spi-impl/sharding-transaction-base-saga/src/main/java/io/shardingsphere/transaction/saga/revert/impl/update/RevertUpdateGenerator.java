@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGenerator;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
-import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
+import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.util.LinkedList;
 import java.util.List;

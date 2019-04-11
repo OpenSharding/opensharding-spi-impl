@@ -20,11 +20,11 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
 import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
-import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
+import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
@@ -48,13 +48,13 @@ public final class RevertUpdate extends RevertDelete {
     protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
         List<Map<String, Object>> selectSnapshot = this.getSnapshotMaker().make(snapshotParameter, keys);
         Map<String, Object> updateColumns = new LinkedHashMap<>();
-        for (Entry<Column, SQLExpression> each : snapshotParameter.getStatement().getUpdateColumnValues().entrySet()) {
-            if (each.getValue() instanceof SQLPlaceholderExpression) {
-                updateColumns.put(each.getKey().getName(), snapshotParameter.getActualSQLParams().get(((SQLPlaceholderExpression) each.getValue()).getIndex()));
-            } else if (each.getValue() instanceof SQLTextExpression) {
-                updateColumns.put(each.getKey().getName(), ((SQLTextExpression) each.getValue()).getText());
-            } else if (each.getValue() instanceof SQLNumberExpression) {
-                updateColumns.put(each.getKey().getName(), ((SQLNumberExpression) each.getValue()).getNumber());
+        for (Entry<Column, SQLExpression> entry : snapshotParameter.getStatement().getUpdateColumnValues().entrySet()) {
+            if (entry.getValue() instanceof SQLPlaceholderExpression) {
+                updateColumns.put(entry.getKey().getName(), snapshotParameter.getActualSQLParams().get(((SQLPlaceholderExpression) entry.getValue()).getIndex()));
+            } else if (entry.getValue() instanceof SQLTextExpression) {
+                updateColumns.put(entry.getKey().getName(), ((SQLTextExpression) entry.getValue()).getText());
+            } else if (entry.getValue() instanceof SQLNumberExpression) {
+                updateColumns.put(entry.getKey().getName(), ((SQLNumberExpression) entry.getValue()).getNumber());
             }
         }
         return new RevertUpdateGeneratorParameter(snapshotParameter.getActualTable(), selectSnapshot, updateColumns, keys, snapshotParameter.getActualSQLParams());

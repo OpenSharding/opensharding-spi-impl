@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 public class RevertUpdateGeneratorTest {
     
     @Test
-    public void assertGenerate() throws Exception {
+    public void assertGenerate() {
         RevertUpdateGenerator revertUpdateGenerator = new RevertUpdateGenerator();
         Optional<RevertContext> revertContext = revertUpdateGenerator.generate(new RevertUpdateGeneratorParameter(
             TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot(), genUpdateColumns(), TableMetaDataUtil.KEYS, Lists.newArrayList()));

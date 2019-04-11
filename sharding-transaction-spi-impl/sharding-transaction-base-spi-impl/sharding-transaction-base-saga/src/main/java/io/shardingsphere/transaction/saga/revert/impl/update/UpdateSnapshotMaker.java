@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteSnapshotMaker;
-import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
+import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -52,7 +52,7 @@ public final class UpdateSnapshotMaker extends DeleteSnapshotMaker {
         boolean first = true;
         for (Column each : snapshotParameter.getStatement().getUpdateColumnValues().keySet()) {
             int dotPos = each.getName().indexOf('.');
-            String realColumnName = null;
+            String realColumnName;
             if (dotPos > 0) {
                 realColumnName = each.getName().substring(dotPos + 1).toLowerCase();
             } else {
@@ -64,9 +64,7 @@ public final class UpdateSnapshotMaker extends DeleteSnapshotMaker {
                 builder.append(", ");
             }
             builder.append(realColumnName);
-            if (tableKeys.contains(realColumnName)) {
-                tableKeys.remove(realColumnName);
-            }
+            tableKeys.remove(realColumnName);
         }
         for (String each : tableKeys) {
             builder.append(", ");

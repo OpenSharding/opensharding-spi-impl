@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl.insert;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
 import lombok.Getter;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +39,14 @@ public final class RevertInsertGeneratorParameter extends RevertContextGenerator
 
     private final List<Object> params = new LinkedList<>();
     
-    private final List<Map<String, Object>> keyValues = new LinkedList<>();
+    private final List<Map<String, Object>> insertGroups = new LinkedList<>();
     
     private final int batchSize;
     
     private final boolean generateKey;
     
-    public RevertInsertGeneratorParameter(final String tableName, final List<String> tableColumns, final List<String> keys, final List<Object> params, final int batchSize, final boolean generateKey) {
+    public RevertInsertGeneratorParameter(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> params,
+                                          final int batchSize, final boolean generateKey) {
         super(tableName);
         this.insertColumns.addAll(tableColumns);
         this.keys.addAll(keys);

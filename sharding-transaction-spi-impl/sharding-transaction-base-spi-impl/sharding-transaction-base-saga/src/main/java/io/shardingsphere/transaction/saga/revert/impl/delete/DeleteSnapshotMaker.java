@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
-import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
+import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -58,9 +58,7 @@ public class DeleteSnapshotMaker {
         builder.append(snapshotParameter.getActualTable());
         fillAlias(builder, snapshotParameter);
         if (0 < snapshotParameter.getStatement().getWhereStartIndex()) {
-            builder.append(" ").append(
-                    snapshotParameter.getLogicSQL().substring(snapshotParameter.getStatement().getWhereStartIndex(),
-                            snapshotParameter.getStatement().getWhereStopIndex() + 1));
+            builder.append(" ").append(snapshotParameter.getLogicSQL(), snapshotParameter.getStatement().getWhereStartIndex(), snapshotParameter.getStatement().getWhereStopIndex() + 1);
         }
         return builder.toString();
     }
@@ -68,11 +66,17 @@ public class DeleteSnapshotMaker {
     protected void fillAlias(final StringBuilder builder, final SnapshotParameter snapshotParameter) {
     }
     
+    /**
+     * Fill select item.
+     * @param builder builder
+     * @param snapshotParameter snapshot parameter
+     * @param keys keys
+     */
     protected void fillSelectItem(final StringBuilder builder, final SnapshotParameter snapshotParameter, final List<String> keys) {
         builder.append("* ");
     }
     
-    private Collection<Object> makeSelectParam(final SnapshotParameter snapshotParameter) throws SQLException {
+    private Collection<Object> makeSelectParam(final SnapshotParameter snapshotParameter) {
         if (null == snapshotParameter.getActualSQLParams() || snapshotParameter.getActualSQLParams().size() <= 0) {
             return Collections.emptyList();
         }

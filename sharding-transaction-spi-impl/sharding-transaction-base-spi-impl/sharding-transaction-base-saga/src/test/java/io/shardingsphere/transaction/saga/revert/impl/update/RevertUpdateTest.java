@@ -21,11 +21,11 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
-import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
+import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +56,7 @@ public class RevertUpdateTest {
     private SnapshotParameter snapshotParameter;
     
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Map<Column, SQLExpression> columnValues = new LinkedHashMap<>();
         columnValues.put(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, "t_order"), new SQLPlaceholderExpression(0));
         columnValues.put(new Column(TableMetaDataUtil.COLUMN_USER_ID, "t_order"), new SQLNumberExpression(2));

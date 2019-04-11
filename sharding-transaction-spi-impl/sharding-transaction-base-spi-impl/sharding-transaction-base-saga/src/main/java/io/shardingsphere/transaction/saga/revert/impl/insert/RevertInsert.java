@@ -21,16 +21,14 @@ import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.AbstractRevertOperate;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
-import org.apache.shardingsphere.core.parse.parser.context.condition.Column;
-import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValue;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
+import org.apache.shardingsphere.core.parse.old.parser.context.insertvalue.InsertValue;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 
-import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -46,31 +44,31 @@ public final class RevertInsert extends AbstractRevertOperate {
     }
     
     @Override
-    protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
-        List<String> insertColumns = new LinkedList<>();
+    protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) {
         InsertStatement insertStatement = (InsertStatement) snapshotParameter.getStatement();
-        for (Column each : insertStatement.getColumns()) {
-            insertColumns.add(each.getName());
+        RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), insertStatement.getColumnNames(), keys, snapshotParameter.getActualSQLParams(),
+                insertStatement.getValues().size(), insertStatement.getGeneratedKeyConditions().isEmpty());
+        Iterator<String> columnNamesIterator = insertStatement.getColumnNames().iterator();
+        Iterator actualSQLParameterIterator = snapshotParameter.getActualSQLParams().iterator();
+        for (InsertValue each : insertStatement.getValues()) {
+            result.getInsertGroups().add(createInsertGroup(each, columnNamesIterator, actualSQLParameterIterator, keys));
         }
-        RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), insertColumns, keys, snapshotParameter.getActualSQLParams(),
-                insertStatement.getInsertValues().getValues().size(), insertStatement.isContainGenerateKey());
-        int paramIndex = 0;
-        for (InsertValue each : insertStatement.getInsertValues().getValues()) {
-            Map<String, Object> keyValue = new HashMap<>();
-            result.getKeyValues().add(keyValue);
-            int columnIndex = 0;
-            for (SQLExpression expression : each.getColumnValues()) {
-                Column column = insertStatement.getColumns().get(columnIndex++);
-                if (!keys.contains(column.getName())) {
-                    continue;
-                }
-                if (expression instanceof SQLPlaceholderExpression) {
-                    keyValue.put(column.getName(), snapshotParameter.getActualSQLParams().get(paramIndex++));
-                } else if (expression instanceof SQLTextExpression) {
-                    keyValue.put(column.getName(), ((SQLTextExpression) expression).getText());
-                } else if (expression instanceof SQLNumberExpression) {
-                    keyValue.put(column.getName(), ((SQLNumberExpression) expression).getNumber());
-                }
+        return result;
+    }
+    
+    private Map<String, Object> createInsertGroup(final InsertValue insertValue, final Iterator<String> columnNamesIterator, final Iterator actualSQLParameterIterator, final List<String> keys) {
+        Map<String, Object> result = new HashMap<>();
+        for (SQLExpression expression : insertValue.getColumnValues()) {
+            String columnName = columnNamesIterator.next();
+            if (!keys.contains(columnName)) {
+                continue;
+            }
+            if (expression instanceof SQLPlaceholderExpression) {
+                result.put(columnName, actualSQLParameterIterator.next());
+            } else if (expression instanceof SQLTextExpression) {
+                result.put(columnName, ((SQLTextExpression) expression).getText());
+            } else if (expression instanceof SQLNumberExpression) {
+                result.put(columnName, ((SQLNumberExpression) expression).getNumber());
             }
         }
         return result;
