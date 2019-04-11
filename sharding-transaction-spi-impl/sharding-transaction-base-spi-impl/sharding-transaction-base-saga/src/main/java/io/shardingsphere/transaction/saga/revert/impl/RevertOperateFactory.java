@@ -21,8 +21,8 @@ import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
 import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdate;
-import org.apache.shardingsphere.core.parse.parser.sql.dml.DMLStatement;
-import org.apache.shardingsphere.core.parse.parser.sql.dml.insert.InsertStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 
 /**
  * Revert operate factory.

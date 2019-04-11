@@ -21,9 +21,8 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGenerator;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
-import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
+import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,7 +39,7 @@ import java.util.Set;
 public final class RevertInsertGenerator implements RevertContextGenerator {
     
     @Override
-    public Optional<RevertContext> generate(final RevertContextGeneratorParameter parameter) throws SQLException {
+    public Optional<RevertContext> generate(final RevertContextGeneratorParameter parameter) {
         RevertInsertGeneratorParameter insertParameter = (RevertInsertGeneratorParameter) parameter;
         RevertContext result = new RevertContext(generateSQL(insertParameter));
         Set<Integer> keyColumnIndexs = new HashSet<>();
@@ -89,7 +88,7 @@ public final class RevertInsertGenerator implements RevertContextGenerator {
             }
             return;
         }
-        for (Map<String, Object> each : insertParameter.getKeyValues()) {
+        for (Map<String, Object> each : insertParameter.getInsertGroups()) {
             Collection<Object> currentSQLParams = new LinkedList<>();
             revertContext.getRevertParams().add(currentSQLParams);
             for (Entry<String, Object> eachEntry : each.entrySet()) {

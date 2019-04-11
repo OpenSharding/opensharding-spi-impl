@@ -21,12 +21,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
-import org.apache.shardingsphere.core.parse.lexer.token.DefaultKeyword;
-import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValue;
-import org.apache.shardingsphere.core.parse.parser.context.insertvalue.InsertValues;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLPlaceholderExpression;
-import org.apache.shardingsphere.core.parse.parser.expression.SQLTextExpression;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -44,7 +38,7 @@ public class RevertInsertGeneratorTest {
     private RevertInsertGeneratorParameter insertGeneratorParameter;
     
     @Test
-    public void generateWithKeyGenerator() throws Exception {
+    public void generateWithKeyGenerator() {
         mockInsertStatementWithKeyGenerator();
         RevertInsertGenerator insertGenerator = new RevertInsertGenerator();
         Optional<RevertContext> revertContext = insertGenerator.generate(insertGeneratorParameter);
@@ -58,19 +52,14 @@ public class RevertInsertGeneratorTest {
     
     private void mockInsertStatementWithKeyGenerator() {
         List<String> columnNames = Lists.newArrayList();
-        InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
         columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        InsertValues insertValues = new InsertValues();
-        insertValue.getColumnValues().add(new SQLNumberExpression(TableMetaDataUtil.USER_ID_VALUE));
-        insertValue.getColumnValues().add(new SQLTextExpression(TableMetaDataUtil.STATUS_VALUE));
-        insertValues.getInsertValues().add(insertValue);
         insertGeneratorParameter = new RevertInsertGeneratorParameter(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
             TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE, TableMetaDataUtil.ORDER_ID_VALUE), 1, true);
     }
     
     @Test
-    public void generateWithoutKeyGenerator() throws Exception {
+    public void generateWithoutKeyGenerator() {
         mockInsertStatementWithoutKeyGenerator();
         RevertInsertGenerator insertGenerator = new RevertInsertGenerator();
         Optional<RevertContext> revertContext = insertGenerator.generate(insertGeneratorParameter);
@@ -85,18 +74,12 @@ public class RevertInsertGeneratorTest {
     private void mockInsertStatementWithoutKeyGenerator() {
         Map<String, Object> keyValue = new HashMap<>();
         List<String> columnNames = Lists.newArrayList();
-        InsertValue insertValue = new InsertValue(DefaultKeyword.VALUES, 0);
-        InsertValues insertValues = new InsertValues();
-        insertValues.getInsertValues().add(insertValue);
         columnNames.add(TableMetaDataUtil.COLUMN_ORDER_ID);
         keyValue.put(TableMetaDataUtil.COLUMN_ORDER_ID, 1L);
-        insertValue.getColumnValues().add(new SQLPlaceholderExpression(0));
         columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
-        insertValue.getColumnValues().add(new SQLNumberExpression(TableMetaDataUtil.USER_ID_VALUE));
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        insertValue.getColumnValues().add(new SQLTextExpression(TableMetaDataUtil.STATUS_VALUE));
         insertGeneratorParameter = new RevertInsertGeneratorParameter(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
             TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE, TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE), 1, false);
-        insertGeneratorParameter.getKeyValues().add(keyValue);
+        insertGeneratorParameter.getInsertGroups().add(keyValue);
     }
 }

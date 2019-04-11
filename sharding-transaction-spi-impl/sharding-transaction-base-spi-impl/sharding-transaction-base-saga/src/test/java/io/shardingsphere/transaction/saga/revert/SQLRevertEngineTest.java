@@ -26,9 +26,10 @@ import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactory;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
+import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parse.parser.context.table.Tables;
-import org.apache.shardingsphere.core.parse.parser.sql.dml.insert.InsertStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
+import org.apache.shardingsphere.core.parse.old.parser.context.table.Tables;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,8 +47,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import lombok.SneakyThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SQLRevertEngineTest {
@@ -76,6 +75,7 @@ public class SQLRevertEngineTest {
     }
     
     @Test
+    @SuppressWarnings("unchecked")
     public void assertRevert() throws SQLException {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction("", "", Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE)));
         when(dmlStatement.getTables()).thenReturn(mock(Tables.class));
