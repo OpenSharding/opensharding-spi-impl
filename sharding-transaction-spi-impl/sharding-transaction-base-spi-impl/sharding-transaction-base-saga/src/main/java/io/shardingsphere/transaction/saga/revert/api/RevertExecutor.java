@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.api;
 import java.sql.SQLException;
 
 import com.google.common.base.Optional;
+import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 
 /**
  * Revert operate.
@@ -31,9 +32,9 @@ public interface RevertExecutor {
     /**
      * Generate snapshot.
      * 
-     * @param snapshotParameter snapshot parameter
+     * @param tableMetaData table meta data
      * @return revert context
      * @throws SQLException failed to execute SQL, throw this exception
      */
-    Optional<RevertSQLUnit> execute(SnapshotParameter snapshotParameter) throws SQLException;
+    Optional<RevertSQLUnit> execute(TableMetaData tableMetaData) throws SQLException;
 }

@@ -20,11 +20,11 @@ package io.shardingsphere.transaction.saga.revert.impl;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertExecutor;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
+import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,18 +42,23 @@ public abstract class DMLRevertExecutor implements RevertExecutor {
     
     private final RevertSQLGenerator revertSQLGenerator;
     
+    /**
+     * Execute.
+     *
+     * @param tableMetaData table meta data
+     */
     @Override
-    public Optional<RevertSQLUnit> execute(final SnapshotParameter snapshotParameter) throws SQLException {
-        List<String> keys = getKeyColumns(snapshotParameter);
+    public Optional<RevertSQLUnit> execute(final TableMetaData tableMetaData) throws SQLException {
+        List<String> keys = getKeyColumns(tableMetaData);
         if (keys.isEmpty()) {
             throw new RuntimeException("Not supported table without primary key");
         }
         return revertSQLGenerator.generateRevertSQL(buildRevertSQLStatement(keys));
     }
     
-    private List<String> getKeyColumns(final SnapshotParameter snapshotParameter) {
+    private List<String> getKeyColumns(final TableMetaData tableMetaData) {
         List<String> result = new ArrayList<>();
-        for (ColumnMetaData each : snapshotParameter.getTableMeta().getColumns().values()) {
+        for (ColumnMetaData each : tableMetaData.getColumns().values()) {
             if (each.isPrimaryKey()) {
                 result.add(each.getColumnName());
             }
