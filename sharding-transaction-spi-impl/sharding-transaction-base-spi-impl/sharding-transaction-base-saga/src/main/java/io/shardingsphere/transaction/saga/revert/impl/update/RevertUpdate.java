@@ -21,7 +21,6 @@ import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.AbstractRevertOperate;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
-import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
@@ -32,7 +31,6 @@ import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpress
 
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,26 +42,14 @@ import java.util.Map.Entry;
  */
 public final class RevertUpdate extends AbstractRevertOperate {
     
-    private DMLSnapshotDataAccessor snapshotDataAccessor;
-    
     public RevertUpdate(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
-        snapshotDataAccessor = new DMLSnapshotDataAccessor(new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, getPrimaryKeyColumns(tableMetaData)));
+        super(new DMLSnapshotDataAccessor(new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, tableMetaData)));
         this.setRevertSQLGenerator(new RevertUpdateGenerator());
-    }
-    
-    private List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {
-        List<String> result = new LinkedList<>();
-        for (ColumnMetaData each : tableMetaData.getColumns().values()) {
-            if (each.isPrimaryKey()) {
-                result.add(each.getColumnName());
-            }
-        }
-        return result;
     }
     
     @Override
     protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
-        List<Map<String, Object>> selectSnapshot = snapshotDataAccessor.queryUndoData(snapshotParameter.getConnection());
+        List<Map<String, Object>> selectSnapshot = getSnapshotDataAccessor().queryUndoData(snapshotParameter.getConnection());
         Map<String, Object> updateColumns = new LinkedHashMap<>();
         UpdateStatement updateStatement = (UpdateStatement) snapshotParameter.getStatement();
         for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {

@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl;
 
-import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
+import io.shardingsphere.transaction.saga.revert.api.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdate;
@@ -46,7 +46,7 @@ public final class RevertOperateFactory {
      *
      * @return Revert Operate
      */
-    public RevertOperate getRevertSQLCreator(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
+    public SQLRevertExecutor getRevertSQLCreator(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
         if (dmlStatement instanceof InsertStatement) {
             return new RevertInsert();
         }

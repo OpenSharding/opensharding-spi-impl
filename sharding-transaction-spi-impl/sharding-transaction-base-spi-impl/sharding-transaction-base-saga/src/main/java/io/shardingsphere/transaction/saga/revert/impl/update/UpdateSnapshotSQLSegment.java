@@ -20,6 +20,8 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLSegment;
 import lombok.Getter;
+import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
+import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
@@ -45,11 +47,21 @@ public final class UpdateSnapshotSQLSegment implements SnapshotSQLSegment {
     
     private final List<String> primaryKeys;
     
-    public UpdateSnapshotSQLSegment(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final List<String> primaryKeys) {
+    public UpdateSnapshotSQLSegment(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
         this.actualTableName = actualTableName;
         this.updateStatement = updateStatement;
         this.actualSQLParameters = actualSQLParameters;
-        this.primaryKeys = primaryKeys;
+        this.primaryKeys = getPrimaryKeyColumns(tableMetaData);
+    }
+    
+    private List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {
+        List<String> result = new LinkedList<>();
+        for (ColumnMetaData each : tableMetaData.getColumns().values()) {
+            if (each.isPrimaryKey()) {
+                result.add(each.getColumnName());
+            }
+        }
+        return result;
     }
     
     @Override

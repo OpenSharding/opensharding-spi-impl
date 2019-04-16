@@ -18,9 +18,12 @@
 package io.shardingsphere.transaction.saga.revert.impl;
 
 import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
 import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
+import io.shardingsphere.transaction.saga.revert.api.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 
@@ -34,14 +37,23 @@ import java.util.List;
  * @author duhongjun
  */
 @Setter
-public abstract class AbstractRevertOperate implements RevertOperate {
+@Getter
+@NoArgsConstructor
+public abstract class AbstractRevertOperate implements SQLRevertExecutor {
     
     private RevertContextGenerator revertSQLGenerator;
+    
+    private DMLSnapshotDataAccessor snapshotDataAccessor;
+    
+    protected AbstractRevertOperate(final DMLSnapshotDataAccessor snapshotDataAccessor) {
+        this.snapshotDataAccessor = snapshotDataAccessor;
+    }
     
     // CHECKSTYLE:OFF
     @Override
     // CHECKSTYLE:ON
     public Optional<RevertContext> snapshot(final SnapshotParameter snapshotParameter) throws SQLException {
+        snapshotDataAccessor.queryUndoData(snapshotParameter.getConnection());
         List<String> keys = getKeyColumns(snapshotParameter);
         if (keys.isEmpty()) {
             throw new RuntimeException("Not supported table without primary key");

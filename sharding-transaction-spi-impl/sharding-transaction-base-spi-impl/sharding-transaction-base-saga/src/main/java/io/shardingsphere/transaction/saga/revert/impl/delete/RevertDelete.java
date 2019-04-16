@@ -37,15 +37,13 @@ import java.util.List;
 @Setter
 public final class RevertDelete extends AbstractRevertOperate {
     
-    private DMLSnapshotDataAccessor snapshotDataAccessor;
-    
     public RevertDelete(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
-        snapshotDataAccessor = new DMLSnapshotDataAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters));
+        super(new DMLSnapshotDataAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters)));
         this.setRevertSQLGenerator(new RevertDeleteGenerator());
     }
     
     @Override
     protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
-        return new RevertDeleteParameter(snapshotParameter.getActualTable(), snapshotDataAccessor.queryUndoData(snapshotParameter.getConnection()));
+        return new RevertDeleteParameter(snapshotParameter.getActualTable(), getSnapshotDataAccessor().queryUndoData(snapshotParameter.getConnection()));
     }
 }
