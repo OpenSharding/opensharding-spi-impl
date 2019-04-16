@@ -47,7 +47,7 @@ public final class DeleteSnapshotSQLSegment implements SnapshotSQLSegment {
     }
     
     @Override
-    public Collection<String> getQueryItems() {
+    public Collection<String> getQueryColumnNames() {
         return Collections.singleton("*");
     }
     

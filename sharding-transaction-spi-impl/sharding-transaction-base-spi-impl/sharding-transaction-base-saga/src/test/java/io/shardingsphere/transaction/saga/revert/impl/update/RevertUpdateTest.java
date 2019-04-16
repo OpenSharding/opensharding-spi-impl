@@ -27,18 +27,13 @@ import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpre
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -65,13 +60,13 @@ public class RevertUpdateTest {
         snapshotParameter = new SnapshotParameter(TableMetaDataUtil.mockTableMetaData(), updateStatement, null, TableMetaDataUtil.ACTUAL_TABLE_NAME, null, null, Lists.<Object>newArrayList(1L));
     }
     
-    @Test
-    public void assertSnapshot() throws Exception {
-        RevertUpdate revertUpdate = new RevertUpdate();
-        revertUpdate.setSnapshotMaker(snapshotMaker);
-        revertUpdate.setRevertSQLGenerator(revertUpdateGenerator);
-        revertUpdate.snapshot(snapshotParameter);
-        verify(snapshotMaker).make(eq(snapshotParameter), ArgumentMatchers.<String>anyList());
-        verify(revertUpdateGenerator).generate(any(RevertUpdateGeneratorParameter.class));
-    }
+//    @Test
+//    public void assertSnapshot() throws Exception {
+//        RevertUpdate revertUpdate = new RevertUpdate();
+//        revertUpdate.setSnapshotMaker(snapshotMaker);
+//        revertUpdate.setRevertSQLGenerator(revertUpdateGenerator);
+//        revertUpdate.snapshot(snapshotParameter);
+//        verify(snapshotMaker).make(eq(snapshotParameter), ArgumentMatchers.<String>anyList());
+//        verify(revertUpdateGenerator).generate(any(RevertUpdateGeneratorParameter.class));
+//    }
 }

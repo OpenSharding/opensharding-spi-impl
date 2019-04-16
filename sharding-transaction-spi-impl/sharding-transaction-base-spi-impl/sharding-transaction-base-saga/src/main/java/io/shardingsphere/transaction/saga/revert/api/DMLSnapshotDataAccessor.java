@@ -22,7 +22,7 @@ import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,13 +41,13 @@ public class DMLSnapshotDataAccessor implements SnapshotDataAccessor {
     }
     
     @Override
-    public final Collection<Map<String, Object>> queryUndoData(final Connection connection) throws SQLException {
+    public final List<Map<String, Object>> queryUndoData(final Connection connection) throws SQLException {
         return JDBCUtil.executeQuery(connection, buildSnapshotQuerySQL(), snapshotSQLSegment.getQueryParameters());
     }
     
     private String buildSnapshotQuerySQL() {
         sqlBuilder.appendLiterals(DefaultKeyword.SELECT);
-        sqlBuilder.appendQueryItems(snapshotSQLSegment.getQueryItems());
+        sqlBuilder.appendQueryColumnNames(snapshotSQLSegment.getQueryColumnNames());
         sqlBuilder.appendLiterals(DefaultKeyword.FROM);
         sqlBuilder.appendLiterals(snapshotSQLSegment.getActualTableName());
         sqlBuilder.appendLiterals(snapshotSQLSegment.getTableAliasLiterals());

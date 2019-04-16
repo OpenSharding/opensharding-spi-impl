@@ -17,15 +17,16 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
+import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.AbstractRevertOperate;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
+
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Revert delete.
@@ -34,18 +35,17 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RevertDelete extends AbstractRevertOperate {
+public final class RevertDelete extends AbstractRevertOperate {
     
-    private DeleteSnapshotMaker snapshotMaker;
+    private DMLSnapshotDataAccessor snapshotDataAccessor;
     
-    public RevertDelete() {
-        snapshotMaker = new DeleteSnapshotMaker();
+    public RevertDelete(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
+        snapshotDataAccessor = new DMLSnapshotDataAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters));
         this.setRevertSQLGenerator(new RevertDeleteGenerator());
     }
     
     @Override
     protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
-        List<Map<String, Object>> selectSnapshot = snapshotMaker.make(snapshotParameter, keys);
-        return new RevertDeleteParameter(snapshotParameter.getActualTable(), selectSnapshot);
+        return new RevertDeleteParameter(snapshotParameter.getActualTable(), snapshotDataAccessor.queryUndoData(snapshotParameter.getConnection()));
     }
 }

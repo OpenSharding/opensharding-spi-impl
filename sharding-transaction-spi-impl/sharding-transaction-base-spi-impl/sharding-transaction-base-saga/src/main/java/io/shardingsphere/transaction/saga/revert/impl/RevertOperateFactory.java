@@ -21,9 +21,13 @@ import io.shardingsphere.transaction.saga.revert.api.RevertOperate;
 import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdate;
+import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
+
+import java.util.List;
 
 /**
  * Revert operate factory.
@@ -34,17 +38,21 @@ public final class RevertOperateFactory {
     
     /**
      * Get RevertOperate by DMLStatement.
-     *  
+     *
+     * @param actualTableName actual table name
      * @param dmlStatement  DML statement
+     * @param actualSQLParameters actual SQL parameters
+     * @param tableMetaData table meta data
+     *
      * @return Revert Operate
      */
-    public RevertOperate getRevertSQLCreator(final DMLStatement dmlStatement) {
+    public RevertOperate getRevertSQLCreator(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
         if (dmlStatement instanceof InsertStatement) {
             return new RevertInsert();
         }
         if (dmlStatement instanceof DeleteStatement) {
-            return new RevertDelete();
+            return new RevertDelete(actualTableName, (DeleteStatement) dmlStatement, actualSQLParameters);
         }
-        return new RevertUpdate();
+        return new RevertUpdate(actualTableName, (UpdateStatement) dmlStatement, actualSQLParameters, tableMetaData);
     }
 }

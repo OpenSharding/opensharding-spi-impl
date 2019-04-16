@@ -38,7 +38,7 @@ public interface SnapshotSQLSegment {
      *
      * @return query items
      */
-    Collection<String> getQueryItems();
+    Collection<String> getQueryColumnNames();
     
     /**
      * Get Table alias literals.

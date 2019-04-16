@@ -40,13 +40,13 @@ public final class SnapshotQuerySQLBuilder {
     }
     
     /**
-     * Append Query items.
+     * Append Query column names.
      *
-     * @param items items
+     * @param columnNames column names
      */
-    public void appendQueryItems(final Collection<String> items) {
+    public void appendQueryColumnNames(final Collection<String> columnNames) {
         boolean firstItem = true;
-        for (String each : items) {
+        for (String each : columnNames) {
             if (firstItem) {
                 sqlBuilder.append(each);
                 firstItem = false;

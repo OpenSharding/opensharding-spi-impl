@@ -63,7 +63,7 @@ public final class SQLRevertEngine {
         String actualSQL = sagaBranchTransaction.getSql();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
             SnapshotParameter snapshotParameter = new SnapshotParameter(tableMetaData, dmlStatement, actualConnection, actualTableName, logicSQL, actualSQL, each);
-            RevertOperate revertOperate = revertOperateFactory.getRevertSQLCreator(dmlStatement);
+            RevertOperate revertOperate = revertOperateFactory.getRevertSQLCreator(actualTableName, dmlStatement, each, tableMetaData);
             Optional<RevertContext> revertContextOptional = revertOperate.snapshot(snapshotParameter);
             if (revertContextOptional.isPresent()) {
                 result.setSql(revertContextOptional.get().getRevertSQL());
