@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGenerator;
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLGenerator;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.util.LinkedList;
@@ -32,10 +32,10 @@ import java.util.Map;
  *
  * @author duhongjun
  */
-public final class RevertUpdateGenerator implements RevertContextGenerator {
+public final class RevertUpdateGenerator implements RevertSQLGenerator {
     
     @Override
-    public Optional<RevertContext> generate(final RevertContextGeneratorParameter parameter) {
+    public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLStatement parameter) {
         RevertUpdateGeneratorParameter updateParameter = (RevertUpdateGeneratorParameter) parameter;
         if (updateParameter.getSelectSnapshot().isEmpty()) {
             return Optional.absent();
@@ -57,7 +57,7 @@ public final class RevertUpdateGenerator implements RevertContextGenerator {
         return Optional.of(fillWhereWithKeys(updateParameter, builder));
     }
     
-    private RevertContext fillWhereWithKeys(final RevertUpdateGeneratorParameter updateParameter, final StringBuilder builder) {
+    private RevertSQLUnit fillWhereWithKeys(final RevertUpdateGeneratorParameter updateParameter, final StringBuilder builder) {
         int pos = 0;
         for (String key : updateParameter.getKeys()) {
             if (pos > 0) {
@@ -66,7 +66,7 @@ public final class RevertUpdateGenerator implements RevertContextGenerator {
             builder.append(key).append(" = ? ");
             pos++;
         }
-        RevertContext result = new RevertContext(builder.toString());
+        RevertSQLUnit result = new RevertSQLUnit(builder.toString());
         for (Map<String, Object> each : updateParameter.getSelectSnapshot()) {
             List<Object> eachSQLParams = new LinkedList<>();
             result.getRevertParams().add(eachSQLParams);

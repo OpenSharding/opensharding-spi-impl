@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import lombok.Getter;
 
 import java.util.Collection;
@@ -31,7 +31,7 @@ import java.util.Map;
  * @author duhongjun
  */
 @Getter
-public final class RevertInsertGeneratorParameter extends RevertContextGeneratorParameter {
+public final class RevertInsertGeneratorParameter extends RevertSQLStatement {
 
     private final List<String> keys = new LinkedList<>();
 

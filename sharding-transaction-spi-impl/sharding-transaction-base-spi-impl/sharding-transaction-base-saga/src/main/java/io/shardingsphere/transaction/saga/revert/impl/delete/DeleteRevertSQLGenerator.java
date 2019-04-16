@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGenerator;
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLGenerator;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.util.Map;
@@ -30,18 +30,18 @@ import java.util.Map;
  *
  * @author duhongjun
  */
-public final class RevertDeleteGenerator implements RevertContextGenerator {
+public final class DeleteRevertSQLGenerator implements RevertSQLGenerator {
     
     @Override
-    public Optional<RevertContext> generate(final RevertContextGeneratorParameter parameter) {
-        RevertDeleteParameter deleteParameter = (RevertDeleteParameter) parameter;
+    public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLStatement revertSQLStatement) {
+        DeleteRevertSQLStatement deleteParameter = (DeleteRevertSQLStatement) revertSQLStatement;
         if (deleteParameter.getSelectSnapshot().isEmpty()) {
             return Optional.absent();
         }
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.INSERT).append(" ");
         builder.append(DefaultKeyword.INTO).append(" ");
-        builder.append(parameter.getActualTable()).append(" ");
+        builder.append(revertSQLStatement.getActualTable()).append(" ");
         builder.append(DefaultKeyword.VALUES).append(" ");
         builder.append("(");
         int columnCount = deleteParameter.getSelectSnapshot().get(0).size();
@@ -52,7 +52,7 @@ public final class RevertDeleteGenerator implements RevertContextGenerator {
             }
         }
         builder.append(")");
-        RevertContext result = new RevertContext(builder.toString());
+        RevertSQLUnit result = new RevertSQLUnit(builder.toString());
         for (Map<String, Object> each : deleteParameter.getSelectSnapshot()) {
             result.getRevertParams().add(each.values());
         }

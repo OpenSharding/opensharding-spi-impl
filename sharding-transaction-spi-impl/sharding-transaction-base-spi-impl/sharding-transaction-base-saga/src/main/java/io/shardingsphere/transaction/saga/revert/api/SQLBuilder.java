@@ -24,7 +24,7 @@ import java.util.Collection;
  *
  * @author zhaojun
  */
-public final class SnapshotQuerySQLBuilder {
+public final class SQLBuilder {
     
     private StringBuilder sqlBuilder = new StringBuilder();
     

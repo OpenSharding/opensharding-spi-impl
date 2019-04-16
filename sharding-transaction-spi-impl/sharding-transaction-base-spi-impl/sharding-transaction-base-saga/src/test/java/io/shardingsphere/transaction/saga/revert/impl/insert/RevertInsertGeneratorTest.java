@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.revert.impl.insert;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class RevertInsertGeneratorTest {
     public void generateWithKeyGenerator() {
         mockInsertStatementWithKeyGenerator();
         RevertInsertGenerator insertGenerator = new RevertInsertGenerator();
-        Optional<RevertContext> revertContext = insertGenerator.generate(insertGeneratorParameter);
+        Optional<RevertSQLUnit> revertContext = insertGenerator.generate(insertGeneratorParameter);
         assertTrue(revertContext.isPresent());
         assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
         assertThat(revertContext.get().getRevertParams().size(), is(1));
@@ -62,7 +62,7 @@ public class RevertInsertGeneratorTest {
     public void generateWithoutKeyGenerator() {
         mockInsertStatementWithoutKeyGenerator();
         RevertInsertGenerator insertGenerator = new RevertInsertGenerator();
-        Optional<RevertContext> revertContext = insertGenerator.generate(insertGeneratorParameter);
+        Optional<RevertSQLUnit> revertContext = insertGenerator.generate(insertGeneratorParameter);
         assertTrue(revertContext.isPresent());
         assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
         assertThat(revertContext.get().getRevertParams().size(), is(1));

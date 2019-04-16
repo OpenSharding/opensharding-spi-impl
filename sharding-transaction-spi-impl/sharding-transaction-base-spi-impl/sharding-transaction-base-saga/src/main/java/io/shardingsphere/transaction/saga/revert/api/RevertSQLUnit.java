@@ -15,19 +15,25 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl;
+package io.shardingsphere.transaction.saga.revert.api;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Revert context generator parameter.
+ * Revert context.
  *
  * @author duhongjun
  */
 @RequiredArgsConstructor
 @Getter
-public abstract class RevertContextGeneratorParameter {
+public final class RevertSQLUnit {
     
-    private final String actualTable;
+    private final String revertSQL;
+    
+    private final List<Collection<Object>> revertParams = new ArrayList<>();
 }

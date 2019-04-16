@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.AbstractRevertOperate;
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
@@ -40,7 +40,7 @@ import java.util.Map.Entry;
  *
  * @author duhongjun
  */
-public final class RevertUpdate extends AbstractRevertOperate {
+public final class RevertUpdate extends DMLRevertSQLExecutor {
     
     public RevertUpdate(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
         super(new DMLSnapshotDataAccessor(new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, tableMetaData)));
@@ -48,7 +48,7 @@ public final class RevertUpdate extends AbstractRevertOperate {
     }
     
     @Override
-    protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
+    protected RevertSQLStatement buildRevertSQLStatement(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
         List<Map<String, Object>> selectSnapshot = getSnapshotDataAccessor().queryUndoData(snapshotParameter.getConnection());
         Map<String, Object> updateColumns = new LinkedHashMap<>();
         UpdateStatement updateStatement = (UpdateStatement) snapshotParameter.getStatement();

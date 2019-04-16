@@ -15,25 +15,27 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.api;
+package io.shardingsphere.transaction.saga.revert.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.sql.SQLException;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.google.common.base.Optional;
+
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 
 /**
- * Revert context.
+ * Revert context generator.
  *
  * @author duhongjun
  */
-@RequiredArgsConstructor
-@Getter
-public final class RevertContext {
+public interface RevertSQLGenerator {
     
-    private final String revertSQL;
+    /**
+     * Generate revert context.
+     * 
+     * @return revert context, when select result is empty, no need revert
+     * @throws SQLException failed to execute SQL, throw this exception
+     */
+    Optional<RevertSQLUnit> generateRevertSQL(RevertSQLStatement revertSQLStatement) throws SQLException;
     
-    private final List<Collection<Object>> revertParams = new ArrayList<>();
 }

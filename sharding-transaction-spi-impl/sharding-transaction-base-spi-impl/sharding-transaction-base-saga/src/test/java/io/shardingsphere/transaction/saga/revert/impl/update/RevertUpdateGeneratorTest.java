@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class RevertUpdateGeneratorTest {
     @Test
     public void assertGenerate() {
         RevertUpdateGenerator revertUpdateGenerator = new RevertUpdateGenerator();
-        Optional<RevertContext> revertContext = revertUpdateGenerator.generate(new RevertUpdateGeneratorParameter(
+        Optional<RevertSQLUnit> revertContext = revertUpdateGenerator.generate(new RevertUpdateGeneratorParameter(
             TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot(), genUpdateColumns(), TableMetaDataUtil.KEYS, Lists.newArrayList()));
         assertTrue(revertContext.isPresent());
         assertThat(revertContext.get().getRevertSQL(), is("UPDATE t_order_1 SET order_id = ?,user_id = ?,status = ? WHERE order_id = ? "));

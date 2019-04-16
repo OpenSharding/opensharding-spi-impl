@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
 public class RevertDeleteTest {
     
     @Mock
-    private RevertDeleteGenerator revertDeleteGenerator;
+    private DeleteRevertSQLGenerator revertDeleteGenerator;
     
     @Mock
     private DeleteSnapshotMaker snapshotMaker;
@@ -50,17 +50,17 @@ public class RevertDeleteTest {
     
     @Test
     public void assertSnapshot() throws Exception {
-        RevertDelete revertDelete = new RevertDelete();
+        DeleteRevertSQLExecutor revertDelete = new DeleteRevertSQLExecutor();
         revertDelete.setSnapshotMaker(snapshotMaker);
         revertDelete.setRevertSQLGenerator(revertDeleteGenerator);
         revertDelete.snapshot(snapshotParameter);
         verify(snapshotMaker).make(eq(snapshotParameter), ArgumentMatchers.<String>anyList());
-        verify(revertDeleteGenerator).generate(any(RevertDeleteParameter.class));
+        verify(revertDeleteGenerator).generate(any(DeleteRevertSQLStatement.class));
     }
     
     @Test(expected = RuntimeException.class)
     public void assertSnapshotNoKey() throws Exception {
-        RevertDelete revertDelete = new RevertDelete();
+        DeleteRevertSQLExecutor revertDelete = new DeleteRevertSQLExecutor();
         revertDelete.setSnapshotMaker(snapshotMaker);
         revertDelete.setRevertSQLGenerator(revertDeleteGenerator);
         snapshotParameter.getTableMeta().getColumns().put(TableMetaDataUtil.COLUMN_ORDER_ID, new ColumnMetaData(TableMetaDataUtil.COLUMN_ORDER_ID, "", false));

@@ -34,7 +34,7 @@ public class DMLSnapshotDataAccessor implements SnapshotDataAccessor {
     
     private final SnapshotSQLSegment snapshotSQLSegment;
     
-    private SnapshotQuerySQLBuilder sqlBuilder = new SnapshotQuerySQLBuilder();
+    private SQLBuilder sqlBuilder = new SQLBuilder();
     
     public DMLSnapshotDataAccessor(final SnapshotSQLSegment snapshotSQLSegment) {
         this.snapshotSQLSegment = snapshotSQLSegment;

@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDeleteParameter;
+import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLStatement;
 import lombok.Getter;
 
 /**
@@ -31,7 +31,7 @@ import lombok.Getter;
  * @author duhongjun
  */
 @Getter
-public final class RevertUpdateGeneratorParameter extends RevertDeleteParameter {
+public final class RevertUpdateGeneratorParameter extends DeleteRevertSQLStatement {
     
     private final Map<String, Object> updateColumns = new LinkedHashMap<>();
     

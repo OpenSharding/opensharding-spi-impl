@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.AbstractRevertOperate;
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
@@ -35,15 +35,17 @@ import java.util.List;
  */
 @Getter
 @Setter
-public final class RevertDelete extends AbstractRevertOperate {
+public final class DeleteRevertSQLExecutor extends DMLRevertSQLExecutor {
     
-    public RevertDelete(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
-        super(new DMLSnapshotDataAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters)));
-        this.setRevertSQLGenerator(new RevertDeleteGenerator());
+    private DMLSnapshotDataAccessor snapshotDataAccessor;
+    
+    public DeleteRevertSQLExecutor(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
+        super(new DeleteRevertSQLGenerator());
+        snapshotDataAccessor = new DMLSnapshotDataAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters));
     }
     
     @Override
-    protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
-        return new RevertDeleteParameter(snapshotParameter.getActualTable(), getSnapshotDataAccessor().queryUndoData(snapshotParameter.getConnection()));
+    protected RevertSQLStatement buildRevertSQLStatement(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
+        return new DeleteRevertSQLStatement(snapshotParameter.getActualTable(), snapshotDataAccessor.queryUndoData(snapshotParameter.getConnection()));
     }
 }

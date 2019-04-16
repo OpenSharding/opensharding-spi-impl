@@ -18,8 +18,8 @@
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.AbstractRevertOperate;
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
+import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.insertvalue.InsertValue;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
@@ -37,14 +37,14 @@ import java.util.Map;
  *
  * @author duhongjun
  */
-public final class RevertInsert extends AbstractRevertOperate {
+public final class RevertInsert extends DMLRevertSQLExecutor {
     
     public RevertInsert() {
         this.setRevertSQLGenerator(new RevertInsertGenerator());
     }
     
     @Override
-    protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) {
+    protected RevertSQLStatement buildRevertSQLStatement(final SnapshotParameter snapshotParameter, final List<String> keys) {
         InsertStatement insertStatement = (InsertStatement) snapshotParameter.getStatement();
         RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), insertStatement.getColumnNames(), keys, snapshotParameter.getActualSQLParams(),
                 insertStatement.getValues().size(), false);

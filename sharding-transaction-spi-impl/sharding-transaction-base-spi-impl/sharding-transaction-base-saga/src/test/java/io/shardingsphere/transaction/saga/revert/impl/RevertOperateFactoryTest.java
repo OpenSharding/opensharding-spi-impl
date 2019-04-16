@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl;
 
-import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
+import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExecutor;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdate;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
@@ -36,6 +36,6 @@ public class RevertOperateFactoryTest {
         RevertOperateFactory factory = new RevertOperateFactory();
         assertThat(factory.getRevertSQLCreator(mock(InsertStatement.class)), instanceOf(RevertInsert.class));
         assertThat(factory.getRevertSQLCreator(mock(UpdateStatement.class)), instanceOf(RevertUpdate.class));
-        assertThat(factory.getRevertSQLCreator(mock(DeleteStatement.class)), instanceOf(RevertDelete.class));
+        assertThat(factory.getRevertSQLCreator(mock(DeleteStatement.class)), instanceOf(DeleteRevertSQLExecutor.class));
     }
 }

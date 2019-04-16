@@ -17,8 +17,8 @@
 
 package io.shardingsphere.transaction.saga.revert.impl;
 
-import io.shardingsphere.transaction.saga.revert.api.SQLRevertExecutor;
-import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExecutor;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdate;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
@@ -46,12 +46,12 @@ public final class RevertOperateFactory {
      *
      * @return Revert Operate
      */
-    public SQLRevertExecutor getRevertSQLCreator(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
+    public RevertSQLExecutor getRevertSQLCreator(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
         if (dmlStatement instanceof InsertStatement) {
             return new RevertInsert();
         }
         if (dmlStatement instanceof DeleteStatement) {
-            return new RevertDelete(actualTableName, (DeleteStatement) dmlStatement, actualSQLParameters);
+            return new DeleteRevertSQLExecutor(actualTableName, (DeleteStatement) dmlStatement, actualSQLParameters);
         }
         return new RevertUpdate(actualTableName, (UpdateStatement) dmlStatement, actualSQLParameters, tableMetaData);
     }

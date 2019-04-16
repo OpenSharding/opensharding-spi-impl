@@ -15,25 +15,19 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.api;
+package io.shardingsphere.transaction.saga.revert.impl;
 
-import java.sql.SQLException;
-
-import com.google.common.base.Optional;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
- * Revert operate.
+ * Revert context generator parameter.
  *
  * @author duhongjun
  */
-public interface SQLRevertExecutor {
+@RequiredArgsConstructor
+@Getter
+public abstract class RevertSQLStatement {
     
-    /**
-     * Generate snapshot.
-     * 
-     * @param snapshotParameter snapshot parameter
-     * @return revert context
-     * @throws SQLException failed to execute SQL, throw this exception
-     */
-    Optional<RevertContext> snapshot(SnapshotParameter snapshotParameter) throws SQLException;
+    private final String actualTable;
 }

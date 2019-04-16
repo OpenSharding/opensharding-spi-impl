@@ -15,27 +15,25 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.delete;
+package io.shardingsphere.transaction.saga.revert.api;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
 
-import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
-import lombok.Getter;
+import com.google.common.base.Optional;
 
 /**
- * Revert delete parameter.
+ * Revert operate.
  *
  * @author duhongjun
  */
-@Getter
-public class RevertDeleteParameter extends RevertContextGeneratorParameter {
+public interface RevertSQLExecutor {
     
-    private final List<Map<String, Object>> selectSnapshot = new LinkedList<>();
-    
-    public RevertDeleteParameter(final String tableName, final List<Map<String, Object>> selectSnapshot) {
-        super(tableName);
-        this.selectSnapshot.addAll(selectSnapshot);
-    }
+    /**
+     * Generate snapshot.
+     * 
+     * @param snapshotParameter snapshot parameter
+     * @return revert context
+     * @throws SQLException failed to execute SQL, throw this exception
+     */
+    Optional<RevertSQLUnit> execute(SnapshotParameter snapshotParameter) throws SQLException;
 }

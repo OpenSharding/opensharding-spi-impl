@@ -18,12 +18,11 @@
 package io.shardingsphere.transaction.saga.revert.impl;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
-import io.shardingsphere.transaction.saga.revert.api.RevertContext;
-import io.shardingsphere.transaction.saga.revert.api.SQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecutor;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 
@@ -38,27 +37,18 @@ import java.util.List;
  */
 @Setter
 @Getter
-@NoArgsConstructor
-public abstract class AbstractRevertOperate implements SQLRevertExecutor {
+@RequiredArgsConstructor
+public abstract class DMLRevertSQLExecutor implements RevertSQLExecutor {
     
-    private RevertContextGenerator revertSQLGenerator;
+    private final RevertSQLGenerator revertSQLGenerator;
     
-    private DMLSnapshotDataAccessor snapshotDataAccessor;
-    
-    protected AbstractRevertOperate(final DMLSnapshotDataAccessor snapshotDataAccessor) {
-        this.snapshotDataAccessor = snapshotDataAccessor;
-    }
-    
-    // CHECKSTYLE:OFF
     @Override
-    // CHECKSTYLE:ON
-    public Optional<RevertContext> snapshot(final SnapshotParameter snapshotParameter) throws SQLException {
-        snapshotDataAccessor.queryUndoData(snapshotParameter.getConnection());
+    public Optional<RevertSQLUnit> execute(final SnapshotParameter snapshotParameter) throws SQLException {
         List<String> keys = getKeyColumns(snapshotParameter);
         if (keys.isEmpty()) {
             throw new RuntimeException("Not supported table without primary key");
         }
-        return revertSQLGenerator.generate(createRevertContext(snapshotParameter, keys));
+        return revertSQLGenerator.generateRevertSQL(buildRevertSQLStatement(snapshotParameter, keys));
     }
     
     private List<String> getKeyColumns(final SnapshotParameter snapshotParameter) {
@@ -71,5 +61,5 @@ public abstract class AbstractRevertOperate implements SQLRevertExecutor {
         return result;
     }
     
-    protected abstract RevertContextGeneratorParameter createRevertContext(SnapshotParameter snapshotParameter, List<String> keys) throws SQLException;
+    protected abstract RevertSQLStatement buildRevertSQLStatement(SnapshotParameter snapshotParameter, List<String> keys) throws SQLException;
 }
