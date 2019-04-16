@@ -17,8 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.DMLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.insertvalue.InsertValue;
@@ -37,19 +36,27 @@ import java.util.Map;
  *
  * @author duhongjun
  */
-public final class RevertInsert extends DMLRevertSQLExecutor {
+public final class RevertInsertExecutor extends DMLRevertExecutor {
     
-    public RevertInsert() {
-        this.setRevertSQLGenerator(new RevertInsertGenerator());
+    private final String actualTable;
+    
+    private final InsertStatement insertStatement;
+    
+    private final List<Object> actualSQLParameters;
+    
+    public RevertInsertExecutor(final String actualTable, final InsertStatement insertStatement, final List<Object> actualSQLParameters) {
+        super(new RevertInsertSQLGenerator());
+        this.actualTable = actualTable;
+        this.insertStatement = insertStatement;
+        this.actualSQLParameters = actualSQLParameters;
     }
     
     @Override
-    protected RevertSQLStatement buildRevertSQLStatement(final SnapshotParameter snapshotParameter, final List<String> keys) {
-        InsertStatement insertStatement = (InsertStatement) snapshotParameter.getStatement();
-        RevertInsertGeneratorParameter result = new RevertInsertGeneratorParameter(snapshotParameter.getActualTable(), insertStatement.getColumnNames(), keys, snapshotParameter.getActualSQLParams(),
-                insertStatement.getValues().size(), false);
+    protected RevertSQLStatement buildRevertSQLStatement(final List<String> keys) {
+        InsertRevertSQLStatement result = new InsertRevertSQLStatement(actualTable, insertStatement.getColumnNames(), keys,
+            actualSQLParameters, insertStatement.getValues().size(), false);
         Iterator<String> columnNamesIterator = insertStatement.getColumnNames().iterator();
-        Iterator actualSQLParameterIterator = snapshotParameter.getActualSQLParams().iterator();
+        Iterator actualSQLParameterIterator = actualSQLParameters.iterator();
         for (InsertValue each : insertStatement.getValues()) {
             result.getInsertGroups().add(createInsertGroup(each, columnNamesIterator, actualSQLParameterIterator, keys));
         }

@@ -18,13 +18,13 @@
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.DMLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -35,17 +35,23 @@ import java.util.List;
  */
 @Getter
 @Setter
-public final class DeleteRevertSQLExecutor extends DMLRevertSQLExecutor {
+public final class DeleteRevertExecutor extends DMLRevertExecutor {
     
     private DMLSnapshotDataAccessor snapshotDataAccessor;
     
-    public DeleteRevertSQLExecutor(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
+    private final String actualTableName;
+    
+    private final Connection connection;
+    
+    public DeleteRevertExecutor(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters, final Connection connection) {
         super(new DeleteRevertSQLGenerator());
+        this.actualTableName = actualTableName;
+        this.connection = connection;
         snapshotDataAccessor = new DMLSnapshotDataAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters));
     }
     
     @Override
-    protected RevertSQLStatement buildRevertSQLStatement(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
-        return new DeleteRevertSQLStatement(snapshotParameter.getActualTable(), snapshotDataAccessor.queryUndoData(snapshotParameter.getConnection()));
+    protected RevertSQLStatement buildRevertSQLStatement(final List<String> keys) throws SQLException {
+        return new DeleteRevertSQLStatement(actualTableName, snapshotDataAccessor.queryUndoData(connection));
     }
 }

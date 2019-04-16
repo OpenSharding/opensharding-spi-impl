@@ -35,12 +35,12 @@ import static org.junit.Assert.assertTrue;
 
 public class RevertInsertGeneratorTest {
     
-    private RevertInsertGeneratorParameter insertGeneratorParameter;
+    private InsertRevertSQLStatement insertGeneratorParameter;
     
     @Test
     public void generateWithKeyGenerator() {
         mockInsertStatementWithKeyGenerator();
-        RevertInsertGenerator insertGenerator = new RevertInsertGenerator();
+        RevertInsertSQLGenerator insertGenerator = new RevertInsertSQLGenerator();
         Optional<RevertSQLUnit> revertContext = insertGenerator.generate(insertGeneratorParameter);
         assertTrue(revertContext.isPresent());
         assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
@@ -54,14 +54,14 @@ public class RevertInsertGeneratorTest {
         List<String> columnNames = Lists.newArrayList();
         columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        insertGeneratorParameter = new RevertInsertGeneratorParameter(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
+        insertGeneratorParameter = new InsertRevertSQLStatement(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
             TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE, TableMetaDataUtil.ORDER_ID_VALUE), 1, true);
     }
     
     @Test
     public void generateWithoutKeyGenerator() {
         mockInsertStatementWithoutKeyGenerator();
-        RevertInsertGenerator insertGenerator = new RevertInsertGenerator();
+        RevertInsertSQLGenerator insertGenerator = new RevertInsertSQLGenerator();
         Optional<RevertSQLUnit> revertContext = insertGenerator.generate(insertGeneratorParameter);
         assertTrue(revertContext.isPresent());
         assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
@@ -78,7 +78,7 @@ public class RevertInsertGeneratorTest {
         keyValue.put(TableMetaDataUtil.COLUMN_ORDER_ID, 1L);
         columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        insertGeneratorParameter = new RevertInsertGeneratorParameter(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
+        insertGeneratorParameter = new InsertRevertSQLStatement(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
             TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE, TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE), 1, false);
         insertGeneratorParameter.getInsertGroups().add(keyValue);
     }

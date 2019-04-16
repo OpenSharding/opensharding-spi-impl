@@ -36,11 +36,11 @@ import java.util.Set;
  *
  * @author duhongjun
  */
-public final class RevertInsertGenerator implements RevertSQLGenerator {
+public final class RevertInsertSQLGenerator implements RevertSQLGenerator {
     
     @Override
     public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLStatement parameter) {
-        RevertInsertGeneratorParameter insertParameter = (RevertInsertGeneratorParameter) parameter;
+        InsertRevertSQLStatement insertParameter = (InsertRevertSQLStatement) parameter;
         RevertSQLUnit result = new RevertSQLUnit(generateSQL(insertParameter));
         Set<Integer> keyColumnIndexs = new HashSet<>();
         List<String> allColumns = new LinkedList<>();
@@ -60,7 +60,7 @@ public final class RevertInsertGenerator implements RevertSQLGenerator {
     }
     
     private String generateSQL(final RevertSQLStatement parameter) {
-        RevertInsertGeneratorParameter insertParameter = (RevertInsertGeneratorParameter) parameter;
+        InsertRevertSQLStatement insertParameter = (InsertRevertSQLStatement) parameter;
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.DELETE).append(" ");
         builder.append(DefaultKeyword.FROM).append(" ");
@@ -77,7 +77,7 @@ public final class RevertInsertGenerator implements RevertSQLGenerator {
         return builder.toString();
     }
     
-    private void fillRevertParams(final RevertSQLUnit revertContext, final RevertInsertGeneratorParameter insertParameter, final Set<Integer> keyColumnIndexs) {
+    private void fillRevertParams(final RevertSQLUnit revertContext, final InsertRevertSQLStatement insertParameter, final Set<Integer> keyColumnIndexs) {
         if (insertParameter.isGenerateKey()) {
             int eachParameterSize = insertParameter.getParams().size() / insertParameter.getBatchSize();
             for (int i = 0; i < insertParameter.getBatchSize(); i++) {

@@ -17,9 +17,9 @@
 
 package io.shardingsphere.transaction.saga.revert.impl;
 
-import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExecutor;
-import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
-import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdate;
+import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsertExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.update.UpdateRevertExecutor;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
@@ -34,8 +34,8 @@ public class RevertOperateFactoryTest {
     @Test
     public void assertGetRevertSQLCreator() {
         RevertOperateFactory factory = new RevertOperateFactory();
-        assertThat(factory.getRevertSQLCreator(mock(InsertStatement.class)), instanceOf(RevertInsert.class));
-        assertThat(factory.getRevertSQLCreator(mock(UpdateStatement.class)), instanceOf(RevertUpdate.class));
-        assertThat(factory.getRevertSQLCreator(mock(DeleteStatement.class)), instanceOf(DeleteRevertSQLExecutor.class));
+        assertThat(factory.getRevertSQLCreator(mock(InsertStatement.class)), instanceOf(RevertInsertExecutor.class));
+        assertThat(factory.getRevertSQLCreator(mock(UpdateStatement.class)), instanceOf(UpdateRevertExecutor.class));
+        assertThat(factory.getRevertSQLCreator(mock(DeleteStatement.class)), instanceOf(DeleteRevertExecutor.class));
     }
 }

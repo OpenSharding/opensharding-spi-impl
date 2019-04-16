@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class RevertInsertTest {
     
     @Mock
-    private RevertInsertGenerator revertInsertGenerator;
+    private RevertInsertSQLGenerator revertInsertGenerator;
     
     @Mock
     private InsertStatement insertStatement;
@@ -76,9 +76,9 @@ public class RevertInsertTest {
     @Test
     public void assertSnapshot() throws SQLException {
         mockInsertStatement();
-        RevertInsert revertInsert = new RevertInsert();
+        RevertInsertExecutor revertInsert = new RevertInsertExecutor(actualTable, insertStatement, actualSQLParameters);
         revertInsert.setRevertSQLGenerator(revertInsertGenerator);
         revertInsert.snapshot(snapshotParameter);
-        verify(revertInsertGenerator).generate(any(RevertInsertGeneratorParameter.class));
+        verify(revertInsertGenerator).generate(any(InsertRevertSQLStatement.class));
     }
 }

@@ -31,7 +31,7 @@ import java.util.Map;
  * @author duhongjun
  */
 @Getter
-public final class RevertInsertGeneratorParameter extends RevertSQLStatement {
+public final class InsertRevertSQLStatement extends RevertSQLStatement {
 
     private final List<String> keys = new LinkedList<>();
 
@@ -45,8 +45,8 @@ public final class RevertInsertGeneratorParameter extends RevertSQLStatement {
     
     private final boolean generateKey;
     
-    public RevertInsertGeneratorParameter(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> params,
-                                          final int batchSize, final boolean generateKey) {
+    public InsertRevertSQLStatement(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> params,
+                                    final int batchSize, final boolean generateKey) {
         super(tableName);
         this.insertColumns.addAll(tableColumns);
         this.keys.addAll(keys);

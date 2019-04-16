@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.impl;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecutor;
+import io.shardingsphere.transaction.saga.revert.api.RevertExecutor;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import lombok.Getter;
@@ -38,7 +38,7 @@ import java.util.List;
 @Setter
 @Getter
 @RequiredArgsConstructor
-public abstract class DMLRevertSQLExecutor implements RevertSQLExecutor {
+public abstract class DMLRevertExecutor implements RevertExecutor {
     
     private final RevertSQLGenerator revertSQLGenerator;
     
@@ -48,7 +48,7 @@ public abstract class DMLRevertSQLExecutor implements RevertSQLExecutor {
         if (keys.isEmpty()) {
             throw new RuntimeException("Not supported table without primary key");
         }
-        return revertSQLGenerator.generateRevertSQL(buildRevertSQLStatement(snapshotParameter, keys));
+        return revertSQLGenerator.generateRevertSQL(buildRevertSQLStatement(keys));
     }
     
     private List<String> getKeyColumns(final SnapshotParameter snapshotParameter) {
@@ -61,5 +61,5 @@ public abstract class DMLRevertSQLExecutor implements RevertSQLExecutor {
         return result;
     }
     
-    protected abstract RevertSQLStatement buildRevertSQLStatement(SnapshotParameter snapshotParameter, List<String> keys) throws SQLException;
+    protected abstract RevertSQLStatement buildRevertSQLStatement(List<String> keys) throws SQLException;
 }

@@ -50,7 +50,7 @@ public class RevertDeleteTest {
     
     @Test
     public void assertSnapshot() throws Exception {
-        DeleteRevertSQLExecutor revertDelete = new DeleteRevertSQLExecutor();
+        DeleteRevertExecutor revertDelete = new DeleteRevertExecutor();
         revertDelete.setSnapshotMaker(snapshotMaker);
         revertDelete.setRevertSQLGenerator(revertDeleteGenerator);
         revertDelete.snapshot(snapshotParameter);
@@ -60,7 +60,7 @@ public class RevertDeleteTest {
     
     @Test(expected = RuntimeException.class)
     public void assertSnapshotNoKey() throws Exception {
-        DeleteRevertSQLExecutor revertDelete = new DeleteRevertSQLExecutor();
+        DeleteRevertExecutor revertDelete = new DeleteRevertExecutor();
         revertDelete.setSnapshotMaker(snapshotMaker);
         revertDelete.setRevertSQLGenerator(revertDeleteGenerator);
         snapshotParameter.getTableMeta().getColumns().put(TableMetaDataUtil.COLUMN_ORDER_ID, new ColumnMetaData(TableMetaDataUtil.COLUMN_ORDER_ID, "", false));

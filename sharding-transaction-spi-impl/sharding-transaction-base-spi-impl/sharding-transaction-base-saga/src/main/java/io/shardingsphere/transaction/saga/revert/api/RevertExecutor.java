@@ -26,7 +26,7 @@ import com.google.common.base.Optional;
  *
  * @author duhongjun
  */
-public interface RevertSQLExecutor {
+public interface RevertExecutor {
     
     /**
      * Generate snapshot.
