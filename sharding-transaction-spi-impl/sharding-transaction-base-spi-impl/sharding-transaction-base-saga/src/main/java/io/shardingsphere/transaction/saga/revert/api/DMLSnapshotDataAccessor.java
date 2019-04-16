@@ -23,7 +23,6 @@ import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -31,50 +30,29 @@ import java.util.Map;
  *
  * @author zhaojun
  */
-public abstract class DMLSnapshotDataAccessor implements SnapshotDataAccessor {
+public class DMLSnapshotDataAccessor implements SnapshotDataAccessor {
     
-    private final String actualTableName;
+    private final SnapshotSQLSegment snapshotSQLSegment;
     
     private SnapshotQuerySQLBuilder sqlBuilder = new SnapshotQuerySQLBuilder();
     
-    protected DMLSnapshotDataAccessor(final String actualTableName) {
-        this.actualTableName = actualTableName;
+    public DMLSnapshotDataAccessor(final SnapshotSQLSegment snapshotSQLSegment) {
+        this.snapshotSQLSegment = snapshotSQLSegment;
     }
     
     @Override
     public final Collection<Map<String, Object>> queryUndoData(final Connection connection) throws SQLException {
-        return JDBCUtil.executeQuery(connection, createSnapshotQuerySQL(), getQueryParameters());
+        return JDBCUtil.executeQuery(connection, buildSnapshotQuerySQL(), snapshotSQLSegment.getQueryParameters());
     }
     
-    private String createSnapshotQuerySQL() {
+    private String buildSnapshotQuerySQL() {
         sqlBuilder.appendLiterals(DefaultKeyword.SELECT);
-        sqlBuilder.appendQueryItems(Collections.singletonList("*"));
+        sqlBuilder.appendQueryItems(snapshotSQLSegment.getQueryItems());
         sqlBuilder.appendLiterals(DefaultKeyword.FROM);
-        sqlBuilder.appendLiterals(actualTableName);
-        sqlBuilder.appendLiterals(getTableAliasLiterals());
-        sqlBuilder.appendLiterals(getWhereClauseLiterals());
+        sqlBuilder.appendLiterals(snapshotSQLSegment.getActualTableName());
+        sqlBuilder.appendLiterals(snapshotSQLSegment.getTableAliasLiterals());
+        sqlBuilder.appendLiterals(snapshotSQLSegment.getWhereClauseLiterals());
         return sqlBuilder.toSQL();
     }
-    
-    /**
-     * Get Table alias literals.
-     *
-     * @return table alias
-     */
-    public abstract String getTableAliasLiterals();
-    
-    /**
-     * Get where clause literals.
-     *
-     * @return where clause literals
-     */
-    public abstract String getWhereClauseLiterals();
-    
-    /**
-     * Get Query parameters.
-     *
-     * @return Collection
-     */
-    public abstract Collection<Object> getQueryParameters();
 }
 
