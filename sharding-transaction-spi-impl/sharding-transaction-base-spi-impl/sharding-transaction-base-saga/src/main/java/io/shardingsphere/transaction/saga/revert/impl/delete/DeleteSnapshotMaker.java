@@ -19,6 +19,7 @@ package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
@@ -38,27 +39,27 @@ public class DeleteSnapshotMaker {
     /**
      * Make snapshot before execute delete statement.
      *
-     * @param snapshotParameter snapshot paramenter
+     * @param snapshotParameter snapshot parameter
      * @param keys table keys
      * @return query result
      * @throws SQLException failed to execute SQL, throw this exception
      */
-    public List<Map<String, Object>> make(final SnapshotParameter snapshotParameter, final List<String> keys)
-            throws SQLException {
-        String selectSQL = makeSelectSql(snapshotParameter, keys);
-        Collection<Object> selectParams = makeSelectParam(snapshotParameter);
+    public List<Map<String, Object>> make(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
+        DeleteStatement deleteStatement = (DeleteStatement) snapshotParameter.getStatement();
+        String selectSQL = makeSelectSql(snapshotParameter, deleteStatement, keys);
+        Collection<Object> selectParams = makeSelectParam(snapshotParameter, deleteStatement);
         return JDBCUtil.executeQuery(snapshotParameter.getConnection(), selectSQL, selectParams);
     }
     
-    private String makeSelectSql(final SnapshotParameter snapshotParameter, final List<String> keys) {
+    private String makeSelectSql(final SnapshotParameter snapshotParameter, final DeleteStatement deleteStatement, final List<String> keys) {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.SELECT).append(" ");
         fillSelectItem(builder, snapshotParameter, keys);
         builder.append(DefaultKeyword.FROM).append(" ");
         builder.append(snapshotParameter.getActualTable());
         fillAlias(builder, snapshotParameter);
-        if (0 < snapshotParameter.getStatement().getWhereStartIndex()) {
-            builder.append(" ").append(snapshotParameter.getLogicSQL(), snapshotParameter.getStatement().getWhereStartIndex(), snapshotParameter.getStatement().getWhereStopIndex() + 1);
+        if (0 < deleteStatement.getWhereStartIndex()) {
+            builder.append(" ").append(snapshotParameter.getLogicSQL(), deleteStatement.getWhereStartIndex(), deleteStatement.getWhereStopIndex() + 1);
         }
         return builder.toString();
     }
@@ -76,14 +77,12 @@ public class DeleteSnapshotMaker {
         builder.append("* ");
     }
     
-    private Collection<Object> makeSelectParam(final SnapshotParameter snapshotParameter) {
+    private Collection<Object> makeSelectParam(final SnapshotParameter snapshotParameter, final DeleteStatement deleteStatement) {
         if (null == snapshotParameter.getActualSQLParams() || snapshotParameter.getActualSQLParams().size() <= 0) {
             return Collections.emptyList();
         }
-        int start = snapshotParameter.getStatement().getWhereParameterStartIndex();
-        int stop = snapshotParameter.getStatement().getWhereParameterEndIndex();
         Collection<Object> selectParams = new LinkedList<>();
-        for (int i = start; i <= stop; i++) {
+        for (int i = deleteStatement.getWhereParameterStartIndex(); i <= deleteStatement.getWhereParameterEndIndex(); i++) {
             selectParams.add(snapshotParameter.getActualSQLParams().get(i));
         }
         return selectParams;

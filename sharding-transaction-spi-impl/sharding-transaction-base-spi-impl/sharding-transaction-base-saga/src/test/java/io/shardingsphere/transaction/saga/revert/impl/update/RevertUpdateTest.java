@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
@@ -51,18 +51,18 @@ public class RevertUpdateTest {
     private UpdateSnapshotMaker snapshotMaker;
     
     @Mock
-    private DMLStatement dmlStatement;
+    private UpdateStatement updateStatement;
     
     private SnapshotParameter snapshotParameter;
     
     @Before
     public void setUp() {
-        Map<Column, SQLExpression> columnValues = new LinkedHashMap<>();
-        columnValues.put(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, "t_order"), new SQLPlaceholderExpression(0));
-        columnValues.put(new Column(TableMetaDataUtil.COLUMN_USER_ID, "t_order"), new SQLNumberExpression(2));
-        columnValues.put(new Column(TableMetaDataUtil.COLUMN_STATUS, "t_order"), new SQLTextExpression(TableMetaDataUtil.STATUS_VALUE));
-        when(dmlStatement.getUpdateColumnValues()).thenReturn(columnValues);
-        snapshotParameter = new SnapshotParameter(TableMetaDataUtil.mockTableMetaData(), dmlStatement, null, TableMetaDataUtil.ACTUAL_TABLE_NAME, null, null, Lists.<Object>newArrayList(1L));
+        Map<Column, SQLExpression> assignments = new LinkedHashMap<>();
+        assignments.put(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, "t_order"), new SQLPlaceholderExpression(0));
+        assignments.put(new Column(TableMetaDataUtil.COLUMN_USER_ID, "t_order"), new SQLNumberExpression(2));
+        assignments.put(new Column(TableMetaDataUtil.COLUMN_STATUS, "t_order"), new SQLTextExpression(TableMetaDataUtil.STATUS_VALUE));
+        when(updateStatement.getAssignments()).thenReturn(assignments);
+        snapshotParameter = new SnapshotParameter(TableMetaDataUtil.mockTableMetaData(), updateStatement, null, TableMetaDataUtil.ACTUAL_TABLE_NAME, null, null, Lists.<Object>newArrayList(1L));
     }
     
     @Test

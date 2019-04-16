@@ -22,6 +22,7 @@ import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.insertvalue.InsertValue;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 import org.junit.Before;
@@ -31,11 +32,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,20 +58,18 @@ public class RevertInsertTest {
     
     @SuppressWarnings("unchecked")
     private void mockInsertStatement() {
-        LinkedList conditions = mock(LinkedList.class);
-        when(conditions.isEmpty()).thenReturn(false);
-        when(insertStatement.getGeneratedKeyConditions()).thenReturn(conditions);
         List<String> columnNames = Lists.newArrayList();
-        List<InsertValue> insertValues = Lists.newArrayList();
-        InsertValue insertValue = new InsertValue(3);
-        insertValues.add(insertValue);
         columnNames.add(TableMetaDataUtil.COLUMN_ORDER_ID);
         columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        insertValue.getColumnValues().add(new SQLPlaceholderExpression(0));
-        insertValue.getColumnValues().add(new SQLTextExpression("test"));
-        insertValue.getColumnValues().add(new SQLTextExpression("test"));
         when(insertStatement.getColumnNames()).thenReturn(columnNames);
+        Collection<SQLExpression> assignments = Lists.newArrayList();
+        assignments.add(new SQLPlaceholderExpression(0));
+        assignments.add(new SQLTextExpression("test"));
+        assignments.add(new SQLTextExpression("test"));
+        InsertValue insertValue = new InsertValue(assignments);
+        List<InsertValue> insertValues = Lists.newArrayList();
+        insertValues.add(insertValue);
         when(insertStatement.getValues()).thenReturn(insertValues);
     }
     

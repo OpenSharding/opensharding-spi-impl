@@ -17,13 +17,16 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
+import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteSnapshotMaker;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
+import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Update snapshot maker.
@@ -34,11 +37,10 @@ public final class UpdateSnapshotMaker extends DeleteSnapshotMaker {
     
     @Override
     protected void fillAlias(final StringBuilder builder, final SnapshotParameter snapshotParameter) {
-        if (!snapshotParameter.getStatement().getUpdateTableAlias().isEmpty()) {
-            Map.Entry<String, String> entry = snapshotParameter.getStatement().getUpdateTableAlias().entrySet().iterator().next();
-            if (!entry.getKey().equals(entry.getValue())) {
-                builder.append(" ").append(entry.getKey()).append(" ");
-            }
+        DMLStatement dmlStatement = snapshotParameter.getStatement();
+        Optional<Table> table = dmlStatement.getTables().find(dmlStatement.getTables().getSingleTableName());
+        if (table.isPresent() && table.get().getAlias().isPresent() && !table.get().getAlias().get().equals(table.get().getName())) {
+            builder.append(" ").append(table.get().getAlias().get()).append(" ");
         }
     }
     
@@ -50,7 +52,8 @@ public final class UpdateSnapshotMaker extends DeleteSnapshotMaker {
         }
         List<String> tableKeys = new LinkedList<>(keys);
         boolean first = true;
-        for (Column each : snapshotParameter.getStatement().getUpdateColumnValues().keySet()) {
+        UpdateStatement updateStatement = (UpdateStatement) snapshotParameter.getStatement();
+        for (Column each : updateStatement.getAssignments().keySet()) {
             int dotPos = each.getName().indexOf('.');
             String realColumnName;
             if (dotPos > 0) {
