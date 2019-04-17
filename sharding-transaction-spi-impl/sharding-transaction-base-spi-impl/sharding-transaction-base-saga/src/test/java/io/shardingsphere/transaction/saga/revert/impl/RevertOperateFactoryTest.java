@@ -33,9 +33,9 @@ public class RevertOperateFactoryTest {
     
     @Test
     public void assertGetRevertSQLCreator() {
-        RevertOperateFactory factory = new RevertOperateFactory();
-        assertThat(factory.getRevertSQLCreator(mock(InsertStatement.class)), instanceOf(InsertRevertSQLExecuteWrapper.class));
-        assertThat(factory.getRevertSQLCreator(mock(UpdateStatement.class)), instanceOf(UpdateRevertSQLExecuteWrapper.class));
-        assertThat(factory.getRevertSQLCreator(mock(DeleteStatement.class)), instanceOf(DeleteRevertSQLExecuteWrapper.class));
+        RevertSQLEngineFactory factory = new RevertSQLEngineFactory();
+        assertThat(factory.newInstance(mock(InsertStatement.class)), instanceOf(InsertRevertSQLExecuteWrapper.class));
+        assertThat(factory.newInstance(mock(UpdateStatement.class)), instanceOf(UpdateRevertSQLExecuteWrapper.class));
+        assertThat(factory.newInstance(mock(DeleteStatement.class)), instanceOf(DeleteRevertSQLExecuteWrapper.class));
     }
 }

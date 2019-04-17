@@ -31,11 +31,12 @@ import java.sql.Connection;
 import java.util.List;
 
 /**
- * Revert operate factory.
+ * Revert SQL engine factory.
  *
  * @author duhongjun
+ * @author zhaojun
  */
-public final class RevertOperateFactory {
+public final class RevertSQLEngineFactory {
     
     /**
      * Get RevertOperate by DMLStatement.
@@ -48,8 +49,8 @@ public final class RevertOperateFactory {
      *
      * @return Revert Operate
      */
-    public RevertSQLEngine getRevertSQLCreator(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData,
-                                               final Connection connection) {
+    public static RevertSQLEngine newInstance(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters,
+                                              final TableMetaData tableMetaData, final Connection connection) {
         if (dmlStatement instanceof InsertStatement) {
             return new DMLRevertSQLEngine(new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) dmlStatement, actualSQLParameters));
         }

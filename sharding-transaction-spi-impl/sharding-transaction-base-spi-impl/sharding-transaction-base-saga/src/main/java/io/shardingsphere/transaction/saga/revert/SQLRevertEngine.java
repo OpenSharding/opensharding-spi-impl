@@ -22,7 +22,7 @@ import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactory;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLEngineFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
@@ -42,7 +42,7 @@ public final class SQLRevertEngine {
     
     private final Map<String, Connection> connectionMap;
     
-    private final RevertOperateFactory revertOperateFactory = new RevertOperateFactory();
+    private final RevertSQLEngineFactory revertOperateFactory = new RevertSQLEngineFactory();
     
     /**
      * Get revert result.
@@ -59,8 +59,8 @@ public final class SQLRevertEngine {
         Connection actualConnection = connectionMap.get(sagaBranchTransaction.getDataSourceName());
         String actualTableName = sagaBranchTransaction.getActualTableName();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
-            RevertSQLEngine revertOperate = revertOperateFactory.getRevertSQLCreator(actualTableName, dmlStatement, each, tableMetaData, actualConnection);
-            Optional<RevertSQLUnit> revertContextOptional = revertOperate.execute(tableMetaData);
+            RevertSQLEngine revertSQLEngine = RevertSQLEngineFactory.newInstance(actualTableName, dmlStatement, each, tableMetaData, actualConnection);
+            Optional<RevertSQLUnit> revertContextOptional = revertSQLEngine.execute(tableMetaData);
             if (revertContextOptional.isPresent()) {
                 result.setSql(revertContextOptional.get().getRevertSQL());
                 result.getParameterSets().addAll(revertContextOptional.get().getRevertParams());

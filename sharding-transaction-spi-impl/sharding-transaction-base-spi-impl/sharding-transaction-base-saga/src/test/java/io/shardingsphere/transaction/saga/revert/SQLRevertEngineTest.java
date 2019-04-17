@@ -23,7 +23,7 @@ import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactory;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLEngineFactory;
 import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import lombok.SneakyThrows;
@@ -54,7 +54,7 @@ public class SQLRevertEngineTest {
     private final SQLRevertEngine revertEngine = new SQLRevertEngine(new HashMap<String, Connection>());
     
     @Mock
-    private RevertOperateFactory factory;
+    private RevertSQLEngineFactory factory;
     
     @Mock
     private InsertStatement dmlStatement;
@@ -68,7 +68,7 @@ public class SQLRevertEngineTest {
         Field revertOperateFactoryField = SQLRevertEngine.class.getDeclaredField("revertOperateFactory");
         revertOperateFactoryField.setAccessible(true);
         revertOperateFactoryField.set(revertEngine, factory);
-        when(factory.getRevertSQLCreator(dmlStatement)).thenReturn(revertInsert);
+        when(factory.newInstance(dmlStatement)).thenReturn(revertInsert);
         RevertSQLUnit revertContext = new RevertSQLUnit("revert SQL");
         revertContext.getRevertParams().add(Lists.<Object>newArrayList(1L));
         when(revertInsert.snapshot(any(SnapshotParameter.class))).thenReturn(Optional.of(revertContext));
