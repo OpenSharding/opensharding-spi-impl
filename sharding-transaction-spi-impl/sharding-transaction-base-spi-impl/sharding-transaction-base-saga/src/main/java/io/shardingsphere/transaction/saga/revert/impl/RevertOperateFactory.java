@@ -22,6 +22,7 @@ import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
 import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsert;
 import io.shardingsphere.transaction.saga.revert.impl.update.RevertUpdate;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 
 /**
@@ -41,7 +42,7 @@ public final class RevertOperateFactory {
         if (dmlStatement instanceof InsertStatement) {
             return new RevertInsert();
         }
-        if (dmlStatement.isDeleteStatement()) {
+        if (dmlStatement instanceof DeleteStatement) {
             return new RevertDelete();
         }
         return new RevertUpdate();

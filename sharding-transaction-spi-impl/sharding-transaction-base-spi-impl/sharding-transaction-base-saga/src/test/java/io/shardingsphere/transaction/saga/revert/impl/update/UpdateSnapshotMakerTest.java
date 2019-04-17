@@ -21,8 +21,10 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
+import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
+import org.apache.shardingsphere.core.parse.old.parser.context.table.Tables;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
 import org.junit.Test;
@@ -31,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,15 +59,15 @@ public class UpdateSnapshotMakerTest {
     private static final String EXCEPTED_SQL = "SELECT * FROM t_order_1 alias   WHERE order_id = ?";
     
     @Mock
-    private DMLStatement dmlStatementWithKey;
+    private UpdateStatement updateStatementWithKey;
     
     @Mock
-    private DMLStatement dmlStatementWithoutKey;
+    private UpdateStatement updateStatementWithoutKey;
     
     @Test
     public void assertMakeWithKey() throws SQLException {
         mockStatementWithKey();
-        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatementWithKey, SnapshotUtil.mockGetSnapshotConnection(EXCEPTED_SQL_WITH_KEY),
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, updateStatementWithKey, SnapshotUtil.mockGetSnapshotConnection(EXCEPTED_SQL_WITH_KEY),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, UPDATE_SQL_WITH_KEY, null, ACTUAL_PARAMS_WITH_KEY);
         UpdateSnapshotMaker snapshotMaker = new UpdateSnapshotMaker();
         List<Map<String, Object>> snapshots = snapshotMaker.make(snapshotParameter, TableMetaDataUtil.KEYS);
@@ -75,22 +76,22 @@ public class UpdateSnapshotMakerTest {
     }
     
     private void mockStatementWithKey() {
-        when(dmlStatementWithKey.getWhereStartIndex()).thenReturn(63);
-        when(dmlStatementWithKey.getWhereStopIndex()).thenReturn(80);
-        Map<String, String> alias = new HashMap<>();
-        alias.put("alias", "t_order");
-        when(dmlStatementWithKey.getUpdateTableAlias()).thenReturn(alias);
-        Map<Column, SQLExpression> columnValues = new LinkedHashMap<>();
-        columnValues.put(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, "t_order"), new SQLPlaceholderExpression(0));
-        columnValues.put(new Column(TableMetaDataUtil.COLUMN_USER_ID, "t_order"), new SQLPlaceholderExpression(1));
-        columnValues.put(new Column(TableMetaDataUtil.COLUMN_STATUS, "t_order"), new SQLPlaceholderExpression(2));
-        when(dmlStatementWithKey.getUpdateColumnValues()).thenReturn(columnValues);
+        when(updateStatementWithKey.getWhereStartIndex()).thenReturn(63);
+        when(updateStatementWithKey.getWhereStopIndex()).thenReturn(80);
+        Tables tables = new Tables();
+        tables.add(new Table("t_order", "alias"));
+        when(updateStatementWithoutKey.getTables()).thenReturn(tables);
+        Map<Column, SQLExpression> assignments = new LinkedHashMap<>();
+        assignments.put(new Column(TableMetaDataUtil.COLUMN_ORDER_ID, "t_order"), new SQLPlaceholderExpression(0));
+        assignments.put(new Column(TableMetaDataUtil.COLUMN_USER_ID, "t_order"), new SQLPlaceholderExpression(1));
+        assignments.put(new Column(TableMetaDataUtil.COLUMN_STATUS, "t_order"), new SQLPlaceholderExpression(2));
+        when(updateStatementWithKey.getAssignments()).thenReturn(assignments);
     }
     
     @Test
     public void assertMakeWithoutKey() throws SQLException {
         mockStatementWithoutKey();
-        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatementWithoutKey, SnapshotUtil.mockGetSnapshotConnection(EXCEPTED_SQL_WITHOUT_KEY),
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, updateStatementWithoutKey, SnapshotUtil.mockGetSnapshotConnection(EXCEPTED_SQL_WITHOUT_KEY),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, UPDATE_SQL_WITHOUT_KEY, null, ACTUAL_PARAMS_WITHOUT_KEY);
         UpdateSnapshotMaker snapshotMaker = new UpdateSnapshotMaker();
         List<Map<String, Object>> snapshots = snapshotMaker.make(snapshotParameter, TableMetaDataUtil.KEYS);
@@ -99,21 +100,21 @@ public class UpdateSnapshotMakerTest {
     }
     
     private void mockStatementWithoutKey() {
-        when(dmlStatementWithoutKey.getWhereStartIndex()).thenReturn(48);
-        when(dmlStatementWithoutKey.getWhereStopIndex()).thenReturn(66);
-        Map<String, String> alias = new HashMap<>();
-        alias.put("alias", "t_order");
-        when(dmlStatementWithoutKey.getUpdateTableAlias()).thenReturn(alias);
-        Map<Column, SQLExpression> columnValues = new LinkedHashMap<>();
-        columnValues.put(new Column(TableMetaDataUtil.COLUMN_USER_ID, "t_order"), new SQLPlaceholderExpression(0));
-        columnValues.put(new Column(TableMetaDataUtil.COLUMN_STATUS, "t_order"), new SQLPlaceholderExpression(1));
-        when(dmlStatementWithoutKey.getUpdateColumnValues()).thenReturn(columnValues);
+        when(updateStatementWithoutKey.getWhereStartIndex()).thenReturn(48);
+        when(updateStatementWithoutKey.getWhereStopIndex()).thenReturn(66);
+        Tables tables = new Tables();
+        tables.add(new Table("t_order", "alias"));
+        when(updateStatementWithoutKey.getTables()).thenReturn(tables);
+        Map<Column, SQLExpression> assignments = new LinkedHashMap<>();
+        assignments.put(new Column(TableMetaDataUtil.COLUMN_USER_ID, "t_order"), new SQLPlaceholderExpression(0));
+        assignments.put(new Column(TableMetaDataUtil.COLUMN_STATUS, "t_order"), new SQLPlaceholderExpression(1));
+        when(updateStatementWithoutKey.getAssignments()).thenReturn(assignments);
     }
     
     @Test
     public void assertMakeNoKey() throws SQLException {
         mockStatementWithoutKey();
-        SnapshotParameter snapshotParameter = new SnapshotParameter(null, dmlStatementWithoutKey, SnapshotUtil.mockGetSnapshotConnection(EXCEPTED_SQL),
+        SnapshotParameter snapshotParameter = new SnapshotParameter(null, updateStatementWithoutKey, SnapshotUtil.mockGetSnapshotConnection(EXCEPTED_SQL),
             TableMetaDataUtil.ACTUAL_TABLE_NAME, UPDATE_SQL_WITHOUT_KEY, null, ACTUAL_PARAMS_WITHOUT_KEY);
         UpdateSnapshotMaker snapshotMaker = new UpdateSnapshotMaker();
         List<Map<String, Object>> snapshots = snapshotMaker.make(snapshotParameter, Lists.<String>newArrayList());

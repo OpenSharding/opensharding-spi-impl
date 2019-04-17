@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.RevertContextGeneratorParameter;
 import io.shardingsphere.transaction.saga.revert.impl.delete.RevertDelete;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
@@ -48,7 +49,8 @@ public final class RevertUpdate extends RevertDelete {
     protected RevertContextGeneratorParameter createRevertContext(final SnapshotParameter snapshotParameter, final List<String> keys) throws SQLException {
         List<Map<String, Object>> selectSnapshot = this.getSnapshotMaker().make(snapshotParameter, keys);
         Map<String, Object> updateColumns = new LinkedHashMap<>();
-        for (Entry<Column, SQLExpression> entry : snapshotParameter.getStatement().getUpdateColumnValues().entrySet()) {
+        UpdateStatement updateStatement = (UpdateStatement) snapshotParameter.getStatement();
+        for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
             if (entry.getValue() instanceof SQLPlaceholderExpression) {
                 updateColumns.put(entry.getKey().getName(), snapshotParameter.getActualSQLParams().get(((SQLPlaceholderExpression) entry.getValue()).getIndex()));
             } else if (entry.getValue() instanceof SQLTextExpression) {
