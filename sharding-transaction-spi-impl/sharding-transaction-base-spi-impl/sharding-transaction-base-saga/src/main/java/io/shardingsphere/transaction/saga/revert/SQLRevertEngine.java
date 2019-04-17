@@ -20,9 +20,8 @@ package io.shardingsphere.transaction.saga.revert;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
-import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.api.RevertExecutor;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
@@ -59,12 +58,9 @@ public final class SQLRevertEngine {
         TableMetaData tableMetaData = sagaBranchTransactionGroup.getShardingTableMetaData().get(dmlStatement.getTables().getSingleTableName());
         Connection actualConnection = connectionMap.get(sagaBranchTransaction.getDataSourceName());
         String actualTableName = sagaBranchTransaction.getActualTableName();
-        String logicSQL = sagaBranchTransactionGroup.getLogicSQL();
-        String actualSQL = sagaBranchTransaction.getSql();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
-            SnapshotParameter snapshotParameter = new SnapshotParameter(tableMetaData, dmlStatement, actualConnection, actualTableName, logicSQL, actualSQL, each);
-            RevertExecutor revertOperate = revertOperateFactory.getRevertSQLCreator(actualTableName, dmlStatement, each, tableMetaData);
-            Optional<RevertSQLUnit> revertContextOptional = revertOperate.execute(snapshotParameter);
+            RevertExecutor revertOperate = revertOperateFactory.getRevertSQLCreator(actualTableName, dmlStatement, each, tableMetaData, actualConnection);
+            Optional<RevertSQLUnit> revertContextOptional = revertOperate.execute(tableMetaData);
             if (revertContextOptional.isPresent()) {
                 result.setSql(revertContextOptional.get().getRevertSQL());
                 result.getParameterSets().addAll(revertContextOptional.get().getRevertParams());
