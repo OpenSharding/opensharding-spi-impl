@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.hook;
 
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,27 +32,27 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class SagaSQLParsingHookTest {
+public final class SagaSQLShardHookTest {
     
     @Mock
     private SagaTransaction sagaTransaction;
     
-    private final SagaSQLParsingHook sagaSQLParsingHook = new SagaSQLParsingHook();
+    private final SagaSQLShardHook sagaSQLShardHook = new SagaSQLShardHook();
     
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
         Field sagaTransactionField = SagaSQLParsingHook.class.getDeclaredField("sagaTransaction");
         sagaTransactionField.setAccessible(true);
-        sagaTransactionField.set(sagaSQLParsingHook, sagaTransaction);
+        sagaTransactionField.set(sagaSQLShardHook, sagaTransaction);
     }
     
     @Test
     public void assertFinishSuccess() {
         String sql = "UPDATE";
-        SQLStatement sqlStatement = mock(SQLStatement.class);
+        SQLRouteResult sqlRouteResult = mock(SQLRouteResult.class);
         ShardingTableMetaData shardingTableMetaData = mock(ShardingTableMetaData.class);
-        sagaSQLParsingHook.start(sql);
-        sagaSQLParsingHook.finishSuccess(sqlStatement, shardingTableMetaData);
-        verify(sagaTransaction).nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
+        sagaSQLShardHook.start(sql);
+        sagaSQLShardHook.finishSuccess(sqlRouteResult, shardingTableMetaData);
+        verify(sagaTransaction).nextLogicSQLTransaction(sql, sqlRouteResult, shardingTableMetaData);
     }
 }
