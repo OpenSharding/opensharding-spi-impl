@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.context;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+import org.apache.shardingsphere.core.route.SQLRouteResult;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -30,15 +30,26 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * @author yangyi
  */
-@RequiredArgsConstructor
 @Getter
 public class SagaBranchTransactionGroup {
     
     private final String logicSQL;
     
-    private final SQLStatement sqlStatement;
+    private final SQLRouteResult sqlRouteResult;
+    
+    private String logicTableName;
     
     private final ShardingTableMetaData shardingTableMetaData;
     
+    private TableMetaData tableMetaData;
+    
     private final Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
+    
+    public SagaBranchTransactionGroup(final String logicSQL, final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
+        this.logicSQL = logicSQL;
+        this.sqlRouteResult = sqlRouteResult;
+        this.shardingTableMetaData = shardingTableMetaData;
+        logicTableName = sqlRouteResult.getSqlStatement().getTables().getSingleTableName();
+        tableMetaData = shardingTableMetaData.get(logicTableName);
+    }
 }

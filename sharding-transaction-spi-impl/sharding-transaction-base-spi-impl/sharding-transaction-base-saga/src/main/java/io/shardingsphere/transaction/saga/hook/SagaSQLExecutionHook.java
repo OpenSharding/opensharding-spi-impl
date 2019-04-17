@@ -35,10 +35,10 @@ import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
-import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
+import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.core.route.SQLUnit;
+import org.apache.shardingsphere.core.route.type.RoutingTable;
 import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
@@ -66,10 +66,9 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
             if (sagaTransaction.isDMLBranchTransactionGroup()) {
                 sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()));
-                sagaBranchTransaction.setActualTableName(getActualTableName(routeUnit.getSqlUnit()));
                 sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
                 sagaTransaction.addBranchTransactionToGroup(sagaBranchTransaction);
-                saveNewSnapshot();
+                saveNewSnapshot(routeUnit);
             }
         }
     }
@@ -95,40 +94,54 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         return result;
     }
     
-    private void saveNewSnapshot() {
+    private void saveNewSnapshot(final RouteUnit routeUnit) {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(sagaTransaction);
-            SQLRevertResult revertResult = executeRevertSQL(sagaTransaction.getCurrentBranchTransactionGroup(), transactionResource.getConnections());
+            SQLRevertResult revertResult = executeRevertSQL(sagaTransaction.getCurrentBranchTransactionGroup(), routeUnit, transactionResource.getConnections());
             sagaTransaction.getRevertResults().put(sagaBranchTransaction, revertResult);
             transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(sagaTransaction.getId(), sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResult));
         }
     }
     
-    private SQLRevertResult executeRevertSQL(final SagaBranchTransactionGroup transactionGroup, final ConcurrentMap<String, Connection> connectionMap) {
+    private SQLRevertResult executeRevertSQL(final SagaBranchTransactionGroup logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
         SQLRevertResult result = new SQLRevertResult();
-        SQLStatement sqlStatement = transactionGroup.getSqlStatement();
-        TableMetaData tableMetaData = transactionGroup.getShardingTableMetaData().get(sqlStatement.getTables().getSingleTableName());
-        String actualTableName = sagaBranchTransaction.getActualTableName();
-        for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
-            try {
-                Optional<RevertSQLUnit> revertSQLUnit = RevertSQLEngineFactory.newInstance(sqlStatement, actualTableName, each, tableMetaData,
-                    connectionMap.get(sagaBranchTransaction.getDataSourceName())).execute();
-                if (revertSQLUnit.isPresent()) {
-                    result.setSql(revertSQLUnit.get().getRevertSQL());
-                    result.getParameterSets().addAll(revertSQLUnit.get().getRevertParams());
-                }
-            } catch (final SQLException ex) {
-                throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
+        SQLRouteResult sqlRouteResult = logicSQLTransaction.getSqlRouteResult();
+        try {
+            Optional<RevertSQLUnit> revertSQLUnit = RevertSQLEngineFactory.newInstance(sqlRouteResult.getSqlStatement(), getActualTableName(sqlRouteResult, routeUnit),
+                routeUnit.getSqlUnit().getParameters(), logicSQLTransaction.getTableMetaData(), connectionMap.get(routeUnit.getDataSourceName())).execute();
+            if (revertSQLUnit.isPresent()) {
+                result.setSql(revertSQLUnit.get().getRevertSQL());
+                result.getParameterSets().addAll(revertSQLUnit.get().getRevertParams());
             }
+        } catch (final SQLException ex) {
+            throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
         }
         return result;
     }
     
-    private String getActualTableName(final SQLUnit sqlUnit) {
-        Map<SQLUnit, TableUnit> tableUnitMap = sagaTransaction.getTableUnitMap();
-        return tableUnitMap.containsKey(sqlUnit)
-            ? tableUnitMap.get(sqlUnit).getRoutingTables().get(0).getActualTableName() : sagaTransaction.getCurrentBranchTransactionGroup().getSqlStatement().getTables().getSingleTableName();
+    private String getActualTableName(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit) {
+        for (TableUnit each : sqlRouteResult.getRoutingResult().getTableUnits().getTableUnits()) {
+            if (each.getDataSourceName().equalsIgnoreCase(routeUnit.getDataSourceName())) {
+                return getAvailableActualTableName(each, sqlRouteResult.getSqlStatement().getTables().getSingleTableName());
+            }
+        }
+        throw new ShardingException(String.format("Could not find actual table name of [%s]", routeUnit));
     }
+    
+    private String getAvailableActualTableName(final TableUnit tableUnit, final String logicTableName) {
+        for (RoutingTable each : tableUnit.getRoutingTables()) {
+            if (each.getLogicTableName().equalsIgnoreCase(logicTableName)) {
+                return each.getActualTableName();
+            }
+        }
+        throw new ShardingException(String.format("Could not get available actual table name of [%s]", tableUnit));
+    }
+    
+//    private String getActualTableName(final SQLUnit sqlUnit) {
+//        Map<SQLUnit, TableUnit> tableUnitMap = sagaTransaction.getTableUnitMap();
+//        return tableUnitMap.containsKey(sqlUnit)
+//            ? tableUnitMap.get(sqlUnit).getRoutingTables().get(0).getActualTableName() : sagaTransaction.getCurrentBranchTransactionGroup().getSqlStatement().getTables().getSingleTableName();
+//    }
     
     @Override
     public void finishSuccess() {
