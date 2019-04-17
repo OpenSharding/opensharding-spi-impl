@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.resource;
 
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
-import io.shardingsphere.transaction.saga.revert.SQLRevertEngine;
 import lombok.Getter;
 
 import java.sql.Connection;
@@ -35,12 +34,9 @@ public class SagaTransactionResource {
     
     private final SagaPersistence persistence;
     
-    private final SQLRevertEngine revertEngine;
-    
     private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
     
     public SagaTransactionResource(final SagaPersistence sagaPersistence) {
         this.persistence = sagaPersistence;
-        this.revertEngine = new SQLRevertEngine(connections);
     }
 }

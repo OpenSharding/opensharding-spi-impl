@@ -21,9 +21,7 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 
@@ -35,16 +33,15 @@ import java.util.List;
  * Abstract revert operate.
  *
  * @author duhongjun
+ * @author zhaojun
  */
-@Setter
-@Getter
 @RequiredArgsConstructor
 public class DMLRevertSQLEngine implements RevertSQLEngine {
     
     private final RevertSQLExecuteWrapper revertSQLExecuteWrapper;
     
     /**
-     * Execute.
+     * Execute revert SQL.
      *
      * @param tableMetaData table meta data
      */

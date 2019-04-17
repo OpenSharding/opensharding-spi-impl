@@ -20,7 +20,6 @@ package io.shardingsphere.transaction.saga.revert;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
-import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLEngineFactory;
 import lombok.RequiredArgsConstructor;
@@ -42,8 +41,6 @@ public final class SQLRevertEngine {
     
     private final Map<String, Connection> connectionMap;
     
-    private final RevertSQLEngineFactory revertOperateFactory = new RevertSQLEngineFactory();
-    
     /**
      * Get revert result.
      *
@@ -58,11 +55,11 @@ public final class SQLRevertEngine {
         TableMetaData tableMetaData = sagaBranchTransactionGroup.getShardingTableMetaData().get(sqlStatement.getTables().getSingleTableName());
         String actualTableName = sagaBranchTransaction.getActualTableName();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
-            RevertSQLEngine revertSQLEngine = RevertSQLEngineFactory.newInstance(actualTableName, sqlStatement, each, tableMetaData, connectionMap.get(sagaBranchTransaction.getDataSourceName()));
-            Optional<RevertSQLUnit> revertContextOptional = revertSQLEngine.execute(tableMetaData);
-            if (revertContextOptional.isPresent()) {
-                result.setSql(revertContextOptional.get().getRevertSQL());
-                result.getParameterSets().addAll(revertContextOptional.get().getRevertParams());
+            Optional<RevertSQLUnit> revertSQLUnit = RevertSQLEngineFactory.newInstance(actualTableName, sqlStatement, each, tableMetaData,
+                connectionMap.get(sagaBranchTransaction.getDataSourceName())).execute(tableMetaData);
+            if (revertSQLUnit.isPresent()) {
+                result.setSql(revertSQLUnit.get().getRevertSQL());
+                result.getParameterSets().addAll(revertSQLUnit.get().getRevertParams());
             }
         }
         return result;
