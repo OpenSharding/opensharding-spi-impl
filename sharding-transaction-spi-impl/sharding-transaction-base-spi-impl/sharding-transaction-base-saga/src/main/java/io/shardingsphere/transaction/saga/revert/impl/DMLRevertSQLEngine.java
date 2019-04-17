@@ -41,7 +41,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DMLRevertSQLEngine implements RevertSQLEngine {
     
-    private final RevertSQLExecuteWrapper<RevertSQLStatement> revertSQLExecuteWrapper;
+    private final RevertSQLExecuteWrapper revertSQLExecuteWrapper;
     
     /**
      * Execute.
@@ -49,6 +49,7 @@ public class DMLRevertSQLEngine implements RevertSQLEngine {
      * @param tableMetaData table meta data
      */
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<RevertSQLUnit> execute(final TableMetaData tableMetaData) throws SQLException {
         List<String> primaryKeyColumns = getKeyColumns(tableMetaData);
         if (primaryKeyColumns.isEmpty()) {
