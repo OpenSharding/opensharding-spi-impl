@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.hook;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
@@ -37,13 +36,11 @@ import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorEx
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
-import org.apache.shardingsphere.core.route.SQLUnit;
 import org.apache.shardingsphere.core.route.type.RoutingTable;
 import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
@@ -54,8 +51,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class SagaSQLExecutionHook implements SQLExecutionHook {
     
-    private static final String SQL_PLACE_HOLDER = "?";
-    
     private SagaTransaction sagaTransaction;
     
     private SagaBranchTransaction sagaBranchTransaction;
@@ -65,33 +60,12 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY)) {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
             if (sagaTransaction.isDMLLogicSQLTransaction()) {
-                sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()));
+                sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameters());
                 sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
                 sagaTransaction.addBranchTransaction(sagaBranchTransaction);
                 saveNewSnapshot(routeUnit);
             }
         }
-    }
-    
-    private List<List<Object>> splitParameters(final SQLUnit sqlUnit) {
-        List<List<Object>> result = Lists.newArrayList();
-        int placeholderCount = countPlaceholder(sqlUnit.getSql());
-        if (placeholderCount == sqlUnit.getParameters().size()) {
-            result.add(sqlUnit.getParameters());
-        } else {
-            result.addAll(Lists.partition(sqlUnit.getParameters(), placeholderCount));
-        }
-        return result;
-    }
-    
-    private int countPlaceholder(final String sql) {
-        int result = 0;
-        int currentIndex = 0;
-        while (-1 != (currentIndex = sql.indexOf(SQL_PLACE_HOLDER, currentIndex))) {
-            result++;
-            currentIndex += 1;
-        }
-        return result;
     }
     
     private void saveNewSnapshot(final RouteUnit routeUnit) {

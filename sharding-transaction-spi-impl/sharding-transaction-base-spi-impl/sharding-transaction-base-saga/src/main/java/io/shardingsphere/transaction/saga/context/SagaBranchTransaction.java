@@ -39,7 +39,7 @@ public final class SagaBranchTransaction {
     
     private final String sql;
     
-    private final List<List<Object>> parameterSets;
+    private final List<Object> parameterSets;
     
     private String actualTableName;
     
