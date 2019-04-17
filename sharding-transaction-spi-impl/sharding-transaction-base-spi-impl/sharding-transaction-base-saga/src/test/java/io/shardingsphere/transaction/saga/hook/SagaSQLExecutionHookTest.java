@@ -26,7 +26,6 @@ import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
-import io.shardingsphere.transaction.saga.revert.SQLRevertEngine;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
@@ -67,9 +66,6 @@ public final class SagaSQLExecutionHookTest {
     @Mock
     private SagaPersistence sagaPersistence;
     
-    @Mock
-    private SQLRevertEngine revertEngine;
-    
     @Before
     @SneakyThrows
     public void setUp() {
@@ -81,11 +77,7 @@ public final class SagaSQLExecutionHookTest {
     
     @SneakyThrows
     private SagaTransactionResource mockSagaTransactionResource() {
-        SagaTransactionResource result = new SagaTransactionResource(sagaPersistence);
-        Field revertEngineField = SagaTransactionResource.class.getDeclaredField("revertEngine");
-        revertEngineField.setAccessible(true);
-        revertEngineField.set(result, revertEngine);
-        return result;
+        return new SagaTransactionResource(sagaPersistence);
     }
     
     @SneakyThrows
