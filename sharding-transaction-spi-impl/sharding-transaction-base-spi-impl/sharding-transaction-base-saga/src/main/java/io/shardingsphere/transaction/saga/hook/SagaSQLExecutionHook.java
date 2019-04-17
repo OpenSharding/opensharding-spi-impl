@@ -27,9 +27,9 @@ import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
+import io.shardingsphere.transaction.saga.revert.RevertSQLEngineFactory;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import io.shardingsphere.transaction.saga.revert.RevertSQLEngineFactory;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
@@ -111,8 +111,8 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         String actualTableName = sagaBranchTransaction.getActualTableName();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
             try {
-                Optional<RevertSQLUnit> revertSQLUnit = RevertSQLEngineFactory.newInstance(actualTableName, sqlStatement, each, tableMetaData,
-                    connectionMap.get(sagaBranchTransaction.getDataSourceName())).execute(tableMetaData);
+                Optional<RevertSQLUnit> revertSQLUnit = RevertSQLEngineFactory.newInstance(sqlStatement, actualTableName, each, tableMetaData,
+                    connectionMap.get(sagaBranchTransaction.getDataSourceName())).execute();
                 if (revertSQLUnit.isPresent()) {
                     result.setSql(revertSQLUnit.get().getRevertSQL());
                     result.getParameterSets().addAll(revertSQLUnit.get().getRevertParams());
