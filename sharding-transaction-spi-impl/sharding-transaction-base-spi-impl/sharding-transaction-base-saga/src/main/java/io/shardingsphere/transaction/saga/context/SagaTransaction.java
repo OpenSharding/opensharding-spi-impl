@@ -17,8 +17,9 @@
 
 package io.shardingsphere.transaction.saga.context;
 
+import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.constant.SQLType;
@@ -51,7 +52,7 @@ public final class SagaTransaction {
     
     private final Map<SagaBranchTransaction, ExecuteStatus> executionResults = new ConcurrentHashMap<>();
     
-    private final Map<SagaBranchTransaction, SQLRevertResult> revertResults = new ConcurrentHashMap<>();
+    private final Map<SagaBranchTransaction, Optional<RevertSQLUnit>> revertResults = new ConcurrentHashMap<>();
     
     private final List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
     
@@ -89,7 +90,9 @@ public final class SagaTransaction {
      * @param executeStatus execute status
      */
     public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        containsException |= ExecuteStatus.FAILURE == executeStatus;
+        if (containsException | ExecuteStatus.FAILURE == executeStatus) {
+            containsException = true;
+        }
         executionResults.put(sagaBranchTransaction, executeStatus);
     }
     

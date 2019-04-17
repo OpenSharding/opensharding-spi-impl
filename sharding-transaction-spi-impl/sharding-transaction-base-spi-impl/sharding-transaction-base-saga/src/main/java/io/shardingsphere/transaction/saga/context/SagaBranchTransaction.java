@@ -20,7 +20,6 @@ package io.shardingsphere.transaction.saga.context;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
@@ -32,7 +31,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @Setter
-@ToString(exclude = "actualTableName")
 public final class SagaBranchTransaction {
     
     private final String dataSourceName;
@@ -40,8 +38,6 @@ public final class SagaBranchTransaction {
     private final String sql;
     
     private final List<Object> parameterSets;
-    
-    private String actualTableName;
     
     @Override
     public int hashCode() {

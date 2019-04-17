@@ -17,12 +17,11 @@
 
 package io.shardingsphere.transaction.saga.revert.api;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Revert context.
@@ -35,5 +34,5 @@ public final class RevertSQLUnit {
     
     private final String revertSQL;
     
-    private final List<Collection<Object>> revertParams = new ArrayList<>();
+    private final List<Object> revertParams = new ArrayList<>();
 }

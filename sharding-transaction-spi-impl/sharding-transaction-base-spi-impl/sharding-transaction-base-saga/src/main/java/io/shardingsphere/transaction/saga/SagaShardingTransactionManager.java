@@ -17,17 +17,17 @@
 
 package io.shardingsphere.transaction.saga;
 
+import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
-import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
 import lombok.SneakyThrows;
-
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
@@ -142,10 +142,11 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     
     private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final SagaLogicSQLTransaction sagaLogicSQLTransaction) {
         SagaTransaction currentTransaction = CURRENT_TRANSACTION.get();
+        RevertSQLUnit defaultValue = new RevertSQLUnit("");
         for (SagaBranchTransaction each : sagaLogicSQLTransaction.getBranchTransactions()) {
-            SQLRevertResult revertResult = currentTransaction.getRevertResults().containsKey(each) ? currentTransaction.getRevertResults().get(each) : new SQLRevertResult();
-            sagaDefinitionBuilder.addChildRequest(
-                String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getSql(), revertResult.getParameterSets());
+            Optional<RevertSQLUnit> sqlRevertResult = currentTransaction.getRevertResults().get(each);
+            sagaDefinitionBuilder.addChildRequest(String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(),
+                sqlRevertResult.or(defaultValue).getRevertSQL(), sqlRevertResult.or(defaultValue).getRevertParams());
         }
     }
     

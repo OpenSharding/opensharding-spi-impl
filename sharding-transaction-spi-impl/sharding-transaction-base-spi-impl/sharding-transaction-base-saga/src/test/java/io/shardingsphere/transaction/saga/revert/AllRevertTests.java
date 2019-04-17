@@ -27,7 +27,6 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-    SQLRevertEngineTest.class,
     RevertOperateFactoryTest.class,
     AllDeleteTests.class,
     AllInsertTests.class,

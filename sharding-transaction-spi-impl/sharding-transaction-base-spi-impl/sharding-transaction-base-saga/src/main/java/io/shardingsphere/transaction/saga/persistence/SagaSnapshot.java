@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.persistence;
 
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -37,5 +37,5 @@ public final class SagaSnapshot {
     
     private final SagaBranchTransaction transactionContext;
     
-    private final SQLRevertResult revertContext;
+    private final RevertSQLUnit revertSQLUnit;
 }
