@@ -23,18 +23,18 @@ import com.google.common.base.Optional;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 
 /**
- * Revert operate.
+ * Revert SQL engine.
  *
  * @author duhongjun
  */
 public interface RevertSQLEngine {
     
     /**
-     * Generate snapshot.
+     * Execute revert SQL.
      * 
      * @param tableMetaData table meta data
-     * @return revert context
-     * @throws SQLException failed to execute SQL, throw this exception
+     * @return revert SQL unit
+     * @throws SQLException SQL exception
      */
     Optional<RevertSQLUnit> execute(TableMetaData tableMetaData) throws SQLException;
 }
