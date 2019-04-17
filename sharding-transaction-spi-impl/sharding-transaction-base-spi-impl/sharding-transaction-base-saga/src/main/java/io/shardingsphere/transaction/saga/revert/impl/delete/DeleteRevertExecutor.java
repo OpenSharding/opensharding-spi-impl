@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
-import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
+import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.impl.DMLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import lombok.Getter;
@@ -37,7 +37,7 @@ import java.util.List;
 @Setter
 public final class DeleteRevertExecutor extends DMLRevertExecutor {
     
-    private DMLSnapshotDataAccessor snapshotDataAccessor;
+    private DMLSnapshotAccessor snapshotDataAccessor;
     
     private final String actualTableName;
     
@@ -47,7 +47,7 @@ public final class DeleteRevertExecutor extends DMLRevertExecutor {
         super(new DeleteRevertSQLGenerator());
         this.actualTableName = actualTableName;
         this.connection = connection;
-        snapshotDataAccessor = new DMLSnapshotDataAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters));
+        snapshotDataAccessor = new DMLSnapshotAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters));
     }
     
     @Override

@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * @author zhaojun
  */
-public interface SnapshotDataAccessor {
+public interface SnapshotAccessor {
     
     /**
      * Query undo snapshot data from database.

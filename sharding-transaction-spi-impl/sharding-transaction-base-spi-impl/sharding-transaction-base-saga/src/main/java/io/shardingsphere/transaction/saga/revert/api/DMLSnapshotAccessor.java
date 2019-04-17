@@ -30,13 +30,13 @@ import java.util.Map;
  *
  * @author zhaojun
  */
-public class DMLSnapshotDataAccessor implements SnapshotDataAccessor {
+public class DMLSnapshotAccessor implements SnapshotAccessor {
     
     private final SnapshotSQLSegment snapshotSQLSegment;
     
     private SQLBuilder sqlBuilder = new SQLBuilder();
     
-    public DMLSnapshotDataAccessor(final SnapshotSQLSegment snapshotSQLSegment) {
+    public DMLSnapshotAccessor(final SnapshotSQLSegment snapshotSQLSegment) {
         this.snapshotSQLSegment = snapshotSQLSegment;
     }
     
@@ -55,4 +55,3 @@ public class DMLSnapshotDataAccessor implements SnapshotDataAccessor {
         return sqlBuilder.toSQL();
     }
 }
-

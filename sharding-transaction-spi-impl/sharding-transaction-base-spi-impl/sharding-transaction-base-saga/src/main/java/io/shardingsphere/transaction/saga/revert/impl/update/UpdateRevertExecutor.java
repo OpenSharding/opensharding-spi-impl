@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
-import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotDataAccessor;
+import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.impl.DMLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
@@ -42,7 +42,7 @@ import java.util.Map.Entry;
  */
 public final class UpdateRevertExecutor extends DMLRevertExecutor {
     
-    private DMLSnapshotDataAccessor snapshotDataAccessor;
+    private DMLSnapshotAccessor snapshotDataAccessor;
     
     private final UpdateStatement updateStatement;
     
@@ -52,9 +52,10 @@ public final class UpdateRevertExecutor extends DMLRevertExecutor {
     
     private final Connection connection;
     
-    public UpdateRevertExecutor(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData, final Connection connection) {
+    public UpdateRevertExecutor(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters,
+                                final TableMetaData tableMetaData, final Connection connection) {
         super(new RevertUpdateGenerator());
-        snapshotDataAccessor = new DMLSnapshotDataAccessor(new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, tableMetaData));
+        snapshotDataAccessor = new DMLSnapshotAccessor(new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, tableMetaData));
         this.actualTableName = actualTableName;
         this.updateStatement = updateStatement;
         this.actualSQLParameters = actualSQLParameters;
