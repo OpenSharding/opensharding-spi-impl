@@ -17,11 +17,13 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
+import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.impl.DMLRevertExecutor;
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
+import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
@@ -31,6 +33,7 @@ import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpress
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,7 +43,7 @@ import java.util.Map.Entry;
  *
  * @author duhongjun
  */
-public final class UpdateRevertExecutor extends DMLRevertExecutor {
+public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<UpdateRevertSQLStatement> {
     
     private DMLSnapshotAccessor snapshotDataAccessor;
     
@@ -52,9 +55,8 @@ public final class UpdateRevertExecutor extends DMLRevertExecutor {
     
     private final Connection connection;
     
-    public UpdateRevertExecutor(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters,
-                                final TableMetaData tableMetaData, final Connection connection) {
-        super(new RevertUpdateGenerator());
+    public UpdateRevertSQLExecuteWrapper(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters,
+                                         final TableMetaData tableMetaData, final Connection connection) {
         snapshotDataAccessor = new DMLSnapshotAccessor(new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, tableMetaData));
         this.actualTableName = actualTableName;
         this.updateStatement = updateStatement;
@@ -63,7 +65,7 @@ public final class UpdateRevertExecutor extends DMLRevertExecutor {
     }
     
     @Override
-    protected RevertSQLStatement buildRevertSQLStatement(final List<String> keys) throws SQLException {
+    public UpdateRevertSQLStatement createRevertSQLStatement(final List<String> primaryKeyColumns) throws SQLException {
         List<Map<String, Object>> selectSnapshot = snapshotDataAccessor.queryUndoData(connection);
         Map<String, Object> updateColumns = new LinkedHashMap<>();
         for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
@@ -75,6 +77,56 @@ public final class UpdateRevertExecutor extends DMLRevertExecutor {
                 updateColumns.put(entry.getKey().getName(), ((SQLNumberExpression) entry.getValue()).getNumber());
             }
         }
-        return new RevertUpdateGeneratorParameter(actualTableName, selectSnapshot, updateColumns, keys, actualSQLParameters);
+        return new UpdateRevertSQLStatement(actualTableName, selectSnapshot, updateColumns, primaryKeyColumns, actualSQLParameters);
+    }
+    
+    @Override
+    public Optional<RevertSQLUnit> generateRevertSQL(final UpdateRevertSQLStatement revertSQLStatement) {
+        if (revertSQLStatement.getSelectSnapshot().isEmpty()) {
+            return Optional.absent();
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append(DefaultKeyword.UPDATE).append(" ");
+        builder.append(revertSQLStatement.getActualTable()).append(" ");
+        builder.append(DefaultKeyword.SET).append(" ");
+        int pos = 0;
+        int size = revertSQLStatement.getUpdateColumns().size();
+        for (String updateColumn : revertSQLStatement.getUpdateColumns().keySet()) {
+            builder.append(updateColumn).append(" = ?");
+            if (pos < size - 1) {
+                builder.append(",");
+            }
+            pos++;
+        }
+        builder.append(" ").append(DefaultKeyword.WHERE).append(" ");
+        return Optional.of(fillWhereWithKeys(revertSQLStatement, builder));
+    }
+    
+    private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLStatement revertSQLStatement, final StringBuilder builder) {
+        int pos = 0;
+        for (String key : revertSQLStatement.getKeys()) {
+            if (pos > 0) {
+                builder.append(" ").append(DefaultKeyword.AND).append(" ");
+            }
+            builder.append(key).append(" = ? ");
+            pos++;
+        }
+        RevertSQLUnit result = new RevertSQLUnit(builder.toString());
+        for (Map<String, Object> each : revertSQLStatement.getSelectSnapshot()) {
+            List<Object> eachSQLParams = new LinkedList<>();
+            result.getRevertParams().add(eachSQLParams);
+            for (String updateColumn : revertSQLStatement.getUpdateColumns().keySet()) {
+                eachSQLParams.add(each.get(updateColumn.toLowerCase()));
+            }
+            for (String key : revertSQLStatement.getKeys()) {
+                Object value = revertSQLStatement.getUpdateColumns().get(key);
+                if (null != value) {
+                    eachSQLParams.add(value);
+                } else {
+                    eachSQLParams.add(each.get(key));
+                }
+            }
+        }
+        return result;
     }
 }

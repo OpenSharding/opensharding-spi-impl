@@ -17,17 +17,21 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
-import io.shardingsphere.transaction.saga.revert.impl.DMLRevertExecutor;
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
+import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import org.apache.shardingsphere.core.parse.old.parser.context.insertvalue.InsertValue;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +40,7 @@ import java.util.Map;
  *
  * @author duhongjun
  */
-public final class RevertInsertExecutor extends DMLRevertExecutor {
+public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<InsertRevertSQLStatement> {
     
     private final String actualTable;
     
@@ -44,21 +48,20 @@ public final class RevertInsertExecutor extends DMLRevertExecutor {
     
     private final List<Object> actualSQLParameters;
     
-    public RevertInsertExecutor(final String actualTable, final InsertStatement insertStatement, final List<Object> actualSQLParameters) {
-        super(new RevertInsertSQLGenerator());
+    public InsertRevertSQLExecuteWrapper(final String actualTable, final InsertStatement insertStatement, final List<Object> actualSQLParameters) {
         this.actualTable = actualTable;
         this.insertStatement = insertStatement;
         this.actualSQLParameters = actualSQLParameters;
     }
     
     @Override
-    protected RevertSQLStatement buildRevertSQLStatement(final List<String> keys) {
-        InsertRevertSQLStatement result = new InsertRevertSQLStatement(actualTable, insertStatement.getColumnNames(), keys,
+    public InsertRevertSQLStatement createRevertSQLStatement(final List<String> primaryKeyColumns) {
+        InsertRevertSQLStatement result = new InsertRevertSQLStatement(actualTable, insertStatement.getColumnNames(), primaryKeyColumns,
             actualSQLParameters, insertStatement.getValues().size(), false);
         Iterator<String> columnNamesIterator = insertStatement.getColumnNames().iterator();
         Iterator actualSQLParameterIterator = actualSQLParameters.iterator();
         for (InsertValue each : insertStatement.getValues()) {
-            result.getInsertGroups().add(createInsertGroup(each, columnNamesIterator, actualSQLParameterIterator, keys));
+            result.getInsertGroups().add(createInsertGroup(each, columnNamesIterator, actualSQLParameterIterator, primaryKeyColumns));
         }
         return result;
     }
@@ -79,5 +82,49 @@ public final class RevertInsertExecutor extends DMLRevertExecutor {
             }
         }
         return result;
+    }
+    
+    @Override
+    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLStatement revertSQLStatement) {
+        RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLStatement));
+        fillRevertParams(result, revertSQLStatement);
+        return Optional.of(result);
+    }
+    
+    private String generateSQL(final InsertRevertSQLStatement revertSQLStatement) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(DefaultKeyword.DELETE).append(" ");
+        builder.append(DefaultKeyword.FROM).append(" ");
+        builder.append(revertSQLStatement.getActualTable()).append(" ");
+        builder.append(DefaultKeyword.WHERE).append(" ");
+        int pos = 0;
+        for (Object key : revertSQLStatement.getKeys()) {
+            if (pos > 0) {
+                builder.append(" ").append(DefaultKeyword.AND).append(" ");
+            }
+            builder.append(key).append(" = ?");
+            pos++;
+        }
+        return builder.toString();
+    }
+    
+    private void fillRevertParams(final RevertSQLUnit revertContext, final InsertRevertSQLStatement insertParameter) {
+        if (insertParameter.isGenerateKey()) {
+            int eachParameterSize = insertParameter.getParams().size() / insertParameter.getBatchSize();
+            for (int i = 0; i < insertParameter.getBatchSize(); i++) {
+                Collection<Object> currentSQLParams = new LinkedList<>();
+                int generateValueIndex = (i + 1) * eachParameterSize - 1;
+                currentSQLParams.add(insertParameter.getParams().get(generateValueIndex));
+                revertContext.getRevertParams().add(currentSQLParams);
+            }
+            return;
+        }
+        for (Map<String, Object> each : insertParameter.getInsertGroups()) {
+            Collection<Object> currentSQLParams = new LinkedList<>();
+            revertContext.getRevertParams().add(currentSQLParams);
+            for (Map.Entry<String, Object> eachEntry : each.entrySet()) {
+                currentSQLParams.add(eachEntry.getValue());
+            }
+        }
     }
 }

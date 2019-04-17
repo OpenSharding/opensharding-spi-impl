@@ -17,10 +17,10 @@
 
 package io.shardingsphere.transaction.saga.revert.impl;
 
-import io.shardingsphere.transaction.saga.revert.api.RevertExecutor;
-import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertExecutor;
-import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsertExecutor;
-import io.shardingsphere.transaction.saga.revert.impl.update.UpdateRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
+import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.impl.update.UpdateRevertSQLExecuteWrapper;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
@@ -44,17 +44,18 @@ public final class RevertOperateFactory {
      * @param dmlStatement  DML statement
      * @param actualSQLParameters actual SQL parameters
      * @param tableMetaData table meta data
+     * @param connection connection
      *
      * @return Revert Operate
      */
-    public RevertExecutor getRevertSQLCreator(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData,
-                                              final Connection connection) {
+    public RevertSQLEngine getRevertSQLCreator(final String actualTableName, final DMLStatement dmlStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData,
+                                               final Connection connection) {
         if (dmlStatement instanceof InsertStatement) {
-            return new RevertInsertExecutor(actualTableName, (InsertStatement) dmlStatement, actualSQLParameters);
+            return new DMLRevertSQLEngine(new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) dmlStatement, actualSQLParameters));
         }
         if (dmlStatement instanceof DeleteStatement) {
-            return new DeleteRevertExecutor(actualTableName, (DeleteStatement) dmlStatement, actualSQLParameters, connection);
+            return new DMLRevertSQLEngine(new DeleteRevertSQLExecuteWrapper(actualTableName, (DeleteStatement) dmlStatement, actualSQLParameters, connection));
         }
-        return new UpdateRevertExecutor(actualTableName, (UpdateStatement) dmlStatement, actualSQLParameters, tableMetaData, connection);
+        return new DMLRevertSQLEngine(new UpdateRevertSQLExecuteWrapper(actualTableName, (UpdateStatement) dmlStatement, actualSQLParameters, tableMetaData, connection));
     }
 }

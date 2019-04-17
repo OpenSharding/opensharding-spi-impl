@@ -17,25 +17,24 @@
 
 package io.shardingsphere.transaction.saga.revert.api;
 
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
-
 import java.sql.SQLException;
-import java.util.List;
+
+import com.google.common.base.Optional;
+import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 
 /**
- * Revert SQL statement generator.
+ * Revert operate.
  *
- * @author zhaojun
+ * @author duhongjun
  */
-public interface RevertSQLStatementGenerator {
+public interface RevertSQLEngine {
     
     /**
-     * Revert SQL statement generator.
-     *
-     * @param primaryKeyColumns primary key columns
-     * @return revert SQL statement
-     * @throws SQLException SQL exception
+     * Generate snapshot.
+     * 
+     * @param tableMetaData table meta data
+     * @return revert context
+     * @throws SQLException failed to execute SQL, throw this exception
      */
-    RevertSQLStatement generate(List<String> primaryKeyColumns) throws SQLException;
-    
+    Optional<RevertSQLUnit> execute(TableMetaData tableMetaData) throws SQLException;
 }

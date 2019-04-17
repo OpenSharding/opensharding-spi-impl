@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
-import io.shardingsphere.transaction.saga.revert.api.RevertExecutor;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactory;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +59,7 @@ public final class SQLRevertEngine {
         Connection actualConnection = connectionMap.get(sagaBranchTransaction.getDataSourceName());
         String actualTableName = sagaBranchTransaction.getActualTableName();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
-            RevertExecutor revertOperate = revertOperateFactory.getRevertSQLCreator(actualTableName, dmlStatement, each, tableMetaData, actualConnection);
+            RevertSQLEngine revertOperate = revertOperateFactory.getRevertSQLCreator(actualTableName, dmlStatement, each, tableMetaData, actualConnection);
             Optional<RevertSQLUnit> revertContextOptional = revertOperate.execute(tableMetaData);
             if (revertContextOptional.isPresent()) {
                 result.setSql(revertContextOptional.get().getRevertSQL());

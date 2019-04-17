@@ -76,7 +76,7 @@ public class RevertInsertTest {
     @Test
     public void assertSnapshot() throws SQLException {
         mockInsertStatement();
-        RevertInsertExecutor revertInsert = new RevertInsertExecutor(actualTable, insertStatement, actualSQLParameters);
+        InsertRevertSQLExecuteWrapper revertInsert = new InsertRevertSQLExecuteWrapper(actualTable, insertStatement, actualSQLParameters);
         revertInsert.setRevertSQLGenerator(revertInsertGenerator);
         revertInsert.snapshot(snapshotParameter);
         verify(revertInsertGenerator).generate(any(InsertRevertSQLStatement.class));

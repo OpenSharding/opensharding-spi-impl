@@ -18,7 +18,8 @@
 package io.shardingsphere.transaction.saga.revert.impl;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.RevertExecutor;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +39,9 @@ import java.util.List;
 @Setter
 @Getter
 @RequiredArgsConstructor
-public abstract class DMLRevertExecutor implements RevertExecutor {
+public class DMLRevertSQLEngine implements RevertSQLEngine {
     
-    private final RevertSQLGenerator revertSQLGenerator;
+    private final RevertSQLExecuteWrapper<RevertSQLStatement> revertSQLExecuteWrapper;
     
     /**
      * Execute.
@@ -49,11 +50,12 @@ public abstract class DMLRevertExecutor implements RevertExecutor {
      */
     @Override
     public Optional<RevertSQLUnit> execute(final TableMetaData tableMetaData) throws SQLException {
-        List<String> keys = getKeyColumns(tableMetaData);
-        if (keys.isEmpty()) {
+        List<String> primaryKeyColumns = getKeyColumns(tableMetaData);
+        if (primaryKeyColumns.isEmpty()) {
             throw new RuntimeException("Not supported table without primary key");
         }
-        return revertSQLGenerator.generateRevertSQL(buildRevertSQLStatement(keys));
+        RevertSQLStatement revertSQLStatement = revertSQLExecuteWrapper.createRevertSQLStatement(primaryKeyColumns);
+        return revertSQLExecuteWrapper.generateRevertSQL(revertSQLStatement);
     }
     
     private List<String> getKeyColumns(final TableMetaData tableMetaData) {
@@ -65,6 +67,4 @@ public abstract class DMLRevertExecutor implements RevertExecutor {
         }
         return result;
     }
-    
-    protected abstract RevertSQLStatement buildRevertSQLStatement(List<String> keys) throws SQLException;
 }

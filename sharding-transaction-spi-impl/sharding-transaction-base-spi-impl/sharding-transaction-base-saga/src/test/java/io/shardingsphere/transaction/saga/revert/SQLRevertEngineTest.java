@@ -24,7 +24,7 @@ import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactory;
-import io.shardingsphere.transaction.saga.revert.impl.insert.RevertInsertExecutor;
+import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
@@ -60,7 +60,7 @@ public class SQLRevertEngineTest {
     private InsertStatement dmlStatement;
     
     @Mock
-    private RevertInsertExecutor revertInsert;
+    private InsertRevertSQLExecuteWrapper revertInsert;
     
     @Before
     @SneakyThrows

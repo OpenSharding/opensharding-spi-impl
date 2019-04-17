@@ -17,13 +17,13 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import lombok.Getter;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLStatement;
-import lombok.Getter;
 
 /**
  * Revert update generator parameter.
@@ -31,7 +31,9 @@ import lombok.Getter;
  * @author duhongjun
  */
 @Getter
-public final class RevertUpdateGeneratorParameter extends DeleteRevertSQLStatement {
+public final class UpdateRevertSQLStatement extends RevertSQLStatement {
+    
+    private final List<Map<String, Object>> selectSnapshot = new LinkedList<>();
     
     private final Map<String, Object> updateColumns = new LinkedHashMap<>();
     
@@ -39,9 +41,10 @@ public final class RevertUpdateGeneratorParameter extends DeleteRevertSQLStateme
     
     private final List<Object> params = new LinkedList<>();
     
-    public RevertUpdateGeneratorParameter(final String tableName, final List<Map<String, Object>> selectSnapshot, final Map<String, Object> updateColumns, final List<String> keys,
-                                          final List<Object> params) {
-        super(tableName, selectSnapshot);
+    public UpdateRevertSQLStatement(final String tableName, final List<Map<String, Object>> selectSnapshot, final Map<String, Object> updateColumns, final List<String> keys,
+                                    final List<Object> params) {
+        super(tableName);
+        this.selectSnapshot.addAll(selectSnapshot);
         this.updateColumns.putAll(updateColumns);
         this.keys.addAll(keys);
         this.params.addAll(params);

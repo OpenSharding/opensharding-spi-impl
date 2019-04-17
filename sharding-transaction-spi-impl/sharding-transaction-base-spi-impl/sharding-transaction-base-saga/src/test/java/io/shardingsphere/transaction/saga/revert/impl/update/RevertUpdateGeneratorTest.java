@@ -39,7 +39,7 @@ public class RevertUpdateGeneratorTest {
     @Test
     public void assertGenerate() {
         RevertUpdateGenerator revertUpdateGenerator = new RevertUpdateGenerator();
-        Optional<RevertSQLUnit> revertContext = revertUpdateGenerator.generate(new RevertUpdateGeneratorParameter(
+        Optional<RevertSQLUnit> revertContext = revertUpdateGenerator.generate(new UpdateRevertSQLStatement(
             TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot(), genUpdateColumns(), TableMetaDataUtil.KEYS, Lists.newArrayList()));
         assertTrue(revertContext.isPresent());
         assertThat(revertContext.get().getRevertSQL(), is("UPDATE t_order_1 SET order_id = ?,user_id = ?,status = ? WHERE order_id = ? "));
