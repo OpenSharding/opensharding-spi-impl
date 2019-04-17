@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl;
+package io.shardingsphere.transaction.saga.revert;
 
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.impl.update.UpdateRevertSQLExecuteWrapper;
@@ -41,24 +43,26 @@ public final class RevertSQLEngineFactory {
     /**
      * Create new instance.
      *
-     * @param actualTableName actual table name
      * @param sqlStatement  SQL statement
+     * @param actualTableName actual table name
      * @param actualSQLParameters actual SQL parameters
      * @param tableMetaData table meta data
      * @param connection connection
      *
      * @return Revert Operate
      */
-    public static RevertSQLEngine newInstance(final String actualTableName, final SQLStatement sqlStatement, final List<Object> actualSQLParameters,
+    public static RevertSQLEngine newInstance(final SQLStatement sqlStatement, final String actualTableName, final List<Object> actualSQLParameters,
                                               final TableMetaData tableMetaData, final Connection connection) {
+        RevertSQLExecuteWrapper revertSQLExecuteWrapper;
         if (sqlStatement instanceof InsertStatement) {
-            return new DMLRevertSQLEngine(new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, actualSQLParameters));
+            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, actualSQLParameters);
         } else if (sqlStatement instanceof DeleteStatement) {
-            return new DMLRevertSQLEngine(new DeleteRevertSQLExecuteWrapper(actualTableName, (DeleteStatement) sqlStatement, actualSQLParameters, connection));
+            revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(actualTableName, (DeleteStatement) sqlStatement, actualSQLParameters, connection);
         } else if (sqlStatement instanceof UpdateStatement) {
-            return new DMLRevertSQLEngine(new UpdateRevertSQLExecuteWrapper(actualTableName, (UpdateStatement) sqlStatement, actualSQLParameters, tableMetaData, connection));
+            revertSQLExecuteWrapper = new UpdateRevertSQLExecuteWrapper(actualTableName, (UpdateStatement) sqlStatement, actualSQLParameters, tableMetaData, connection);
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
+        return new DMLRevertSQLEngine(revertSQLExecuteWrapper, tableMetaData);
     }
 }

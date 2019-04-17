@@ -17,10 +17,9 @@
 
 package io.shardingsphere.transaction.saga.revert.api;
 
-import java.sql.SQLException;
-
 import com.google.common.base.Optional;
-import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+
+import java.sql.SQLException;
 
 /**
  * Revert SQL engine.
@@ -32,9 +31,8 @@ public interface RevertSQLEngine {
     /**
      * Execute revert SQL.
      * 
-     * @param tableMetaData table meta data
      * @return revert SQL unit
      * @throws SQLException SQL exception
      */
-    Optional<RevertSQLUnit> execute(TableMetaData tableMetaData) throws SQLException;
+    Optional<RevertSQLUnit> execute() throws SQLException;
 }

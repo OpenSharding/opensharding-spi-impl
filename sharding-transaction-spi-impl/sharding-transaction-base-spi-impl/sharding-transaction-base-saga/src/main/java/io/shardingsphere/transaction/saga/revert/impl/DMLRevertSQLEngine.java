@@ -40,15 +40,15 @@ public class DMLRevertSQLEngine implements RevertSQLEngine {
     
     private final RevertSQLExecuteWrapper revertSQLExecuteWrapper;
     
+    private final TableMetaData tableMetaData;
+    
     /**
      * Execute revert SQL.
-     *
-     * @param tableMetaData table meta data
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<RevertSQLUnit> execute(final TableMetaData tableMetaData) throws SQLException {
-        List<String> primaryKeyColumns = getKeyColumns(tableMetaData);
+    public Optional<RevertSQLUnit> execute() throws SQLException {
+        List<String> primaryKeyColumns = getPrimaryKeyColumns();
         if (primaryKeyColumns.isEmpty()) {
             throw new RuntimeException("Not supported table without primary key");
         }
@@ -56,7 +56,7 @@ public class DMLRevertSQLEngine implements RevertSQLEngine {
         return revertSQLExecuteWrapper.generateRevertSQL(revertSQLStatement);
     }
     
-    private List<String> getKeyColumns(final TableMetaData tableMetaData) {
+    private List<String> getPrimaryKeyColumns() {
         List<String> result = new ArrayList<>();
         for (ColumnMetaData each : tableMetaData.getColumns().values()) {
             if (each.isPrimaryKey()) {

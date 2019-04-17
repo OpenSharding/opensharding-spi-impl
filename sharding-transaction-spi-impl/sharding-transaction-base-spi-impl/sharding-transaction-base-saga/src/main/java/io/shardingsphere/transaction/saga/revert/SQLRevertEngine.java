@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLEngineFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
@@ -56,7 +55,7 @@ public final class SQLRevertEngine {
         String actualTableName = sagaBranchTransaction.getActualTableName();
         for (List<Object> each : sagaBranchTransaction.getParameterSets()) {
             Optional<RevertSQLUnit> revertSQLUnit = RevertSQLEngineFactory.newInstance(actualTableName, sqlStatement, each, tableMetaData,
-                connectionMap.get(sagaBranchTransaction.getDataSourceName())).execute(tableMetaData);
+                connectionMap.get(sagaBranchTransaction.getDataSourceName())).execute();
             if (revertSQLUnit.isPresent()) {
                 result.setSql(revertSQLUnit.get().getRevertSQL());
                 result.getParameterSets().addAll(revertSQLUnit.get().getRevertParams());
