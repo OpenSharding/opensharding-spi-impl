@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
+import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.revert.SQLRevertResult;
@@ -133,16 +133,16 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     private SagaDefinitionBuilder getSagaDefinitionBuilder() {
         SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(),
             sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
-        for (SagaBranchTransactionGroup each : CURRENT_TRANSACTION.get().getBranchTransactionGroups()) {
+        for (SagaLogicSQLTransaction each : CURRENT_TRANSACTION.get().getLogicSQLTransactions()) {
             result.switchParents();
             initSagaDefinitionForGroup(result, each);
         }
         return result;
     }
     
-    private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final SagaBranchTransactionGroup sagaBranchTransactionGroup) {
+    private void initSagaDefinitionForGroup(final SagaDefinitionBuilder sagaDefinitionBuilder, final SagaLogicSQLTransaction sagaLogicSQLTransaction) {
         SagaTransaction currentTransaction = CURRENT_TRANSACTION.get();
-        for (SagaBranchTransaction each : sagaBranchTransactionGroup.getBranchTransactions()) {
+        for (SagaBranchTransaction each : sagaLogicSQLTransaction.getBranchTransactions()) {
             SQLRevertResult revertResult = currentTransaction.getRevertResults().containsKey(each) ? currentTransaction.getRevertResults().get(each) : new SQLRevertResult();
             sagaDefinitionBuilder.addChildRequest(
                 String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertResult.getSql(), revertResult.getParameterSets());

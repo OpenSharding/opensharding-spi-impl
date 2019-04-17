@@ -53,6 +53,6 @@ public final class SagaSQLParsingHookTest {
         ShardingTableMetaData shardingTableMetaData = mock(ShardingTableMetaData.class);
         sagaSQLParsingHook.start(sql);
         sagaSQLParsingHook.finishSuccess(sqlStatement, shardingTableMetaData);
-        verify(sagaTransaction).nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
+        verify(sagaTransaction).nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
     }
 }

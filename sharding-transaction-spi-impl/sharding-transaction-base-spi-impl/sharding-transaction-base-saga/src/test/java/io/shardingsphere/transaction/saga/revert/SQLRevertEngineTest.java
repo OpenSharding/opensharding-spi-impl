@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
+import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
 import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
@@ -78,7 +78,7 @@ public class SQLRevertEngineTest {
     public void assertRevert() throws SQLException {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction("", "", Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE)));
         when(dmlStatement.getTables()).thenReturn(mock(Tables.class));
-        SagaBranchTransactionGroup sagaBranchTransactionGroup = new SagaBranchTransactionGroup("", dmlStatement, mock(ShardingTableMetaData.class));
+        SagaLogicSQLTransaction sagaBranchTransactionGroup = new SagaLogicSQLTransaction("", dmlStatement, mock(ShardingTableMetaData.class));
         SQLRevertResult result = revertEngine.revert(sagaBranchTransaction, sagaBranchTransactionGroup);
         assertThat(result.getSql(), is("revert SQL"));
         assertThat(result.getParameterSets().size(), is(1));

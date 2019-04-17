@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
+import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
@@ -64,10 +64,10 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
         if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY)) {
             sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
-            if (sagaTransaction.isDMLBranchTransactionGroup()) {
+            if (sagaTransaction.isDMLLogicSQLTransaction()) {
                 sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()));
                 sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
-                sagaTransaction.addBranchTransactionToGroup(sagaBranchTransaction);
+                sagaTransaction.addBranchTransaction(sagaBranchTransaction);
                 saveNewSnapshot(routeUnit);
             }
         }
@@ -97,13 +97,13 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     private void saveNewSnapshot(final RouteUnit routeUnit) {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(sagaTransaction);
-            SQLRevertResult revertResult = executeRevertSQL(sagaTransaction.getCurrentBranchTransactionGroup(), routeUnit, transactionResource.getConnections());
+            SQLRevertResult revertResult = executeRevertSQL(sagaTransaction.getCurrentLogicSQLTransaction(), routeUnit, transactionResource.getConnections());
             sagaTransaction.getRevertResults().put(sagaBranchTransaction, revertResult);
             transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(sagaTransaction.getId(), sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertResult));
         }
     }
     
-    private SQLRevertResult executeRevertSQL(final SagaBranchTransactionGroup logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
+    private SQLRevertResult executeRevertSQL(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
         SQLRevertResult result = new SQLRevertResult();
         SQLRouteResult sqlRouteResult = logicSQLTransaction.getSqlRouteResult();
         try {

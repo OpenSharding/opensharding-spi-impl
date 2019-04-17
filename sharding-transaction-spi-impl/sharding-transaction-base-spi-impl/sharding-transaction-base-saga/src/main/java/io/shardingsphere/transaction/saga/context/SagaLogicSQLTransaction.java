@@ -20,36 +20,41 @@ package io.shardingsphere.transaction.saga.context;
 import lombok.Getter;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Saga branch transaction Group.
+ * Saga logic SQL transaction.
  *
  * @author yangyi
+ * @author zhaojun
  */
 @Getter
-public class SagaBranchTransactionGroup {
+public class SagaLogicSQLTransaction {
     
     private final String logicSQL;
     
     private final SQLRouteResult sqlRouteResult;
     
+    private final ShardingTableMetaData shardingTableMetaData;
+    
     private String logicTableName;
     
-    private final ShardingTableMetaData shardingTableMetaData;
+    private SQLStatement sqlStatement;
     
     private TableMetaData tableMetaData;
     
     private final Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
     
-    public SagaBranchTransactionGroup(final String logicSQL, final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
+    public SagaLogicSQLTransaction(final String logicSQL, final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
         this.logicSQL = logicSQL;
         this.sqlRouteResult = sqlRouteResult;
         this.shardingTableMetaData = shardingTableMetaData;
         logicTableName = sqlRouteResult.getSqlStatement().getTables().getSingleTableName();
+        sqlStatement = sqlRouteResult.getSqlStatement();
         tableMetaData = shardingTableMetaData.get(logicTableName);
     }
 }

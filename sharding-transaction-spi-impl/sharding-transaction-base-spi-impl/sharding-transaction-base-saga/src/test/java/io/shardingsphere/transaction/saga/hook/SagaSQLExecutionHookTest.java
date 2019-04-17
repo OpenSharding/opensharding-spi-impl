@@ -101,7 +101,7 @@ public final class SagaSQLExecutionHookTest {
         TableUnit tableUnit = new TableUnit("");
         tableUnit.getRoutingTables().add(mock(RoutingTable.class));
         tableUnitMap.put(routeUnit.getSqlUnit(), tableUnit);
-        when(sagaTransaction.isDMLBranchTransactionGroup()).thenReturn(true);
+        when(sagaTransaction.isDMLLogicSQLTransaction()).thenReturn(true);
         when(sagaTransaction.getTableUnitMap()).thenReturn(tableUnitMap);
         when(sagaTransaction.getRecoveryPolicy()).thenReturn(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
     }

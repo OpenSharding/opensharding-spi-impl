@@ -23,7 +23,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.core.route.SQLUnit;
 import org.apache.shardingsphere.core.route.type.TableUnit;
 
@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Saga transaction.
  *
  * @author yangyi
+ * @author zhaojun
  */
 @RequiredArgsConstructor
 @Getter
@@ -52,33 +53,33 @@ public final class SagaTransaction {
     
     private final Map<SagaBranchTransaction, SQLRevertResult> revertResults = new ConcurrentHashMap<>();
     
-    private final List<SagaBranchTransactionGroup> branchTransactionGroups = new LinkedList<>();
+    private final List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
     
-    private SagaBranchTransactionGroup currentBranchTransactionGroup;
+    private SagaLogicSQLTransaction currentLogicSQLTransaction;
     
     private volatile boolean containsException;
     
     /**
-     * Go to next branch transaction group.
+     * Go to next logic SQL transaction.
      *
-     * @param logicSQL logic sql
-     * @param sqlStatement sql statement
+     * @param logicSQL logic SQL
+     * @param sqlRouteResult SQL route result
      * @param shardingTableMetaData sharding table meta data
      */
-    public void nextBranchTransactionGroup(final String logicSQL, final SQLStatement sqlStatement, final ShardingTableMetaData shardingTableMetaData) {
-        currentBranchTransactionGroup = new SagaBranchTransactionGroup(logicSQL, sqlStatement, shardingTableMetaData);
-        if (isDMLBranchTransactionGroup()) {
-            branchTransactionGroups.add(currentBranchTransactionGroup);
+    public void nextLogicSQLTransaction(final String logicSQL, final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
+        currentLogicSQLTransaction = new SagaLogicSQLTransaction(logicSQL, sqlRouteResult, shardingTableMetaData);
+        if (isDMLLogicSQLTransaction()) {
+            logicSQLTransactions.add(currentLogicSQLTransaction);
         }
     }
     
     /**
-     * Whether current branch transaction group is DML.
+     * Whether current logic SQL transaction is DML.
      *
      * @return current branch transaction group is DML
      */
-    public boolean isDMLBranchTransactionGroup() {
-        return SQLType.DML == currentBranchTransactionGroup.getSqlStatement().getType();
+    public boolean isDMLLogicSQLTransaction() {
+        return SQLType.DML == currentLogicSQLTransaction.getSqlStatement().getType();
     }
     
     /**
@@ -93,11 +94,11 @@ public final class SagaTransaction {
     }
     
     /**
-     * Add new branch transaction to current transaction group.
+     * Add new branch transaction to current logic SQL transaction.
      *
      * @param branchTransaction saga branch transaction
      */
-    public void addBranchTransactionToGroup(final SagaBranchTransaction branchTransaction) {
-        currentBranchTransactionGroup.getBranchTransactions().add(branchTransaction);
+    public void addBranchTransaction(final SagaBranchTransaction branchTransaction) {
+        currentLogicSQLTransaction.getBranchTransactions().add(branchTransaction);
     }
 }

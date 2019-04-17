@@ -57,17 +57,17 @@ public final class SagaTransactionTest {
     
     @Test
     public void assertNextBranchTransactionGroup() {
-        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
+        sagaTransaction.nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
         assertNotNull(sagaTransaction.getCurrentBranchTransactionGroup());
-        assertThat(sagaTransaction.getBranchTransactionGroups().size(), is(1));
-        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
-        assertThat(sagaTransaction.getBranchTransactionGroups().size(), is(2));
+        assertThat(sagaTransaction.getLogicSQLTransactions().size(), is(1));
+        sagaTransaction.nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
+        assertThat(sagaTransaction.getLogicSQLTransactions().size(), is(2));
     }
     
     @Test
     public void assertAddBranchTransactionToGroup() {
-        sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
-        sagaTransaction.addBranchTransactionToGroup(new SagaBranchTransaction("", sql, null));
+        sagaTransaction.nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
+        sagaTransaction.addBranchTransaction(new SagaBranchTransaction("", sql, null));
         assertThat(sagaTransaction.getCurrentBranchTransactionGroup().getBranchTransactions().size(), is(1));
     }
     

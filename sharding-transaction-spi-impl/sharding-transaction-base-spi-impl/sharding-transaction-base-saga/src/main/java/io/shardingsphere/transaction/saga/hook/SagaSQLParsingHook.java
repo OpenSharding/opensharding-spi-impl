@@ -42,7 +42,7 @@ public final class SagaSQLParsingHook implements ParsingHook {
     @Override
     public void finishSuccess(final SQLStatement sqlStatement, final ShardingTableMetaData shardingTableMetaData) {
         if (null != sagaTransaction) {
-            sagaTransaction.nextBranchTransactionGroup(sql, sqlStatement, shardingTableMetaData);
+            sagaTransaction.nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
         }
     }
     

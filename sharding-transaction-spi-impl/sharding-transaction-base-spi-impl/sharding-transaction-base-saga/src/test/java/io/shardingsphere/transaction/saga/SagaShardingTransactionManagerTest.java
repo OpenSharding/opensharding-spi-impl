@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga;
 
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.context.SagaBranchTransactionGroup;
+import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
@@ -192,9 +192,9 @@ public final class SagaShardingTransactionManagerTest {
         when(sagaResourceManager.getSagaPersistence()).thenReturn(sagaPersistence);
         sagaShardingTransactionManager.begin();
         SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
-        SagaBranchTransactionGroup sagaBranchTransactionGroup = new SagaBranchTransactionGroup("", null, null);
+        SagaLogicSQLTransaction sagaBranchTransactionGroup = new SagaLogicSQLTransaction("", null, null);
         sagaBranchTransactionGroup.getBranchTransactions().add(new SagaBranchTransaction("", "", null));
-        sagaTransaction.getBranchTransactionGroups().add(sagaBranchTransactionGroup);
+        sagaTransaction.getLogicSQLTransactions().add(sagaBranchTransactionGroup);
         sagaShardingTransactionManager.rollback();
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
