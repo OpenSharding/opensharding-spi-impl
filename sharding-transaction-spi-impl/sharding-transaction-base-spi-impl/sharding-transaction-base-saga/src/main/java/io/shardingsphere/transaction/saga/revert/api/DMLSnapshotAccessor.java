@@ -45,7 +45,7 @@ public class DMLSnapshotAccessor implements SnapshotAccessor {
     
     @Override
     public final List<Map<String, Object>> queryUndoData() throws SQLException {
-        return JDBCUtil.executeQuery(connection, buildSnapshotQuerySQL(), snapshotSQLStatement.getQueryParameters());
+        return JDBCUtil.executeQuery(connection, buildSnapshotQuerySQL(), snapshotSQLStatement.getParameters());
     }
     
     private String buildSnapshotQuerySQL() {
@@ -53,8 +53,8 @@ public class DMLSnapshotAccessor implements SnapshotAccessor {
         sqlBuilder.appendQueryColumnNames(snapshotSQLStatement.getQueryColumnNames());
         sqlBuilder.appendLiterals(DefaultKeyword.FROM);
         sqlBuilder.appendLiterals(snapshotSQLStatement.getActualTableName());
-        sqlBuilder.appendLiterals(snapshotSQLStatement.getTableAliasLiterals());
-        sqlBuilder.appendLiterals(snapshotSQLStatement.getWhereClauseLiterals());
+        sqlBuilder.appendLiterals(snapshotSQLStatement.getTableAlias());
+        sqlBuilder.appendLiterals(snapshotSQLStatement.getWhereClause());
         return sqlBuilder.toSQL();
     }
 }

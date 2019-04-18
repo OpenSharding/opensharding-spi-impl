@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLStatement;
-import lombok.Getter;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 
 import java.util.Collection;
@@ -31,17 +30,14 @@ import java.util.List;
  *
  * @author zhaojun
  */
-public final class DeleteSnapshotSQLStatement implements SnapshotSQLStatement {
-    
-    @Getter
-    private final String actualTableName;
+public final class DeleteSnapshotSQLStatement extends SnapshotSQLStatement {
     
     private final DeleteStatement deleteStatement;
     
     private final List<Object> actualSQLParameters;
     
     public DeleteSnapshotSQLStatement(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
-        this.actualTableName = actualTableName;
+        super(actualTableName);
         this.deleteStatement = deleteStatement;
         this.actualSQLParameters = actualSQLParameters;
     }
@@ -52,17 +48,17 @@ public final class DeleteSnapshotSQLStatement implements SnapshotSQLStatement {
     }
     
     @Override
-    public String getTableAliasLiterals() {
+    public String getTableAlias() {
         return "";
     }
     
     @Override
-    public String getWhereClauseLiterals() {
+    public String getWhereClause() {
         return 0 < deleteStatement.getWhereStartIndex() ? deleteStatement.getLogicSQL().substring(deleteStatement.getWhereStartIndex(), deleteStatement.getWhereStopIndex() + 1) : "";
     }
     
     @Override
-    public Collection<Object> getQueryParameters() {
+    public Collection<Object> getParameters() {
         Collection<Object> result = new LinkedList<>();
         for (int i = deleteStatement.getWhereParameterStartIndex(); i <= deleteStatement.getWhereParameterEndIndex(); i++) {
             result.add(actualSQLParameters.get(i));

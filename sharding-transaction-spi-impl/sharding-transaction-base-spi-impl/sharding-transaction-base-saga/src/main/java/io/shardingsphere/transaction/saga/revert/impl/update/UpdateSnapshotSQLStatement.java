@@ -19,7 +19,6 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLStatement;
-import lombok.Getter;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
@@ -36,10 +35,7 @@ import java.util.List;
  *
  * @author zhaojun
  */
-public final class UpdateSnapshotSQLStatement implements SnapshotSQLStatement {
-    
-    @Getter
-    private final String actualTableName;
+public final class UpdateSnapshotSQLStatement extends SnapshotSQLStatement {
     
     private final UpdateStatement updateStatement;
     
@@ -48,7 +44,7 @@ public final class UpdateSnapshotSQLStatement implements SnapshotSQLStatement {
     private final List<String> primaryKeys;
     
     public UpdateSnapshotSQLStatement(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
-        this.actualTableName = actualTableName;
+        super(actualTableName);
         this.updateStatement = updateStatement;
         this.actualSQLParameters = actualSQLParameters;
         this.primaryKeys = getPrimaryKeyColumns(tableMetaData);
@@ -82,7 +78,7 @@ public final class UpdateSnapshotSQLStatement implements SnapshotSQLStatement {
     }
     
     @Override
-    public String getTableAliasLiterals() {
+    public String getTableAlias() {
         String result = null;
         Optional<Table> table = updateStatement.getTables().find(updateStatement.getTables().getSingleTableName());
         if (table.isPresent() && table.get().getAlias().isPresent() && !table.get().getAlias().get().equals(table.get().getName())) {
@@ -92,12 +88,12 @@ public final class UpdateSnapshotSQLStatement implements SnapshotSQLStatement {
     }
     
     @Override
-    public String getWhereClauseLiterals() {
+    public String getWhereClause() {
         return 0 < updateStatement.getWhereStartIndex() ? updateStatement.getLogicSQL().substring(updateStatement.getWhereStartIndex(), updateStatement.getWhereStopIndex() + 1) : "";
     }
     
     @Override
-    public Collection<Object> getQueryParameters() {
+    public Collection<Object> getParameters() {
         Collection<Object> result = new LinkedList<>();
         for (int i = updateStatement.getWhereParameterStartIndex(); i <= updateStatement.getWhereParameterEndIndex(); i++) {
             result.add(actualSQLParameters.get(i));

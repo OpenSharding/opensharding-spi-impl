@@ -17,47 +17,27 @@
 
 package io.shardingsphere.transaction.saga.revert.api;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Collection;
 
 /**
- * Snapshot SQL segment.
+ * Snapshot SQL statement.
  *
  * @author zhaojun
  */
-public interface SnapshotSQLStatement {
+@RequiredArgsConstructor
+@Getter
+public class SnapshotSQLStatement {
     
-    /**
-     * Get actual table name.
-     *
-     * @return table name
-     */
-    String getActualTableName();
+    private final String actualTableName;
     
-    /**
-     * Get query items.
-     *
-     * @return query items
-     */
-    Collection<String> getQueryColumnNames();
+    private Collection<Object> parameters;
     
-    /**
-     * Get Table alias literals.
-     *
-     * @return table alias
-     */
-    String getTableAliasLiterals();
+    private Collection<String> queryColumnNames;
     
-    /**
-     * Get where clause literals.
-     *
-     * @return where clause literals
-     */
-    String getWhereClauseLiterals();
+    private String tableAlias;
     
-    /**
-     * Get Query parameters.
-     *
-     * @return Collection
-     */
-    Collection<Object> getQueryParameters();
+    private String whereClause;
 }
