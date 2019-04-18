@@ -59,7 +59,7 @@ public final class RevertUpdateGenerator implements RevertSQLGenerator {
     
     private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLContext updateParameter, final StringBuilder builder) {
         int pos = 0;
-        for (String key : updateParameter.getKeys()) {
+        for (String key : updateParameter.getPrimaryKeyColumns()) {
             if (pos > 0) {
                 builder.append(" ").append(DefaultKeyword.AND).append(" ");
             }
@@ -73,7 +73,7 @@ public final class RevertUpdateGenerator implements RevertSQLGenerator {
             for (String updateColumn : updateParameter.getUpdateColumns().keySet()) {
                 eachSQLParams.add(each.get(updateColumn.toLowerCase()));
             }
-            for (String key : updateParameter.getKeys()) {
+            for (String key : updateParameter.getPrimaryKeyColumns()) {
                 Object value = updateParameter.getUpdateColumns().get(key);
                 if (null != value) {
                     eachSQLParams.add(value);

@@ -62,7 +62,7 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         Iterator<String> columnNamesIterator = insertStatement.getColumnNames().iterator();
         Iterator actualSQLParameterIterator = actualSQLParameters.iterator();
         for (InsertValue each : insertStatement.getValues()) {
-            result.getInsertGroups().add(createInsertGroup(each, columnNamesIterator, actualSQLParameterIterator, primaryKeyColumns));
+            result.getInvertValues().add(createInsertGroup(each, columnNamesIterator, actualSQLParameterIterator, primaryKeyColumns));
         }
         return result;
     }
@@ -112,16 +112,16 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     private void fillRevertParams(final RevertSQLUnit revertSQLUnit, final InsertRevertSQLContext insertParameter) {
         if (insertParameter.isContainGenerateKey()) {
-            int eachParameterSize = insertParameter.getParams().size() / insertParameter.getBatchSize();
+            int eachParameterSize = insertParameter.getParameters().size() / insertParameter.getBatchSize();
             for (int i = 0; i < insertParameter.getBatchSize(); i++) {
                 Collection<Object> currentSQLParams = new LinkedList<>();
                 int generateValueIndex = (i + 1) * eachParameterSize - 1;
-                currentSQLParams.add(insertParameter.getParams().get(generateValueIndex));
+                currentSQLParams.add(insertParameter.getParameters().get(generateValueIndex));
                 revertSQLUnit.getRevertParams().add(currentSQLParams);
             }
             return;
         }
-        for (Map<String, Object> each : insertParameter.getInsertGroups()) {
+        for (Map<String, Object> each : insertParameter.getInvertValues()) {
             Collection<Object> currentSQLParams = new LinkedList<>();
             revertSQLUnit.getRevertParams().add(currentSQLParams);
             for (Map.Entry<String, Object> eachEntry : each.entrySet()) {

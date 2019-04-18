@@ -54,17 +54,17 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final DeleteRevertSQLContext revertSQLStatement) {
-        if (revertSQLStatement.getSelectSnapshot().isEmpty()) {
+    public Optional<RevertSQLUnit> generateRevertSQL(final DeleteRevertSQLContext revertSQLContext) {
+        if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.INSERT).append(" ");
         builder.append(DefaultKeyword.INTO).append(" ");
-        builder.append(revertSQLStatement.getActualTable()).append(" ");
+        builder.append(revertSQLContext.getActualTable()).append(" ");
         builder.append(DefaultKeyword.VALUES).append(" ");
         builder.append("(");
-        int columnCount = revertSQLStatement.getSelectSnapshot().get(0).size();
+        int columnCount = revertSQLContext.getUndoData().get(0).size();
         for (int i = 0; i < columnCount; i++) {
             builder.append("?");
             if (i < columnCount - 1) {
@@ -73,7 +73,7 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         }
         builder.append(")");
         RevertSQLUnit result = new RevertSQLUnit(builder.toString());
-        for (Map<String, Object> each : revertSQLStatement.getSelectSnapshot()) {
+        for (Map<String, Object> each : revertSQLContext.getUndoData()) {
             result.getRevertParams().add(each.values());
         }
         return Optional.of(result);

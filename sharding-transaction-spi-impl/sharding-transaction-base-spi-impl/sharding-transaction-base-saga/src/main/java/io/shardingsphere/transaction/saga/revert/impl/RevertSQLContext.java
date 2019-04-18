@@ -17,17 +17,10 @@
 
 package io.shardingsphere.transaction.saga.revert.impl;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 /**
  * Revert SQL context.
  *
  * @author duhongjun
  */
-@RequiredArgsConstructor
-@Getter
-public abstract class RevertSQLContext {
-    
-    private final String actualTable;
+public interface RevertSQLContext {
 }

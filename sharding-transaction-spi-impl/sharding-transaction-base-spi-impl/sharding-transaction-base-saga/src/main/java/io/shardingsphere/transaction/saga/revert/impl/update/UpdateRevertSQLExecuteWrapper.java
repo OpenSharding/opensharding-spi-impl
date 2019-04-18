@@ -104,7 +104,7 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLContext revertSQLContext, final StringBuilder builder) {
         int pos = 0;
-        for (String key : revertSQLContext.getKeys()) {
+        for (String key : revertSQLContext.getPrimaryKeyColumns()) {
             if (pos > 0) {
                 builder.append(" ").append(DefaultKeyword.AND).append(" ");
             }
@@ -118,7 +118,7 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
             for (String updateColumn : revertSQLContext.getUpdateColumns().keySet()) {
                 eachSQLParams.add(each.get(updateColumn.toLowerCase()));
             }
-            for (String key : revertSQLContext.getKeys()) {
+            for (String key : revertSQLContext.getPrimaryKeyColumns()) {
                 Object value = revertSQLContext.getUpdateColumns().get(key);
                 if (null != value) {
                     eachSQLParams.add(value);

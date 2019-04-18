@@ -80,6 +80,6 @@ public class RevertInsertGeneratorTest {
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
         insertGeneratorParameter = new InsertRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
             TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE, TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE), 1, false);
-        insertGeneratorParameter.getInsertGroups().add(keyValue);
+        insertGeneratorParameter.getInvertValues().add(keyValue);
     }
 }

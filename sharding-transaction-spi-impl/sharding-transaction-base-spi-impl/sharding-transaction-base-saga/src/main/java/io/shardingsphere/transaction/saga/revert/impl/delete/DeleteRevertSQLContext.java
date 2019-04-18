@@ -17,12 +17,12 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
+import lombok.Getter;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
-import lombok.Getter;
 
 /**
  * Delete revert SQL context.
@@ -30,12 +30,14 @@ import lombok.Getter;
  * @author duhongjun
  */
 @Getter
-public class DeleteRevertSQLContext extends RevertSQLContext {
+public class DeleteRevertSQLContext implements RevertSQLContext {
     
-    private final List<Map<String, Object>> selectSnapshot = new LinkedList<>();
+    private final String actualTable;
     
-    public DeleteRevertSQLContext(final String tableName, final List<Map<String, Object>> selectSnapshot) {
-        super(tableName);
-        this.selectSnapshot.addAll(selectSnapshot);
+    private final List<Map<String, Object>> undoData = new LinkedList<>();
+    
+    public DeleteRevertSQLContext(final String tableName, final List<Map<String, Object>> undoData) {
+        this.actualTable = tableName;
+        this.undoData.addAll(undoData);
     }
 }

@@ -26,31 +26,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Revert insert generator parameter.
+ * Insert revert SQL context.
  *
  * @author duhongjun
  */
 @Getter
-public final class InsertRevertSQLContext extends RevertSQLContext {
+public final class InsertRevertSQLContext implements RevertSQLContext {
+    
+    private final String actualTable;
 
     private final List<String> primaryKeys = new LinkedList<>();
 
     private final List<String> insertColumns = new LinkedList<>();
 
-    private final List<Object> params = new LinkedList<>();
+    private final List<Object> parameters = new LinkedList<>();
     
-    private final List<Map<String, Object>> insertGroups = new LinkedList<>();
+    private final List<Map<String, Object>> invertValues = new LinkedList<>();
     
     private final int batchSize;
     
     private final boolean containGenerateKey;
     
-    public InsertRevertSQLContext(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> params,
+    public InsertRevertSQLContext(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> parameters,
                                   final int batchSize, final boolean containGenerateKey) {
-        super(tableName);
+        this.actualTable = tableName;
         this.insertColumns.addAll(tableColumns);
         this.primaryKeys.addAll(keys);
-        this.params.addAll(params);
+        this.parameters.addAll(parameters);
         this.batchSize = batchSize;
         this.containGenerateKey = containGenerateKey;
     }

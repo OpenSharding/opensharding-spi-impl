@@ -79,16 +79,16 @@ public final class RevertInsertSQLGenerator implements RevertSQLGenerator {
     
     private void fillRevertParams(final RevertSQLUnit revertContext, final InsertRevertSQLContext insertParameter, final Set<Integer> keyColumnIndexs) {
         if (insertParameter.isContainGenerateKey()) {
-            int eachParameterSize = insertParameter.getParams().size() / insertParameter.getBatchSize();
+            int eachParameterSize = insertParameter.getParameters().size() / insertParameter.getBatchSize();
             for (int i = 0; i < insertParameter.getBatchSize(); i++) {
                 Collection<Object> currentSQLParams = new LinkedList<>();
                 int generateValueIndex = (i + 1) * eachParameterSize - 1;
-                currentSQLParams.add(insertParameter.getParams().get(generateValueIndex));
+                currentSQLParams.add(insertParameter.getParameters().get(generateValueIndex));
                 revertContext.getRevertParams().add(currentSQLParams);
             }
             return;
         }
-        for (Map<String, Object> each : insertParameter.getInsertGroups()) {
+        for (Map<String, Object> each : insertParameter.getInvertValues()) {
             Collection<Object> currentSQLParams = new LinkedList<>();
             revertContext.getRevertParams().add(currentSQLParams);
             for (Entry<String, Object> eachEntry : each.entrySet()) {

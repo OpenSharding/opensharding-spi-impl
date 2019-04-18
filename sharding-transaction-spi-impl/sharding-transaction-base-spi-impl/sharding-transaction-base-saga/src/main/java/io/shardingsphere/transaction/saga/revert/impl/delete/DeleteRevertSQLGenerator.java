@@ -35,7 +35,7 @@ public final class DeleteRevertSQLGenerator implements RevertSQLGenerator {
     @Override
     public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLContext revertSQLStatement) {
         DeleteRevertSQLContext deleteParameter = (DeleteRevertSQLContext) revertSQLStatement;
-        if (deleteParameter.getSelectSnapshot().isEmpty()) {
+        if (deleteParameter.getUndoData().isEmpty()) {
             return Optional.absent();
         }
         StringBuilder builder = new StringBuilder();
@@ -44,7 +44,7 @@ public final class DeleteRevertSQLGenerator implements RevertSQLGenerator {
         builder.append(revertSQLStatement.getActualTable()).append(" ");
         builder.append(DefaultKeyword.VALUES).append(" ");
         builder.append("(");
-        int columnCount = deleteParameter.getSelectSnapshot().get(0).size();
+        int columnCount = deleteParameter.getUndoData().get(0).size();
         for (int i = 0; i < columnCount; i++) {
             builder.append("?");
             if (i < columnCount - 1) {
@@ -53,7 +53,7 @@ public final class DeleteRevertSQLGenerator implements RevertSQLGenerator {
         }
         builder.append(")");
         RevertSQLUnit result = new RevertSQLUnit(builder.toString());
-        for (Map<String, Object> each : deleteParameter.getSelectSnapshot()) {
+        for (Map<String, Object> each : deleteParameter.getUndoData()) {
             result.getRevertParams().add(each.values());
         }
         return Optional.of(result);
