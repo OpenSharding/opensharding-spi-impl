@@ -51,9 +51,10 @@ public final class SQLBuilder {
                 sqlBuilder.append(each);
                 firstItem = false;
             } else {
-                sqlBuilder.append(",").append(each);
+                sqlBuilder.append(",").append(" ").append(each);
             }
         }
+        sqlBuilder.append(" ");
     }
     
     /**
