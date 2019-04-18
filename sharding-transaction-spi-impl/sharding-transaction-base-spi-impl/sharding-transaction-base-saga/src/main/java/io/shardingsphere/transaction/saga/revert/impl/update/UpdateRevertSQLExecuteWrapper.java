@@ -44,24 +44,24 @@ import java.util.Map.Entry;
  */
 public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<UpdateRevertSQLContext> {
     
-    private DMLSnapshotAccessor snapshotDataAccessor;
+    private final String actualTableName;
     
     private final UpdateStatement updateStatement;
     
     private final List<Object> actualSQLParameters;
     
-    private final String actualTableName;
-    
     private final List<String> primaryKeyColumns;
+    
+    private DMLSnapshotAccessor snapshotDataAccessor;
     
     public UpdateRevertSQLExecuteWrapper(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters,
                                          final List<String> primaryKeyColumns, final Connection connection) {
-        UpdateSnapshotSQLStatement snapshotSegment = new UpdateSnapshotSQLStatement(actualTableName, updateStatement, actualSQLParameters, primaryKeyColumns);
-        snapshotDataAccessor = new DMLSnapshotAccessor(snapshotSegment, connection);
         this.actualTableName = actualTableName;
         this.updateStatement = updateStatement;
         this.actualSQLParameters = actualSQLParameters;
         this.primaryKeyColumns = primaryKeyColumns;
+        UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(actualTableName, updateStatement, actualSQLParameters, primaryKeyColumns);
+        snapshotDataAccessor = new DMLSnapshotAccessor(snapshotSQLStatement, connection);
     }
     
     @Override
