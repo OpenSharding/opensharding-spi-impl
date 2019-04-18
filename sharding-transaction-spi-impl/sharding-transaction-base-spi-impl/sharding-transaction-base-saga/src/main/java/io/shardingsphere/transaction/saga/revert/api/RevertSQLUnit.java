@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,5 +35,5 @@ public final class RevertSQLUnit {
     
     private final String revertSQL;
     
-    private final List<Object> revertParams = new ArrayList<>();
+    private final List<Collection<Object>> revertParams = new ArrayList<>();
 }
