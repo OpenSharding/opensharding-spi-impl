@@ -41,7 +41,7 @@ public final class SagaSQLShardHookTest {
     
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        Field sagaTransactionField = SagaSQLParsingHook.class.getDeclaredField("sagaTransaction");
+        Field sagaTransactionField = SagaSQLShardHook.class.getDeclaredField("sagaTransaction");
         sagaTransactionField.setAccessible(true);
         sagaTransactionField.set(sagaSQLShardHook, sagaTransaction);
     }

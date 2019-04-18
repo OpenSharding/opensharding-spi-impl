@@ -37,5 +37,5 @@ public final class SagaSnapshot {
     
     private final SagaBranchTransaction transactionContext;
     
-    private final RevertSQLUnit revertSQLUnit;
+    private final RevertSQLUnit revertContext;
 }
