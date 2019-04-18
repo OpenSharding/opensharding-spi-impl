@@ -35,51 +35,51 @@ import static org.junit.Assert.assertTrue;
 
 public class RevertInsertGeneratorTest {
     
-    private InsertRevertSQLContext insertGeneratorParameter;
-    
-    @Test
-    public void generateWithKeyGenerator() {
-        mockInsertStatementWithKeyGenerator();
-        RevertInsertSQLGenerator insertGenerator = new RevertInsertSQLGenerator();
-        Optional<RevertSQLUnit> revertContext = insertGenerator.generate(insertGeneratorParameter);
-        assertTrue(revertContext.isPresent());
-        assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
-        assertThat(revertContext.get().getRevertParams().size(), is(1));
-        assertThat(revertContext.get().getRevertParams().get(0).size(), is(1));
-        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
-        assertThat((long) iterator.next(), equalTo(TableMetaDataUtil.ORDER_ID_VALUE));
-    }
-    
-    private void mockInsertStatementWithKeyGenerator() {
-        List<String> columnNames = Lists.newArrayList();
-        columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
-        columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        insertGeneratorParameter = new InsertRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
-            TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE, TableMetaDataUtil.ORDER_ID_VALUE), 1, true);
-    }
-    
-    @Test
-    public void generateWithoutKeyGenerator() {
-        mockInsertStatementWithoutKeyGenerator();
-        RevertInsertSQLGenerator insertGenerator = new RevertInsertSQLGenerator();
-        Optional<RevertSQLUnit> revertContext = insertGenerator.generate(insertGeneratorParameter);
-        assertTrue(revertContext.isPresent());
-        assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
-        assertThat(revertContext.get().getRevertParams().size(), is(1));
-        assertThat(revertContext.get().getRevertParams().get(0).size(), is(1));
-        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
-        assertThat((long) iterator.next(), equalTo(1L));
-    }
-    
-    private void mockInsertStatementWithoutKeyGenerator() {
-        Map<String, Object> keyValue = new HashMap<>();
-        List<String> columnNames = Lists.newArrayList();
-        columnNames.add(TableMetaDataUtil.COLUMN_ORDER_ID);
-        keyValue.put(TableMetaDataUtil.COLUMN_ORDER_ID, 1L);
-        columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
-        columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        insertGeneratorParameter = new InsertRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
-            TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE, TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE), 1, false);
-        insertGeneratorParameter.getInvertValues().add(keyValue);
-    }
+//    private InsertRevertSQLContext insertGeneratorParameter;
+//
+//    @Test
+//    public void generateWithKeyGenerator() {
+//        mockInsertStatementWithKeyGenerator();
+//        RevertInsertSQLGenerator insertGenerator = new RevertInsertSQLGenerator();
+//        Optional<RevertSQLUnit> revertContext = insertGenerator.generate(insertGeneratorParameter);
+//        assertTrue(revertContext.isPresent());
+//        assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
+//        assertThat(revertContext.get().getRevertParams().size(), is(1));
+//        assertThat(revertContext.get().getRevertParams().get(0).size(), is(1));
+//        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
+//        assertThat((long) iterator.next(), equalTo(TableMetaDataUtil.ORDER_ID_VALUE));
+//    }
+//
+//    private void mockInsertStatementWithKeyGenerator() {
+//        List<String> columnNames = Lists.newArrayList();
+//        columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
+//        columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
+//        insertGeneratorParameter = new InsertRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
+//            TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE, TableMetaDataUtil.ORDER_ID_VALUE), 1, true);
+//    }
+//
+//    @Test
+//    public void generateWithoutKeyGenerator() {
+//        mockInsertStatementWithoutKeyGenerator();
+//        RevertInsertSQLGenerator insertGenerator = new RevertInsertSQLGenerator();
+//        Optional<RevertSQLUnit> revertContext = insertGenerator.generate(insertGeneratorParameter);
+//        assertTrue(revertContext.isPresent());
+//        assertThat(revertContext.get().getRevertSQL(), is("DELETE FROM t_order_1 WHERE order_id = ?"));
+//        assertThat(revertContext.get().getRevertParams().size(), is(1));
+//        assertThat(revertContext.get().getRevertParams().get(0).size(), is(1));
+//        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
+//        assertThat((long) iterator.next(), equalTo(1L));
+//    }
+//
+//    private void mockInsertStatementWithoutKeyGenerator() {
+//        Map<String, Object> keyValue = new HashMap<>();
+//        List<String> columnNames = Lists.newArrayList();
+//        columnNames.add(TableMetaDataUtil.COLUMN_ORDER_ID);
+//        keyValue.put(TableMetaDataUtil.COLUMN_ORDER_ID, 1L);
+//        columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
+//        columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
+//        insertGeneratorParameter = new InsertRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
+//            TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE, TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE), 1, false);
+//        insertGeneratorParameter.getInvertValues().add(keyValue);
+//    }
 }

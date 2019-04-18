@@ -36,25 +36,25 @@ import static org.junit.Assert.assertTrue;
 
 public class RevertUpdateGeneratorTest {
     
-    @Test
-    public void assertGenerate() {
-        RevertUpdateGenerator revertUpdateGenerator = new RevertUpdateGenerator();
-        Optional<RevertSQLUnit> revertContext = revertUpdateGenerator.generate(new UpdateRevertSQLContext(
-            TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot(), genUpdateColumns(), TableMetaDataUtil.KEYS, Lists.newArrayList()));
-        assertTrue(revertContext.isPresent());
-        assertThat(revertContext.get().getRevertSQL(), is("UPDATE t_order_1 SET order_id = ?,user_id = ?,status = ? WHERE order_id = ? "));
-        assertThat(revertContext.get().getRevertParams().size(), is(1));
-        assertThat(revertContext.get().getRevertParams().get(0).size(), is(4));
-        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
-        SnapshotUtil.assertSnapshot(iterator);
-        assertThat((long) iterator.next(), equalTo(TableMetaDataUtil.ORDER_ID_VALUE));
-    }
-    
-    private Map<String, Object> genUpdateColumns() {
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.ORDER_ID_VALUE);
-        result.put(TableMetaDataUtil.COLUMN_USER_ID, TableMetaDataUtil.USER_ID_VALUE);
-        result.put(TableMetaDataUtil.COLUMN_STATUS, TableMetaDataUtil.STATUS_VALUE);
-        return result;
-    }
+//    @Test
+//    public void assertGenerate() {
+//        RevertUpdateGenerator revertUpdateGenerator = new RevertUpdateGenerator();
+//        Optional<RevertSQLUnit> revertContext = revertUpdateGenerator.generate(new UpdateRevertSQLContext(
+//            TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot(), genUpdateColumns(), TableMetaDataUtil.KEYS, Lists.newArrayList()));
+//        assertTrue(revertContext.isPresent());
+//        assertThat(revertContext.get().getRevertSQL(), is("UPDATE t_order_1 SET order_id = ?,user_id = ?,status = ? WHERE order_id = ? "));
+//        assertThat(revertContext.get().getRevertParams().size(), is(1));
+//        assertThat(revertContext.get().getRevertParams().get(0).size(), is(4));
+//        Iterator iterator = revertContext.get().getRevertParams().get(0).iterator();
+//        SnapshotUtil.assertSnapshot(iterator);
+//        assertThat((long) iterator.next(), equalTo(TableMetaDataUtil.ORDER_ID_VALUE));
+//    }
+//
+//    private Map<String, Object> genUpdateColumns() {
+//        Map<String, Object> result = new LinkedHashMap<>();
+//        result.put(TableMetaDataUtil.COLUMN_ORDER_ID, TableMetaDataUtil.ORDER_ID_VALUE);
+//        result.put(TableMetaDataUtil.COLUMN_USER_ID, TableMetaDataUtil.USER_ID_VALUE);
+//        result.put(TableMetaDataUtil.COLUMN_STATUS, TableMetaDataUtil.STATUS_VALUE);
+//        return result;
+//    }
 }

@@ -32,11 +32,11 @@ import static org.mockito.Mockito.mock;
 
 public class RevertOperateFactoryTest {
     
-    @Test
-    public void assertGetRevertSQLCreator() {
-        SagaRevertSQLEngineFactory factory = new SagaRevertSQLEngineFactory();
-        assertThat(factory.newInstance(mock(InsertStatement.class)), instanceOf(InsertRevertSQLExecuteWrapper.class));
-        assertThat(factory.newInstance(mock(UpdateStatement.class)), instanceOf(UpdateRevertSQLExecuteWrapper.class));
-        assertThat(factory.newInstance(mock(DeleteStatement.class)), instanceOf(DeleteRevertSQLExecuteWrapper.class));
-    }
+//    @Test
+//    public void assertGetRevertSQLCreator() {
+//        SagaRevertSQLEngineFactory factory = new SagaRevertSQLEngineFactory();
+//        assertThat(factory.newInstance(mock(InsertStatement.class)), instanceOf(InsertRevertSQLExecuteWrapper.class));
+//        assertThat(factory.newInstance(mock(UpdateStatement.class)), instanceOf(UpdateRevertSQLExecuteWrapper.class));
+//        assertThat(factory.newInstance(mock(DeleteStatement.class)), instanceOf(DeleteRevertSQLExecuteWrapper.class));
+//    }
 }

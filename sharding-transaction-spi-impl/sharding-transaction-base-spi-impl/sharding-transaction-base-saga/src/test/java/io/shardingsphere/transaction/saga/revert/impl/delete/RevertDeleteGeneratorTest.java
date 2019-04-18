@@ -33,22 +33,22 @@ import static org.junit.Assert.assertTrue;
 
 public class RevertDeleteGeneratorTest {
     
-    @Test
-    public void assertGenerate() throws Exception {
-        DeleteRevertSQLGenerator revertDeleteGenerator = new DeleteRevertSQLGenerator();
-        Optional<RevertSQLUnit> revertContext = revertDeleteGenerator.generate(new DeleteRevertSQLContext(
-            TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot()));
-        assertTrue(revertContext.isPresent());
-        assertThat(revertContext.get().getRevertSQL(), is("INSERT INTO t_order_1 VALUES (?,?,?)"));
-        assertThat(revertContext.get().getRevertParams().size(), is(1));
-        assertThat(revertContext.get().getRevertParams().get(0).size(), is(3));
-        SnapshotUtil.assertSnapshot(revertContext.get().getRevertParams().get(0).iterator());
-    }
-    
-    @Test
-    public void assertGenerateWithEmptyParameters() {
-        DeleteRevertSQLGenerator revertDeleteGenerator = new DeleteRevertSQLGenerator();
-        Optional<RevertSQLUnit> revertContext = revertDeleteGenerator.generate(new DeleteRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, Lists.<Map<String, Object>>newArrayList()));
-        assertFalse(revertContext.isPresent());
-    }
+//    @Test
+//    public void assertGenerate() throws Exception {
+//        DeleteRevertSQLGenerator revertDeleteGenerator = new DeleteRevertSQLGenerator();
+//        Optional<RevertSQLUnit> revertContext = revertDeleteGenerator.generate(new DeleteRevertSQLContext(
+//            TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot()));
+//        assertTrue(revertContext.isPresent());
+//        assertThat(revertContext.get().getRevertSQL(), is("INSERT INTO t_order_1 VALUES (?,?,?)"));
+//        assertThat(revertContext.get().getRevertParams().size(), is(1));
+//        assertThat(revertContext.get().getRevertParams().get(0).size(), is(3));
+//        SnapshotUtil.assertSnapshot(revertContext.get().getRevertParams().get(0).iterator());
+//    }
+//
+//    @Test
+//    public void assertGenerateWithEmptyParameters() {
+//        DeleteRevertSQLGenerator revertDeleteGenerator = new DeleteRevertSQLGenerator();
+//        Optional<RevertSQLUnit> revertContext = revertDeleteGenerator.generate(new DeleteRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, Lists.<Map<String, Object>>newArrayList()));
+//        assertFalse(revertContext.isPresent());
+//    }
 }

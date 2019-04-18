@@ -48,7 +48,7 @@ public class JDBCUtil {
     public static List<Map<String, Object>> executeQuery(final Connection connection, final String sql, final Collection<Object> params) throws SQLException {
         List<Map<String, Object>> result = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            fillParamters(preparedStatement, params);
+            fillParameters(preparedStatement, params);
             ResultSet rs = preparedStatement.executeQuery();
             ResultSetMetaData rsMeta = rs.getMetaData();
             int columnCount = rsMeta.getColumnCount();
@@ -73,7 +73,7 @@ public class JDBCUtil {
      */
     public static void executeUpdate(final Connection connection, final String sql, final Collection<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            fillParamters(preparedStatement, params);
+            fillParameters(preparedStatement, params);
             preparedStatement.executeUpdate();
         }
     }
@@ -89,14 +89,14 @@ public class JDBCUtil {
     public static void executeBatch(final Connection connection, final String sql, final Collection<Collection<Object>> paramsCollection) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             for (Collection<Object> each : paramsCollection) {
-                fillParamters(preparedStatement, each);
+                fillParameters(preparedStatement, each);
                 preparedStatement.addBatch();
             }
             preparedStatement.executeBatch();
         }
     }
     
-    private static void fillParamters(final PreparedStatement preparedStatement, final Collection<Object> params) throws SQLException {
+    private static void fillParameters(final PreparedStatement preparedStatement, final Collection<Object> params) throws SQLException {
         Iterator<Object> iterator = params.iterator();
         int index = 0;
         while (iterator.hasNext()) {
