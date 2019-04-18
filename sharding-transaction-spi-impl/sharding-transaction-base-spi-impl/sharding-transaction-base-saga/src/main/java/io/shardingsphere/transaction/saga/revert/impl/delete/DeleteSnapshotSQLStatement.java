@@ -48,11 +48,6 @@ public final class DeleteSnapshotSQLStatement extends SnapshotSQLStatement {
     }
     
     @Override
-    public String getTableAlias() {
-        return "";
-    }
-    
-    @Override
     public String getWhereClause() {
         return 0 < deleteStatement.getWhereStartIndex() ? deleteStatement.getLogicSQL().substring(deleteStatement.getWhereStartIndex(), deleteStatement.getWhereStopIndex() + 1) : "";
     }

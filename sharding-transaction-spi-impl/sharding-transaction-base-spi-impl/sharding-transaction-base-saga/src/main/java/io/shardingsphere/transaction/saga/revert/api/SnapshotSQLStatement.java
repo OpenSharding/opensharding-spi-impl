@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * Snapshot SQL statement.
@@ -33,11 +34,11 @@ public class SnapshotSQLStatement {
     
     private final String actualTableName;
     
-    private Collection<Object> parameters;
+    private Collection<Object> parameters = new LinkedList<>();
     
-    private Collection<String> queryColumnNames;
+    private Collection<String> queryColumnNames = new LinkedList<>();
     
-    private String tableAlias;
+    private String tableAlias = "";
     
-    private String whereClause;
+    private String whereClause = "";
 }
