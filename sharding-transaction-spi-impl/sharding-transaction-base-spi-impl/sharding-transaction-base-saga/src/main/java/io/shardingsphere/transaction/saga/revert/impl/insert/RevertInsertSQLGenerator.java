@@ -47,7 +47,7 @@ public final class RevertInsertSQLGenerator implements RevertSQLGenerator {
         int index = 0;
         for (String each : insertParameter.getInsertColumns()) {
             allColumns.add(each);
-            for (String key : insertParameter.getKeys()) {
+            for (String key : insertParameter.getPrimaryKeys()) {
                 if (key.equalsIgnoreCase(each)) {
                     keyColumnIndexs.add(index);
                     break;
@@ -67,7 +67,7 @@ public final class RevertInsertSQLGenerator implements RevertSQLGenerator {
         builder.append(insertParameter.getActualTable()).append(" ");
         builder.append(DefaultKeyword.WHERE).append(" ");
         int pos = 0;
-        for (Object key : insertParameter.getKeys()) {
+        for (Object key : insertParameter.getPrimaryKeys()) {
             if (pos > 0) {
                 builder.append(" ").append(DefaultKeyword.AND).append(" ");
             }

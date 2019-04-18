@@ -66,6 +66,13 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         return result;
     }
     
+    @Override
+    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLStatement revertSQLStatement) {
+        RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLStatement));
+        fillRevertParams(result, revertSQLStatement);
+        return Optional.of(result);
+    }
+    
     private Map<String, Object> createInsertGroup(final InsertValue insertValue, final Iterator<String> columnNamesIterator, final Iterator actualSQLParameterIterator, final List<String> keys) {
         Map<String, Object> result = new HashMap<>();
         for (SQLExpression expression : insertValue.getAssignments()) {
@@ -84,44 +91,38 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         return result;
     }
     
-    @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLStatement revertSQLStatement) {
-        RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLStatement));
-        fillRevertParams(result, revertSQLStatement);
-        return Optional.of(result);
-    }
-    
     private String generateSQL(final InsertRevertSQLStatement revertSQLStatement) {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.DELETE).append(" ");
         builder.append(DefaultKeyword.FROM).append(" ");
         builder.append(revertSQLStatement.getActualTable()).append(" ");
         builder.append(DefaultKeyword.WHERE).append(" ");
-        int pos = 0;
-        for (Object key : revertSQLStatement.getKeys()) {
-            if (pos > 0) {
-                builder.append(" ").append(DefaultKeyword.AND).append(" ");
+        boolean firstItem = true;
+        for (String primaryKey : revertSQLStatement.getPrimaryKeys()) {
+            if (firstItem) {
+                firstItem = false;
+                builder.append(" ").append(primaryKey).append(" =?");
+            } else {
+                builder.append(" ").append(DefaultKeyword.AND).append(primaryKey).append(" =?");
             }
-            builder.append(key).append(" = ?");
-            pos++;
         }
         return builder.toString();
     }
     
-    private void fillRevertParams(final RevertSQLUnit revertContext, final InsertRevertSQLStatement insertParameter) {
+    private void fillRevertParams(final RevertSQLUnit revertSQLUnit, final InsertRevertSQLStatement insertParameter) {
         if (insertParameter.isGenerateKey()) {
             int eachParameterSize = insertParameter.getParams().size() / insertParameter.getBatchSize();
             for (int i = 0; i < insertParameter.getBatchSize(); i++) {
                 Collection<Object> currentSQLParams = new LinkedList<>();
                 int generateValueIndex = (i + 1) * eachParameterSize - 1;
                 currentSQLParams.add(insertParameter.getParams().get(generateValueIndex));
-                revertContext.getRevertParams().add(currentSQLParams);
+                revertSQLUnit.getRevertParams().add(currentSQLParams);
             }
             return;
         }
         for (Map<String, Object> each : insertParameter.getInsertGroups()) {
             Collection<Object> currentSQLParams = new LinkedList<>();
-            revertContext.getRevertParams().add(currentSQLParams);
+            revertSQLUnit.getRevertParams().add(currentSQLParams);
             for (Map.Entry<String, Object> eachEntry : each.entrySet()) {
                 currentSQLParams.add(eachEntry.getValue());
             }
