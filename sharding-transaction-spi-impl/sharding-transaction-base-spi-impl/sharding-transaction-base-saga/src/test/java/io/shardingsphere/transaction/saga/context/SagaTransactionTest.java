@@ -22,6 +22,7 @@ import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
+import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,11 +30,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,6 +42,9 @@ public final class SagaTransactionTest {
 
     @Mock
     private DMLStatement sqlStatement;
+    
+    @Mock
+    private SQLRouteResult sqlRouteResult;
     
     @Mock
     private ShardingTableMetaData shardingTableMetaData;
@@ -56,38 +58,27 @@ public final class SagaTransactionTest {
     }
     
     @Test
-    public void assertNextBranchTransactionGroup() {
-        sagaTransaction.nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
-        assertNotNull(sagaTransaction.getCurrentBranchTransactionGroup());
+    public void assertNextLogicSQLTransaction() {
+        sagaTransaction.nextLogicSQLTransaction(sql, sqlRouteResult, shardingTableMetaData);
+        assertNotNull(sagaTransaction.getCurrentLogicSQLTransaction());
         assertThat(sagaTransaction.getLogicSQLTransactions().size(), is(1));
-        sagaTransaction.nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
+        sagaTransaction.nextLogicSQLTransaction(sql, sqlRouteResult, shardingTableMetaData);
         assertThat(sagaTransaction.getLogicSQLTransactions().size(), is(2));
     }
     
     @Test
-    public void assertAddBranchTransactionToGroup() {
-        sagaTransaction.nextLogicSQLTransaction(sql, sqlStatement, shardingTableMetaData);
-        sagaTransaction.addBranchTransaction(new SagaBranchTransaction("", sql, null));
-        assertThat(sagaTransaction.getCurrentBranchTransactionGroup().getBranchTransactions().size(), is(1));
-    }
-    
-    @Test
-    public void assertUpdateExecutionResultWithContainsException() {
-        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
-        sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
-        assertThat(sagaTransaction.getExecutionResults().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResults().containsKey(sagaBranchTransaction));
-        assertThat(sagaTransaction.getExecutionResults().get(sagaBranchTransaction), is(ExecuteStatus.FAILURE));
+    public void assertAddBranchTransactionWithFailureStatus() {
+        sagaTransaction.nextLogicSQLTransaction(sql, sqlRouteResult, shardingTableMetaData);
+        sagaTransaction.addBranchTransaction(new SagaBranchTransaction("", sql, null, ExecuteStatus.FAILURE));
+        assertThat(sagaTransaction.getCurrentLogicSQLTransaction().getBranchTransactions().size(), is(1));
         assertTrue(sagaTransaction.isContainsException());
     }
     
     @Test
-    public void assertUpdateExecutionResultWithoutContainsException() {
-        SagaBranchTransaction sagaBranchTransaction = mock(SagaBranchTransaction.class);
-        sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
-        assertThat(sagaTransaction.getExecutionResults().size(), is(1));
-        assertTrue(sagaTransaction.getExecutionResults().containsKey(sagaBranchTransaction));
-        assertThat(sagaTransaction.getExecutionResults().get(sagaBranchTransaction), is(ExecuteStatus.EXECUTING));
-        assertFalse(sagaTransaction.isContainsException());
+    public void assertAddBranchTransactionWithSuccessStatus() {
+        sagaTransaction.nextLogicSQLTransaction(sql, sqlRouteResult, shardingTableMetaData);
+        sagaTransaction.addBranchTransaction(new SagaBranchTransaction("", sql, null, ExecuteStatus.SUCCESS));
+        assertThat(sagaTransaction.getCurrentLogicSQLTransaction().getBranchTransactions().size(), is(1));
+        assertTrue(sagaTransaction.isContainsException());
     }
 }
