@@ -94,7 +94,6 @@ public class DeleteRevertSQLExecuteWrapperTest {
     @Test
     public void assertGenerateRevertSQLWithoutUndoData() {
         DeleteRevertSQLContext revertSQLContext = mock(DeleteRevertSQLContext.class);
-        when(revertSQLContext.getActualTable()).thenReturn("t_order_0");
         when(revertSQLContext.getUndoData()).thenReturn(Lists.<Map<String, Object>>newLinkedList());
         Optional<RevertSQLUnit> actual = deleteRevertSQLExecuteWrapper.generateRevertSQL(revertSQLContext);
         assertFalse(actual.isPresent());
