@@ -63,7 +63,7 @@ public final class JDBCSagaSnapshotRepository {
         result.add(sagaSnapshot.getTransactionId());
         result.add(sagaSnapshot.getSnapshotId());
         result.add(sagaSnapshot.getTransactionContext().toString());
-        result.add(sagaSnapshot.getRevertContext().toString());
+        result.add(sagaSnapshot.getRevertSQLUnit().toString());
         return result;
     }
     

@@ -50,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,6 +82,7 @@ public final class SagaSQLExecutionHookTest {
     }
     
     @SneakyThrows
+    @SuppressWarnings("unchecked")
     private void registerResource(final SagaTransactionResource transactionResource) {
         Field resourceMapField = SagaResourceManager.class.getDeclaredField("TRANSACTION_RESOURCE_MAP");
         resourceMapField.setAccessible(true);
@@ -93,7 +95,6 @@ public final class SagaSQLExecutionHookTest {
         TableUnit tableUnit = new TableUnit("");
         tableUnit.getRoutingTables().add(mock(RoutingTable.class));
         tableUnitMap.put(routeUnit.getSqlUnit(), tableUnit);
-        when(sagaTransaction.isDMLLogicSQLTransaction()).thenReturn(true);
         when(sagaTransaction.getTableUnitMap()).thenReturn(tableUnitMap);
         when(sagaTransaction.getRecoveryPolicy()).thenReturn(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
     }
@@ -112,11 +113,11 @@ public final class SagaSQLExecutionHookTest {
     
     @Test
     public void assertFinishSuccess() {
-        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), getParameters());
+        SagaBranchTransaction branchTransaction = spy(new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), getParameters()));
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishSuccess();
-        verify(sagaTransaction).updateExecutionResult(branchTransaction, ExecuteStatus.EXECUTING);
-        verify(sagaTransaction).updateExecutionResult(branchTransaction, ExecuteStatus.SUCCESS);
+        verify(branchTransaction).setExecuteStatus(ExecuteStatus.EXECUTING);
+        verify(branchTransaction).setExecuteStatus(ExecuteStatus.SUCCESS);
     }
     
     private List<List<Object>> getParameters() {

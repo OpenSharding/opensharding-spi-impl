@@ -22,38 +22,34 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public final class SagaBranchTransactionTest {
     
     private String dataSourceName = "dataSourceName";
-    
-    private String actualTableName = "actualTableName";
     
     private String sql = "sql";
     
     @Test
     public void assertHashCode() {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
-        sagaBranchTransaction.setActualTableName(actualTableName);
-        assertTrue(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).hashCode() == sagaBranchTransaction.hashCode());
-        assertTrue(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()).hashCode() == sagaBranchTransaction.hashCode());
+        assertThat(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).hashCode(), is(sagaBranchTransaction.hashCode()));
+        assertThat(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()).hashCode(), is(sagaBranchTransaction.hashCode()));
     }
     
     @Test
     public void assertEquals() {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
-        sagaBranchTransaction.setActualTableName(actualTableName);
-        assertTrue(sagaBranchTransaction.equals(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets())));
-        assertTrue(sagaBranchTransaction.equals(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets())));
+        assertThat(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()), is(sagaBranchTransaction));
+        assertThat(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()), is(sagaBranchTransaction));
     }
     
     @Test
     public void assertToString() {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
-        sagaBranchTransaction.setActualTableName(actualTableName);
-        assertTrue(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).toString().equals(sagaBranchTransaction.toString()));
-        assertTrue(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()).toString().equals(sagaBranchTransaction.toString()));
+        assertThat(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).toString(), is(sagaBranchTransaction.toString()));
+        assertThat(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()).toString(), is(sagaBranchTransaction.toString()));
     }
     
     private List<List<Object>> getStringParameterSets() {
