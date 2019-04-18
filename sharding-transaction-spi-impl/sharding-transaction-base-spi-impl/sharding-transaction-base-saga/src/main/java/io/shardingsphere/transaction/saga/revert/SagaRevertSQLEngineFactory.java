@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
+import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLEngine;
@@ -46,28 +47,26 @@ import java.util.concurrent.ConcurrentMap;
  * @author duhongjun
  * @author zhaojun
  */
-public final class RevertSQLEngineFactory {
+public final class SagaRevertSQLEngineFactory {
     
     /**
-     * Create new instance.
+     * Create new revert SQL engine.
      *
-     * @param sqlRouteResult sql route result
+     * @param logicSQLTransaction logic SQL transaction
      * @param routeUnit route unit
-     * @param tableMetaData table meta data
      * @param connectionMap connection map
      * @return revert SQL engine
      */
-    public static RevertSQLEngine newInstance(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit,
-                                              final TableMetaData tableMetaData, final ConcurrentMap<String, Connection> connectionMap) {
-        SQLStatement sqlStatement = sqlRouteResult.getSqlStatement();
+    public static RevertSQLEngine newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
+        SQLStatement sqlStatement = logicSQLTransaction.getSqlRouteResult().getSqlStatement();
         List<Object> parameters = routeUnit.getSqlUnit().getParameters();
-        String actualTableName = getActualTableName(sqlRouteResult, routeUnit);
+        String actualTableName = getActualTableName(logicSQLTransaction.getSqlRouteResult(), routeUnit);
         Connection connection = connectionMap.get(routeUnit.getDataSourceName());
-        List<String> primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
+        List<String> primaryKeyColumns = getPrimaryKeyColumns(logicSQLTransaction.getTableMetaData());
         RevertSQLExecuteWrapper revertSQLExecuteWrapper;
         if (sqlStatement instanceof InsertStatement) {
-            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, parameters, primaryKeyColumns,
-                sqlRouteResult.getGeneratedKey().getGeneratedKeys().isEmpty());
+            boolean containGenerateKey = !logicSQLTransaction.getSqlRouteResult().getGeneratedKey().getGeneratedKeys().isEmpty();
+            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, parameters, primaryKeyColumns, containGenerateKey);
         } else if (sqlStatement instanceof DeleteStatement) {
             revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(actualTableName, (DeleteStatement) sqlStatement, parameters, connection);
         } else if (sqlStatement instanceof UpdateStatement) {

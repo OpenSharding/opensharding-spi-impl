@@ -27,26 +27,23 @@ import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
-import io.shardingsphere.transaction.saga.revert.RevertSQLEngineFactory;
+import io.shardingsphere.transaction.saga.revert.SagaRevertSQLEngineFactory;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
-import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLUnit;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Saga SQL execution hook.
  *
  * @author yangyi
+ * @author zhaojun
  */
 public final class SagaSQLExecutionHook implements SQLExecutionHook {
     
@@ -63,7 +60,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
             }
             branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
             globalTransaction.addBranchTransaction(branchTransaction);
-            saveNewSnapshotIfNecessary(globalTransaction.getCurrentLogicSQLTransaction(), branchTransaction, routeUnit);
+            saveUndoDataIfNecessary(globalTransaction.getCurrentLogicSQLTransaction(), branchTransaction, routeUnit);
         }
     }
     
@@ -82,20 +79,12 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         }
     }
     
-    private void saveNewSnapshotIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
+    private void saveUndoDataIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
-            Optional<RevertSQLUnit> revertSQLUnit = executeRevertSQL(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap());
+            Optional<RevertSQLUnit> revertSQLUnit = SagaRevertSQLEngineFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap()).execute();
             this.branchTransaction.setRevertSQLUnit(revertSQLUnit.orNull());
             transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLUnit.orNull()));
-        }
-    }
-    
-    private Optional<RevertSQLUnit> executeRevertSQL(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
-        try {
-            return RevertSQLEngineFactory.newInstance(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connectionMap).execute();
-        } catch (final SQLException ex) {
-            throw new ShardingException(String.format("Revert SQL %s failed: ", branchTransaction.toString()), ex);
         }
     }
     

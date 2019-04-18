@@ -22,6 +22,7 @@ import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.core.exception.ShardingException;
 
 import java.sql.SQLException;
 
@@ -41,8 +42,12 @@ public class DMLRevertSQLEngine implements RevertSQLEngine {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<RevertSQLUnit> execute() throws SQLException {
-        RevertSQLContext revertSQLContext = revertSQLExecuteWrapper.createRevertSQLContext();
-        return revertSQLExecuteWrapper.generateRevertSQL(revertSQLContext);
+    public Optional<RevertSQLUnit> execute() {
+        try {
+            RevertSQLContext revertSQLContext = revertSQLExecuteWrapper.createRevertSQLContext();
+            return revertSQLExecuteWrapper.generateRevertSQL(revertSQLContext);
+        } catch (final SQLException ex) {
+            throw new ShardingException("Revert SQL engine execute error ", ex);
+        }
     }
 }

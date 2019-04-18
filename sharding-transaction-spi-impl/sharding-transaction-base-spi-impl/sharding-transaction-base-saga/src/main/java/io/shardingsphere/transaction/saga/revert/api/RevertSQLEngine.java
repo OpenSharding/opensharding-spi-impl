@@ -19,12 +19,11 @@ package io.shardingsphere.transaction.saga.revert.api;
 
 import com.google.common.base.Optional;
 
-import java.sql.SQLException;
-
 /**
  * Revert SQL engine.
  *
  * @author duhongjun
+ * @author zhaojun
  */
 public interface RevertSQLEngine {
     
@@ -32,7 +31,6 @@ public interface RevertSQLEngine {
      * Execute revert SQL.
      * 
      * @return revert SQL unit
-     * @throws SQLException SQL exception
      */
-    Optional<RevertSQLUnit> execute() throws SQLException;
+    Optional<RevertSQLUnit> execute();
 }
