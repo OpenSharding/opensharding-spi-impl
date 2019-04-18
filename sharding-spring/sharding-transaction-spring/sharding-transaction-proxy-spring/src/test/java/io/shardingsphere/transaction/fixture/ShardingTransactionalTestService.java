@@ -15,13 +15,30 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction;
+package io.shardingsphere.transaction.fixture;
 
-/**
- * Target environment of switch the transaction type.
- *
- * @author yangyi
- */
-public enum ShardingEnvironment {
-    JDBC, PROXY
+import org.apache.shardingsphere.transaction.annotation.ShardingTransactionType;
+import org.apache.shardingsphere.transaction.core.TransactionType;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+@Service
+@Component
+@ShardingTransactionType(TransactionType.XA)
+public class ShardingTransactionalTestService {
+    
+    @ShardingTransactionType
+    public void testChangeTransactionTypeToLOCAL() {
+    }
+    
+    @ShardingTransactionType(TransactionType.XA)
+    public void testChangeTransactionTypeToXA() {
+    }
+    
+    @ShardingTransactionType(TransactionType.BASE)
+    public void testChangeTransactionTypeToBASE() {
+    }
+    
+    public void testChangeTransactionTypeInClass() {
+    }
 }

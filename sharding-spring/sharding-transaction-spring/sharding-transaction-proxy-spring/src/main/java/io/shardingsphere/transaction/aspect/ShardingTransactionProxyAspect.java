@@ -17,15 +17,13 @@
 
 package io.shardingsphere.transaction.aspect;
 
-import io.shardingsphere.transaction.ShardingEnvironment;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import io.shardingsphere.transaction.handler.DataSourceTransactionManagerHandler;
 import io.shardingsphere.transaction.handler.JpaTransactionManagerHandler;
 import io.shardingsphere.transaction.handler.TransactionManagerHandler;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.transaction.annotation.ShardingTransactionType;
-import org.apache.shardingsphere.transaction.core.TransactionTypeHolder;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -38,27 +36,21 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 
 /**
- * Sharding transaction aspect.
+ * Sharding transaction proxy aspect.
  *
  * @author yangyi
  */
 @Aspect
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
-public final class ShardingTransactionalAspect {
+public class ShardingTransactionProxyAspect {
     
     private static final String PROXY_TAG = "Sharding-Proxy";
     
     private TransactionManagerHandler transactionManagerHandler;
-    
-    private ShardingEnvironment environment;
     
     /**
      * Inject spring transaction manager.
@@ -69,51 +61,6 @@ public final class ShardingTransactionalAspect {
     @Autowired
     public void setTransactionManager(final PlatformTransactionManager transactionManager) {
         setTransactionManagerHandler(transactionManager);
-    }
-    
-    /**
-     * Analyze data source type to judge environment of sharding sphere.
-     *
-     * @param dataSources data sources array
-     */
-    @Autowired
-    public void setEnvironment(final DataSource[] dataSources) {
-        environment = null != dataSources && isConnectToProxy(dataSources) ? ShardingEnvironment.PROXY : ShardingEnvironment.JDBC;
-    }
-    
-    /**
-     * Sharding transactional AOP pointcut.
-     */
-    @Pointcut("@annotation(org.apache.shardingsphere.transaction.annotation.ShardingTransactionType) || @within(org.apache.shardingsphere.transaction.annotation.ShardingTransactionType)")
-    public void shardingTransactionalPointCut() {
-    
-    }
-    
-    @Before(value = "shardingTransactionalPointCut()")
-    public void setTransactionTypeBeforeTransaction(final JoinPoint joinPoint) {
-        ShardingTransactionType shardingTransactionType = getAnnotation(joinPoint);
-        switch (environment) {
-            case JDBC:
-                TransactionTypeHolder.set(shardingTransactionType.value());
-                break;
-            case PROXY:
-                transactionManagerHandler.switchTransactionType(shardingTransactionType.value());
-                break;
-            default:
-        }
-    }
-    
-    @After(value = "shardingTransactionalPointCut()")
-    public void cleanTransactionTypeAfterTransaction(final JoinPoint joinPoint) {
-        switch (environment) {
-            case JDBC:
-                TransactionTypeHolder.clear();
-                break;
-            case PROXY:
-                transactionManagerHandler.unbindResource();
-                break;
-            default:
-        }
     }
     
     private void setTransactionManagerHandler(final PlatformTransactionManager transactionManager) {
@@ -130,28 +77,41 @@ public final class ShardingTransactionalAspect {
         }
     }
     
-    private boolean isConnectToProxy(final DataSource[] dataSources) {
-        for (DataSource each : dataSources) {
-            try (Connection connection = each.getConnection()) {
-                DatabaseMetaData databaseMetaData = connection.getMetaData();
-                if (databaseMetaData.getDatabaseProductVersion().contains(PROXY_TAG)) {
-                    return true;
-                }
-            } catch (SQLException ex) {
-                throw new ShardingException("Get databaseMetaData failed: ", ex);
-            }
-        }
-        return false;
+    /**
+     * Sharding transactional AOP pointcut.
+     */
+    @Pointcut("@annotation(org.apache.shardingsphere.transaction.annotation.ShardingTransactionType) || @within(org.apache.shardingsphere.transaction.annotation.ShardingTransactionType)")
+    public void shardingTransactionalProxyPointCut() {
+    }
+    
+    /**
+     * Set transaction type before transaction begin.
+     *
+     * @param joinPoint join point
+     */
+    @Before(value = "shardingTransactionalProxyPointCut()")
+    public void setTransactionTypeBeforeTransaction(final JoinPoint joinPoint) {
+        ShardingTransactionType shardingTransactionType = getAnnotation(joinPoint);
+        transactionManagerHandler.switchTransactionType(shardingTransactionType.value());
     }
     
     private ShardingTransactionType getAnnotation(final JoinPoint joinPoint) {
-        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-        Method method = methodSignature.getMethod();
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         ShardingTransactionType result = method.getAnnotation(ShardingTransactionType.class);
         if (null == result) {
             result = method.getDeclaringClass().getAnnotation(ShardingTransactionType.class);
         }
         return result;
+    }
+    
+    /**
+     * Clean transaction type after transaction commit/rollback.
+     *
+     * @param joinPoint join point
+     */
+    @After(value = "shardingTransactionalProxyPointCut()")
+    public void cleanTransactionTypeAfterTransaction(final JoinPoint joinPoint) {
+        transactionManagerHandler.unbindResource();
     }
     
     @RequiredArgsConstructor
@@ -161,12 +121,12 @@ public final class ShardingTransactionalAspect {
          * Spring {@code DataSourceTransactionManager}.
          */
         DATASOURCE("org.springframework.jdbc.datasource.DataSourceTransactionManager"),
-    
+        
         /**
          * Spring {@code JpaTransactionManager}.
          */
         JPA("org.springframework.orm.jpa.JpaTransactionManager"),
-    
+        
         /**
          * Other spring {@code PlatformTransactionManager}.
          */
