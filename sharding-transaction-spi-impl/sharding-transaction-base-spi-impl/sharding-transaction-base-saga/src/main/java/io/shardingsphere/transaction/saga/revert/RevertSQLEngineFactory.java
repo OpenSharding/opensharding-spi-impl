@@ -24,6 +24,7 @@ import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExec
 import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.impl.update.UpdateRevertSQLExecuteWrapper;
 import org.apache.shardingsphere.core.exception.ShardingException;
+import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
@@ -35,6 +36,7 @@ import org.apache.shardingsphere.core.route.type.RoutingTable;
 import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -49,26 +51,41 @@ public final class RevertSQLEngineFactory {
     /**
      * Create new instance.
      *
+     * @param sqlRouteResult sql route result
+     * @param routeUnit route unit
      * @param tableMetaData table meta data
-     * @return Revert Operate
+     * @param connectionMap connection map
+     * @return revert SQL engine
      */
-    public static RevertSQLEngine newInstance(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit, final TableMetaData tableMetaData, final ConcurrentMap<String, Connection> connectionMap) {
+    public static RevertSQLEngine newInstance(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit,
+                                              final TableMetaData tableMetaData, final ConcurrentMap<String, Connection> connectionMap) {
         SQLStatement sqlStatement = sqlRouteResult.getSqlStatement();
-        RevertSQLExecuteWrapper revertSQLExecuteWrapper;
-        List<Object> actualSQLParameters = routeUnit.getSqlUnit().getParameters();
+        List<Object> parameters = routeUnit.getSqlUnit().getParameters();
         String actualTableName = getActualTableName(sqlRouteResult, routeUnit);
         Connection connection = connectionMap.get(routeUnit.getDataSourceName());
+        List<String> primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
+        RevertSQLExecuteWrapper revertSQLExecuteWrapper;
         if (sqlStatement instanceof InsertStatement) {
-            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, actualSQLParameters,
+            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, parameters, primaryKeyColumns,
                 sqlRouteResult.getGeneratedKey().getGeneratedKeys().isEmpty());
         } else if (sqlStatement instanceof DeleteStatement) {
-            revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(actualTableName, (DeleteStatement) sqlStatement, actualSQLParameters, connection);
+            revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(actualTableName, (DeleteStatement) sqlStatement, parameters, connection);
         } else if (sqlStatement instanceof UpdateStatement) {
-            revertSQLExecuteWrapper = new UpdateRevertSQLExecuteWrapper(actualTableName, (UpdateStatement) sqlStatement, actualSQLParameters, tableMetaData, connection);
+            revertSQLExecuteWrapper = new UpdateRevertSQLExecuteWrapper(actualTableName, (UpdateStatement) sqlStatement, parameters, primaryKeyColumns, connection);
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
         return new DMLRevertSQLEngine(revertSQLExecuteWrapper, tableMetaData);
+    }
+    
+    private static List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {
+        List<String> result = new ArrayList<>();
+        for (ColumnMetaData each : tableMetaData.getColumns().values()) {
+            if (each.isPrimaryKey()) {
+                result.add(each.getColumnName());
+            }
+        }
+        return result;
     }
     
     private static String getActualTableName(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit) {

@@ -21,8 +21,7 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
@@ -37,8 +36,7 @@ import java.util.Map;
  * @author duhongjun
  * @author zhaojun
  */
-@Getter
-@Setter
+@RequiredArgsConstructor
 public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<DeleteRevertSQLContext> {
     
     private DMLSnapshotAccessor snapshotDataAccessor;
@@ -51,7 +49,7 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public DeleteRevertSQLContext createRevertSQLContext(final List<String> primaryKeyColumns) throws SQLException {
+    public DeleteRevertSQLContext createRevertSQLContext() throws SQLException {
         return new DeleteRevertSQLContext(actualTableName, snapshotDataAccessor.queryUndoData());
     }
     

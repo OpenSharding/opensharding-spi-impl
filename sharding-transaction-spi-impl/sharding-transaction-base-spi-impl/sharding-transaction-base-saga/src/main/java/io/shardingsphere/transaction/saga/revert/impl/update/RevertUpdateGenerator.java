@@ -37,7 +37,7 @@ public final class RevertUpdateGenerator implements RevertSQLGenerator {
     @Override
     public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLContext parameter) {
         UpdateRevertSQLContext updateParameter = (UpdateRevertSQLContext) parameter;
-        if (updateParameter.getSelectSnapshot().isEmpty()) {
+        if (updateParameter.getUndoData().isEmpty()) {
             return Optional.absent();
         }
         StringBuilder builder = new StringBuilder();
@@ -67,7 +67,7 @@ public final class RevertUpdateGenerator implements RevertSQLGenerator {
             pos++;
         }
         RevertSQLUnit result = new RevertSQLUnit(builder.toString());
-        for (Map<String, Object> each : updateParameter.getSelectSnapshot()) {
+        for (Map<String, Object> each : updateParameter.getUndoData()) {
             List<Object> eachSQLParams = new LinkedList<>();
             result.getRevertParams().add(eachSQLParams);
             for (String updateColumn : updateParameter.getUpdateColumns().keySet()) {

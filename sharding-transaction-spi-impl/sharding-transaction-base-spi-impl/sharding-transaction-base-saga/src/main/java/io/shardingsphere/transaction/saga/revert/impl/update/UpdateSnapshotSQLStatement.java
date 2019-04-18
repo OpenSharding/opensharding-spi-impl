@@ -19,8 +19,6 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLStatement;
-import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
-import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
@@ -41,32 +39,22 @@ public final class UpdateSnapshotSQLStatement extends SnapshotSQLStatement {
     
     private final List<Object> actualSQLParameters;
     
-    private final List<String> primaryKeys;
+    private final List<String> primaryKeyColumns;
     
-    public UpdateSnapshotSQLStatement(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
+    public UpdateSnapshotSQLStatement(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final List<String> primaryKeyColumns) {
         super(actualTableName);
         this.updateStatement = updateStatement;
         this.actualSQLParameters = actualSQLParameters;
-        this.primaryKeys = getPrimaryKeyColumns(tableMetaData);
-    }
-    
-    private List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {
-        List<String> result = new LinkedList<>();
-        for (ColumnMetaData each : tableMetaData.getColumns().values()) {
-            if (each.isPrimaryKey()) {
-                result.add(each.getColumnName());
-            }
-        }
-        return result;
+        this.primaryKeyColumns = primaryKeyColumns;
     }
     
     @Override
     public Collection<String> getQueryColumnNames() {
         Collection<String> result = new LinkedList<>();
-        if (primaryKeys.isEmpty()) {
+        if (primaryKeyColumns.isEmpty()) {
             return Collections.singleton("*");
         }
-        List<String> remainPrimaryKeys = new LinkedList<>(primaryKeys);
+        List<String> remainPrimaryKeys = new LinkedList<>(primaryKeyColumns);
         for (Column each : updateStatement.getAssignments().keySet()) {
             int dotPosition = each.getName().indexOf('.');
             String columnName = dotPosition > 0 ? each.getName().substring(dotPosition + 1).toLowerCase() : each.getName().toLowerCase();

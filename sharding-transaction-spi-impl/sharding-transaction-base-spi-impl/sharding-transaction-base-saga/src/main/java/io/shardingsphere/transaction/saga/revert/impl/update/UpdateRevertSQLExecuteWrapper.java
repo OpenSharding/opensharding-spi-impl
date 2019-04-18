@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
@@ -39,7 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Revert update.
+ * Update revert SQL execute wrapper.
  *
  * @author duhongjun
  */
@@ -53,18 +52,21 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     private final String actualTableName;
     
+    private final List<String> primaryKeyColumns;
+    
     public UpdateRevertSQLExecuteWrapper(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters,
-                                         final TableMetaData tableMetaData, final Connection connection) {
-        UpdateSnapshotSQLStatement snapshotSegment = new UpdateSnapshotSQLStatement(actualTableName, updateStatement, actualSQLParameters, tableMetaData);
+                                         final List<String> primaryKeyColumns, final Connection connection) {
+        UpdateSnapshotSQLStatement snapshotSegment = new UpdateSnapshotSQLStatement(actualTableName, updateStatement, actualSQLParameters, primaryKeyColumns);
         snapshotDataAccessor = new DMLSnapshotAccessor(snapshotSegment, connection);
         this.actualTableName = actualTableName;
         this.updateStatement = updateStatement;
         this.actualSQLParameters = actualSQLParameters;
+        this.primaryKeyColumns = primaryKeyColumns;
     }
     
     @Override
-    public UpdateRevertSQLContext createRevertSQLContext(final List<String> primaryKeyColumns) throws SQLException {
-        List<Map<String, Object>> selectSnapshot = snapshotDataAccessor.queryUndoData();
+    public UpdateRevertSQLContext createRevertSQLContext() throws SQLException {
+        List<Map<String, Object>> undoData = snapshotDataAccessor.queryUndoData();
         Map<String, Object> updateColumns = new LinkedHashMap<>();
         for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
             if (entry.getValue() instanceof SQLPlaceholderExpression) {
@@ -75,21 +77,21 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
                 updateColumns.put(entry.getKey().getName(), ((SQLNumberExpression) entry.getValue()).getNumber());
             }
         }
-        return new UpdateRevertSQLContext(actualTableName, selectSnapshot, updateColumns, primaryKeyColumns, actualSQLParameters);
+        return new UpdateRevertSQLContext(actualTableName, undoData, updateColumns, primaryKeyColumns, actualSQLParameters);
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final UpdateRevertSQLContext revertSQLStatement) {
-        if (revertSQLStatement.getSelectSnapshot().isEmpty()) {
+    public Optional<RevertSQLUnit> generateRevertSQL(final UpdateRevertSQLContext revertSQLContext) {
+        if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.UPDATE).append(" ");
-        builder.append(revertSQLStatement.getActualTable()).append(" ");
+        builder.append(revertSQLContext.getActualTable()).append(" ");
         builder.append(DefaultKeyword.SET).append(" ");
         int pos = 0;
-        int size = revertSQLStatement.getUpdateColumns().size();
-        for (String updateColumn : revertSQLStatement.getUpdateColumns().keySet()) {
+        int size = revertSQLContext.getUpdateColumns().size();
+        for (String updateColumn : revertSQLContext.getUpdateColumns().keySet()) {
             builder.append(updateColumn).append(" = ?");
             if (pos < size - 1) {
                 builder.append(",");
@@ -97,12 +99,12 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
             pos++;
         }
         builder.append(" ").append(DefaultKeyword.WHERE).append(" ");
-        return Optional.of(fillWhereWithKeys(revertSQLStatement, builder));
+        return Optional.of(fillWhereWithKeys(revertSQLContext, builder));
     }
     
-    private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLContext revertSQLStatement, final StringBuilder builder) {
+    private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLContext revertSQLContext, final StringBuilder builder) {
         int pos = 0;
-        for (String key : revertSQLStatement.getKeys()) {
+        for (String key : revertSQLContext.getKeys()) {
             if (pos > 0) {
                 builder.append(" ").append(DefaultKeyword.AND).append(" ");
             }
@@ -110,14 +112,14 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
             pos++;
         }
         RevertSQLUnit result = new RevertSQLUnit(builder.toString());
-        for (Map<String, Object> each : revertSQLStatement.getSelectSnapshot()) {
+        for (Map<String, Object> each : revertSQLContext.getUndoData()) {
             List<Object> eachSQLParams = new LinkedList<>();
             result.getRevertParams().add(eachSQLParams);
-            for (String updateColumn : revertSQLStatement.getUpdateColumns().keySet()) {
+            for (String updateColumn : revertSQLContext.getUpdateColumns().keySet()) {
                 eachSQLParams.add(each.get(updateColumn.toLowerCase()));
             }
-            for (String key : revertSQLStatement.getKeys()) {
-                Object value = revertSQLStatement.getUpdateColumns().get(key);
+            for (String key : revertSQLContext.getKeys()) {
+                Object value = revertSQLContext.getUpdateColumns().get(key);
                 if (null != value) {
                     eachSQLParams.add(value);
                 } else {

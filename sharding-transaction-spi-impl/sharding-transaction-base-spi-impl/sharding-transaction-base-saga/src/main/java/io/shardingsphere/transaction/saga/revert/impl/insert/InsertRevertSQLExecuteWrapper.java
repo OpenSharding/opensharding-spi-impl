@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl.insert;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
+import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import org.apache.shardingsphere.core.parse.old.parser.context.insertvalue.InsertValue;
@@ -36,10 +37,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Revert insert.
+ * Insert revert SQL execute wrapper.
  *
  * @author duhongjun
+ * @author zhaojun
  */
+@RequiredArgsConstructor
 public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<InsertRevertSQLContext> {
     
     private final String actualTable;
@@ -48,19 +51,14 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     private final List<Object> actualSQLParameters;
     
+    private final List<String> primaryKeyColumns;
+    
     private final boolean containGenerateKey;
     
-    public InsertRevertSQLExecuteWrapper(final String actualTable, final InsertStatement insertStatement, final List<Object> actualSQLParameters, final boolean containGenerateKey) {
-        this.actualTable = actualTable;
-        this.insertStatement = insertStatement;
-        this.actualSQLParameters = actualSQLParameters;
-        this.containGenerateKey = containGenerateKey;
-    }
-    
     @Override
-    public InsertRevertSQLContext createRevertSQLContext(final List<String> primaryKeyColumns) {
-        InsertRevertSQLContext result = new InsertRevertSQLContext(actualTable, insertStatement.getColumnNames(), primaryKeyColumns,
-            actualSQLParameters, insertStatement.getValues().size(), containGenerateKey);
+    public InsertRevertSQLContext createRevertSQLContext() {
+        InsertRevertSQLContext result = new InsertRevertSQLContext(actualTable, insertStatement.getColumnNames(),
+            primaryKeyColumns, actualSQLParameters, insertStatement.getValues().size(), containGenerateKey);
         Iterator<String> columnNamesIterator = insertStatement.getColumnNames().iterator();
         Iterator actualSQLParameterIterator = actualSQLParameters.iterator();
         for (InsertValue each : insertStatement.getValues()) {

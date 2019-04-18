@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Revert context generator parameter.
+ * Revert SQL context.
  *
  * @author duhongjun
  */

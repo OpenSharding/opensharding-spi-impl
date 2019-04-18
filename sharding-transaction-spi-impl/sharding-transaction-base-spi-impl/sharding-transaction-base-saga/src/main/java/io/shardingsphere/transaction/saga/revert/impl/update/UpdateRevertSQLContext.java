@@ -26,14 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Revert update generator parameter.
+ * Update revert SQL context.
  *
  * @author duhongjun
  */
 @Getter
 public final class UpdateRevertSQLContext extends RevertSQLContext {
     
-    private final List<Map<String, Object>> selectSnapshot = new LinkedList<>();
+    private final List<Map<String, Object>> undoData = new LinkedList<>();
     
     private final Map<String, Object> updateColumns = new LinkedHashMap<>();
     
@@ -41,10 +41,10 @@ public final class UpdateRevertSQLContext extends RevertSQLContext {
     
     private final List<Object> params = new LinkedList<>();
     
-    public UpdateRevertSQLContext(final String tableName, final List<Map<String, Object>> selectSnapshot, final Map<String, Object> updateColumns, final List<String> keys,
+    public UpdateRevertSQLContext(final String tableName, final List<Map<String, Object>> undoData, final Map<String, Object> updateColumns, final List<String> keys,
                                   final List<Object> params) {
         super(tableName);
-        this.selectSnapshot.addAll(selectSnapshot);
+        this.undoData.addAll(undoData);
         this.updateColumns.putAll(updateColumns);
         this.keys.addAll(keys);
         this.params.addAll(params);

@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
 
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Revert SQL execute wrapper.
@@ -33,11 +32,10 @@ public interface RevertSQLExecuteWrapper<T extends RevertSQLContext> {
     /**
      * Create revert SQL context.
      *
-     * @param primaryKeyColumns primary key columns
      * @return revert SQL statement
      * @throws SQLException SQL exception
      */
-    T createRevertSQLContext(List<String> primaryKeyColumns) throws SQLException;
+    T createRevertSQLContext() throws SQLException;
     
     
     /**
