@@ -55,7 +55,7 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     public UpdateRevertSQLExecuteWrapper(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters,
                                          final TableMetaData tableMetaData, final Connection connection) {
-        UpdateSnapshotSQLSegment snapshotSegment = new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, tableMetaData);
+        UpdateSnapshotSQLStatement snapshotSegment = new UpdateSnapshotSQLStatement(actualTableName, updateStatement, actualSQLParameters, tableMetaData);
         snapshotDataAccessor = new DMLSnapshotAccessor(snapshotSegment, connection);
         this.actualTableName = actualTableName;
         this.updateStatement = updateStatement;

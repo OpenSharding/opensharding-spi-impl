@@ -32,29 +32,29 @@ import java.util.Map;
  */
 public class DMLSnapshotAccessor implements SnapshotAccessor {
     
-    private final SnapshotSQLSegment snapshotSQLSegment;
+    private final SnapshotSQLStatement snapshotSQLStatement;
     
     private SQLBuilder sqlBuilder = new SQLBuilder();
     
     private final Connection connection;
     
-    public DMLSnapshotAccessor(final SnapshotSQLSegment snapshotSQLSegment, final Connection connection) {
-        this.snapshotSQLSegment = snapshotSQLSegment;
+    public DMLSnapshotAccessor(final SnapshotSQLStatement snapshotSQLStatement, final Connection connection) {
+        this.snapshotSQLStatement = snapshotSQLStatement;
         this.connection = connection;
     }
     
     @Override
     public final List<Map<String, Object>> queryUndoData() throws SQLException {
-        return JDBCUtil.executeQuery(connection, buildSnapshotQuerySQL(), snapshotSQLSegment.getQueryParameters());
+        return JDBCUtil.executeQuery(connection, buildSnapshotQuerySQL(), snapshotSQLStatement.getQueryParameters());
     }
     
     private String buildSnapshotQuerySQL() {
         sqlBuilder.appendLiterals(DefaultKeyword.SELECT);
-        sqlBuilder.appendQueryColumnNames(snapshotSQLSegment.getQueryColumnNames());
+        sqlBuilder.appendQueryColumnNames(snapshotSQLStatement.getQueryColumnNames());
         sqlBuilder.appendLiterals(DefaultKeyword.FROM);
-        sqlBuilder.appendLiterals(snapshotSQLSegment.getActualTableName());
-        sqlBuilder.appendLiterals(snapshotSQLSegment.getTableAliasLiterals());
-        sqlBuilder.appendLiterals(snapshotSQLSegment.getWhereClauseLiterals());
+        sqlBuilder.appendLiterals(snapshotSQLStatement.getActualTableName());
+        sqlBuilder.appendLiterals(snapshotSQLStatement.getTableAliasLiterals());
+        sqlBuilder.appendLiterals(snapshotSQLStatement.getWhereClauseLiterals());
         return sqlBuilder.toSQL();
     }
 }

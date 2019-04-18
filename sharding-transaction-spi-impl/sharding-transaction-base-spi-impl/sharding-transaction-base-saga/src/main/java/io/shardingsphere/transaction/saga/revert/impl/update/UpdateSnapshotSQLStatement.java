@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLSegment;
+import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLStatement;
 import lombok.Getter;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
@@ -32,11 +32,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Update snapshot SQL segment.
+ * Update snapshot SQL statement.
  *
  * @author zhaojun
  */
-public final class UpdateSnapshotSQLSegment implements SnapshotSQLSegment {
+public final class UpdateSnapshotSQLStatement implements SnapshotSQLStatement {
     
     @Getter
     private final String actualTableName;
@@ -47,7 +47,7 @@ public final class UpdateSnapshotSQLSegment implements SnapshotSQLSegment {
     
     private final List<String> primaryKeys;
     
-    public UpdateSnapshotSQLSegment(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
+    public UpdateSnapshotSQLStatement(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final TableMetaData tableMetaData) {
         this.actualTableName = actualTableName;
         this.updateStatement = updateStatement;
         this.actualSQLParameters = actualSQLParameters;

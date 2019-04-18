@@ -47,7 +47,7 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     public DeleteRevertSQLExecuteWrapper(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters, final Connection connection) {
         this.actualTableName = actualTableName;
-        snapshotDataAccessor = new DMLSnapshotAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters), connection);
+        snapshotDataAccessor = new DMLSnapshotAccessor(new DeleteSnapshotSQLStatement(actualTableName, deleteStatement, actualSQLParameters), connection);
     }
     
     @Override

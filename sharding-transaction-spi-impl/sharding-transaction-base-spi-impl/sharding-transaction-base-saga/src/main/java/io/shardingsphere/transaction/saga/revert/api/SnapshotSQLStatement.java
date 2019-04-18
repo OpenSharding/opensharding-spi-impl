@@ -24,7 +24,7 @@ import java.util.Collection;
  *
  * @author zhaojun
  */
-public interface SnapshotSQLSegment {
+public interface SnapshotSQLStatement {
     
     /**
      * Get actual table name.

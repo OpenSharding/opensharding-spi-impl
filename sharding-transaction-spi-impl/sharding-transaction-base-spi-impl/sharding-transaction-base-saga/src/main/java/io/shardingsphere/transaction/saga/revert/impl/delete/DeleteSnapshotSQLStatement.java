@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
-import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLSegment;
+import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLStatement;
 import lombok.Getter;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 
@@ -27,11 +27,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Delete snapshot data accessor.
+ * Delete snapshot SQL statement.
  *
  * @author zhaojun
  */
-public final class DeleteSnapshotSQLSegment implements SnapshotSQLSegment {
+public final class DeleteSnapshotSQLStatement implements SnapshotSQLStatement {
     
     @Getter
     private final String actualTableName;
@@ -40,7 +40,7 @@ public final class DeleteSnapshotSQLSegment implements SnapshotSQLSegment {
     
     private final List<Object> actualSQLParameters;
     
-    public DeleteSnapshotSQLSegment(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
+    public DeleteSnapshotSQLStatement(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
         this.actualTableName = actualTableName;
         this.deleteStatement = deleteStatement;
         this.actualSQLParameters = actualSQLParameters;
