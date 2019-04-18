@@ -79,6 +79,6 @@ public class RevertInsertTest {
         InsertRevertSQLExecuteWrapper revertInsert = new InsertRevertSQLExecuteWrapper(actualTable, insertStatement, actualSQLParameters);
         revertInsert.setRevertSQLGenerator(revertInsertGenerator);
         revertInsert.snapshot(snapshotParameter);
-        verify(revertInsertGenerator).generate(any(InsertRevertSQLStatement.class));
+        verify(revertInsertGenerator).generate(any(InsertRevertSQLContext.class));
     }
 }

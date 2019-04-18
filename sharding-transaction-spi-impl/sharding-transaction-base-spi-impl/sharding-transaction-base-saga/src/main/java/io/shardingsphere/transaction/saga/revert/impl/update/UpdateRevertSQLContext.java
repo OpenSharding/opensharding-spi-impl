@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
 import lombok.Getter;
 
 import java.util.LinkedHashMap;
@@ -31,7 +31,7 @@ import java.util.Map;
  * @author duhongjun
  */
 @Getter
-public final class UpdateRevertSQLStatement extends RevertSQLStatement {
+public final class UpdateRevertSQLContext extends RevertSQLContext {
     
     private final List<Map<String, Object>> selectSnapshot = new LinkedList<>();
     
@@ -41,8 +41,8 @@ public final class UpdateRevertSQLStatement extends RevertSQLStatement {
     
     private final List<Object> params = new LinkedList<>();
     
-    public UpdateRevertSQLStatement(final String tableName, final List<Map<String, Object>> selectSnapshot, final Map<String, Object> updateColumns, final List<String> keys,
-                                    final List<Object> params) {
+    public UpdateRevertSQLContext(final String tableName, final List<Map<String, Object>> selectSnapshot, final Map<String, Object> updateColumns, final List<String> keys,
+                                  final List<Object> params) {
         super(tableName);
         this.selectSnapshot.addAll(selectSnapshot);
         this.updateColumns.putAll(updateColumns);

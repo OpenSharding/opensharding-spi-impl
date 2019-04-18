@@ -36,6 +36,6 @@ public interface RevertSQLGenerator {
      * @return revert context, when select result is empty, no need revert
      * @throws SQLException failed to execute SQL, throw this exception
      */
-    Optional<RevertSQLUnit> generateRevertSQL(RevertSQLStatement revertSQLStatement) throws SQLException;
+    Optional<RevertSQLUnit> generateRevertSQL(RevertSQLContext revertSQLStatement) throws SQLException;
     
 }

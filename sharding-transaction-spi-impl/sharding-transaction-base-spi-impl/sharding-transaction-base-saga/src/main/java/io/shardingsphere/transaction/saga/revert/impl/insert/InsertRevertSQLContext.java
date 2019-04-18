@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
 import lombok.Getter;
 
 import java.util.Collection;
@@ -31,7 +31,7 @@ import java.util.Map;
  * @author duhongjun
  */
 @Getter
-public final class InsertRevertSQLStatement extends RevertSQLStatement {
+public final class InsertRevertSQLContext extends RevertSQLContext {
 
     private final List<String> primaryKeys = new LinkedList<>();
 
@@ -45,8 +45,8 @@ public final class InsertRevertSQLStatement extends RevertSQLStatement {
     
     private final boolean containGenerateKey;
     
-    public InsertRevertSQLStatement(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> params,
-                                    final int batchSize, final boolean containGenerateKey) {
+    public InsertRevertSQLContext(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> params,
+                                  final int batchSize, final boolean containGenerateKey) {
         super(tableName);
         this.insertColumns.addAll(tableColumns);
         this.primaryKeys.addAll(keys);

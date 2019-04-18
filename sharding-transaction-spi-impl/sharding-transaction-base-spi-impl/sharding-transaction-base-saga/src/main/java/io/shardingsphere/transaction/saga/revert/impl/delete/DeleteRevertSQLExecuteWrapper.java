@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<DeleteRevertSQLStatement> {
+public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<DeleteRevertSQLContext> {
     
     private DMLSnapshotAccessor snapshotDataAccessor;
     
@@ -51,12 +51,12 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public DeleteRevertSQLStatement createRevertSQLStatement(final List<String> primaryKeyColumns) throws SQLException {
-        return new DeleteRevertSQLStatement(actualTableName, snapshotDataAccessor.queryUndoData());
+    public DeleteRevertSQLContext createRevertSQLContext(final List<String> primaryKeyColumns) throws SQLException {
+        return new DeleteRevertSQLContext(actualTableName, snapshotDataAccessor.queryUndoData());
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final DeleteRevertSQLStatement revertSQLStatement) {
+    public Optional<RevertSQLUnit> generateRevertSQL(final DeleteRevertSQLContext revertSQLStatement) {
         if (revertSQLStatement.getSelectSnapshot().isEmpty()) {
             return Optional.absent();
         }

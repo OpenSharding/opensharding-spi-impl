@@ -21,20 +21,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
 import lombok.Getter;
 
 /**
- * Revert delete parameter.
+ * Delete revert SQL context.
  *
  * @author duhongjun
  */
 @Getter
-public class DeleteRevertSQLStatement extends RevertSQLStatement {
+public class DeleteRevertSQLContext extends RevertSQLContext {
     
     private final List<Map<String, Object>> selectSnapshot = new LinkedList<>();
     
-    public DeleteRevertSQLStatement(final String tableName, final List<Map<String, Object>> selectSnapshot) {
+    public DeleteRevertSQLContext(final String tableName, final List<Map<String, Object>> selectSnapshot) {
         super(tableName);
         this.selectSnapshot.addAll(selectSnapshot);
     }

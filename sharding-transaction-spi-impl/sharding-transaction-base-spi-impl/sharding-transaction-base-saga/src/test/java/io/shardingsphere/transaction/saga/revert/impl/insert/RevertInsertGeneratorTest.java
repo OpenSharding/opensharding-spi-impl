@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 public class RevertInsertGeneratorTest {
     
-    private InsertRevertSQLStatement insertGeneratorParameter;
+    private InsertRevertSQLContext insertGeneratorParameter;
     
     @Test
     public void generateWithKeyGenerator() {
@@ -54,7 +54,7 @@ public class RevertInsertGeneratorTest {
         List<String> columnNames = Lists.newArrayList();
         columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        insertGeneratorParameter = new InsertRevertSQLStatement(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
+        insertGeneratorParameter = new InsertRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
             TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE, TableMetaDataUtil.ORDER_ID_VALUE), 1, true);
     }
     
@@ -78,7 +78,7 @@ public class RevertInsertGeneratorTest {
         keyValue.put(TableMetaDataUtil.COLUMN_ORDER_ID, 1L);
         columnNames.add(TableMetaDataUtil.COLUMN_USER_ID);
         columnNames.add(TableMetaDataUtil.COLUMN_STATUS);
-        insertGeneratorParameter = new InsertRevertSQLStatement(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
+        insertGeneratorParameter = new InsertRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, columnNames,
             TableMetaDataUtil.KEYS, Lists.<Object>newArrayList(TableMetaDataUtil.ORDER_ID_VALUE, TableMetaDataUtil.USER_ID_VALUE, TableMetaDataUtil.STATUS_VALUE), 1, false);
         insertGeneratorParameter.getInsertGroups().add(keyValue);
     }

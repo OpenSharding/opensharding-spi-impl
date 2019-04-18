@@ -43,7 +43,7 @@ import java.util.Map.Entry;
  *
  * @author duhongjun
  */
-public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<UpdateRevertSQLStatement> {
+public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<UpdateRevertSQLContext> {
     
     private DMLSnapshotAccessor snapshotDataAccessor;
     
@@ -63,7 +63,7 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public UpdateRevertSQLStatement createRevertSQLStatement(final List<String> primaryKeyColumns) throws SQLException {
+    public UpdateRevertSQLContext createRevertSQLContext(final List<String> primaryKeyColumns) throws SQLException {
         List<Map<String, Object>> selectSnapshot = snapshotDataAccessor.queryUndoData();
         Map<String, Object> updateColumns = new LinkedHashMap<>();
         for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
@@ -75,11 +75,11 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
                 updateColumns.put(entry.getKey().getName(), ((SQLNumberExpression) entry.getValue()).getNumber());
             }
         }
-        return new UpdateRevertSQLStatement(actualTableName, selectSnapshot, updateColumns, primaryKeyColumns, actualSQLParameters);
+        return new UpdateRevertSQLContext(actualTableName, selectSnapshot, updateColumns, primaryKeyColumns, actualSQLParameters);
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final UpdateRevertSQLStatement revertSQLStatement) {
+    public Optional<RevertSQLUnit> generateRevertSQL(final UpdateRevertSQLContext revertSQLStatement) {
         if (revertSQLStatement.getSelectSnapshot().isEmpty()) {
             return Optional.absent();
         }
@@ -100,7 +100,7 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         return Optional.of(fillWhereWithKeys(revertSQLStatement, builder));
     }
     
-    private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLStatement revertSQLStatement, final StringBuilder builder) {
+    private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLContext revertSQLStatement, final StringBuilder builder) {
         int pos = 0;
         for (String key : revertSQLStatement.getKeys()) {
             if (pos > 0) {

@@ -52,8 +52,8 @@ public class DMLRevertSQLEngine implements RevertSQLEngine {
         if (primaryKeyColumns.isEmpty()) {
             throw new RuntimeException("Not supported table without primary key");
         }
-        RevertSQLStatement revertSQLStatement = revertSQLExecuteWrapper.createRevertSQLStatement(primaryKeyColumns);
-        return revertSQLExecuteWrapper.generateRevertSQL(revertSQLStatement);
+        RevertSQLContext revertSQLContext = revertSQLExecuteWrapper.createRevertSQLContext(primaryKeyColumns);
+        return revertSQLExecuteWrapper.generateRevertSQL(revertSQLContext);
     }
     
     private List<String> getPrimaryKeyColumns() {

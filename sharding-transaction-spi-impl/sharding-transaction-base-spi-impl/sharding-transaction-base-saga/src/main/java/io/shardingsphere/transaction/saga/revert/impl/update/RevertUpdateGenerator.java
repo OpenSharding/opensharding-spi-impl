@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLGenerator;
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.util.LinkedList;
@@ -35,8 +35,8 @@ import java.util.Map;
 public final class RevertUpdateGenerator implements RevertSQLGenerator {
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLStatement parameter) {
-        UpdateRevertSQLStatement updateParameter = (UpdateRevertSQLStatement) parameter;
+    public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLContext parameter) {
+        UpdateRevertSQLContext updateParameter = (UpdateRevertSQLContext) parameter;
         if (updateParameter.getSelectSnapshot().isEmpty()) {
             return Optional.absent();
         }
@@ -57,7 +57,7 @@ public final class RevertUpdateGenerator implements RevertSQLGenerator {
         return Optional.of(fillWhereWithKeys(updateParameter, builder));
     }
     
-    private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLStatement updateParameter, final StringBuilder builder) {
+    private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLContext updateParameter, final StringBuilder builder) {
         int pos = 0;
         for (String key : updateParameter.getKeys()) {
             if (pos > 0) {

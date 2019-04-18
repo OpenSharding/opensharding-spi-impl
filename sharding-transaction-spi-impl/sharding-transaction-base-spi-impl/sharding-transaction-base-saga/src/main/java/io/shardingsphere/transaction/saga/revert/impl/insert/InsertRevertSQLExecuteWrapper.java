@@ -40,7 +40,7 @@ import java.util.Map;
  *
  * @author duhongjun
  */
-public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<InsertRevertSQLStatement> {
+public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<InsertRevertSQLContext> {
     
     private final String actualTable;
     
@@ -58,8 +58,8 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public InsertRevertSQLStatement createRevertSQLStatement(final List<String> primaryKeyColumns) {
-        InsertRevertSQLStatement result = new InsertRevertSQLStatement(actualTable, insertStatement.getColumnNames(), primaryKeyColumns,
+    public InsertRevertSQLContext createRevertSQLContext(final List<String> primaryKeyColumns) {
+        InsertRevertSQLContext result = new InsertRevertSQLContext(actualTable, insertStatement.getColumnNames(), primaryKeyColumns,
             actualSQLParameters, insertStatement.getValues().size(), containGenerateKey);
         Iterator<String> columnNamesIterator = insertStatement.getColumnNames().iterator();
         Iterator actualSQLParameterIterator = actualSQLParameters.iterator();
@@ -70,7 +70,7 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLStatement revertSQLStatement) {
+    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLContext revertSQLStatement) {
         RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLStatement));
         fillRevertParams(result, revertSQLStatement);
         return Optional.of(result);
@@ -94,7 +94,7 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         return result;
     }
     
-    private String generateSQL(final InsertRevertSQLStatement revertSQLStatement) {
+    private String generateSQL(final InsertRevertSQLContext revertSQLStatement) {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.DELETE).append(" ");
         builder.append(DefaultKeyword.FROM).append(" ");
@@ -112,7 +112,7 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         return builder.toString();
     }
     
-    private void fillRevertParams(final RevertSQLUnit revertSQLUnit, final InsertRevertSQLStatement insertParameter) {
+    private void fillRevertParams(final RevertSQLUnit revertSQLUnit, final InsertRevertSQLContext insertParameter) {
         if (insertParameter.isContainGenerateKey()) {
             int eachParameterSize = insertParameter.getParams().size() / insertParameter.getBatchSize();
             for (int i = 0; i < insertParameter.getBatchSize(); i++) {

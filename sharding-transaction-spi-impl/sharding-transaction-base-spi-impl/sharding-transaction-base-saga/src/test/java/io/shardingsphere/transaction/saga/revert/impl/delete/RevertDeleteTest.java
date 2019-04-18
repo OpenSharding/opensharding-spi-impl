@@ -55,7 +55,7 @@ public class RevertDeleteTest {
         revertDelete.setRevertSQLGenerator(revertDeleteGenerator);
         revertDelete.snapshot(snapshotParameter);
         verify(snapshotMaker).make(eq(snapshotParameter), ArgumentMatchers.<String>anyList());
-        verify(revertDeleteGenerator).generate(any(DeleteRevertSQLStatement.class));
+        verify(revertDeleteGenerator).generate(any(DeleteRevertSQLContext.class));
     }
     
     @Test(expected = RuntimeException.class)

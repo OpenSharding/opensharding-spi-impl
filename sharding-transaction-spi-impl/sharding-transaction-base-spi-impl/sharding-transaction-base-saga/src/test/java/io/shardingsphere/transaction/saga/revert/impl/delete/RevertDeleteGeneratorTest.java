@@ -36,7 +36,7 @@ public class RevertDeleteGeneratorTest {
     @Test
     public void assertGenerate() throws Exception {
         DeleteRevertSQLGenerator revertDeleteGenerator = new DeleteRevertSQLGenerator();
-        Optional<RevertSQLUnit> revertContext = revertDeleteGenerator.generate(new DeleteRevertSQLStatement(
+        Optional<RevertSQLUnit> revertContext = revertDeleteGenerator.generate(new DeleteRevertSQLContext(
             TableMetaDataUtil.ACTUAL_TABLE_NAME, SnapshotUtil.getSnapshot()));
         assertTrue(revertContext.isPresent());
         assertThat(revertContext.get().getRevertSQL(), is("INSERT INTO t_order_1 VALUES (?,?,?)"));
@@ -48,7 +48,7 @@ public class RevertDeleteGeneratorTest {
     @Test
     public void assertGenerateWithEmptyParameters() {
         DeleteRevertSQLGenerator revertDeleteGenerator = new DeleteRevertSQLGenerator();
-        Optional<RevertSQLUnit> revertContext = revertDeleteGenerator.generate(new DeleteRevertSQLStatement(TableMetaDataUtil.ACTUAL_TABLE_NAME, Lists.<Map<String, Object>>newArrayList()));
+        Optional<RevertSQLUnit> revertContext = revertDeleteGenerator.generate(new DeleteRevertSQLContext(TableMetaDataUtil.ACTUAL_TABLE_NAME, Lists.<Map<String, Object>>newArrayList()));
         assertFalse(revertContext.isPresent());
     }
 }

@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 @Getter
-public abstract class RevertSQLStatement {
+public abstract class RevertSQLContext {
     
     private final String actualTable;
 }

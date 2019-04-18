@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl.insert;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLGenerator;
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.util.Collection;
@@ -39,8 +39,8 @@ import java.util.Set;
 public final class RevertInsertSQLGenerator implements RevertSQLGenerator {
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLStatement parameter) {
-        InsertRevertSQLStatement insertParameter = (InsertRevertSQLStatement) parameter;
+    public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLContext parameter) {
+        InsertRevertSQLContext insertParameter = (InsertRevertSQLContext) parameter;
         RevertSQLUnit result = new RevertSQLUnit(generateSQL(insertParameter));
         Set<Integer> keyColumnIndexs = new HashSet<>();
         List<String> allColumns = new LinkedList<>();
@@ -59,8 +59,8 @@ public final class RevertInsertSQLGenerator implements RevertSQLGenerator {
         return Optional.of(result);
     }
     
-    private String generateSQL(final RevertSQLStatement parameter) {
-        InsertRevertSQLStatement insertParameter = (InsertRevertSQLStatement) parameter;
+    private String generateSQL(final RevertSQLContext parameter) {
+        InsertRevertSQLContext insertParameter = (InsertRevertSQLContext) parameter;
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.DELETE).append(" ");
         builder.append(DefaultKeyword.FROM).append(" ");
@@ -77,7 +77,7 @@ public final class RevertInsertSQLGenerator implements RevertSQLGenerator {
         return builder.toString();
     }
     
-    private void fillRevertParams(final RevertSQLUnit revertContext, final InsertRevertSQLStatement insertParameter, final Set<Integer> keyColumnIndexs) {
+    private void fillRevertParams(final RevertSQLUnit revertContext, final InsertRevertSQLContext insertParameter, final Set<Integer> keyColumnIndexs) {
         if (insertParameter.isContainGenerateKey()) {
             int eachParameterSize = insertParameter.getParams().size() / insertParameter.getBatchSize();
             for (int i = 0; i < insertParameter.getBatchSize(); i++) {

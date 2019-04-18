@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.impl.delete;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLGenerator;
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLStatement;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.util.Map;
@@ -33,8 +33,8 @@ import java.util.Map;
 public final class DeleteRevertSQLGenerator implements RevertSQLGenerator {
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLStatement revertSQLStatement) {
-        DeleteRevertSQLStatement deleteParameter = (DeleteRevertSQLStatement) revertSQLStatement;
+    public Optional<RevertSQLUnit> generateRevertSQL(final RevertSQLContext revertSQLStatement) {
+        DeleteRevertSQLContext deleteParameter = (DeleteRevertSQLContext) revertSQLStatement;
         if (deleteParameter.getSelectSnapshot().isEmpty()) {
             return Optional.absent();
         }
