@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.spring.boot.fixture;
 
-import io.shardingsphere.transaction.annotation.ShardingTransactionType;
+import org.apache.shardingsphere.transaction.annotation.ShardingTransactionType;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
