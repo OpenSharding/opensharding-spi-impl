@@ -23,7 +23,7 @@ import io.shardingsphere.transaction.saga.hook.AllHookTests;
 import io.shardingsphere.transaction.saga.persistence.AllPersistenceTests;
 import io.shardingsphere.transaction.saga.resource.AllResourceTests;
 import io.shardingsphere.transaction.saga.revert.AllRevertTests;
-import io.shardingsphere.transaction.saga.servicecomb.AllServicecombTests;
+import io.shardingsphere.transaction.saga.servicecomb.AllServiceCombTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -37,7 +37,7 @@ import org.junit.runners.Suite.SuiteClasses;
         AllPersistenceTests.class,
         AllResourceTests.class,
         AllRevertTests.class, 
-        AllServicecombTests.class
+        AllServiceCombTests.class
 })
 public final class AllTests {
 }

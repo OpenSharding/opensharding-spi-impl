@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
 import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
@@ -83,6 +83,7 @@ public final class ShardingSQLTransportTest {
     }
     
     @SneakyThrows
+    @SuppressWarnings("unchecked")
     private void mockGetResource() {
         Field resourceMapField = SagaResourceManager.class.getDeclaredField("TRANSACTION_RESOURCE_MAP");
         resourceMapField.setAccessible(true);
@@ -100,7 +101,7 @@ public final class ShardingSQLTransportTest {
     }
     
     @Test(expected = TransportFailedException.class)
-    public void assertWithFailureResult() throws SQLException {
+    public void assertWithFailureResult() {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> parameterSets = getParameterSets();
         mockExecutionResults(parameterSets, ExecuteStatus.FAILURE);
@@ -119,9 +120,7 @@ public final class ShardingSQLTransportTest {
     }
     
     private void mockExecutionResults(final List<List<String>> parameterSets, final ExecuteStatus executeStatus) {
-        Map<SagaBranchTransaction, ExecuteStatus> executionResults = new ConcurrentHashMap<>();
-        executionResults.put(new SagaBranchTransaction(dataSourceName, sql, transferList(parameterSets)), executeStatus);
-        when(sagaTransaction.getExecutionResults()).thenReturn(executionResults);
+        sagaTransaction.addBranchTransaction(new SagaBranchTransaction(dataSourceName, sql, transferList(parameterSets), executeStatus));
     }
     
     private List<List<Object>> transferList(final List<List<String>> origin) {
@@ -172,7 +171,7 @@ public final class ShardingSQLTransportTest {
     }
     
     @Test
-    public void assertWithEmptySQL() throws SQLException {
+    public void assertWithEmptySQL() {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> parameterSets = Lists.newArrayList();
         assertThat(shardingSQLTransport.with(dataSourceName, "", parameterSets).body(), is("Skip empty transaction/compensation"));

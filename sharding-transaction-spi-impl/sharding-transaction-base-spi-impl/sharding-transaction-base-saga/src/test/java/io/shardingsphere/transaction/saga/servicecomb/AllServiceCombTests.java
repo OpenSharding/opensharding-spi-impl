@@ -29,5 +29,5 @@ import io.shardingsphere.transaction.saga.servicecomb.transport.AllTransportTest
         SagaDefinitionBuilderTest.class,
         SagaExecutionComponentFactoryTest.class
 })
-public final class AllServicecombTests {
+public final class AllServiceCombTests {
 }
