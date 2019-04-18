@@ -22,15 +22,11 @@ import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
-import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Abstract revert operate.
+ * DML revert SQL engine.
  *
  * @author duhongjun
  * @author zhaojun
@@ -40,29 +36,13 @@ public class DMLRevertSQLEngine implements RevertSQLEngine {
     
     private final RevertSQLExecuteWrapper revertSQLExecuteWrapper;
     
-    private final TableMetaData tableMetaData;
-    
     /**
      * Execute revert SQL.
      */
     @Override
     @SuppressWarnings("unchecked")
     public Optional<RevertSQLUnit> execute() throws SQLException {
-        List<String> primaryKeyColumns = getPrimaryKeyColumns();
-        if (primaryKeyColumns.isEmpty()) {
-            throw new RuntimeException("Not supported table without primary key");
-        }
-        RevertSQLContext revertSQLContext = revertSQLExecuteWrapper.createRevertSQLContext(primaryKeyColumns);
+        RevertSQLContext revertSQLContext = revertSQLExecuteWrapper.createRevertSQLContext();
         return revertSQLExecuteWrapper.generateRevertSQL(revertSQLContext);
-    }
-    
-    private List<String> getPrimaryKeyColumns() {
-        List<String> result = new ArrayList<>();
-        for (ColumnMetaData each : tableMetaData.getColumns().values()) {
-            if (each.isPrimaryKey()) {
-                result.add(each.getColumnName());
-            }
-        }
-        return result;
     }
 }

@@ -75,7 +75,7 @@ public final class RevertSQLEngineFactory {
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
-        return new DMLRevertSQLEngine(revertSQLExecuteWrapper, tableMetaData);
+        return new DMLRevertSQLEngine(revertSQLExecuteWrapper);
     }
     
     private static List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {
@@ -84,6 +84,9 @@ public final class RevertSQLEngineFactory {
             if (each.isPrimaryKey()) {
                 result.add(each.getColumnName());
             }
+        }
+        if (result.isEmpty()) {
+            throw new RuntimeException("Not supported table without primary key");
         }
         return result;
     }
