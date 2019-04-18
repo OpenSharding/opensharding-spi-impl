@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -46,6 +47,7 @@ import java.util.Arrays;
  * @author yangyi
  */
 @Configuration
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 @NoArgsConstructor
 public class ShardingTransactionConfiguration {
     
