@@ -19,6 +19,7 @@ package io.shardingsphere.transaction.saga.hook;
 
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
+import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.hook.ShardHook;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
@@ -41,7 +42,7 @@ public final class SagaSQLShardHook implements ShardHook {
     
     @Override
     public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        if (null != sagaTransaction) {
+        if (null != sagaTransaction && SQLType.DML.equals(sqlRouteResult.getSqlStatement().getType())) {
             sagaTransaction.nextLogicSQLTransaction(sql, sqlRouteResult, shardingTableMetaData);
         }
     }

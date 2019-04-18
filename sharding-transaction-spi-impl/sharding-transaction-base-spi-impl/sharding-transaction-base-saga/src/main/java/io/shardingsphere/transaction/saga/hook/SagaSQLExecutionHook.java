@@ -18,6 +18,7 @@
 package io.shardingsphere.transaction.saga.hook;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
@@ -35,11 +36,13 @@ import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorEx
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
+import org.apache.shardingsphere.core.route.SQLUnit;
 import org.apache.shardingsphere.core.route.type.RoutingTable;
 import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
@@ -50,29 +53,44 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class SagaSQLExecutionHook implements SQLExecutionHook {
     
-    private SagaTransaction sagaTransaction;
+    private SagaTransaction globalTransaction;
     
-    private SagaBranchTransaction sagaBranchTransaction;
+    private SagaBranchTransaction branchTransaction;
     
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
         if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY)) {
-            sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
-            if (sagaTransaction.isDMLLogicSQLTransaction()) {
-                sagaBranchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), routeUnit.getSqlUnit().getParameters());
-                sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.EXECUTING);
-                sagaTransaction.addBranchTransaction(sagaBranchTransaction);
-                saveNewSnapshot(routeUnit);
+            globalTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
+            if (!globalTransaction.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
+                return;
             }
+            branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
+            globalTransaction.addBranchTransaction(branchTransaction);
+            saveNewSnapshotIfNecessary(globalTransaction.getCurrentLogicSQLTransaction(), branchTransaction, routeUnit);
         }
     }
     
-    private void saveNewSnapshot(final RouteUnit routeUnit) {
-        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getRecoveryPolicy())) {
-            SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(sagaTransaction);
-            Optional<RevertSQLUnit> revertSQLUnit = executeRevertSQL(sagaTransaction.getCurrentLogicSQLTransaction(), routeUnit, transactionResource.getConnections());
-            sagaTransaction.getRevertResults().put(sagaBranchTransaction, revertSQLUnit);
-            transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(sagaTransaction.getId(), sagaBranchTransaction.hashCode(), sagaBranchTransaction, revertSQLUnit.orNull()));
+    @Override
+    public void finishSuccess() {
+        if (null != branchTransaction) {
+            branchTransaction.setExecuteStatus(ExecuteStatus.SUCCESS);
+        }
+    }
+    
+    @Override
+    public void finishFailure(final Exception cause) {
+        if (null != branchTransaction) {
+            ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy()));
+            branchTransaction.setExecuteStatus(ExecuteStatus.FAILURE);
+        }
+    }
+    
+    private void saveNewSnapshotIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
+        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
+            SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
+            Optional<RevertSQLUnit> revertSQLUnit = executeRevertSQL(logicSQLTransaction, routeUnit, transactionResource.getConnections());
+            this.branchTransaction.setRevertSQLUnit(revertSQLUnit.orNull());
+            transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLUnit.orNull()));
         }
     }
     
@@ -83,7 +101,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
                 routeUnit.getSqlUnit().getParameters(), logicSQLTransaction.getTableMetaData(), connectionMap.get(routeUnit.getDataSourceName())).execute();
             
         } catch (final SQLException ex) {
-            throw new ShardingException(String.format("Revert SQL %s failed: ", sagaBranchTransaction.toString()), ex);
+            throw new ShardingException(String.format("Revert SQL %s failed: ", branchTransaction.toString()), ex);
         }
     }
     
@@ -105,18 +123,25 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         throw new ShardingException(String.format("Could not get available actual table name of [%s]", tableUnit));
     }
     
-    @Override
-    public void finishSuccess() {
-        if (null != sagaTransaction && null != sagaBranchTransaction) {
-            sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.SUCCESS);
+    private List<List<Object>> splitParameters(final SQLUnit sqlUnit) {
+        List<List<Object>> result = Lists.newArrayList();
+        int placeholderCount = countPlaceholder(sqlUnit.getSql());
+        if (placeholderCount == sqlUnit.getParameters().size()) {
+            result.add(sqlUnit.getParameters());
+        } else {
+            result.addAll(Lists.partition(sqlUnit.getParameters(), placeholderCount));
         }
+        return result;
     }
     
-    @Override
-    public void finishFailure(final Exception cause) {
-        if (null != sagaTransaction && null != sagaBranchTransaction) {
-            ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaTransaction.getRecoveryPolicy()));
-            sagaTransaction.updateExecutionResult(sagaBranchTransaction, ExecuteStatus.FAILURE);
+    private int countPlaceholder(final String sql) {
+        int result = 0;
+        int currentIndex = 0;
+        while (-1 != (currentIndex = sql.indexOf("?", currentIndex))) {
+            result++;
+            currentIndex += 1;
         }
+        return result;
     }
+    
 }

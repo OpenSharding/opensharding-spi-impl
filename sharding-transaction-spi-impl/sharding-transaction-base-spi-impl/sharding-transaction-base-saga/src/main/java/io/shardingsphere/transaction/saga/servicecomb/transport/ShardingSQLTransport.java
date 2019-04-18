@@ -17,10 +17,11 @@
 
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
@@ -54,30 +55,51 @@ public final class ShardingSQLTransport implements SQLTransport {
         if (SagaDefinitionBuilder.ROLLBACK_TAG.equals(sql)) {
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
-        SagaBranchTransaction branchTransaction = new SagaBranchTransaction(datasourceName, sql, transferList(parameterSets));
-        return isNeedExecute(branchTransaction) ? executeSQL(branchTransaction) : new JsonSuccessfulSagaResponse("{}");
+        Optional<SagaBranchTransaction> branchTransaction = getBranchTransaction(datasourceName, sql, parameterSets);
+        return branchTransaction.isPresent() && isNeedExecute(branchTransaction.get()) ? executeSQL(branchTransaction.get()) : new JsonSuccessfulSagaResponse("{}");
     }
     
-    private List<List<Object>> transferList(final List<List<String>> origin) {
-        List<List<Object>> result = Lists.newArrayList();
-        for (List<String> each : origin) {
-            result.add(Lists.<Object>newArrayList(each));
+//    private List<List<Object>> transferList(final List<List<String>> origin) {
+//        List<List<Object>> result = Lists.newArrayList();
+//        for (List<String> each : origin) {
+//            result.add(Lists.<Object>newArrayList(each));
+//        }
+//        return result;
+//    }
+    
+    private Optional<SagaBranchTransaction> getBranchTransaction(final String datasourceName, final String sql, final List<List<String>> parameterSets) {
+        Optional<SagaBranchTransaction> result = Optional.absent();
+        for (SagaLogicSQLTransaction each : sagaTransaction.getLogicSQLTransactions()) {
+            result = doGetBranchTransaction(each, datasourceName, sql, parameterSets);
+            if (result.isPresent()) {
+                return result;
+            }
         }
         return result;
     }
     
+    private Optional<SagaBranchTransaction> doGetBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction,
+                                                                   final String datasourceName, final String sql, final List<List<String>> parameterSets) {
+        for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
+            if (datasourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql()) && parameterSets.equals(each.getParameterSets())) {
+                return Optional.of(each);
+            }
+        }
+        return Optional.absent();
+    }
+   
     private boolean isNeedExecute(final SagaBranchTransaction branchTransaction) {
-        ExecuteStatus executeStatus = sagaTransaction.getExecutionResults().get(branchTransaction);
+        ExecuteStatus executeStatus = branchTransaction.getExecuteStatus();
         if (null == executeStatus || ExecuteStatus.COMPENSATING == executeStatus) {
             return true;
         }
         if (ExecuteStatus.SUCCESS == executeStatus) {
             return false;
         }
-        sagaTransaction.getExecutionResults().put(branchTransaction, ExecuteStatus.COMPENSATING);
+        branchTransaction.setExecuteStatus(ExecuteStatus.COMPENSATING);
         throw new TransportFailedException(String.format("branchTransaction %s execute failed, need to compensate", branchTransaction.toString()));
     }
-    
+        
     private SagaResponse executeSQL(final SagaBranchTransaction branchTransaction) {
         Connection connection = getConnection(branchTransaction.getDataSourceName());
         try (PreparedStatement preparedStatement = connection.prepareStatement(branchTransaction.getSql())) {

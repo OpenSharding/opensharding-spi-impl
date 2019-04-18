@@ -73,7 +73,7 @@ public final class SagaDefinitionBuilder {
      * @param compensationSQL compensation SQL
      * @param compensationParameters compensation SQL parameters
      */
-    public void addChildRequest(final String id, final String datasourceName, final String sql, final List<Object> parameterSets,
+    public void addChildRequest(final String id, final String datasourceName, final String sql, final List<List<Object>> parameterSets,
                                 final String compensationSQL, final List<Object> compensationParameters) {
         Transaction transaction = new Transaction(sql, parameterSets, transactionMaxRetries);
         Compensation compensation = new Compensation(compensationSQL, compensationParameters, compensationMaxRetries);
@@ -86,7 +86,7 @@ public final class SagaDefinitionBuilder {
      */
     public void addRollbackRequest() {
         switchParents();
-        addChildRequest(ROLLBACK_TAG, ROLLBACK_TAG, ROLLBACK_TAG, Lists.newArrayList(), ROLLBACK_TAG, Lists.newArrayList());
+        addChildRequest(ROLLBACK_TAG, ROLLBACK_TAG, ROLLBACK_TAG, Lists.<List<Object>>newArrayList(), ROLLBACK_TAG, Lists.newArrayList());
     }
     
     /**
@@ -133,7 +133,7 @@ public final class SagaDefinitionBuilder {
         
         private final String sql;
         
-        private final List<Object> params;
+        private final List<List<Object>> params;
         
         private final int retries;
     }

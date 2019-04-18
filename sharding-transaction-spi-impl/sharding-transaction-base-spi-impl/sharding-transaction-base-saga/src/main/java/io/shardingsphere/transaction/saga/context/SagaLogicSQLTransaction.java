@@ -18,6 +18,7 @@
 package io.shardingsphere.transaction.saga.context;
 
 import lombok.Getter;
+import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
@@ -39,8 +40,6 @@ public class SagaLogicSQLTransaction {
     
     private final SQLRouteResult sqlRouteResult;
     
-    private final ShardingTableMetaData shardingTableMetaData;
-    
     private String logicTableName;
     
     private SQLStatement sqlStatement;
@@ -52,9 +51,17 @@ public class SagaLogicSQLTransaction {
     public SagaLogicSQLTransaction(final String logicSQL, final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
         this.logicSQL = logicSQL;
         this.sqlRouteResult = sqlRouteResult;
-        this.shardingTableMetaData = shardingTableMetaData;
         logicTableName = sqlRouteResult.getSqlStatement().getTables().getSingleTableName();
         sqlStatement = sqlRouteResult.getSqlStatement();
         tableMetaData = shardingTableMetaData.get(logicTableName);
+    }
+    
+    /**
+     * Whether logic SQL is DML statement or not.
+     *
+     * @return true or false
+     */
+    public boolean isDMLLogicSQL() {
+        return SQLType.DML.equals(sqlStatement.getType());
     }
 }

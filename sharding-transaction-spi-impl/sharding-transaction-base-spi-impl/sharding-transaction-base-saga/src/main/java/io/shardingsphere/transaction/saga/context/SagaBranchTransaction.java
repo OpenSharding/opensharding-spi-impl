@@ -17,6 +17,8 @@
 
 package io.shardingsphere.transaction.saga.context;
 
+import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
+import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -37,7 +39,16 @@ public final class SagaBranchTransaction {
     
     private final String sql;
     
-    private final List<Object> parameterSets;
+    private final List<List<Object>> parameterSets;
+    
+    private ExecuteStatus executeStatus;
+    
+    private RevertSQLUnit revertSQLUnit;
+    
+    public SagaBranchTransaction(final String dataSourceName, final String sql, final List<List<Object>> parameterSets, final ExecuteStatus executeStatus) {
+        this(dataSourceName, sql, parameterSets);
+        this.executeStatus = executeStatus;
+    }
     
     @Override
     public int hashCode() {
@@ -45,7 +56,19 @@ public final class SagaBranchTransaction {
     }
     
     @Override
-    public boolean equals(final Object obj) {
-        return this == obj || obj instanceof SagaBranchTransaction && this.toString().equals(obj.toString());
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SagaBranchTransaction that = (SagaBranchTransaction) o;
+        return dataSourceName.equals(that.getDataSourceName()) && sql.equals(that.sql) && parameterSets.equals(that.parameterSets);
     }
+    
+    //    @Override
+//    public boolean equals(final Object obj) {
+//        return this == obj || obj instanceof SagaBranchTransaction && this.toString().equals(obj.toString());
+//    }
 }

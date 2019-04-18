@@ -17,12 +17,9 @@
 
 package io.shardingsphere.transaction.saga.context;
 
-import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.core.route.SQLUnit;
@@ -50,15 +47,11 @@ public final class SagaTransaction {
     
     private final Map<SQLUnit, TableUnit> tableUnitMap = new ConcurrentHashMap<>();
     
-    private final Map<SagaBranchTransaction, ExecuteStatus> executionResults = new ConcurrentHashMap<>();
-    
-    private final Map<SagaBranchTransaction, Optional<RevertSQLUnit>> revertResults = new ConcurrentHashMap<>();
-    
     private final List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
     
     private SagaLogicSQLTransaction currentLogicSQLTransaction;
     
-    private volatile boolean containsException;
+//    private volatile boolean containsException;
     
     /**
      * Go to next logic SQL transaction.
@@ -69,32 +62,55 @@ public final class SagaTransaction {
      */
     public void nextLogicSQLTransaction(final String logicSQL, final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
         currentLogicSQLTransaction = new SagaLogicSQLTransaction(logicSQL, sqlRouteResult, shardingTableMetaData);
-        if (isDMLLogicSQLTransaction()) {
+        if (currentLogicSQLTransaction.isDMLLogicSQL()) {
             logicSQLTransactions.add(currentLogicSQLTransaction);
         }
     }
     
-    /**
-     * Whether current logic SQL transaction is DML.
-     *
-     * @return current branch transaction group is DML
-     */
-    public boolean isDMLLogicSQLTransaction() {
-        return SQLType.DML == currentLogicSQLTransaction.getSqlStatement().getType();
-    }
+//    /**
+//     * Whether current logic SQL transaction is DML.
+//     *
+//     * @return current branch transaction group is DML
+//     */
+//    public boolean isDMLLogicSQLTransaction() {
+//        return SQLType.DML == currentLogicSQLTransaction.getSqlStatement().getType();
+//    }
     
     /**
-     * Record execution result.
+     * Whether saga transaction contains exception or not.
      *
-     * @param sagaBranchTransaction saga branch transaction
-     * @param executeStatus execute status
+     * @return true or false
      */
-    public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-        if (containsException | ExecuteStatus.FAILURE == executeStatus) {
-            containsException = true;
+    public boolean isContainsException() {
+        for (SagaLogicSQLTransaction each : logicSQLTransactions) {
+            if (isLogicSQLTransactionFailed(each)) {
+                return true;
+            }
         }
-        executionResults.put(sagaBranchTransaction, executeStatus);
+        return false;
     }
+    
+    private boolean isLogicSQLTransactionFailed(final SagaLogicSQLTransaction logicSQLTransaction) {
+        for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
+            if (ExecuteStatus.FAILURE.equals(each.getExecuteStatus())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+//    /**
+//     * Record execution result.
+//     *
+//     * @param sagaBranchTransaction saga branch transaction
+//     * @param executeStatus execute status
+//     */
+//    public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
+//        if (containsException | ExecuteStatus.FAILURE == executeStatus) {
+//            containsException = true;
+//        }
+//        executionResults.put(sagaBranchTransaction, executeStatus);
+//    }
     
     /**
      * Add new branch transaction to current logic SQL transaction.
