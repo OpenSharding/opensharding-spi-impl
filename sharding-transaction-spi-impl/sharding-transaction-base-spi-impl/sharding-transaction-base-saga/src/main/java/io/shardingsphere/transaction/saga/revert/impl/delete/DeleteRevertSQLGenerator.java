@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.saga.revert.impl.delete;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLGenerator;
 import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
+import io.shardingsphere.transaction.saga.revert.impl.RevertSQLGenerator;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.util.Map;
@@ -41,7 +41,7 @@ public final class DeleteRevertSQLGenerator implements RevertSQLGenerator {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.INSERT).append(" ");
         builder.append(DefaultKeyword.INTO).append(" ");
-        builder.append(revertSQLStatement.getActualTable()).append(" ");
+        builder.append(deleteParameter.getActualTable()).append(" ");
         builder.append(DefaultKeyword.VALUES).append(" ");
         builder.append("(");
         int columnCount = deleteParameter.getUndoData().get(0).size();
