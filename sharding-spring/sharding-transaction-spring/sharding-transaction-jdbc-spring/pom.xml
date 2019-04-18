@@ -16,14 +16,15 @@
   ~ limitations under the License.
   -->
 
-<beans xmlns="http://www.springframework.org/schema/beans"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:aop="http://www.springframework.org/schema/aop"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans
-                        http://www.springframework.org/schema/beans/spring-beans.xsd
-                        http://www.springframework.org/schema/aop
-                        http://www.springframework.org/schema/aop/spring-aop.xsd
-                        ">
-    <aop:aspectj-autoproxy proxy-target-class="true"/>
-    <bean id="shardingTransactionAspect" class="io.shardingsphere.transaction.aspect.ShardingTransactionalAspect"/>
-</beans>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.shardingsphere</groupId>
+        <artifactId>sharding-transaction-spring</artifactId>
+        <version>4.0.0-RC1-SNAPSHOT</version>
+    </parent>
+    <artifactId>sharding-transaction-jdbc-spring</artifactId>
+    <name>${project.artifactId}</name>
+</project>
