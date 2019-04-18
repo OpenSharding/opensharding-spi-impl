@@ -24,7 +24,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
     DeleteRevertSQLExecuteWrapperTest.class,
-    RevertDeleteGeneratorTest.class,
     RevertDeleteTest.class
 })
 public class AllDeleteTests {
