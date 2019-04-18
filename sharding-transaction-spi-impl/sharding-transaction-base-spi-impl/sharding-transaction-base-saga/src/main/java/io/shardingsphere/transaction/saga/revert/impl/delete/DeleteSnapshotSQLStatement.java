@@ -22,7 +22,6 @@ import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatem
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -34,12 +33,9 @@ public final class DeleteSnapshotSQLStatement extends SnapshotSQLStatement {
     
     private final DeleteStatement deleteStatement;
     
-    private final List<Object> actualSQLParameters;
-    
     public DeleteSnapshotSQLStatement(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
-        super(actualTableName);
+        super(actualTableName, actualSQLParameters);
         this.deleteStatement = deleteStatement;
-        this.actualSQLParameters = actualSQLParameters;
     }
     
     @Override
@@ -52,12 +48,12 @@ public final class DeleteSnapshotSQLStatement extends SnapshotSQLStatement {
         return 0 < deleteStatement.getWhereStartIndex() ? deleteStatement.getLogicSQL().substring(deleteStatement.getWhereStartIndex(), deleteStatement.getWhereStopIndex() + 1) : "";
     }
     
-    @Override
-    public Collection<Object> getParameters() {
-        Collection<Object> result = new LinkedList<>();
-        for (int i = deleteStatement.getWhereParameterStartIndex(); i <= deleteStatement.getWhereParameterEndIndex(); i++) {
-            result.add(actualSQLParameters.get(i));
-        }
-        return result;
-    }
+//    @Override
+//    public Collection<Object> getParameters() {
+//        Collection<Object> result = new LinkedList<>();
+//        for (int i = deleteStatement.getWhereParameterStartIndex(); i <= deleteStatement.getWhereParameterEndIndex(); i++) {
+//            result.add(actualSQLParameters.get(i));
+//        }
+//        return result;
+//    }
 }

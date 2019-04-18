@@ -34,7 +34,7 @@ public class SnapshotSQLStatement {
     
     private final String actualTableName;
     
-    private Collection<Object> parameters = new LinkedList<>();
+    private final Collection<Object> parameters;
     
     private Collection<String> queryColumnNames = new LinkedList<>();
     
