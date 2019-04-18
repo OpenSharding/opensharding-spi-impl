@@ -23,7 +23,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-    DeleteSnapshotMakerTest.class,
+    DeleteRevertSQLExecuteWrapperTest.class,
     RevertDeleteGeneratorTest.class,
     RevertDeleteTest.class
 })

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -88,5 +89,14 @@ public class DeleteRevertSQLExecuteWrapperTest {
         assertThat(actual.get().getRevertSQL(), is("INSERT INTO t_order_0 VALUES (?,?,?)"));
         assertThat(actual.get().getRevertParams().size(), is(10));
         assertThat(actual.get().getRevertParams().iterator().next().size(), is(3));
+    }
+    
+    @Test
+    public void assertGenerateRevertSQLWithoutUndoData() {
+        DeleteRevertSQLContext revertSQLContext = mock(DeleteRevertSQLContext.class);
+        when(revertSQLContext.getActualTable()).thenReturn("t_order_0");
+        when(revertSQLContext.getUndoData()).thenReturn(Lists.<Map<String, Object>>newLinkedList());
+        Optional<RevertSQLUnit> actual = deleteRevertSQLExecuteWrapper.generateRevertSQL(revertSQLContext);
+        assertFalse(actual.isPresent());
     }
 }
