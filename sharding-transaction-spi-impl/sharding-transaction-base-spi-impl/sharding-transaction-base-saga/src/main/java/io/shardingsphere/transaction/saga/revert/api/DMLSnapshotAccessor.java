@@ -18,6 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.api;
 
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
+import lombok.Getter;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.Connection;
@@ -32,6 +33,7 @@ import java.util.Map;
  */
 public class DMLSnapshotAccessor implements SnapshotAccessor {
     
+    @Getter
     private final SnapshotSQLStatement snapshotSQLStatement;
     
     private SQLBuilder sqlBuilder = new SQLBuilder();

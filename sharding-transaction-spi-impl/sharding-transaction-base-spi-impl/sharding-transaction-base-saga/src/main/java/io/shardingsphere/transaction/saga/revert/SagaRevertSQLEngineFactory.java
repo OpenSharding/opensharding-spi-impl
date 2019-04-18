@@ -18,12 +18,15 @@
 package io.shardingsphere.transaction.saga.revert;
 
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
+import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteSnapshotSQLStatement;
 import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.impl.update.UpdateRevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.impl.update.UpdateSnapshotSQLStatement;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
@@ -68,9 +71,11 @@ public final class SagaRevertSQLEngineFactory {
             boolean containGenerateKey = !logicSQLTransaction.getSqlRouteResult().getGeneratedKey().getGeneratedKeys().isEmpty();
             revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, parameters, primaryKeyColumns, containGenerateKey);
         } else if (sqlStatement instanceof DeleteStatement) {
-            revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(actualTableName, (DeleteStatement) sqlStatement, parameters, connection);
+            DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(actualTableName, (DeleteStatement) sqlStatement, parameters);
+            revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
         } else if (sqlStatement instanceof UpdateStatement) {
-            revertSQLExecuteWrapper = new UpdateRevertSQLExecuteWrapper(actualTableName, (UpdateStatement) sqlStatement, parameters, primaryKeyColumns, connection);
+            UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(actualTableName, (UpdateStatement) sqlStatement, parameters, primaryKeyColumns);
+            revertSQLExecuteWrapper = new UpdateRevertSQLExecuteWrapper(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }

@@ -21,13 +21,9 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,16 +32,15 @@ import java.util.Map;
  * @author duhongjun
  * @author zhaojun
  */
-@RequiredArgsConstructor
 public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<DeleteRevertSQLContext> {
     
-    private DMLSnapshotAccessor snapshotDataAccessor;
+    private String actualTableName;
     
-    private final String actualTableName;
+    private final DMLSnapshotAccessor snapshotDataAccessor;
     
-    public DeleteRevertSQLExecuteWrapper(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters, final Connection connection) {
-        this.actualTableName = actualTableName;
-        snapshotDataAccessor = new DMLSnapshotAccessor(new DeleteSnapshotSQLStatement(actualTableName, deleteStatement, actualSQLParameters), connection);
+    public DeleteRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) {
+        this.snapshotDataAccessor = snapshotDataAccessor;
+        actualTableName = snapshotDataAccessor.getSnapshotSQLStatement().getActualTableName();
     }
     
     @Override

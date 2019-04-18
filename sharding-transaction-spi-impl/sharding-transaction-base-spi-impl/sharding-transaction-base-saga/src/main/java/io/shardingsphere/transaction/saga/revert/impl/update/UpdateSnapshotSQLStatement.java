@@ -19,6 +19,7 @@ package io.shardingsphere.transaction.saga.revert.impl.update;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLStatement;
+import lombok.Getter;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
@@ -33,6 +34,7 @@ import java.util.List;
  *
  * @author zhaojun
  */
+@Getter
 public final class UpdateSnapshotSQLStatement extends SnapshotSQLStatement {
     
     private final UpdateStatement updateStatement;

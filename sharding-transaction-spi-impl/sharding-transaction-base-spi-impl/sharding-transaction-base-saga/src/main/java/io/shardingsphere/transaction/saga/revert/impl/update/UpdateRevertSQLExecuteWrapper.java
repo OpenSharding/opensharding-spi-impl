@@ -29,7 +29,6 @@ import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpre
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -44,24 +43,24 @@ import java.util.Map.Entry;
  */
 public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<UpdateRevertSQLContext> {
     
-    private final String actualTableName;
+    private String actualTableName;
+
+    private UpdateStatement updateStatement;
+
+    private List<Object> actualSQLParameters;
+
+    private List<String> primaryKeyColumns;
     
-    private final UpdateStatement updateStatement;
+    private final DMLSnapshotAccessor snapshotDataAccessor;
     
-    private final List<Object> actualSQLParameters;
-    
-    private final List<String> primaryKeyColumns;
-    
-    private DMLSnapshotAccessor snapshotDataAccessor;
-    
-    public UpdateRevertSQLExecuteWrapper(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters,
-                                         final List<String> primaryKeyColumns, final Connection connection) {
-        this.actualTableName = actualTableName;
-        this.updateStatement = updateStatement;
-        this.actualSQLParameters = actualSQLParameters;
-        this.primaryKeyColumns = primaryKeyColumns;
-        UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(actualTableName, updateStatement, actualSQLParameters, primaryKeyColumns);
-        snapshotDataAccessor = new DMLSnapshotAccessor(snapshotSQLStatement, connection);
+    public UpdateRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) {
+        this.snapshotDataAccessor = snapshotDataAccessor;
+        UpdateSnapshotSQLStatement snapshotSQLStatement = (UpdateSnapshotSQLStatement) snapshotDataAccessor.getSnapshotSQLStatement();
+        actualTableName = snapshotSQLStatement.getActualTableName();
+        updateStatement = snapshotSQLStatement.getUpdateStatement();
+        actualSQLParameters = snapshotSQLStatement.getActualSQLParameters();
+        primaryKeyColumns = snapshotSQLStatement.getPrimaryKeyColumns();
+        
     }
     
     @Override
