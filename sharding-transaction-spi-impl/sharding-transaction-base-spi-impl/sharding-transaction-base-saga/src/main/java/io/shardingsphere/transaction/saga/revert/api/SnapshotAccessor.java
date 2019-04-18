@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.revert.api;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +30,9 @@ public interface SnapshotAccessor {
     
     /**
      * Query undo snapshot data from database.
-     * @param connection connection
+     *
      * @return Collection
      *  @throws SQLException SQL exception
      */
-    List<Map<String, Object>> queryUndoData(Connection connection) throws SQLException;
+    List<Map<String, Object>> queryUndoData() throws SQLException;
 }

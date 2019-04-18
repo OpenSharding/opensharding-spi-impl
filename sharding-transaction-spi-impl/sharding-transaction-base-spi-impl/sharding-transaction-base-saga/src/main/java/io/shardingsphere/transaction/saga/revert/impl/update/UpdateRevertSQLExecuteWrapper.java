@@ -53,20 +53,18 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     private final String actualTableName;
     
-    private final Connection connection;
-    
     public UpdateRevertSQLExecuteWrapper(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters,
                                          final TableMetaData tableMetaData, final Connection connection) {
-        snapshotDataAccessor = new DMLSnapshotAccessor(new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, tableMetaData));
+        UpdateSnapshotSQLSegment snapshotSegment = new UpdateSnapshotSQLSegment(actualTableName, updateStatement, actualSQLParameters, tableMetaData);
+        snapshotDataAccessor = new DMLSnapshotAccessor(snapshotSegment, connection);
         this.actualTableName = actualTableName;
         this.updateStatement = updateStatement;
         this.actualSQLParameters = actualSQLParameters;
-        this.connection = connection;
     }
     
     @Override
     public UpdateRevertSQLStatement createRevertSQLStatement(final List<String> primaryKeyColumns) throws SQLException {
-        List<Map<String, Object>> selectSnapshot = snapshotDataAccessor.queryUndoData(connection);
+        List<Map<String, Object>> selectSnapshot = snapshotDataAccessor.queryUndoData();
         Map<String, Object> updateColumns = new LinkedHashMap<>();
         for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
             if (entry.getValue() instanceof SQLPlaceholderExpression) {

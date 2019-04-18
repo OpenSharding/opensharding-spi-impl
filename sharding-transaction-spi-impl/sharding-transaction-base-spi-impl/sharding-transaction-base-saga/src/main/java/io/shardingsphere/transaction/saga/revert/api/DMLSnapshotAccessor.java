@@ -36,12 +36,15 @@ public class DMLSnapshotAccessor implements SnapshotAccessor {
     
     private SQLBuilder sqlBuilder = new SQLBuilder();
     
-    public DMLSnapshotAccessor(final SnapshotSQLSegment snapshotSQLSegment) {
+    private final Connection connection;
+    
+    public DMLSnapshotAccessor(final SnapshotSQLSegment snapshotSQLSegment, final Connection connection) {
         this.snapshotSQLSegment = snapshotSQLSegment;
+        this.connection = connection;
     }
     
     @Override
-    public final List<Map<String, Object>> queryUndoData(final Connection connection) throws SQLException {
+    public final List<Map<String, Object>> queryUndoData() throws SQLException {
         return JDBCUtil.executeQuery(connection, buildSnapshotQuerySQL(), snapshotSQLSegment.getQueryParameters());
     }
     

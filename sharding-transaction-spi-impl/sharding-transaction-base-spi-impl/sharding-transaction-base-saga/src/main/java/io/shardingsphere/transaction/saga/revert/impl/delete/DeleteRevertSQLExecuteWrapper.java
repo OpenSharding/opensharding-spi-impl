@@ -45,17 +45,14 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     private final String actualTableName;
     
-    private final Connection connection;
-    
     public DeleteRevertSQLExecuteWrapper(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters, final Connection connection) {
         this.actualTableName = actualTableName;
-        this.connection = connection;
-        snapshotDataAccessor = new DMLSnapshotAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters));
+        snapshotDataAccessor = new DMLSnapshotAccessor(new DeleteSnapshotSQLSegment(actualTableName, deleteStatement, actualSQLParameters), connection);
     }
     
     @Override
     public DeleteRevertSQLStatement createRevertSQLStatement(final List<String> primaryKeyColumns) throws SQLException {
-        return new DeleteRevertSQLStatement(actualTableName, snapshotDataAccessor.queryUndoData(connection));
+        return new DeleteRevertSQLStatement(actualTableName, snapshotDataAccessor.queryUndoData());
     }
     
     @Override

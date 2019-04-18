@@ -87,8 +87,8 @@ public final class SagaResourceManagerTest {
         resourceManager.registerDataSourceMap("ds1", dataSource);
         resourceManager.registerTransactionResource(sagaTransaction);
         assertThat(resourceManager.getConnection("ds1", sagaTransaction), is(connection));
-        assertThat(SagaResourceManager.getTransactionResource(sagaTransaction).getConnections().size(), is(1));
-        assertThat(SagaResourceManager.getTransactionResource(sagaTransaction).getConnections().get("ds1"), is(connection));
+        assertThat(SagaResourceManager.getTransactionResource(sagaTransaction).getConnectionMap().size(), is(1));
+        assertThat(SagaResourceManager.getTransactionResource(sagaTransaction).getConnectionMap().get("ds1"), is(connection));
         verify(dataSource).getConnection();
     }
     

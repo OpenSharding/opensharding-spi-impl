@@ -109,7 +109,7 @@ public final class SagaResourceManager {
      */
     public Connection getConnection(final String dataSourceName, final SagaTransaction sagaTransaction) throws SQLException {
         Connection result = dataSourceMap.get(dataSourceName).getConnection();
-        TRANSACTION_RESOURCE_MAP.get(sagaTransaction).getConnections().putIfAbsent(dataSourceName, result);
+        TRANSACTION_RESOURCE_MAP.get(sagaTransaction).getConnectionMap().putIfAbsent(dataSourceName, result);
         return result;
     }
     

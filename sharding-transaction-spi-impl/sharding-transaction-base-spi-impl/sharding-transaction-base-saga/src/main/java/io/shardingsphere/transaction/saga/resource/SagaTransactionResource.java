@@ -34,7 +34,7 @@ public class SagaTransactionResource {
     
     private final SagaPersistence persistence;
     
-    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
     
     public SagaTransactionResource(final SagaPersistence sagaPersistence) {
         this.persistence = sagaPersistence;

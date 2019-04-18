@@ -116,7 +116,7 @@ public final class ShardingSQLTransport implements SQLTransport {
     
     private Connection getConnection(final String datasourceName) {
         try {
-            Connection result = SagaResourceManager.getTransactionResource(sagaTransaction).getConnections().get(datasourceName);
+            Connection result = SagaResourceManager.getTransactionResource(sagaTransaction).getConnectionMap().get(datasourceName);
             if (!result.getAutoCommit()) {
                 result.setAutoCommit(true);
             }

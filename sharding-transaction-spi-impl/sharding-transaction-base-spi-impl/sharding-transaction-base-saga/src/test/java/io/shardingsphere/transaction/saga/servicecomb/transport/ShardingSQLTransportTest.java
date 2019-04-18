@@ -79,7 +79,7 @@ public final class ShardingSQLTransportTest {
         Connection connection = mock(Connection.class);
         when(connection.prepareStatement(anyString())).thenReturn(statement);
         connectionMap.put(dataSourceName, connection);
-        when(transactionResource.getConnections()).thenReturn(connectionMap);
+        when(transactionResource.getConnectionMap()).thenReturn(connectionMap);
     }
     
     @SneakyThrows
@@ -96,7 +96,7 @@ public final class ShardingSQLTransportTest {
         List<List<String>> parameterSets = getParameterSets();
         mockExecutionResults(parameterSets, ExecuteStatus.SUCCESS);
         shardingSQLTransport.with(dataSourceName, sql, parameterSets);
-        verify(transactionResource, never()).getConnections();
+        verify(transactionResource, never()).getConnectionMap();
     }
     
     @Test(expected = TransportFailedException.class)
@@ -113,7 +113,7 @@ public final class ShardingSQLTransportTest {
         List<List<String>> parameterSets = getParameterSets();
         mockExecutionResults(parameterSets, ExecuteStatus.COMPENSATING);
         shardingSQLTransport.with(dataSourceName, sql, parameterSets);
-        verify(transactionResource).getConnections();
+        verify(transactionResource).getConnectionMap();
         verify(statement, times(2)).addBatch();
         verify(statement).executeBatch();
     }
@@ -195,7 +195,7 @@ public final class ShardingSQLTransportTest {
         ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
         Connection connection = mock(Connection.class);
         connectionMap.put(dataSourceName, connection);
-        when(transactionResource.getConnections()).thenReturn(connectionMap);
+        when(transactionResource.getConnectionMap()).thenReturn(connectionMap);
         when(connection.getAutoCommit()).thenThrow(new SQLException("test get autocommit fail"));
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
         List<List<String>> parameterSets = Lists.newArrayList();

@@ -48,16 +48,19 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     private final List<Object> actualSQLParameters;
     
-    public InsertRevertSQLExecuteWrapper(final String actualTable, final InsertStatement insertStatement, final List<Object> actualSQLParameters) {
+    private final boolean containGenerateKey;
+    
+    public InsertRevertSQLExecuteWrapper(final String actualTable, final InsertStatement insertStatement, final List<Object> actualSQLParameters, final boolean containGenerateKey) {
         this.actualTable = actualTable;
         this.insertStatement = insertStatement;
         this.actualSQLParameters = actualSQLParameters;
+        this.containGenerateKey = containGenerateKey;
     }
     
     @Override
     public InsertRevertSQLStatement createRevertSQLStatement(final List<String> primaryKeyColumns) {
         InsertRevertSQLStatement result = new InsertRevertSQLStatement(actualTable, insertStatement.getColumnNames(), primaryKeyColumns,
-            actualSQLParameters, insertStatement.getValues().size(), false);
+            actualSQLParameters, insertStatement.getValues().size(), containGenerateKey);
         Iterator<String> columnNamesIterator = insertStatement.getColumnNames().iterator();
         Iterator actualSQLParameterIterator = actualSQLParameters.iterator();
         for (InsertValue each : insertStatement.getValues()) {
@@ -110,7 +113,7 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     private void fillRevertParams(final RevertSQLUnit revertSQLUnit, final InsertRevertSQLStatement insertParameter) {
-        if (insertParameter.isGenerateKey()) {
+        if (insertParameter.isContainGenerateKey()) {
             int eachParameterSize = insertParameter.getParams().size() / insertParameter.getBatchSize();
             for (int i = 0; i < insertParameter.getBatchSize(); i++) {
                 Collection<Object> currentSQLParams = new LinkedList<>();

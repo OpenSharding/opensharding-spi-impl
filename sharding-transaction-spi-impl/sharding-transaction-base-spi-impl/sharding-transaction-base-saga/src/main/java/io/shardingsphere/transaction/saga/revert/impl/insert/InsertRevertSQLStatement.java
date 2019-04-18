@@ -33,7 +33,7 @@ import java.util.Map;
 @Getter
 public final class InsertRevertSQLStatement extends RevertSQLStatement {
 
-    private final List<String> keys = new LinkedList<>();
+    private final List<String> primaryKeys = new LinkedList<>();
 
     private final List<String> insertColumns = new LinkedList<>();
 
@@ -43,15 +43,15 @@ public final class InsertRevertSQLStatement extends RevertSQLStatement {
     
     private final int batchSize;
     
-    private final boolean generateKey;
+    private final boolean containGenerateKey;
     
     public InsertRevertSQLStatement(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> params,
-                                    final int batchSize, final boolean generateKey) {
+                                    final int batchSize, final boolean containGenerateKey) {
         super(tableName);
         this.insertColumns.addAll(tableColumns);
-        this.keys.addAll(keys);
+        this.primaryKeys.addAll(keys);
         this.params.addAll(params);
         this.batchSize = batchSize;
-        this.generateKey = generateKey;
+        this.containGenerateKey = containGenerateKey;
     }
 }

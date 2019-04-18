@@ -23,14 +23,20 @@ import io.shardingsphere.transaction.saga.revert.impl.DMLRevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.impl.update.UpdateRevertSQLExecuteWrapper;
+import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
+import org.apache.shardingsphere.core.route.RouteUnit;
+import org.apache.shardingsphere.core.route.SQLRouteResult;
+import org.apache.shardingsphere.core.route.type.RoutingTable;
+import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Revert SQL engine factory.
@@ -43,19 +49,18 @@ public final class RevertSQLEngineFactory {
     /**
      * Create new instance.
      *
-     * @param sqlStatement  SQL statement
-     * @param actualTableName actual table name
-     * @param actualSQLParameters actual SQL parameters
      * @param tableMetaData table meta data
-     * @param connection connection
-     *
      * @return Revert Operate
      */
-    public static RevertSQLEngine newInstance(final SQLStatement sqlStatement, final String actualTableName, final List<Object> actualSQLParameters,
-                                              final TableMetaData tableMetaData, final Connection connection) {
+    public static RevertSQLEngine newInstance(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit, final TableMetaData tableMetaData, final ConcurrentMap<String, Connection> connectionMap) {
+        SQLStatement sqlStatement = sqlRouteResult.getSqlStatement();
         RevertSQLExecuteWrapper revertSQLExecuteWrapper;
+        List<Object> actualSQLParameters = routeUnit.getSqlUnit().getParameters();
+        String actualTableName = getActualTableName(sqlRouteResult, routeUnit);
+        Connection connection = connectionMap.get(routeUnit.getDataSourceName());
         if (sqlStatement instanceof InsertStatement) {
-            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, actualSQLParameters);
+            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, actualSQLParameters,
+                sqlRouteResult.getGeneratedKey().getGeneratedKeys().isEmpty());
         } else if (sqlStatement instanceof DeleteStatement) {
             revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(actualTableName, (DeleteStatement) sqlStatement, actualSQLParameters, connection);
         } else if (sqlStatement instanceof UpdateStatement) {
@@ -64,5 +69,23 @@ public final class RevertSQLEngineFactory {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
         return new DMLRevertSQLEngine(revertSQLExecuteWrapper, tableMetaData);
+    }
+    
+    private static String getActualTableName(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit) {
+        for (TableUnit each : sqlRouteResult.getRoutingResult().getTableUnits().getTableUnits()) {
+            if (each.getDataSourceName().equalsIgnoreCase(routeUnit.getDataSourceName())) {
+                return getAvailableActualTableName(each, sqlRouteResult.getSqlStatement().getTables().getSingleTableName());
+            }
+        }
+        throw new ShardingException(String.format("Could not find actual table name of [%s]", routeUnit));
+    }
+    
+    private static String getAvailableActualTableName(final TableUnit tableUnit, final String logicTableName) {
+        for (RoutingTable each : tableUnit.getRoutingTables()) {
+            if (each.getLogicTableName().equalsIgnoreCase(logicTableName)) {
+                return each.getActualTableName();
+            }
+        }
+        throw new ShardingException(String.format("Could not get available actual table name of [%s]", tableUnit));
     }
 }
