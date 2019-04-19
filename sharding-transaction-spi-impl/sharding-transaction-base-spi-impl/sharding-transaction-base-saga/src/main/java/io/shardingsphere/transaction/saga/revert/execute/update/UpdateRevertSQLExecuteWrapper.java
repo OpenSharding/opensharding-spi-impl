@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.revert.execute.update;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
@@ -43,30 +43,21 @@ import java.util.Map.Entry;
  * @author duhongjun
  * @author zhaojun
  */
-public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<UpdateRevertSQLContext> {
-    
-    private String actualTableName;
-
-    private UpdateStatement updateStatement;
-
-    private List<Object> actualSQLParameters;
-
-    private List<String> primaryKeyColumns;
+public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper {
     
     private final DMLSnapshotAccessor snapshotDataAccessor;
     
-    public UpdateRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) {
+    private UpdateRevertSQLContext revertSQLContext;
+    
+    public UpdateRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
         this.snapshotDataAccessor = snapshotDataAccessor;
         UpdateSnapshotSQLStatement snapshotSQLStatement = (UpdateSnapshotSQLStatement) snapshotDataAccessor.getSnapshotSQLStatement();
-        actualTableName = snapshotSQLStatement.getActualTableName();
-        updateStatement = snapshotSQLStatement.getUpdateStatement();
-        actualSQLParameters = snapshotSQLStatement.getActualSQLParameters();
-        primaryKeyColumns = snapshotSQLStatement.getPrimaryKeyColumns();
-        
+        revertSQLContext = createRevertSQLContext(snapshotSQLStatement.getActualTableName(), snapshotSQLStatement.getUpdateStatement(),
+            snapshotSQLStatement.getActualSQLParameters(), snapshotSQLStatement.getPrimaryKeyColumns());
     }
     
-    @Override
-    public UpdateRevertSQLContext createRevertSQLContext() throws SQLException {
+    private UpdateRevertSQLContext createRevertSQLContext(final String actualTableName, final UpdateStatement updateStatement,
+                                                          final List<Object> actualSQLParameters, final List<String> primaryKeyColumns) throws SQLException {
         List<Map<String, Object>> undoData = snapshotDataAccessor.queryUndoData();
         Map<String, Object> updateColumns = new LinkedHashMap<>();
         for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
@@ -82,7 +73,7 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final UpdateRevertSQLContext revertSQLContext) {
+    public Optional<RevertSQLUnit> generateRevertSQL() {
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }

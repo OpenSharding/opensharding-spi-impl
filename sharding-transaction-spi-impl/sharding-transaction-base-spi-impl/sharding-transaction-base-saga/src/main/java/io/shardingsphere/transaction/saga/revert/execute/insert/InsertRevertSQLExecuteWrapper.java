@@ -20,7 +20,6 @@ package io.shardingsphere.transaction.saga.revert.execute.insert;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
-import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
@@ -33,24 +32,16 @@ import java.util.List;
  * @author duhongjun
  * @author zhaojun
  */
-@RequiredArgsConstructor
-public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<InsertRevertSQLContext> {
+public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper {
     
-    private final String dataSourceName;
+    private InsertRevertSQLContext revertSQLContext;
     
-    private final String actualTableName;
-    
-    private final List<String> primaryKeys;
-    
-    private final InsertOptimizeResult insertOptimizeResult;
-    
-    @Override
-    public InsertRevertSQLContext createRevertSQLContext() {
-        return new InsertRevertSQLContext(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
+    public InsertRevertSQLExecuteWrapper(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
+        revertSQLContext = new InsertRevertSQLContext(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLContext revertSQLContext) {
+    public Optional<RevertSQLUnit> generateRevertSQL() {
         RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLContext));
         for (Collection<Object> each : revertSQLContext.getPrimaryKeyValues().values()) {
             result.getRevertParams().add(each);

@@ -20,30 +20,18 @@ package io.shardingsphere.transaction.saga.revert.execute;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 
-import java.sql.SQLException;
-
 /**
  * Revert SQL execute wrapper.
  *
  * @author zhaojun
  */
-public interface RevertSQLExecuteWrapper<T extends RevertSQLContext> {
-    
-    /**
-     * Create revert SQL context.
-     *
-     * @return revert SQL statement
-     * @throws SQLException SQL exception
-     */
-    T createRevertSQLContext() throws SQLException;
-    
+public interface RevertSQLExecuteWrapper {
     
     /**
      * Generate revert SQL.
      *
-     * @param revertSQLContext revert SQL context
      * @return revert SQL unit
      */
-    Optional<RevertSQLUnit> generateRevertSQL(T revertSQLContext);
+    Optional<RevertSQLUnit> generateRevertSQL();
     
 }

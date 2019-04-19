@@ -18,9 +18,9 @@
 package io.shardingsphere.transaction.saga.revert.execute.delete;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
@@ -32,24 +32,16 @@ import java.util.Map;
  * @author duhongjun
  * @author zhaojun
  */
-public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<DeleteRevertSQLContext> {
+public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper {
     
-    private String actualTableName;
+    private DeleteRevertSQLContext revertSQLContext;
     
-    private final DMLSnapshotAccessor snapshotDataAccessor;
-    
-    public DeleteRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) {
-        this.snapshotDataAccessor = snapshotDataAccessor;
-        actualTableName = snapshotDataAccessor.getSnapshotSQLStatement().getActualTableName();
+    public DeleteRevertSQLExecuteWrapper(final String actualTableName, final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
+        revertSQLContext = new DeleteRevertSQLContext(actualTableName, snapshotDataAccessor.queryUndoData());
     }
     
     @Override
-    public DeleteRevertSQLContext createRevertSQLContext() throws SQLException {
-        return new DeleteRevertSQLContext(actualTableName, snapshotDataAccessor.queryUndoData());
-    }
-    
-    @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final DeleteRevertSQLContext revertSQLContext) {
+    public Optional<RevertSQLUnit> generateRevertSQL() {
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
