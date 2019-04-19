@@ -16,4 +16,4 @@
 #
 
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.shardingsphere.transaction.spring.boot.ShardingTransactionConfiguration
+io.shardingsphere.transaction.spring.boot.ShardingTransactionJDBCConfiguration

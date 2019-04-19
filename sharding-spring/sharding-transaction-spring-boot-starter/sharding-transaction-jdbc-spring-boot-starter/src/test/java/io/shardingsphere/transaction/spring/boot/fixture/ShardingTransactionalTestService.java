@@ -19,8 +19,12 @@ package io.shardingsphere.transaction.spring.boot.fixture;
 
 import org.apache.shardingsphere.transaction.annotation.ShardingTransactionType;
 import org.apache.shardingsphere.transaction.core.TransactionType;
+import org.apache.shardingsphere.transaction.core.TransactionTypeHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 @Service
 @Component
@@ -29,16 +33,20 @@ public class ShardingTransactionalTestService {
     
     @ShardingTransactionType
     public void testChangeTransactionTypeToLOCAL() {
+        assertThat(TransactionTypeHolder.get(), is(TransactionType.LOCAL));
     }
     
     @ShardingTransactionType(TransactionType.XA)
     public void testChangeTransactionTypeToXA() {
+        assertThat(TransactionTypeHolder.get(), is(TransactionType.XA));
     }
     
     @ShardingTransactionType(TransactionType.BASE)
     public void testChangeTransactionTypeToBASE() {
+        assertThat(TransactionTypeHolder.get(), is(TransactionType.BASE));
     }
     
     public void testChangeTransactionTypeInClass() {
+        assertThat(TransactionTypeHolder.get(), is(TransactionType.XA));
     }
 }
