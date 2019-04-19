@@ -51,8 +51,6 @@ public class DeleteSnapshotSQLStatementTest {
         when(deleteStatement.getLogicSQL()).thenReturn("DELETE FROM t_order WHERE order_id = ?");
         when(deleteStatement.getWhereStartIndex()).thenReturn(20);
         when(deleteStatement.getWhereStopIndex()).thenReturn(37);
-        when(deleteStatement.getWhereParameterStartIndex()).thenReturn(0);
-        when(deleteStatement.getWhereParameterEndIndex()).thenReturn(0);
     }
     
     @Test

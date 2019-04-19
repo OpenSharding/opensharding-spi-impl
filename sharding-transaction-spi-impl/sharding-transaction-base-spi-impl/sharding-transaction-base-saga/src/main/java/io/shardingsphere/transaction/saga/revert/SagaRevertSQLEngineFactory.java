@@ -28,6 +28,7 @@ import io.shardingsphere.transaction.saga.revert.execute.update.UpdateRevertSQLE
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.DeleteSnapshotSQLStatement;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
+import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
@@ -62,6 +63,7 @@ public final class SagaRevertSQLEngineFactory {
      * @param connectionMap connection map
      * @return revert SQL engine
      */
+    @SneakyThrows
     public static RevertSQLEngine newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
         SQLStatement sqlStatement = logicSQLTransaction.getSqlRouteResult().getSqlStatement();
         List<Object> parameters = routeUnit.getSqlUnit().getParameters();

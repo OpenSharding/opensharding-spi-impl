@@ -33,5 +33,4 @@ public interface RevertSQLExecuteWrapper {
      * @return revert SQL unit
      */
     Optional<RevertSQLUnit> generateRevertSQL();
-    
 }
