@@ -19,8 +19,10 @@ package io.shardingsphere.transaction;
 
 import io.shardingsphere.transaction.aspect.ShardingTransactionProxyAspect;
 import io.shardingsphere.transaction.fixture.ShardingTransactionalTestService;
+import io.shardingsphere.transaction.spi.JpaConnectionExtractor;
+
 import org.apache.shardingsphere.core.exception.ShardingException;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.apache.shardingsphere.core.spi.NewInstanceServiceLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,10 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(locations = "classpath:shardingTransactionTest.xml")
 public class ShardingTransactionalNameSpaceTest extends AbstractJUnit4SpringContextTests {
     
+    {
+        NewInstanceServiceLoader.register(JpaConnectionExtractor.class);
+    }
+    
     @Autowired
     private ShardingTransactionalTestService testService;
     
@@ -61,14 +67,11 @@ public class ShardingTransactionalNameSpaceTest extends AbstractJUnit4SpringCont
     @Before
     public void setUp() throws SQLException {
         DataSource dataSource = mock(DataSource.class);
-        Connection connection = mock(Connection.class);
-        EntityManagerFactory entityManagerFactory = mock(EntityManagerFactory.class);
         EntityManager entityManager = mock(EntityManager.class);
-        SessionImplementor sessionImplementor = mock(SessionImplementor.class);
+        Connection connection = NewInstanceServiceLoader.newServiceInstances(JpaConnectionExtractor.class).iterator().next().getConnectionFromEntityManager(entityManager);
+        EntityManagerFactory entityManagerFactory = mock(EntityManagerFactory.class);
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.createStatement()).thenReturn(statement);
-        when(sessionImplementor.connection()).thenReturn(connection);
-        when(entityManager.unwrap(SessionImplementor.class)).thenReturn(sessionImplementor);
         when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
         when(jpaTransactionManager.getEntityManagerFactory()).thenReturn(entityManagerFactory);
         when(dataSourceTransactionManager.getDataSource()).thenReturn(dataSource);

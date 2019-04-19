@@ -17,9 +17,10 @@
 
 package io.shardingsphere.transaction.handler;
 
+import io.shardingsphere.transaction.spi.JpaConnectionExtractor;
 import org.apache.shardingsphere.core.exception.ShardingException;
+import org.apache.shardingsphere.core.spi.NewInstanceServiceLoader;
 import org.apache.shardingsphere.transaction.core.TransactionType;
-import org.hibernate.engine.spi.SessionImplementor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public final class JpaTransactionManagerHandlerTest {
     
+    {
+        NewInstanceServiceLoader.register(JpaConnectionExtractor.class);
+    }
+    
     @Mock
     private JpaTransactionManager transactionManager;
     
@@ -57,12 +62,9 @@ public final class JpaTransactionManagerHandlerTest {
     
     @Before
     public void setUp() throws SQLException {
-        Connection connection = mock(Connection.class);
         EntityManager entityManager = mock(EntityManager.class);
-        SessionImplementor sessionImplementor = mock(SessionImplementor.class);
+        Connection connection = NewInstanceServiceLoader.newServiceInstances(JpaConnectionExtractor.class).iterator().next().getConnectionFromEntityManager(entityManager);
         when(connection.createStatement()).thenReturn(statement);
-        when(sessionImplementor.connection()).thenReturn(connection);
-        when(entityManager.unwrap(SessionImplementor.class)).thenReturn(sessionImplementor);
         when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
         when(transactionManager.getEntityManagerFactory()).thenReturn(entityManagerFactory);
         jpaTransactionManagerHandler = new JpaTransactionManagerHandler(transactionManager);

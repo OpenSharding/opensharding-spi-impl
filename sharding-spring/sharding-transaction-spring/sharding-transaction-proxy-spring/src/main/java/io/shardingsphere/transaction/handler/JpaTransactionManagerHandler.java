@@ -17,7 +17,11 @@
 
 package io.shardingsphere.transaction.handler;
 
-import org.hibernate.engine.spi.SessionImplementor;
+import io.shardingsphere.transaction.spi.JpaConnectionExtractor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.shardingsphere.core.exception.ShardingException;
+import org.apache.shardingsphere.core.spi.NewInstanceServiceLoader;
 import org.springframework.orm.jpa.EntityManagerFactoryInfo;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.orm.jpa.EntityManagerHolder;
@@ -29,6 +33,7 @@ import org.springframework.util.CollectionUtils;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -36,7 +41,12 @@ import java.util.Map;
  *
  * @author yangyi
  */
+@Slf4j
 public final class JpaTransactionManagerHandler extends AbstractTransactionManagerHandler {
+    
+    {
+        NewInstanceServiceLoader.register(JpaConnectionExtractor.class);
+    }
     
     private final JpaTransactionManager transactionManager;
     
@@ -53,7 +63,12 @@ public final class JpaTransactionManagerHandler extends AbstractTransactionManag
     @Override
     protected Connection getConnectionFromTransactionManager() {
         EntityManager entityManager = createEntityManager();
-        Connection result = entityManager.unwrap(SessionImplementor.class).connection();
+        Collection<JpaConnectionExtractor> jpaConnectionExtractors = NewInstanceServiceLoader.newServiceInstances(JpaConnectionExtractor.class);
+        if (jpaConnectionExtractors.isEmpty()) {
+            log.warn("Failed to get connection to proxy, caused by no JpaConnectionExtractor.");
+            throw new ShardingException("No JpaConnectionExtractor loaded");
+        }
+        Connection result = jpaConnectionExtractors.iterator().next().getConnectionFromEntityManager(entityManager);
         TransactionSynchronizationManager.bindResource(transactionManager.getEntityManagerFactory(), new EntityManagerHolder(entityManager));
         return result;
     }

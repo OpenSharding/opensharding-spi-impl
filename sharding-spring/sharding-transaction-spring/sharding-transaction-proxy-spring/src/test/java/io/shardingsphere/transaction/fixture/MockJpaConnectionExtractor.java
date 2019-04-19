@@ -15,15 +15,20 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction;
+package io.shardingsphere.transaction.fixture;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import io.shardingsphere.transaction.spi.JpaConnectionExtractor;
+import org.mockito.Mockito;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-    ShardingTransactionalNameSpaceTest.class
-})
-public class AllTests {
+import javax.persistence.EntityManager;
+import java.sql.Connection;
+
+public final class MockJpaConnectionExtractor implements JpaConnectionExtractor {
+    
+    private static final Connection MOCK_CONNECTION = Mockito.mock(Connection.class);
+    
+    @Override
+    public Connection getConnectionFromEntityManager(final EntityManager entityManager) {
+        return MOCK_CONNECTION;
+    }
 }
