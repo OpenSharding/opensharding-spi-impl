@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
+import io.shardingsphere.transaction.saga.revert.snapshot.statement.DeleteSnapshotSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;

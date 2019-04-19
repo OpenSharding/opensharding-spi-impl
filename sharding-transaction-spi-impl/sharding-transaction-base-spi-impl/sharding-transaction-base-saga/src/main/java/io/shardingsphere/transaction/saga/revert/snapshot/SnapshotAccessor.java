@@ -15,35 +15,24 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.api;
-
-import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
+package io.shardingsphere.transaction.saga.revert.snapshot;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Revert SQL execute wrapper.
+ * Snapshot data accessor.
  *
  * @author zhaojun
  */
-public interface RevertSQLExecuteWrapper<T extends RevertSQLContext> {
+public interface SnapshotAccessor {
     
     /**
-     * Create revert SQL context.
+     * Query undo snapshot data from database.
      *
-     * @return revert SQL statement
-     * @throws SQLException SQL exception
+     * @return Collection
+     *  @throws SQLException SQL exception
      */
-    T createRevertSQLContext() throws SQLException;
-    
-    
-    /**
-     * Generate revert SQL.
-     *
-     * @param revertSQLStatement revert SQL statement
-     * @return revert SQL unit
-     */
-    Optional<RevertSQLUnit> generateRevertSQL(T revertSQLStatement);
-    
+    List<Map<String, Object>> queryUndoData() throws SQLException;
 }

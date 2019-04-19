@@ -17,19 +17,6 @@
 
 package io.shardingsphere.transaction.saga.revert.impl;
 
-import io.shardingsphere.transaction.saga.revert.SagaRevertSQLEngineFactory;
-import io.shardingsphere.transaction.saga.revert.impl.delete.DeleteRevertSQLExecuteWrapper;
-import io.shardingsphere.transaction.saga.revert.impl.insert.InsertRevertSQLExecuteWrapper;
-import io.shardingsphere.transaction.saga.revert.impl.update.UpdateRevertSQLExecuteWrapper;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
 public class RevertOperateFactoryTest {
     
 //    @Test

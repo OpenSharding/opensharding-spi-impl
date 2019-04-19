@@ -15,40 +15,30 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.update;
+package io.shardingsphere.transaction.saga.revert.execute.delete;
 
-import io.shardingsphere.transaction.saga.revert.impl.RevertSQLContext;
+import io.shardingsphere.transaction.saga.revert.execute.RevertSQLContext;
 import lombok.Getter;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Update revert SQL context.
+ * Delete revert SQL context.
  *
  * @author duhongjun
+ * @author zhaojun
  */
 @Getter
-public final class UpdateRevertSQLContext implements RevertSQLContext {
+public class DeleteRevertSQLContext implements RevertSQLContext {
     
     private final String actualTable;
     
     private final List<Map<String, Object>> undoData = new LinkedList<>();
     
-    private final Map<String, Object> updateColumns = new LinkedHashMap<>();
-    
-    private final List<String> primaryKeyColumns = new LinkedList<>();
-    
-    private final List<Object> parameters = new LinkedList<>();
-    
-    public UpdateRevertSQLContext(final String tableName, final List<Map<String, Object>> undoData, final Map<String, Object> updateColumns, final List<String> primaryKeyColumns,
-                                  final List<Object> parameters) {
+    public DeleteRevertSQLContext(final String tableName, final List<Map<String, Object>> undoData) {
         this.actualTable = tableName;
         this.undoData.addAll(undoData);
-        this.updateColumns.putAll(updateColumns);
-        this.primaryKeyColumns.addAll(primaryKeyColumns);
-        this.parameters.addAll(parameters);
     }
 }

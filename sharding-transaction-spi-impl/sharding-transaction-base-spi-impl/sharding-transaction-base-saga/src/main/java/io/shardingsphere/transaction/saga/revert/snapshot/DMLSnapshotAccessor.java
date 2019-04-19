@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.api;
+package io.shardingsphere.transaction.saga.revert.snapshot;
 
+import io.shardingsphere.transaction.saga.revert.snapshot.statement.SnapshotSQLStatement;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import lombok.Getter;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;

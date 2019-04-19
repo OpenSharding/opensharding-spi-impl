@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.api;
+package io.shardingsphere.transaction.saga.revert.snapshot;
 
 import java.util.Collection;
 

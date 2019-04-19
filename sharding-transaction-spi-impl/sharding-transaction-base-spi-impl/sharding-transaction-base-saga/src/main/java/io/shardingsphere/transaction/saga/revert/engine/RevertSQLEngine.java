@@ -15,30 +15,22 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.api;
+package io.shardingsphere.transaction.saga.revert.engine;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.Collection;
-import java.util.LinkedList;
+import com.google.common.base.Optional;
 
 /**
- * Snapshot SQL statement.
+ * Revert SQL engine.
  *
+ * @author duhongjun
  * @author zhaojun
  */
-@RequiredArgsConstructor
-@Getter
-public class SnapshotSQLStatement {
+public interface RevertSQLEngine {
     
-    private final String actualTableName;
-    
-    private final Collection<Object> parameters;
-    
-    private Collection<String> queryColumnNames = new LinkedList<>();
-    
-    private String tableAlias = "";
-    
-    private String whereClause = "";
+    /**
+     * Execute revert SQL.
+     * 
+     * @return revert SQL unit
+     */
+    Optional<RevertSQLUnit> execute();
 }

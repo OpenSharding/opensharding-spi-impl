@@ -17,27 +17,8 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.insert;
 
-import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
-import org.apache.shardingsphere.core.parse.old.parser.context.insertvalue.InsertValue;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RevertInsertTest {

@@ -17,20 +17,8 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.delete;
 
-import io.shardingsphere.transaction.saga.revert.api.SnapshotParameter;
-import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
-
-import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RevertDeleteTest {

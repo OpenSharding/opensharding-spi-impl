@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.update;
+package io.shardingsphere.transaction.saga.revert.snapshot.statement;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.SnapshotSQLStatement;
 import lombok.Getter;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;

@@ -17,23 +17,6 @@
 
 package io.shardingsphere.transaction.saga.revert.impl.update;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-
-import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
-import io.shardingsphere.transaction.saga.revert.util.SnapshotUtil;
-import io.shardingsphere.transaction.saga.revert.util.TableMetaDataUtil;
-import org.junit.Test;
-
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 public class RevertUpdateGeneratorTest {
     
 //    @Test

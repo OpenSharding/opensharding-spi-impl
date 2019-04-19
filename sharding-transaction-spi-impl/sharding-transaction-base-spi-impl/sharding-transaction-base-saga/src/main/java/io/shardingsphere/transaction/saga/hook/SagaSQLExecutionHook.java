@@ -28,7 +28,7 @@ import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
 import io.shardingsphere.transaction.saga.revert.SagaRevertSQLEngineFactory;
-import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorExceptionHandler;

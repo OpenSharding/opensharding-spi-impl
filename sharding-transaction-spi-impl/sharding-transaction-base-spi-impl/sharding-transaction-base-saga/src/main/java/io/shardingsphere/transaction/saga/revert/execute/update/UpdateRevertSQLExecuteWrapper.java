@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.update;
+package io.shardingsphere.transaction.saga.revert.execute.update;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.api.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.api.RevertSQLExecuteWrapper;
-import io.shardingsphere.transaction.saga.revert.api.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
+import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
@@ -40,6 +41,7 @@ import java.util.Map.Entry;
  * Update revert SQL execute wrapper.
  *
  * @author duhongjun
+ * @author zhaojun
  */
 public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<UpdateRevertSQLContext> {
     
