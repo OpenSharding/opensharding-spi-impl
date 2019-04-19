@@ -37,6 +37,7 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -102,5 +103,23 @@ public class InsertRevertSQLContextTest {
         for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
             assertThat(each.get("user_id"), CoreMatchers.<Object>is(1));
         }
+    }
+    
+    @Test
+    public void assertCreateInsertRevertSQLContextWithMultiPrimaryKeys() {
+        primaryKeys.add("order_id");
+        primaryKeys.add("user_id");
+        InsertRevertSQLContext revertSQLContext = new InsertRevertSQLContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        assertThat(revertSQLContext.getPrimaryKeyInsertValues().size(), is(10));
+        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
+            assertThat(each.get("order_id"), CoreMatchers.<Object>is(0));
+            assertThat(each.get("user_id"), CoreMatchers.<Object>is(1));
+        }
+    }
+    
+    @Test
+    public void assertCreateInsertRevertSQLContextWithoutPrimaryKey() {
+        InsertRevertSQLContext revertSQLContext = new InsertRevertSQLContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        assertTrue(revertSQLContext.getPrimaryKeyInsertValues().isEmpty());
     }
 }
