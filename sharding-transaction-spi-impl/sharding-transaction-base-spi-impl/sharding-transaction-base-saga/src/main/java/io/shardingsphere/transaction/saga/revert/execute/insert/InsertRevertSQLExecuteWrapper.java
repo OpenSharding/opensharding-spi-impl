@@ -23,8 +23,8 @@ import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Insert revert SQL execute wrapper.
@@ -43,8 +43,8 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     @Override
     public Optional<RevertSQLUnit> generateRevertSQL() {
         RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLContext));
-        for (Collection<Object> each : revertSQLContext.getPrimaryKeyValues().values()) {
-            result.getRevertParams().add(each);
+        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
+            result.getRevertParams().add(each.values());
         }
         return Optional.of(result);
     }
@@ -56,7 +56,7 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         builder.append(revertSQLContext.getActualTable()).append(" ");
         builder.append(DefaultKeyword.WHERE).append(" ");
         boolean firstItem = true;
-        for (String each : revertSQLContext.getPrimaryKeyValues().keySet()) {
+        for (String each : revertSQLContext.getPrimaryKeyInsertValues().iterator().next().keySet()) {
             if (firstItem) {
                 firstItem = false;
                 builder.append(" ").append(each).append(" =?");

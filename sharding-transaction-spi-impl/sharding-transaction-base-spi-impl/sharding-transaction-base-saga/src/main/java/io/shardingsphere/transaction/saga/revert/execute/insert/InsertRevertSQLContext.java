@@ -24,6 +24,7 @@ import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResul
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
 import org.apache.shardingsphere.core.rule.DataNode;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -41,7 +42,7 @@ public final class InsertRevertSQLContext implements RevertSQLContext {
     
     private final String actualTable;
     
-    private final Map<String, List<Object>> primaryKeyValues = new LinkedHashMap<>();
+    private final Collection<Map<String, Object>> primaryKeyInsertValues = new LinkedList<>();
 
     public InsertRevertSQLContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
         this.actualTable = actualTableName;
@@ -84,13 +85,12 @@ public final class InsertRevertSQLContext implements RevertSQLContext {
     }
     
     private void addPrimaryKeyColumnValues(final Map<String, Object> routedInsertValue, final List<String> primaryKeys) {
-        for (Map.Entry<String, Object> entry : routedInsertValue.entrySet()) {
-            if (primaryKeys.contains(entry.getKey())) {
-                if (!primaryKeyValues.containsKey(entry.getKey())) {
-                    primaryKeyValues.put(entry.getKey(), new LinkedList<>());
-                }
-                primaryKeyValues.get(entry.getKey()).add(entry.getValue());
+        Map<String, Object> primaryKeyInsertValue = new LinkedHashMap<>(primaryKeys.size(), 1);
+        for (String each : primaryKeys) {
+            if (routedInsertValue.containsKey(each)) {
+                primaryKeyInsertValue.put(each, routedInsertValue.get(each));
             }
         }
+        primaryKeyInsertValues.add(primaryKeyInsertValue);
     }
 }
