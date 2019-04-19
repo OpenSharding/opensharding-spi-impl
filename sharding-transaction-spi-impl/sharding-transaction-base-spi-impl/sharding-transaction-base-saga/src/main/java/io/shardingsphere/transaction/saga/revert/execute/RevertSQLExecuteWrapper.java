@@ -41,9 +41,9 @@ public interface RevertSQLExecuteWrapper<T extends RevertSQLContext> {
     /**
      * Generate revert SQL.
      *
-     * @param revertSQLStatement revert SQL statement
+     * @param revertSQLContext revert SQL context
      * @return revert SQL unit
      */
-    Optional<RevertSQLUnit> generateRevertSQL(T revertSQLStatement);
+    Optional<RevertSQLUnit> generateRevertSQL(T revertSQLContext);
     
 }
