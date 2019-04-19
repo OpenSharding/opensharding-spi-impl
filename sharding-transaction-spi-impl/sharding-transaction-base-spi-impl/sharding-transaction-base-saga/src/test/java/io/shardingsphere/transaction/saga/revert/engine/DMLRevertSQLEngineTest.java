@@ -15,16 +15,11 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.delete;
+package io.shardingsphere.transaction.saga.revert.engine;
 
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-    DeleteRevertSQLExecuteWrapperTest.class,
-    RevertDeleteTest.class
-})
-public class AllDeleteTests {
+@RunWith(MockitoJUnitRunner.class)
+public class DMLRevertSQLEngineTest {
 }

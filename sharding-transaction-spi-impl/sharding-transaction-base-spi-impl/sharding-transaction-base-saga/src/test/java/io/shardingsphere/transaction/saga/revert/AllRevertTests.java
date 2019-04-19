@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.revert;
 
 import io.shardingsphere.transaction.saga.revert.impl.RevertOperateFactoryTest;
-import io.shardingsphere.transaction.saga.revert.impl.delete.AllDeleteTests;
 import io.shardingsphere.transaction.saga.revert.impl.insert.AllInsertTests;
 import io.shardingsphere.transaction.saga.revert.impl.update.AllUpdateTests;
 import org.junit.runner.RunWith;
@@ -28,7 +27,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
     RevertOperateFactoryTest.class,
-    AllDeleteTests.class,
     AllInsertTests.class,
     AllUpdateTests.class
 })

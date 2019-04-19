@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.impl.delete;
+package io.shardingsphere.transaction.saga.revert.snapshot;
 
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.DeleteSnapshotSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
