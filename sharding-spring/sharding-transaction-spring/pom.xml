@@ -30,6 +30,7 @@
     <modules>
         <module>sharding-transaction-jdbc-spring</module>
         <module>sharding-transaction-proxy-spring</module>
+        <module>sharding-transaction-proxy-hibernate-spring</module>
     </modules>
     
     <dependencies>

@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-provides: sharding-transaction-proxy-spring, spring-boot-starter, spring-orm
+provides: spring-orm, javax.persistence-api

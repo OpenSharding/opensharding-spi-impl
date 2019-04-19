@@ -15,20 +15,23 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.spring.boot.fixture;
+package io.shardingsphere.transaction.hibernate;
 
 import io.shardingsphere.transaction.spi.JpaConnectionExtractor;
-import org.mockito.Mockito;
+import org.hibernate.engine.spi.SessionImplementor;
 
 import javax.persistence.EntityManager;
 import java.sql.Connection;
 
-public final class MockJpaConnectionExtractor implements JpaConnectionExtractor {
-    
-    private static final Connection MOCK_CONNECTION = Mockito.mock(Connection.class);
+/**
+ * Hibernate connection extractor.
+ *
+ * @author yangyi
+ */
+public final class HibernateConnectionExtractor implements JpaConnectionExtractor {
     
     @Override
     public Connection getConnectionFromEntityManager(final EntityManager entityManager) {
-        return MOCK_CONNECTION;
+        return entityManager.unwrap(SessionImplementor.class).connection();
     }
 }

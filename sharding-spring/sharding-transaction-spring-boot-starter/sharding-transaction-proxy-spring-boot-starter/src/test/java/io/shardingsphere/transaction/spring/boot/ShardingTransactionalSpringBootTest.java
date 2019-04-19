@@ -18,10 +18,8 @@
 package io.shardingsphere.transaction.spring.boot;
 
 import io.shardingsphere.transaction.aspect.ShardingTransactionProxyAspect;
-import io.shardingsphere.transaction.spi.JpaConnectionExtractor;
 import io.shardingsphere.transaction.spring.boot.fixture.ShardingTransactionalTestService;
 import org.apache.shardingsphere.core.exception.ShardingException;
-import org.apache.shardingsphere.core.spi.NewInstanceServiceLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,12 +28,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -43,7 +38,6 @@ import java.sql.Statement;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,10 +47,6 @@ import static org.mockito.Mockito.when;
 @ComponentScan("io.shardingsphere.transaction.spring.boot.fixture")
 public class ShardingTransactionalSpringBootTest {
     
-    {
-        NewInstanceServiceLoader.register(JpaConnectionExtractor.class);
-    }
-    
     @Autowired
     private ShardingTransactionalTestService testService;
     
@@ -65,20 +55,14 @@ public class ShardingTransactionalSpringBootTest {
     
     private final Statement statement = mock(Statement.class);
     
-    private final JpaTransactionManager jpaTransactionManager = mock(JpaTransactionManager.class);
-    
     private final DataSourceTransactionManager dataSourceTransactionManager = mock(DataSourceTransactionManager.class);
     
     @Before
     public void setUp() throws SQLException {
         DataSource dataSource = mock(DataSource.class);
-        EntityManager entityManager = mock(EntityManager.class);
-        Connection connection = NewInstanceServiceLoader.newServiceInstances(JpaConnectionExtractor.class).iterator().next().getConnectionFromEntityManager(entityManager);
-        EntityManagerFactory entityManagerFactory = mock(EntityManagerFactory.class);
+        Connection connection = mock(Connection.class);
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.createStatement()).thenReturn(statement);
-        when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-        when(jpaTransactionManager.getEntityManagerFactory()).thenReturn(entityManagerFactory);
         when(dataSourceTransactionManager.getDataSource()).thenReturn(dataSource);
     }
     
@@ -100,9 +84,7 @@ public class ShardingTransactionalSpringBootTest {
         when(statement.execute(anyString())).thenReturn(true);
         aspect.setTransactionManager(dataSourceTransactionManager);
         testService.testChangeTransactionTypeToLOCAL();
-        aspect.setTransactionManager(jpaTransactionManager);
-        testService.testChangeTransactionTypeToLOCAL();
-        verify(statement, times(2)).execute("SCTL:SET TRANSACTION_TYPE=LOCAL");
+        verify(statement).execute("SCTL:SET TRANSACTION_TYPE=LOCAL");
     }
     
     @Test
@@ -110,9 +92,7 @@ public class ShardingTransactionalSpringBootTest {
         when(statement.execute(anyString())).thenReturn(true);
         aspect.setTransactionManager(dataSourceTransactionManager);
         testService.testChangeTransactionTypeToXA();
-        aspect.setTransactionManager(jpaTransactionManager);
-        testService.testChangeTransactionTypeToXA();
-        verify(statement, times(2)).execute("SCTL:SET TRANSACTION_TYPE=XA");
+        verify(statement).execute("SCTL:SET TRANSACTION_TYPE=XA");
     }
     
     @Test
@@ -120,8 +100,6 @@ public class ShardingTransactionalSpringBootTest {
         when(statement.execute(anyString())).thenReturn(true);
         aspect.setTransactionManager(dataSourceTransactionManager);
         testService.testChangeTransactionTypeToBASE();
-        aspect.setTransactionManager(jpaTransactionManager);
-        testService.testChangeTransactionTypeToBASE();
-        verify(statement, times(2)).execute("SCTL:SET TRANSACTION_TYPE=BASE");
+        verify(statement).execute("SCTL:SET TRANSACTION_TYPE=BASE");
     }
 }
