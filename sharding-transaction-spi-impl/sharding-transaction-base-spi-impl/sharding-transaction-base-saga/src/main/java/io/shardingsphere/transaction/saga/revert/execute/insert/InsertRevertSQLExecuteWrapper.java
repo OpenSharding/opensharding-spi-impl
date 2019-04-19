@@ -18,8 +18,8 @@
 package io.shardingsphere.transaction.saga.revert.execute.insert;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
@@ -68,9 +68,9 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLContext revertSQLStatement) {
-        RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLStatement));
-        fillRevertParams(result, revertSQLStatement);
+    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLContext insertRevertSQLContext) {
+        RevertSQLUnit result = new RevertSQLUnit(generateSQL(insertRevertSQLContext));
+        fillRevertParams(result, insertRevertSQLContext);
         return Optional.of(result);
     }
     
@@ -92,41 +92,37 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         return result;
     }
     
-    private String generateSQL(final InsertRevertSQLContext revertSQLStatement) {
+    private String generateSQL(final InsertRevertSQLContext revertSQLContext) {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.DELETE).append(" ");
         builder.append(DefaultKeyword.FROM).append(" ");
-        builder.append(revertSQLStatement.getActualTable()).append(" ");
+        builder.append(revertSQLContext.getActualTable()).append(" ");
         builder.append(DefaultKeyword.WHERE).append(" ");
         boolean firstItem = true;
-        for (String primaryKey : revertSQLStatement.getPrimaryKeys()) {
+        for (String each : revertSQLContext.getPrimaryKeys()) {
             if (firstItem) {
                 firstItem = false;
-                builder.append(" ").append(primaryKey).append(" =?");
+                builder.append(" ").append(each).append(" =?");
             } else {
-                builder.append(" ").append(DefaultKeyword.AND).append(primaryKey).append(" =?");
+                builder.append(" ").append(DefaultKeyword.AND).append(each).append(" =?");
             }
         }
         return builder.toString();
     }
     
-    private void fillRevertParams(final RevertSQLUnit revertSQLUnit, final InsertRevertSQLContext insertParameter) {
-        if (insertParameter.isContainGenerateKey()) {
-            int eachParameterSize = insertParameter.getParameters().size() / insertParameter.getBatchSize();
-            for (int i = 0; i < insertParameter.getBatchSize(); i++) {
-                Collection<Object> currentSQLParams = new LinkedList<>();
-                int generateValueIndex = (i + 1) * eachParameterSize - 1;
-                currentSQLParams.add(insertParameter.getParameters().get(generateValueIndex));
-                revertSQLUnit.getRevertParams().add(currentSQLParams);
+    private void fillRevertParams(final RevertSQLUnit revertSQLUnit, final InsertRevertSQLContext revertSQLContext) {
+        if (revertSQLContext.isContainGenerateKey()) {
+            int eachParameterSize = revertSQLContext.getParameters().size() / revertSQLContext.getBatchSize();
+            for (int i = 0; i < revertSQLContext.getBatchSize(); i++) {
+                Collection<Object> revertParameters = new LinkedList<>();
+                int primaryKeyIndex = (i + 1) * eachParameterSize - 1;
+                revertParameters.add(revertSQLContext.getParameters().get(primaryKeyIndex));
+                revertSQLUnit.getRevertParams().add(revertParameters);
             }
             return;
         }
-        for (Map<String, Object> each : insertParameter.getInvertValues()) {
-            Collection<Object> currentSQLParams = new LinkedList<>();
-            revertSQLUnit.getRevertParams().add(currentSQLParams);
-            for (Map.Entry<String, Object> eachEntry : each.entrySet()) {
-                currentSQLParams.add(eachEntry.getValue());
-            }
+        for (Map<String, Object> each : revertSQLContext.getInvertValues()) {
+            revertSQLUnit.getRevertParams().add(each.values());
         }
     }
 }
