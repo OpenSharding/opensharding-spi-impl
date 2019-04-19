@@ -19,8 +19,12 @@ package io.shardingsphere.transaction.saga.revert.execute.insert;
 
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLContext;
 import lombok.Getter;
+import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
+import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
+import org.apache.shardingsphere.core.rule.DataNode;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,33 +32,62 @@ import java.util.Map;
 /**
  * Insert revert SQL context.
  *
- * @author duhongjun
  * @author zhaojun
  */
 @Getter
 public final class InsertRevertSQLContext implements RevertSQLContext {
     
     private final String actualTable;
+    
+    private final Map<String, List<Object>> primaryKeyValues = new HashMap<>();
 
-    private final List<String> primaryKeys = new LinkedList<>();
-
-    private final List<String> insertColumns = new LinkedList<>();
-
-    private final List<Object> parameters = new LinkedList<>();
+    public InsertRevertSQLContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
+        this.actualTable = actualTableName;
+        loadPrimaryKeyValues(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
+    }
     
-    private final List<Map<String, Object>> invertValues = new LinkedList<>();
+    private void loadPrimaryKeyValues(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
+        for (Map<String, Object> each : getRoutedInsertValues(insertOptimizeResult.getUnits(), new DataNode(dataSourceName, actualTableName))) {
+            addPrimaryKeyColumnValues(each, primaryKeys);
+        }
+    }
     
-    private final int batchSize;
+    private List<Map<String, Object>> getRoutedInsertValues(final List<InsertOptimizeResultUnit> units, final DataNode dataNode) {
+        List<Map<String, Object>> result = new LinkedList<>();
+        for (InsertOptimizeResultUnit each : units) {
+            if (isRoutedDataNode(each.getDataNodes(), dataNode)) {
+                result.add(convertInsertOptimizeResultUnit(each));
+            }
+        }
+        return result;
+    }
     
-    private final boolean containGenerateKey;
+    private boolean isRoutedDataNode(final List<DataNode> dataNodes, final DataNode dataNode) {
+        for (DataNode each : dataNodes) {
+            if (each.equals(dataNode)) {
+                return true;
+            }
+        }
+        return false;
+    }
     
-    public InsertRevertSQLContext(final String tableName, final Collection<String> tableColumns, final List<String> keys, final List<Object> parameters,
-                                  final int batchSize, final boolean containGenerateKey) {
-        this.actualTable = tableName;
-        this.insertColumns.addAll(tableColumns);
-        this.primaryKeys.addAll(keys);
-        this.parameters.addAll(parameters);
-        this.batchSize = batchSize;
-        this.containGenerateKey = containGenerateKey;
+    private Map<String, Object> convertInsertOptimizeResultUnit(final InsertOptimizeResultUnit insertOptimizeResultUnit) {
+        Map<String, Object> result = new HashMap<>(insertOptimizeResultUnit.getColumnNames().size(), 1);
+        Iterator<String> columnNamesIterator = insertOptimizeResultUnit.getColumnNames().iterator();
+        for (Object each : insertOptimizeResultUnit.getParameters()) {
+            result.put(columnNamesIterator.next(), each);
+        }
+        return result;
+    }
+    
+    private void addPrimaryKeyColumnValues(final Map<String, Object> routedInsertValue, final List<String> primaryKeys) {
+        for (Map.Entry<String, Object> entry : routedInsertValue.entrySet()) {
+            if (primaryKeys.contains(entry.getKey())) {
+                if (!primaryKeyValues.containsKey(entry.getKey())) {
+                    primaryKeyValues.put(entry.getKey(), new LinkedList<>());
+                }
+                primaryKeyValues.get(entry.getKey()).add(entry.getValue());
+            }
+        }
     }
 }
