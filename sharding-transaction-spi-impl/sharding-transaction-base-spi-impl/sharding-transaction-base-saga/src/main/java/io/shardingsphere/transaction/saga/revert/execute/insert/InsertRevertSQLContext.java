@@ -46,10 +46,10 @@ public final class InsertRevertSQLContext implements RevertSQLContext {
 
     public InsertRevertSQLContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
         this.actualTable = actualTableName;
-        loadPrimaryKeyValues(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
+        loadPrimaryKeyInsertValues(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
     }
     
-    private void loadPrimaryKeyValues(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
+    private void loadPrimaryKeyInsertValues(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
         Preconditions.checkNotNull(insertOptimizeResult, "Could not found insert optimize result. datasourceName:%s, actualTable:%s", dataSourceName, actualTableName);
         for (Map<String, Object> each : getRoutedInsertValues(insertOptimizeResult.getUnits(), new DataNode(dataSourceName, actualTableName))) {
             addPrimaryKeyColumnValues(each, primaryKeys);

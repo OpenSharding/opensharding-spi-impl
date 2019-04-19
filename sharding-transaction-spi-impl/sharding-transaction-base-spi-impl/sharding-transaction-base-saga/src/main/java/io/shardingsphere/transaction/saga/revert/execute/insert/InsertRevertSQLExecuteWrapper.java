@@ -20,10 +20,9 @@ package io.shardingsphere.transaction.saga.revert.execute.insert;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
-import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
+import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,13 +31,10 @@ import java.util.Map;
  * @author duhongjun
  * @author zhaojun
  */
+@RequiredArgsConstructor
 public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper {
     
-    private InsertRevertSQLContext revertSQLContext;
-    
-    public InsertRevertSQLExecuteWrapper(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
-        revertSQLContext = new InsertRevertSQLContext(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
-    }
+    private final InsertRevertSQLContext revertSQLContext;
     
     @Override
     public Optional<RevertSQLUnit> generateRevertSQL() {
@@ -59,9 +55,9 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         for (String each : revertSQLContext.getPrimaryKeyInsertValues().iterator().next().keySet()) {
             if (firstItem) {
                 firstItem = false;
-                builder.append(" ").append(each).append(" =?");
+                builder.append(each).append(" =?");
             } else {
-                builder.append(" ").append(DefaultKeyword.AND).append(each).append(" =?");
+                builder.append(" ").append(DefaultKeyword.AND).append(" ").append(each).append(" =?");
             }
         }
         return builder.toString();

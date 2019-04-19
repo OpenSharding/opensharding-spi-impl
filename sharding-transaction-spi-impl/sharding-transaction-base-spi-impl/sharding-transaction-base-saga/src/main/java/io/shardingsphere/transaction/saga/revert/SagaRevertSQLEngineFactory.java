@@ -23,6 +23,7 @@ import io.shardingsphere.transaction.saga.revert.engine.DMLRevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteRevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLContext;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.execute.update.UpdateRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
@@ -73,7 +74,7 @@ public final class SagaRevertSQLEngineFactory {
         RevertSQLExecuteWrapper revertSQLExecuteWrapper;
         if (sqlStatement instanceof InsertStatement) {
             Optional<InsertOptimizeResult> insertOptimizeResult = logicSQLTransaction.getSqlRouteResult().getOptimizeResult().getInsertOptimizeResult();
-            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull());
+            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(new InsertRevertSQLContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull()));
         } else if (sqlStatement instanceof DeleteStatement) {
             DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(actualTableName, (DeleteStatement) sqlStatement, parameters);
             revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
