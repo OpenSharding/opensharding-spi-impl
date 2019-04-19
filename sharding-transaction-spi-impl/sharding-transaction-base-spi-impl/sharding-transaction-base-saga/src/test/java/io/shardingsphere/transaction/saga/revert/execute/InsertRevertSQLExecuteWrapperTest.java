@@ -50,23 +50,26 @@ public class InsertRevertSQLExecuteWrapperTest {
     @Before
     public void setUp() {
         when(revertSQLContext.getActualTable()).thenReturn("t_order_0");
-        when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues());
         insertRevertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(revertSQLContext);
     }
     
-    private Collection<Map<String, Object>> mockPrimaryKeyInsertValues() {
+    private Collection<Map<String, Object>> mockPrimaryKeyInsertValues(final int count, final String... primaryKeys) {
         Collection<Map<String, Object>> result = new LinkedList<>();
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= count; i++) {
             Map<String, Object> primaryKeyInsertValue = new LinkedHashMap<>();
-            primaryKeyInsertValue.put("user_id", "user_id_" + i);
-            primaryKeyInsertValue.put("order_id", "order_id_" + i);
-            result.add(primaryKeyInsertValue);
+            for (String each : primaryKeys) {
+                primaryKeyInsertValue.put(each, each + "_" + i);
+            }
+            if (!primaryKeyInsertValue.isEmpty()) {
+                result.add(primaryKeyInsertValue);
+            }
         }
         return result;
     }
     
     @Test
-    public void assertGenerateRevertSQL() {
+    public void assertGenerateRevertSQLWithMultiPrimaryKeys() {
+        when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(10,"user_id", "order_id"));
         Optional<RevertSQLUnit> actual = insertRevertSQLExecuteWrapper.generateRevertSQL();
         assertTrue(actual.isPresent());
         assertThat(actual.get().getRevertSQL(), is("DELETE FROM t_order_0 WHERE user_id =? AND order_id =?"));
@@ -76,5 +79,24 @@ public class InsertRevertSQLExecuteWrapperTest {
         Iterator iterator = firstItem.iterator();
         assertThat(iterator.next(), CoreMatchers.<Object>is("user_id_1"));
         assertThat(iterator.next(), CoreMatchers.<Object>is("order_id_1"));
+    }
+    
+    @Test
+    public void assertGenerateRevertSQLWithSinglePrimaryKey() {
+        when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5, "user_id"));
+        Optional<RevertSQLUnit> actual = insertRevertSQLExecuteWrapper.generateRevertSQL();
+        assertTrue(actual.isPresent());
+        assertThat(actual.get().getRevertSQL(), is("DELETE FROM t_order_0 WHERE user_id =?"));
+        assertThat(actual.get().getRevertParams().size(), is(5));
+        Collection<Object> firstItem = actual.get().getRevertParams().iterator().next();
+        assertThat(firstItem.size(), is(1));
+        Iterator iterator = firstItem.iterator();
+        assertThat(iterator.next(), CoreMatchers.<Object>is("user_id_1"));
+    }
+    
+    @Test(expected = IllegalStateException.class)
+    public void assertGenerateRevertSQLWithoutPrimaryKeyValue() {
+        when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5));
+        insertRevertSQLExecuteWrapper.generateRevertSQL();
     }
 }

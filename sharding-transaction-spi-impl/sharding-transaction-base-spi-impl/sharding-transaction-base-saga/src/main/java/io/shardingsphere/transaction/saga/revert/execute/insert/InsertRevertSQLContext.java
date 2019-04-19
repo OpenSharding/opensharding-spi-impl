@@ -42,9 +42,12 @@ public final class InsertRevertSQLContext implements RevertSQLContext {
     
     private final String actualTable;
     
+    private String dataSourceName;
+    
     private final Collection<Map<String, Object>> primaryKeyInsertValues = new LinkedList<>();
 
     public InsertRevertSQLContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
+        this.dataSourceName = dataSourceName;
         this.actualTable = actualTableName;
         loadPrimaryKeyInsertValues(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
     }
@@ -91,6 +94,8 @@ public final class InsertRevertSQLContext implements RevertSQLContext {
                 primaryKeyInsertValue.put(each, routedInsertValue.get(each));
             }
         }
-        primaryKeyInsertValues.add(primaryKeyInsertValue);
+        if (!primaryKeyInsertValue.isEmpty()) {
+            primaryKeyInsertValues.add(primaryKeyInsertValue);
+        }
     }
 }

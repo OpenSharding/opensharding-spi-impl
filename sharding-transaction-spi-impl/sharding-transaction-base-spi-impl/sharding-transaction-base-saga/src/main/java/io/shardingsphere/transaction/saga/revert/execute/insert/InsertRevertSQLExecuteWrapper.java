@@ -18,6 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute.insert;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,8 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     @Override
     public Optional<RevertSQLUnit> generateRevertSQL() {
+        Preconditions.checkState(!revertSQLContext.getPrimaryKeyInsertValues().isEmpty(),
+            "Could not found primary key values. datasource:[%s], table:[%s]", revertSQLContext.getDataSourceName(), revertSQLContext.getActualTable());
         RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLContext));
         for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
             result.getRevertParams().add(each.values());
