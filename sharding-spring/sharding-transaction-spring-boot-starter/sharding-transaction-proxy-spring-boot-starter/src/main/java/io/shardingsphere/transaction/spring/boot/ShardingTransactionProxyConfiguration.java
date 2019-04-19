@@ -20,27 +20,18 @@ package io.shardingsphere.transaction.spring.boot;
 import lombok.NoArgsConstructor;
 import io.shardingsphere.transaction.aspect.ShardingTransactionProxyAspect;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionMessage;
-import org.springframework.boot.autoconfigure.condition.ConditionMessage.Builder;
-import org.springframework.boot.autoconfigure.condition.ConditionMessage.Style;
-import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.util.ClassUtils;
 
 import javax.sql.DataSource;
-import java.util.Arrays;
-
 /**
  * Spring boot sharding transaction configuration.
  *
@@ -69,7 +60,7 @@ public class ShardingTransactionProxyConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(PlatformTransactionManager.class)
-    @Conditional(HibernateEntityManagerCondition.class)
+    @ConditionalOnClass(value = LocalContainerEntityManagerFactoryBean.class, name = "javax.persistence.EntityManager")
     public PlatformTransactionManager jpaTransactionManager(final ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
         JpaTransactionManager result = new JpaTransactionManager();
         if (null != transactionManagerCustomizers.getIfAvailable()) {
@@ -93,22 +84,5 @@ public class ShardingTransactionProxyConfiguration {
             transactionManagerCustomizers.getIfAvailable().customize(result);
         }
         return result;
-    }
-    
-    @NoArgsConstructor
-    static class HibernateEntityManagerCondition extends SpringBootCondition {
-        private static final String[] CLASS_NAMES = new String[]{"org.hibernate.ejb.HibernateEntityManager", "org.hibernate.jpa.HibernateEntityManager"};
-        
-        @Override
-        public ConditionOutcome getMatchOutcome(final ConditionContext context, final AnnotatedTypeMetadata metadata) {
-            Builder message = ConditionMessage.forCondition("HibernateEntityManager");
-            for (String each : CLASS_NAMES) {
-                if (ClassUtils.isPresent(each, context.getClassLoader())) {
-                    return ConditionOutcome.match(message.found("class").items(Style.QUOTE, each));
-                }
-            }
-            
-            return ConditionOutcome.noMatch(message.didNotFind("class", "classes").items(Style.QUOTE, Arrays.asList(CLASS_NAMES)));
-        }
     }
 }
