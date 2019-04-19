@@ -25,30 +25,17 @@
     </parent>
     <artifactId>sharding-transaction-spring-boot-starter</artifactId>
     <name>${project.artifactId}</name>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>sharding-transaction-jdbc-spring-boot-starter</module>
+        <module>sharding-transaction-proxy-spring-boot-starter</module>
+    </modules>
     
     <dependencies>
         <dependency>
-            <groupId>io.shardingsphere</groupId>
-            <artifactId>sharding-transaction-spring</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
         </dependency>
     
         <dependency>
