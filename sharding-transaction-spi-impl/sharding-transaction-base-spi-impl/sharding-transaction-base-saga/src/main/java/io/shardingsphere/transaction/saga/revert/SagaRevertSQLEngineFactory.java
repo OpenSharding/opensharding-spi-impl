@@ -17,19 +17,21 @@
 
 package io.shardingsphere.transaction.saga.revert;
 
+import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.revert.engine.DMLRevertSQLEngine;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLEngine;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteRevertSQLExecuteWrapper;
-import io.shardingsphere.transaction.saga.revert.snapshot.statement.DeleteSnapshotSQLStatement;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.execute.update.UpdateRevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
+import io.shardingsphere.transaction.saga.revert.snapshot.statement.DeleteSnapshotSQLStatement;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
@@ -68,8 +70,8 @@ public final class SagaRevertSQLEngineFactory {
         List<String> primaryKeyColumns = getPrimaryKeyColumns(logicSQLTransaction.getTableMetaData());
         RevertSQLExecuteWrapper revertSQLExecuteWrapper;
         if (sqlStatement instanceof InsertStatement) {
-            boolean containGenerateKey = !logicSQLTransaction.getSqlRouteResult().getGeneratedKey().getGeneratedKeys().isEmpty();
-            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(actualTableName, (InsertStatement) sqlStatement, parameters, primaryKeyColumns, containGenerateKey);
+            Optional<InsertOptimizeResult> insertOptimizeResult = logicSQLTransaction.getSqlRouteResult().getOptimizeResult().getInsertOptimizeResult();
+            revertSQLExecuteWrapper = new InsertRevertSQLExecuteWrapper(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull());
         } else if (sqlStatement instanceof DeleteStatement) {
             DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(actualTableName, (DeleteStatement) sqlStatement, parameters);
             revertSQLExecuteWrapper = new DeleteRevertSQLExecuteWrapper(new DMLSnapshotAccessor(snapshotSQLStatement, connection));

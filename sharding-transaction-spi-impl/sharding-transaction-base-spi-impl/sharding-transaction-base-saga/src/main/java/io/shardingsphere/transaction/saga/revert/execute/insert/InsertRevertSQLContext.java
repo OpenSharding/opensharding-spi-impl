@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.execute.insert;
 
+import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLContext;
 import lombok.Getter;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
@@ -25,6 +26,7 @@ import org.apache.shardingsphere.core.rule.DataNode;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +41,7 @@ public final class InsertRevertSQLContext implements RevertSQLContext {
     
     private final String actualTable;
     
-    private final Map<String, List<Object>> primaryKeyValues = new HashMap<>();
+    private final Map<String, List<Object>> primaryKeyValues = new LinkedHashMap<>();
 
     public InsertRevertSQLContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
         this.actualTable = actualTableName;
@@ -47,6 +49,7 @@ public final class InsertRevertSQLContext implements RevertSQLContext {
     }
     
     private void loadPrimaryKeyValues(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
+        Preconditions.checkNotNull(insertOptimizeResult, "Could not found insert optimize result. datasourceName:%s, actualTable:%s", dataSourceName, actualTableName);
         for (Map<String, Object> each : getRoutedInsertValues(insertOptimizeResult.getUnits(), new DataNode(dataSourceName, actualTableName))) {
             addPrimaryKeyColumnValues(each, primaryKeys);
         }

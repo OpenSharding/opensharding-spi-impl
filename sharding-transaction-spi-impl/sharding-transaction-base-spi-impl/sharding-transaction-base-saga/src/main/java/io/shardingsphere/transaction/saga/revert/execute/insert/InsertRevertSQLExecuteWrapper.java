@@ -21,20 +21,11 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
+import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
-import org.apache.shardingsphere.core.parse.old.parser.context.insertvalue.InsertValue;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Insert revert SQL execute wrapper.
@@ -45,51 +36,26 @@ import java.util.Map;
 @RequiredArgsConstructor
 public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper<InsertRevertSQLContext> {
     
-    private final String actualTable;
+    private final String dataSourceName;
     
-    private final InsertStatement insertStatement;
+    private final String actualTableName;
     
-    private final List<Object> actualSQLParameters;
+    private final List<String> primaryKeys;
     
-    private final List<String> primaryKeyColumns;
-    
-    private final boolean containGenerateKey;
+    private final InsertOptimizeResult insertOptimizeResult;
     
     @Override
     public InsertRevertSQLContext createRevertSQLContext() {
-        InsertRevertSQLContext result = new InsertRevertSQLContext(actualTable, insertStatement.getColumnNames(),
-            primaryKeyColumns, actualSQLParameters, insertStatement.getValues().size(), containGenerateKey);
-        Iterator<String> columnNamesIterator = insertStatement.getColumnNames().iterator();
-        Iterator actualSQLParameterIterator = actualSQLParameters.iterator();
-        for (InsertValue each : insertStatement.getValues()) {
-            result.getInvertValues().add(createInsertGroup(each, columnNamesIterator, actualSQLParameterIterator, primaryKeyColumns));
-        }
-        return result;
+        return new InsertRevertSQLContext(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLContext insertRevertSQLContext) {
-        RevertSQLUnit result = new RevertSQLUnit(generateSQL(insertRevertSQLContext));
-        fillRevertParams(result, insertRevertSQLContext);
-        return Optional.of(result);
-    }
-    
-    private Map<String, Object> createInsertGroup(final InsertValue insertValue, final Iterator<String> columnNamesIterator, final Iterator actualSQLParameterIterator, final List<String> keys) {
-        Map<String, Object> result = new HashMap<>();
-        for (SQLExpression expression : insertValue.getAssignments()) {
-            String columnName = columnNamesIterator.next();
-            if (!keys.contains(columnName)) {
-                continue;
-            }
-            if (expression instanceof SQLPlaceholderExpression) {
-                result.put(columnName, actualSQLParameterIterator.next());
-            } else if (expression instanceof SQLTextExpression) {
-                result.put(columnName, ((SQLTextExpression) expression).getText());
-            } else if (expression instanceof SQLNumberExpression) {
-                result.put(columnName, ((SQLNumberExpression) expression).getNumber());
-            }
+    public Optional<RevertSQLUnit> generateRevertSQL(final InsertRevertSQLContext revertSQLContext) {
+        RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLContext));
+        for (Collection<Object> each : revertSQLContext.getPrimaryKeyValues().values()) {
+            result.getRevertParams().add(each);
         }
-        return result;
+        return Optional.of(result);
     }
     
     private String generateSQL(final InsertRevertSQLContext revertSQLContext) {
@@ -99,7 +65,7 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         builder.append(revertSQLContext.getActualTable()).append(" ");
         builder.append(DefaultKeyword.WHERE).append(" ");
         boolean firstItem = true;
-        for (String each : revertSQLContext.getPrimaryKeys()) {
+        for (String each : revertSQLContext.getPrimaryKeyValues().keySet()) {
             if (firstItem) {
                 firstItem = false;
                 builder.append(" ").append(each).append(" =?");
@@ -108,21 +74,5 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
             }
         }
         return builder.toString();
-    }
-    
-    private void fillRevertParams(final RevertSQLUnit revertSQLUnit, final InsertRevertSQLContext revertSQLContext) {
-        if (revertSQLContext.isContainGenerateKey()) {
-            int eachParameterSize = revertSQLContext.getParameters().size() / revertSQLContext.getBatchSize();
-            for (int i = 0; i < revertSQLContext.getBatchSize(); i++) {
-                Collection<Object> revertParameters = new LinkedList<>();
-                int primaryKeyIndex = (i + 1) * eachParameterSize - 1;
-                revertParameters.add(revertSQLContext.getParameters().get(primaryKeyIndex));
-                revertSQLUnit.getRevertParams().add(revertParameters);
-            }
-            return;
-        }
-        for (Map<String, Object> each : revertSQLContext.getInvertValues()) {
-            revertSQLUnit.getRevertParams().add(each.values());
-        }
     }
 }
