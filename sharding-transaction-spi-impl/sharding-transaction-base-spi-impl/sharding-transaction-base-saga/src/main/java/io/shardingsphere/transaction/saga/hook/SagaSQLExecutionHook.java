@@ -38,6 +38,7 @@ import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLUnit;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -84,7 +85,8 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     private void saveUndoDataIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
-            SQLRevertExecutor sqlRevertExecutor = SQLRevertExecutorFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap());
+            Connection connection = transactionResource.getConnectionMap().get(routeUnit.getDataSourceName());
+            SQLRevertExecutor sqlRevertExecutor = SQLRevertExecutorFactory.newInstance(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
             Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(sqlRevertExecutor).revert();
             this.branchTransaction.setRevertSQLUnit(revertSQLResult.orNull());
             transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLResult.orNull()));

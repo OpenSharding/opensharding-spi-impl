@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.revert.executor;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertContext;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
@@ -43,7 +42,6 @@ import org.apache.shardingsphere.core.route.type.TableUnit;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * SQL revert executor factory.
@@ -56,21 +54,19 @@ public final class SQLRevertExecutorFactory {
     /**
      * Create new revert SQL executor.
      *
-     * @param logicSQLTransaction logic SQL transaction
+     * @param sqlRouteResult logic SQL transaction
      * @param routeUnit route unit
-     * @param connectionMap connection map
      * @return revert SQL engine
      */
     @SneakyThrows
-    public static SQLRevertExecutor newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
-        SQLStatement sqlStatement = logicSQLTransaction.getSqlRouteResult().getSqlStatement();
+    public static SQLRevertExecutor newInstance(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit, final TableMetaData tableMetaData, final Connection connection) {
+        SQLStatement sqlStatement = sqlRouteResult.getSqlStatement();
         List<Object> parameters = routeUnit.getSqlUnit().getParameters();
-        String actualTableName = getActualTableName(logicSQLTransaction.getSqlRouteResult(), routeUnit);
-        Connection connection = connectionMap.get(routeUnit.getDataSourceName());
-        List<String> primaryKeyColumns = getPrimaryKeyColumns(logicSQLTransaction.getTableMetaData());
+        String actualTableName = getActualTableName(sqlRouteResult, routeUnit);
+        List<String> primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
         SQLRevertExecutor sqlRevertExecutor;
         if (sqlStatement instanceof InsertStatement) {
-            Optional<InsertOptimizeResult> insertOptimizeResult = logicSQLTransaction.getSqlRouteResult().getOptimizeResult().getInsertOptimizeResult();
+            Optional<InsertOptimizeResult> insertOptimizeResult = sqlRouteResult.getOptimizeResult().getInsertOptimizeResult();
             sqlRevertExecutor = new InsertSQLRevertExecutor(new InsertSQLRevertContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull()));
         } else if (sqlStatement instanceof DeleteStatement) {
             DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(actualTableName, (DeleteStatement) sqlStatement, parameters);
