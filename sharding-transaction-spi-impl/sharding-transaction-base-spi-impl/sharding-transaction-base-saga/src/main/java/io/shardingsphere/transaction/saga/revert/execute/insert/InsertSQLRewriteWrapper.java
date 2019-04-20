@@ -37,24 +37,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 public final class InsertSQLRewriteWrapper implements SQLRewriteWrapper {
     
-    private final InsertSQLRevertContext revertSQLContext;
+    private final InsertSQLRevertContext sqlRevertContext;
     
     private GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     @Override
     public Optional<String> revertSQL() {
-        Preconditions.checkState(!revertSQLContext.getPrimaryKeyInsertValues().isEmpty(),
-            "Could not found primary key values. datasource:[%s], table:[%s]", revertSQLContext.getDataSourceName(), revertSQLContext.getActualTable());
+        Preconditions.checkState(!sqlRevertContext.getPrimaryKeyInsertValues().isEmpty(),
+            "Could not found primary key values. datasource:[%s], table:[%s]", sqlRevertContext.getDataSourceName(), sqlRevertContext.getActualTable());
         sqlBuilder.appendLiterals(DefaultKeyword.DELETE);
         sqlBuilder.appendLiterals(DefaultKeyword.FROM);
-        sqlBuilder.appendLiterals(revertSQLContext.getActualTable());
-        sqlBuilder.appendWhereCondition(revertSQLContext.getPrimaryKeyInsertValues().iterator().next().keySet());
+        sqlBuilder.appendLiterals(sqlRevertContext.getActualTable());
+        sqlBuilder.appendWhereCondition(sqlRevertContext.getPrimaryKeyInsertValues().iterator().next().keySet());
         return Optional.of(sqlBuilder.toSQL());
     }
     
     @Override
     public void fillParameters(final List<Collection<Object>> revertParameters) {
-        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
+        for (Map<String, Object> each : sqlRevertContext.getPrimaryKeyInsertValues()) {
             revertParameters.add(each.values());
         }
     }

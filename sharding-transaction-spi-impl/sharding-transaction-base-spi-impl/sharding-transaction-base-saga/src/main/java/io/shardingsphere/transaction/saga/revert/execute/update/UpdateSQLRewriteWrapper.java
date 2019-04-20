@@ -46,12 +46,12 @@ import java.util.Map.Entry;
  */
 public final class UpdateSQLRewriteWrapper implements SQLRewriteWrapper {
     
-    private UpdateSQLRevertContext revertSQLContext;
+    private UpdateSQLRevertContext sqlRevertContext;
     
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     public UpdateSQLRewriteWrapper(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
-        revertSQLContext = createRevertSQLContext(snapshotAccessor);
+        sqlRevertContext = createRevertSQLContext(snapshotAccessor);
     }
     
     private UpdateSQLRevertContext createRevertSQLContext(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
@@ -78,30 +78,30 @@ public final class UpdateSQLRewriteWrapper implements SQLRewriteWrapper {
     
     @Override
     public Optional<String> revertSQL() {
-        if (revertSQLContext.getUndoData().isEmpty()) {
+        if (sqlRevertContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
         sqlBuilder.appendLiterals(DefaultKeyword.UPDATE);
-        sqlBuilder.appendLiterals(revertSQLContext.getActualTable());
-        sqlBuilder.appendUpdateSetAssignments(revertSQLContext.getUpdateSetAssignments().keySet());
-        sqlBuilder.appendWhereCondition(revertSQLContext.getPrimaryKeyColumns());
+        sqlBuilder.appendLiterals(sqlRevertContext.getActualTable());
+        sqlBuilder.appendUpdateSetAssignments(sqlRevertContext.getUpdateSetAssignments().keySet());
+        sqlBuilder.appendWhereCondition(sqlRevertContext.getPrimaryKeyColumns());
         return Optional.of(sqlBuilder.toSQL());
     }
     
     @Override
     public void fillParameters(final List<Collection<Object>> revertParameters) {
-        for (Map<String, Object> each : revertSQLContext.getUndoData()) {
+        for (Map<String, Object> each : sqlRevertContext.getUndoData()) {
             revertParameters.add(getParameters(each));
         }
     }
     
     private List<Object> getParameters(final Map<String, Object> undoRecord) {
         List<Object> result = new LinkedList<>();
-        for (String each : revertSQLContext.getUpdateSetAssignments().keySet()) {
+        for (String each : sqlRevertContext.getUpdateSetAssignments().keySet()) {
             result.add(undoRecord.get(each.toLowerCase()));
         }
-        for (String each : revertSQLContext.getPrimaryKeyColumns()) {
-            Object value = revertSQLContext.getUpdateSetAssignments().get(each);
+        for (String each : sqlRevertContext.getPrimaryKeyColumns()) {
+            Object value = sqlRevertContext.getUpdateSetAssignments().get(each);
             if (null != value) {
                 result.add(value);
             } else {

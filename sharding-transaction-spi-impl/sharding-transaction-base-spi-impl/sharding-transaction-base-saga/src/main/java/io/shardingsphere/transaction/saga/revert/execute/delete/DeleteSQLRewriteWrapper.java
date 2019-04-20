@@ -36,29 +36,29 @@ import java.util.Map;
  */
 public final class DeleteSQLRewriteWrapper implements SQLRewriteWrapper {
     
-    private DeleteSQLRevertContext revertSQLContext;
+    private DeleteSQLRevertContext sqlRevertContext;
     
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     public DeleteSQLRewriteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
-        revertSQLContext = new DeleteSQLRevertContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
+        sqlRevertContext = new DeleteSQLRevertContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
     }
     
     @Override
     public Optional<String> revertSQL() {
-        if (revertSQLContext.getUndoData().isEmpty()) {
+        if (sqlRevertContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
         sqlBuilder.appendLiterals(DefaultKeyword.INSERT);
         sqlBuilder.appendLiterals(DefaultKeyword.INTO);
-        sqlBuilder.appendLiterals(revertSQLContext.getActualTable());
-        sqlBuilder.appendInsertValues(revertSQLContext.getUndoData().iterator().next().size());
+        sqlBuilder.appendLiterals(sqlRevertContext.getActualTable());
+        sqlBuilder.appendInsertValues(sqlRevertContext.getUndoData().iterator().next().size());
         return Optional.of(sqlBuilder.toSQL());
     }
     
     @Override
     public void fillParameters(final List<Collection<Object>> revertParameters) {
-        for (Map<String, Object> each : revertSQLContext.getUndoData()) {
+        for (Map<String, Object> each : sqlRevertContext.getUndoData()) {
             revertParameters.add(each.values());
         }
     }

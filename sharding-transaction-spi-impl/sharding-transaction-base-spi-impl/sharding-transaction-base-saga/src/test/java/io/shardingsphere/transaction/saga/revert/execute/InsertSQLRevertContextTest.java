@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InsertRevertSQLContextTest {
+public class InsertSQLRevertContextTest {
     
     @Mock
     private InsertOptimizeResult insertOptimizeResult;
@@ -96,30 +96,30 @@ public class InsertRevertSQLContextTest {
     }
     
     @Test
-    public void assertCreateInsertRevertSQLContextWithSinglePrimaryKey() {
+    public void assertCreateInsertSQLRevertContextWithSinglePrimaryKey() {
         primaryKeys.add("user_id");
-        InsertSQLRevertContext revertSQLContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
-        assertThat(revertSQLContext.getPrimaryKeyInsertValues().size(), is(10));
-        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
+        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        assertThat(sqlRevertContext.getPrimaryKeyInsertValues().size(), is(10));
+        for (Map<String, Object> each : sqlRevertContext.getPrimaryKeyInsertValues()) {
             assertThat(each.get("user_id"), CoreMatchers.<Object>is(1));
         }
     }
     
     @Test
-    public void assertCreateInsertRevertSQLContextWithMultiPrimaryKeys() {
+    public void assertCreateInsertSQLRevertContextWithMultiPrimaryKeys() {
         primaryKeys.add("order_id");
         primaryKeys.add("user_id");
-        InsertSQLRevertContext revertSQLContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
-        assertThat(revertSQLContext.getPrimaryKeyInsertValues().size(), is(10));
-        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
+        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        assertThat(sqlRevertContext.getPrimaryKeyInsertValues().size(), is(10));
+        for (Map<String, Object> each : sqlRevertContext.getPrimaryKeyInsertValues()) {
             assertThat(each.get("order_id"), CoreMatchers.<Object>is(0));
             assertThat(each.get("user_id"), CoreMatchers.<Object>is(1));
         }
     }
     
     @Test
-    public void assertCreateInsertRevertSQLContextWithoutPrimaryKey() {
-        InsertSQLRevertContext revertSQLContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
-        assertTrue(revertSQLContext.getPrimaryKeyInsertValues().isEmpty());
+    public void assertCreateInsertSQLRevertContextWithoutPrimaryKey() {
+        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        assertTrue(sqlRevertContext.getPrimaryKeyInsertValues().isEmpty());
     }
 }
