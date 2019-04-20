@@ -18,12 +18,13 @@
 package io.shardingsphere.transaction.saga.revert.execute.delete;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +42,7 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL() {
+    public Optional<String> generateSQL() {
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
@@ -59,10 +60,13 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
             }
         }
         builder.append(")");
-        RevertSQLUnit result = new RevertSQLUnit(builder.toString());
+        return Optional.of(builder.toString());
+    }
+    
+    @Override
+    public void fillParameters(final List<Collection<Object>> revertParameters) {
         for (Map<String, Object> each : revertSQLContext.getUndoData()) {
-            result.getRevertParams().add(each.values());
+            revertParameters.add(each.values());
         }
-        return Optional.of(result);
     }
 }

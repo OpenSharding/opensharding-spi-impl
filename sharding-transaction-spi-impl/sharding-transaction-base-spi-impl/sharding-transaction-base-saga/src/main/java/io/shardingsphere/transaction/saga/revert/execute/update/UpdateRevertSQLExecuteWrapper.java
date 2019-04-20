@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.revert.execute.update;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
@@ -75,16 +74,11 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     }
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL() {
+    public Optional<String> generateSQL() {
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
-        RevertSQLUnit result = new RevertSQLUnit(generateSQL());
-        fillParameters(result.getRevertParams());
-        return Optional.of(result);
-    }
     
-    private String generateSQL() {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.UPDATE).append(" ");
         builder.append(revertSQLContext.getActualTable()).append(" ");
@@ -107,10 +101,11 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
             builder.append(each).append(" = ? ");
             pos++;
         }
-        return builder.toString();
+        return Optional.of(builder.toString());
     }
     
-    private void fillParameters(final List<Collection<Object>> revertParameters) {
+    @Override
+    public void fillParameters(final List<Collection<Object>> revertParameters) {
         for (Map<String, Object> each : revertSQLContext.getUndoData()) {
             revertParameters.add(getParameters(each));
         }

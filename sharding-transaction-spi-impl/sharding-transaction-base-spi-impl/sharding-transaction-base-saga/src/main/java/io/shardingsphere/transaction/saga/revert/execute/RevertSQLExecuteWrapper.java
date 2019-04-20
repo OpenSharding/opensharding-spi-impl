@@ -18,7 +18,9 @@
 package io.shardingsphere.transaction.saga.revert.execute;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Revert SQL execute wrapper.
@@ -30,7 +32,15 @@ public interface RevertSQLExecuteWrapper {
     /**
      * Generate revert SQL.
      *
-     * @return revert SQL unit
+     * @return revert SQL
      */
-    Optional<RevertSQLUnit> generateRevertSQL();
+    Optional<String> generateSQL();
+    
+    
+    /**
+     * Fill revert parameters.
+     *
+     * @param revertParameters revert parameters
+     */
+    void fillParameters(List<Collection<Object>> revertParameters);
 }

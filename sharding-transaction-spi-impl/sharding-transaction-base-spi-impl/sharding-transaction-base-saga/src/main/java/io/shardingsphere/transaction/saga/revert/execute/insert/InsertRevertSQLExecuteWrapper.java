@@ -19,11 +19,12 @@ package io.shardingsphere.transaction.saga.revert.execute.insert;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,17 +39,9 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     private final InsertRevertSQLContext revertSQLContext;
     
     @Override
-    public Optional<RevertSQLUnit> generateRevertSQL() {
+    public Optional<String> generateSQL() {
         Preconditions.checkState(!revertSQLContext.getPrimaryKeyInsertValues().isEmpty(),
             "Could not found primary key values. datasource:[%s], table:[%s]", revertSQLContext.getDataSourceName(), revertSQLContext.getActualTable());
-        RevertSQLUnit result = new RevertSQLUnit(generateSQL(revertSQLContext));
-        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
-            result.getRevertParams().add(each.values());
-        }
-        return Optional.of(result);
-    }
-    
-    private String generateSQL(final InsertRevertSQLContext revertSQLContext) {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.DELETE).append(" ");
         builder.append(DefaultKeyword.FROM).append(" ");
@@ -63,6 +56,13 @@ public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
                 builder.append(" ").append(DefaultKeyword.AND).append(" ").append(each).append(" =?");
             }
         }
-        return builder.toString();
+        return Optional.of(builder.toString());
+    }
+    
+    @Override
+    public void fillParameters(final List<Collection<Object>> revertParameters) {
+        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
+            revertParameters.add(each.values());
+        }
     }
 }

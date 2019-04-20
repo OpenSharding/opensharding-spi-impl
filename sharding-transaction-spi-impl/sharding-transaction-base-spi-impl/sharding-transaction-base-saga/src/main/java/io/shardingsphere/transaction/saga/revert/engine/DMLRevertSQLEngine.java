@@ -37,6 +37,12 @@ public class DMLRevertSQLEngine implements RevertSQLEngine {
      */
     @Override
     public Optional<RevertSQLUnit> execute() {
-        return revertSQLExecuteWrapper.generateRevertSQL();
+        Optional<String> sql = revertSQLExecuteWrapper.generateSQL();
+        if (!sql.isPresent()) {
+            return Optional.absent();
+        }
+        RevertSQLUnit result = new RevertSQLUnit(sql.get());
+        revertSQLExecuteWrapper.fillParameters(result.getRevertParams());
+        return Optional.of(result);
     }
 }
