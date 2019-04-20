@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute.insert;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
-import io.shardingsphere.transaction.saga.revert.snapshot.SQLBuilder;
+import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
@@ -39,7 +39,7 @@ public final class InsertRevertSQLBuilder implements RevertSQLBuilder {
     
     private final InsertRevertSQLContext revertSQLContext;
     
-    private SQLBuilder sqlBuilder = new SQLBuilder();
+    private GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     @Override
     public Optional<String> generateSQL() {

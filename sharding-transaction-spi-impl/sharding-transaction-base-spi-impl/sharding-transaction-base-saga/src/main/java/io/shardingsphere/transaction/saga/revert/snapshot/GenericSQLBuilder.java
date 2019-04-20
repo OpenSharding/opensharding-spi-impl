@@ -27,7 +27,7 @@ import java.util.Collection;
  *
  * @author zhaojun
  */
-public final class SQLBuilder {
+public final class GenericSQLBuilder {
     
     private StringBuilder sqlBuilder = new StringBuilder();
     

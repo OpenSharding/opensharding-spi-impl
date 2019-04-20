@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute.update;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.snapshot.SQLBuilder;
+import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
@@ -48,7 +48,7 @@ public final class UpdateRevertSQLBuilder implements RevertSQLBuilder {
     
     private UpdateRevertSQLContext revertSQLContext;
     
-    private final SQLBuilder sqlBuilder = new SQLBuilder();
+    private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     public UpdateRevertSQLBuilder(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
         revertSQLContext = createRevertSQLContext(snapshotAccessor);

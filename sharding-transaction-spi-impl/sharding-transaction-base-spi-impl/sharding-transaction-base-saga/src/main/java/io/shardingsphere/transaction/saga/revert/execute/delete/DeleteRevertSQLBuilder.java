@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute.delete;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.snapshot.SQLBuilder;
+import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
@@ -38,7 +38,7 @@ public final class DeleteRevertSQLBuilder implements RevertSQLBuilder {
     
     private DeleteRevertSQLContext revertSQLContext;
     
-    private final SQLBuilder sqlBuilder = new SQLBuilder();
+    private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     public DeleteRevertSQLBuilder(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
         revertSQLContext = new DeleteRevertSQLContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());

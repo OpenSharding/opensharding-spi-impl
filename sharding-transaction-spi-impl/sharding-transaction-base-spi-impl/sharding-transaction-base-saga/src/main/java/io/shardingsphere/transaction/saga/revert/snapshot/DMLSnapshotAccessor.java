@@ -37,7 +37,7 @@ public class DMLSnapshotAccessor implements SnapshotAccessor {
     @Getter
     private final SnapshotSQLStatement snapshotSQLStatement;
     
-    private SQLBuilder sqlBuilder = new SQLBuilder();
+    private GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     private final Connection connection;
     
