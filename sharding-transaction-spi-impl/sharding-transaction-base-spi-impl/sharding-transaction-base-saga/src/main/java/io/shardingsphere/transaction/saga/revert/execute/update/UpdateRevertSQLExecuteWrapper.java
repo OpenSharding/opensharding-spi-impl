@@ -31,6 +31,7 @@ import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholder
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,8 +48,8 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     
     private UpdateRevertSQLContext revertSQLContext;
     
-    public UpdateRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
-        revertSQLContext = createRevertSQLContext(snapshotDataAccessor);
+    public UpdateRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
+        revertSQLContext = createRevertSQLContext(snapshotAccessor);
     }
     
     private UpdateRevertSQLContext createRevertSQLContext(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
@@ -78,46 +79,54 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
+        RevertSQLUnit result = new RevertSQLUnit(generateSQL());
+        fillParameters(result.getRevertParams());
+        return Optional.of(result);
+    }
+    
+    private String generateSQL() {
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.UPDATE).append(" ");
         builder.append(revertSQLContext.getActualTable()).append(" ");
         builder.append(DefaultKeyword.SET).append(" ");
         int pos = 0;
         int size = revertSQLContext.getUpdateSetAssignments().size();
-        for (String updateColumn : revertSQLContext.getUpdateSetAssignments().keySet()) {
-            builder.append(updateColumn).append(" = ?");
+        for (String each : revertSQLContext.getUpdateSetAssignments().keySet()) {
+            builder.append(each).append(" = ?");
             if (pos < size - 1) {
                 builder.append(",");
             }
             pos++;
         }
         builder.append(" ").append(DefaultKeyword.WHERE).append(" ");
-        return Optional.of(fillWhereWithKeys(revertSQLContext, builder));
-    }
-    
-    private RevertSQLUnit fillWhereWithKeys(final UpdateRevertSQLContext revertSQLContext, final StringBuilder builder) {
-        int pos = 0;
-        for (String key : revertSQLContext.getPrimaryKeyColumns()) {
+        pos = 0;
+        for (String each : revertSQLContext.getPrimaryKeyColumns()) {
             if (pos > 0) {
                 builder.append(" ").append(DefaultKeyword.AND).append(" ");
             }
-            builder.append(key).append(" = ? ");
+            builder.append(each).append(" = ? ");
             pos++;
         }
-        RevertSQLUnit result = new RevertSQLUnit(builder.toString());
+        return builder.toString();
+    }
+    
+    private void fillParameters(final List<Collection<Object>> revertParameters) {
         for (Map<String, Object> each : revertSQLContext.getUndoData()) {
-            List<Object> eachSQLParams = new LinkedList<>();
-            result.getRevertParams().add(eachSQLParams);
-            for (String updateColumn : revertSQLContext.getUpdateSetAssignments().keySet()) {
-                eachSQLParams.add(each.get(updateColumn.toLowerCase()));
-            }
-            for (String key : revertSQLContext.getPrimaryKeyColumns()) {
-                Object value = revertSQLContext.getUpdateSetAssignments().get(key);
-                if (null != value) {
-                    eachSQLParams.add(value);
-                } else {
-                    eachSQLParams.add(each.get(key));
-                }
+            revertParameters.add(getParameters(each));
+        }
+    }
+    
+    private List<Object> getParameters(final Map<String, Object> undoRecord) {
+        List<Object> result = new LinkedList<>();
+        for (String each : revertSQLContext.getUpdateSetAssignments().keySet()) {
+            result.add(undoRecord.get(each.toLowerCase()));
+        }
+        for (String each : revertSQLContext.getPrimaryKeyColumns()) {
+            Object value = revertSQLContext.getUpdateSetAssignments().get(each);
+            if (null != value) {
+                result.add(value);
+            } else {
+                result.add(undoRecord.get(each));
             }
         }
         return result;
