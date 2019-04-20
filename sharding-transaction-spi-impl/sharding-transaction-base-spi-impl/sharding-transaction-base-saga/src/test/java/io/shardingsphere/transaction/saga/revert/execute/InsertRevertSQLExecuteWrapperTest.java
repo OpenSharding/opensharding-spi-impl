@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.revert.execute;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLContext;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLExecuteWrapper;
 import org.hamcrest.CoreMatchers;
@@ -32,6 +31,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -46,6 +46,8 @@ public class InsertRevertSQLExecuteWrapperTest {
     private InsertRevertSQLContext revertSQLContext;
     
     private InsertRevertSQLExecuteWrapper insertRevertSQLExecuteWrapper;
+    
+    private List<Collection<Object>> revertParameters = new LinkedList<>();
     
     @Before
     public void setUp() {
@@ -69,12 +71,18 @@ public class InsertRevertSQLExecuteWrapperTest {
     
     @Test
     public void assertGenerateRevertSQLWithMultiPrimaryKeys() {
-        when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(10,"user_id", "order_id"));
-        Optional<RevertSQLUnit> actual = insertRevertSQLExecuteWrapper.generateRevertSQL();
+        when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(10, "user_id", "order_id"));
+        Optional<String> actual = insertRevertSQLExecuteWrapper.generateSQL();
         assertTrue(actual.isPresent());
-        assertThat(actual.get().getRevertSQL(), is("DELETE FROM t_order_0 WHERE user_id =? AND order_id =?"));
-        assertThat(actual.get().getRevertParams().size(), is(10));
-        Collection<Object> firstItem = actual.get().getRevertParams().iterator().next();
+        assertThat(actual.get(), is("DELETE FROM t_order_0 WHERE user_id =? AND order_id =?"));
+    }
+    
+    @Test
+    public void assertFillParametersWithMultiPrimaryKeys() {
+        when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(10, "user_id", "order_id"));
+        insertRevertSQLExecuteWrapper.fillParameters(revertParameters);
+        assertThat(revertParameters.size(), is(10));
+        Collection<Object> firstItem = revertParameters.iterator().next();
         assertThat(firstItem.size(), is(2));
         Iterator iterator = firstItem.iterator();
         assertThat(iterator.next(), CoreMatchers.<Object>is("user_id_1"));
@@ -82,21 +90,27 @@ public class InsertRevertSQLExecuteWrapperTest {
     }
     
     @Test
-    public void assertGenerateRevertSQLWithSinglePrimaryKey() {
+    public void assertGenerateSQLWithSinglePrimaryKey() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5, "user_id"));
-        Optional<RevertSQLUnit> actual = insertRevertSQLExecuteWrapper.generateRevertSQL();
+        Optional<String> actual = insertRevertSQLExecuteWrapper.generateSQL();
         assertTrue(actual.isPresent());
-        assertThat(actual.get().getRevertSQL(), is("DELETE FROM t_order_0 WHERE user_id =?"));
-        assertThat(actual.get().getRevertParams().size(), is(5));
-        Collection<Object> firstItem = actual.get().getRevertParams().iterator().next();
+        assertThat(actual.get(), is("DELETE FROM t_order_0 WHERE user_id =?"));
+    }
+    
+    @Test
+    public void assertFillParametersWithSinglePrimaryKey() {
+        when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5, "user_id"));
+        insertRevertSQLExecuteWrapper.fillParameters(revertParameters);
+        assertThat(revertParameters.size(), is(5));
+        Collection<Object> firstItem = revertParameters.iterator().next();
         assertThat(firstItem.size(), is(1));
         Iterator iterator = firstItem.iterator();
         assertThat(iterator.next(), CoreMatchers.<Object>is("user_id_1"));
     }
     
     @Test(expected = IllegalStateException.class)
-    public void assertGenerateRevertSQLWithoutPrimaryKeyValue() {
+    public void assertGenerateSQLWithoutPrimaryKeyValue() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5));
-        insertRevertSQLExecuteWrapper.generateRevertSQL();
+        insertRevertSQLExecuteWrapper.generateSQL();
     }
 }
