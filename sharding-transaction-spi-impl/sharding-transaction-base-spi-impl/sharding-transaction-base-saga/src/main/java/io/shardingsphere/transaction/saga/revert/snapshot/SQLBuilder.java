@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.snapshot;
 
+import com.google.common.base.Joiner;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.util.Collection;
@@ -47,16 +48,7 @@ public final class SQLBuilder {
      * @param columns column names
      */
     public void appendColumns(final Collection<String> columns) {
-        boolean firstItem = true;
-        for (String each : columns) {
-            if (firstItem) {
-                sqlBuilder.append(each);
-                firstItem = false;
-            } else {
-                sqlBuilder.append(",").append(" ").append(each);
-            }
-        }
-        sqlBuilder.append(" ");
+        sqlBuilder.append(Joiner.on(", ").join(columns)).append(" ");
     }
     
     /**
