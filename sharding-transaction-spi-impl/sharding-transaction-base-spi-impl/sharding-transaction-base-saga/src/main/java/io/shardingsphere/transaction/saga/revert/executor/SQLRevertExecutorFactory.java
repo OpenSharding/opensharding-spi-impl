@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentMap;
 public final class SQLRevertExecutorFactory {
     
     /**
-     * Create new revert SQL engine.
+     * Create new revert SQL executor.
      *
      * @param logicSQLTransaction logic SQL transaction
      * @param routeUnit route unit
