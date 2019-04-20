@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.execute.delete;
+package io.shardingsphere.transaction.saga.revert.executor.delete;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
-import io.shardingsphere.transaction.saga.revert.execute.SQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;

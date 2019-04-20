@@ -15,12 +15,30 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.execute;
+package io.shardingsphere.transaction.saga.revert.executor;
+
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 
 /**
- * SQL revert context.
+ * SQL revert executor.
  *
  * @author zhaojun
  */
-public interface SQLRevertContext {
+public interface SQLRevertExecutor {
+    
+    /**
+     * Revert SQL.
+     *
+     * @return revert SQL
+     */
+    Optional<String> revertSQL();
+    
+    
+    /**
+     * Fill revert parameters.
+     *
+     * @param revertSQLResult revert SQL result
+     */
+    void fillParameters(RevertSQLResult revertSQLResult);
 }

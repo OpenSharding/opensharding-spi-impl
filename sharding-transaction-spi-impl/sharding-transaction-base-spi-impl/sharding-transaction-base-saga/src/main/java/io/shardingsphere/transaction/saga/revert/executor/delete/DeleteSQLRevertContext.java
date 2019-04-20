@@ -15,30 +15,30 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.execute;
+package io.shardingsphere.transaction.saga.revert.executor.delete;
 
-import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
+import io.shardingsphere.transaction.saga.revert.executor.SQLRevertContext;
+import lombok.Getter;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
- * SQL revert executor.
+ * Delete SQL revert context.
  *
+ * @author duhongjun
  * @author zhaojun
  */
-public interface SQLRevertExecutor {
+@Getter
+public class DeleteSQLRevertContext implements SQLRevertContext {
     
-    /**
-     * Revert SQL.
-     *
-     * @return revert SQL
-     */
-    Optional<String> revertSQL();
+    private final String actualTable;
     
+    private final List<Map<String, Object>> undoData = new LinkedList<>();
     
-    /**
-     * Fill revert parameters.
-     *
-     * @param revertSQLResult revert SQL result
-     */
-    void fillParameters(RevertSQLResult revertSQLResult);
+    public DeleteSQLRevertContext(final String tableName, final List<Map<String, Object>> undoData) {
+        this.actualTable = tableName;
+        this.undoData.addAll(undoData);
+    }
 }

@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.execute;
+package io.shardingsphere.transaction.saga.revert.executor;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
-import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertContext;
-import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertContext;
+import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;

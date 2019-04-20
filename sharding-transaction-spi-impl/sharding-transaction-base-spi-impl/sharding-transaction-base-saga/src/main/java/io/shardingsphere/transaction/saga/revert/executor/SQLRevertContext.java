@@ -15,34 +15,12 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert;
-
-import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
-import lombok.RequiredArgsConstructor;
+package io.shardingsphere.transaction.saga.revert.executor;
 
 /**
- * DML SQL Revert engine.
+ * SQL revert context.
  *
- * @author duhongjun
  * @author zhaojun
  */
-@RequiredArgsConstructor
-public class DMLSQLRevertEngine implements SQLRevertEngine {
-    
-    private final SQLRevertExecutor sqlRevertExecutor;
-    
-    /**
-     * Execute revert.
-     */
-    @Override
-    public Optional<RevertSQLResult> revert() {
-        Optional<String> sql = sqlRevertExecutor.revertSQL();
-        if (!sql.isPresent()) {
-            return Optional.absent();
-        }
-        RevertSQLResult result = new RevertSQLResult(sql.get());
-        sqlRevertExecutor.fillParameters(result);
-        return Optional.of(result);
-    }
+public interface SQLRevertContext {
 }
