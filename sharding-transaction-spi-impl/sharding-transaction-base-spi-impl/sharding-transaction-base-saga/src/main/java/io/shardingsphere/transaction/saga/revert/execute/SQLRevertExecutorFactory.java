@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert;
+package io.shardingsphere.transaction.saga.revert.execute;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
-import io.shardingsphere.transaction.saga.revert.execute.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertContext;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertExecutor;
@@ -47,12 +46,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Saga SQL revert engine factory.
+ * SQL revert executor factory.
  *
  * @author duhongjun
  * @author zhaojun
  */
-public final class SagaSQLRevertEngineFactory {
+public final class SQLRevertExecutorFactory {
     
     /**
      * Create new revert SQL engine.
@@ -63,7 +62,7 @@ public final class SagaSQLRevertEngineFactory {
      * @return revert SQL engine
      */
     @SneakyThrows
-    public static SQLRevertEngine newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
+    public static SQLRevertExecutor newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
         SQLStatement sqlStatement = logicSQLTransaction.getSqlRouteResult().getSqlStatement();
         List<Object> parameters = routeUnit.getSqlUnit().getParameters();
         String actualTableName = getActualTableName(logicSQLTransaction.getSqlRouteResult(), routeUnit);
@@ -82,7 +81,7 @@ public final class SagaSQLRevertEngineFactory {
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
-        return new DMLSQLRevertEngine(sqlRevertExecutor);
+        return sqlRevertExecutor;
     }
     
     private static List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {

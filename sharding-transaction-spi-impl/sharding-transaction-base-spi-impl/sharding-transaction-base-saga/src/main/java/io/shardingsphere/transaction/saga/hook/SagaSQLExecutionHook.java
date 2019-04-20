@@ -27,8 +27,10 @@ import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
-import io.shardingsphere.transaction.saga.revert.SagaSQLRevertEngineFactory;
+import io.shardingsphere.transaction.saga.revert.DMLSQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
+import io.shardingsphere.transaction.saga.revert.execute.SQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.execute.SQLRevertExecutorFactory;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorExceptionHandler;
@@ -82,7 +84,8 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     private void saveUndoDataIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
-            Optional<RevertSQLResult> revertSQLResult = SagaSQLRevertEngineFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap()).revert();
+            SQLRevertExecutor sqlRevertExecutor = SQLRevertExecutorFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap());
+            Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(sqlRevertExecutor).revert();
             this.branchTransaction.setRevertSQLUnit(revertSQLResult.orNull());
             transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLResult.orNull()));
         }
