@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute.update;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
+import io.shardingsphere.transaction.saga.revert.snapshot.SQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
@@ -46,6 +47,8 @@ import java.util.Map.Entry;
 public final class UpdateRevertSQLBuilder implements RevertSQLBuilder {
     
     private UpdateRevertSQLContext revertSQLContext;
+    
+    private final SQLBuilder sqlBuilder = new SQLBuilder();
     
     public UpdateRevertSQLBuilder(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
         revertSQLContext = createRevertSQLContext(snapshotAccessor);
@@ -78,29 +81,11 @@ public final class UpdateRevertSQLBuilder implements RevertSQLBuilder {
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
-        StringBuilder builder = new StringBuilder();
-        builder.append(DefaultKeyword.UPDATE).append(" ");
-        builder.append(revertSQLContext.getActualTable()).append(" ");
-        builder.append(DefaultKeyword.SET).append(" ");
-        int pos = 0;
-        int size = revertSQLContext.getUpdateSetAssignments().size();
-        for (String each : revertSQLContext.getUpdateSetAssignments().keySet()) {
-            builder.append(each).append(" = ?");
-            if (pos < size - 1) {
-                builder.append(",");
-            }
-            pos++;
-        }
-        builder.append(" ").append(DefaultKeyword.WHERE).append(" ");
-        pos = 0;
-        for (String each : revertSQLContext.getPrimaryKeyColumns()) {
-            if (pos > 0) {
-                builder.append(" ").append(DefaultKeyword.AND).append(" ");
-            }
-            builder.append(each).append(" = ? ");
-            pos++;
-        }
-        return Optional.of(builder.toString());
+        sqlBuilder.appendLiterals(DefaultKeyword.UPDATE);
+        sqlBuilder.appendLiterals(revertSQLContext.getActualTable());
+        sqlBuilder.appendUpdateSetAssignments(revertSQLContext.getUpdateSetAssignments().keySet());
+        sqlBuilder.appendWhereCondition(revertSQLContext.getPrimaryKeyColumns());
+        return Optional.of(sqlBuilder.toSQL());
     }
     
     @Override

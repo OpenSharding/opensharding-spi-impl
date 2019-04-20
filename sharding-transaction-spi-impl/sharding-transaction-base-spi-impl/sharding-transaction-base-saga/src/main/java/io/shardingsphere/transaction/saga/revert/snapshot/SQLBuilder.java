@@ -60,6 +60,23 @@ public final class SQLBuilder {
     }
     
     /**
+     * Append update set assignments.
+     *
+     * @param columns columns
+     */
+    public void appendUpdateSetAssignments(final Collection<String> columns) {
+        appendLiterals(DefaultKeyword.SET);
+        int pos = 0;
+        for (String each : columns) {
+            sqlBuilder.append(each).append(" = ?");
+            if (pos < columns.size() - 1) {
+                sqlBuilder.append(",");
+            }
+            pos++;
+        }
+    }
+    
+    /**
      * Append where condition.
      *
      * @param columns columns
