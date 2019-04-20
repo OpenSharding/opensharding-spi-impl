@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertContext;
-import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertWrapper;
+import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertExecutor;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,19 +40,19 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InsertSQLRevertWrapperTest {
+public class InsertSQLRevertExecutorTest {
     
     @Mock
     private InsertSQLRevertContext revertSQLContext;
     
-    private InsertSQLRevertWrapper insertSQLRewriteWrapper;
+    private InsertSQLRevertExecutor insertSQLRevertExecutor;
     
     private RevertSQLResult revertSQLResult = new RevertSQLResult("");
     
     @Before
     public void setUp() {
         when(revertSQLContext.getActualTable()).thenReturn("t_order_0");
-        insertSQLRewriteWrapper = new InsertSQLRevertWrapper(revertSQLContext);
+        insertSQLRevertExecutor = new InsertSQLRevertExecutor(revertSQLContext);
     }
     
     private Collection<Map<String, Object>> mockPrimaryKeyInsertValues(final int count, final String... primaryKeys) {
@@ -72,7 +72,7 @@ public class InsertSQLRevertWrapperTest {
     @Test
     public void assertGenerateRevertSQLWithMultiPrimaryKeys() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(10, "user_id", "order_id"));
-        Optional<String> actual = insertSQLRewriteWrapper.revertSQL();
+        Optional<String> actual = insertSQLRevertExecutor.revertSQL();
         assertTrue(actual.isPresent());
         assertThat(actual.get(), is("DELETE FROM t_order_0 WHERE user_id =? AND order_id =?"));
     }
@@ -80,7 +80,7 @@ public class InsertSQLRevertWrapperTest {
     @Test
     public void assertFillParametersWithMultiPrimaryKeys() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(10, "user_id", "order_id"));
-        insertSQLRewriteWrapper.fillParameters(revertSQLResult);
+        insertSQLRevertExecutor.fillParameters(revertSQLResult);
         assertThat(revertSQLResult.getParameters().size(), is(10));
         Collection<Object> firstItem = revertSQLResult.getParameters().iterator().next();
         assertThat(firstItem.size(), is(2));
@@ -92,7 +92,7 @@ public class InsertSQLRevertWrapperTest {
     @Test
     public void assertGenerateSQLWithSinglePrimaryKey() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5, "user_id"));
-        Optional<String> actual = insertSQLRewriteWrapper.revertSQL();
+        Optional<String> actual = insertSQLRevertExecutor.revertSQL();
         assertTrue(actual.isPresent());
         assertThat(actual.get(), is("DELETE FROM t_order_0 WHERE user_id =?"));
     }
@@ -100,7 +100,7 @@ public class InsertSQLRevertWrapperTest {
     @Test
     public void assertFillParametersWithSinglePrimaryKey() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5, "user_id"));
-        insertSQLRewriteWrapper.fillParameters(revertSQLResult);
+        insertSQLRevertExecutor.fillParameters(revertSQLResult);
         assertThat(revertSQLResult.getParameters().size(), is(5));
         Collection<Object> firstItem = revertSQLResult.getParameters().iterator().next();
         assertThat(firstItem.size(), is(1));
@@ -111,6 +111,6 @@ public class InsertSQLRevertWrapperTest {
     @Test(expected = IllegalStateException.class)
     public void assertGenerateSQLWithoutPrimaryKeyValue() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5));
-        insertSQLRewriteWrapper.revertSQL();
+        insertSQLRevertExecutor.revertSQL();
     }
 }

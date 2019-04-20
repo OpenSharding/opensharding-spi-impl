@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute.insert;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
-import io.shardingsphere.transaction.saga.revert.execute.SQLRevertWrapper;
+import io.shardingsphere.transaction.saga.revert.execute.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
@@ -28,13 +28,13 @@ import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import java.util.Map;
 
 /**
- * Insert SQL revert wrapper.
+ * Insert SQL revert executor.
  *
  * @author duhongjun
  * @author zhaojun
  */
 @RequiredArgsConstructor
-public final class InsertSQLRevertWrapper implements SQLRevertWrapper {
+public final class InsertSQLRevertExecutor implements SQLRevertExecutor {
     
     private final InsertSQLRevertContext sqlRevertContext;
     

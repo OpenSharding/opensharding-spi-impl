@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
-import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteSQLRevertWrapper;
+import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.SnapshotSQLStatement;
 import org.junit.Before;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DeleteSQLRevertWrapperTest {
+public class DeleteSQLRevertExecutorTest {
     
     @Mock
     private DMLSnapshotAccessor snapshotAccessor;
@@ -49,7 +49,7 @@ public class DeleteSQLRevertWrapperTest {
     @Mock
     private SnapshotSQLStatement snapshotSQLStatement;
     
-    private DeleteSQLRevertWrapper deleteSQLRevertWrapper;
+    private DeleteSQLRevertExecutor deleteSQLRevertExecutor;
     
     private List<Map<String, Object>> undoData = Lists.newLinkedList();
     
@@ -75,8 +75,8 @@ public class DeleteSQLRevertWrapperTest {
     @Test
     public void assertGenerateSQL() throws SQLException {
         when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
-        deleteSQLRevertWrapper = new DeleteSQLRevertWrapper(snapshotAccessor);
-        Optional<String> actual = deleteSQLRevertWrapper.revertSQL();
+        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
+        Optional<String> actual = deleteSQLRevertExecutor.revertSQL();
         assertTrue(actual.isPresent());
         assertThat(actual.get(), is("INSERT INTO t_order_0 VALUES (?,?,?)"));
     }
@@ -84,8 +84,8 @@ public class DeleteSQLRevertWrapperTest {
     @Test
     public void assertFillParameters() throws SQLException {
         when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
-        deleteSQLRevertWrapper = new DeleteSQLRevertWrapper(snapshotAccessor);
-        deleteSQLRevertWrapper.fillParameters(revertSQLResult);
+        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
+        deleteSQLRevertExecutor.fillParameters(revertSQLResult);
         assertThat(revertSQLResult.getParameters().size(), is(10));
         assertThat(revertSQLResult.getParameters().iterator().next().size(), is(3));
     }
@@ -93,8 +93,8 @@ public class DeleteSQLRevertWrapperTest {
     @Test
     public void assertGenerateRevertSQLWithoutUndoData() throws SQLException {
         when(snapshotAccessor.queryUndoData()).thenReturn(Lists.<Map<String, Object>>newLinkedList());
-        deleteSQLRevertWrapper = new DeleteSQLRevertWrapper(snapshotAccessor);
-        Optional<String> actual = deleteSQLRevertWrapper.revertSQL();
+        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
+        Optional<String> actual = deleteSQLRevertExecutor.revertSQL();
         assertFalse(actual.isPresent());
     }
 }
