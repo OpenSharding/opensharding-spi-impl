@@ -18,9 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute;
 
 import com.google.common.base.Optional;
-
-import java.util.Collection;
-import java.util.List;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 
 /**
  * SQL rewrite wrapper.
@@ -40,7 +38,7 @@ public interface SQLRewriteWrapper {
     /**
      * Fill revert parameters.
      *
-     * @param revertParameters revert parameters
+     * @param revertSQLResult revert SQL result
      */
-    void fillParameters(List<Collection<Object>> revertParameters);
+    void fillParameters(RevertSQLResult revertSQLResult);
 }

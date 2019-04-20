@@ -19,13 +19,12 @@ package io.shardingsphere.transaction.saga.revert.execute.insert;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.execute.SQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,9 +52,9 @@ public final class InsertSQLRewriteWrapper implements SQLRewriteWrapper {
     }
     
     @Override
-    public void fillParameters(final List<Collection<Object>> revertParameters) {
+    public void fillParameters(final RevertSQLResult revertSQLResult) {
         for (Map<String, Object> each : sqlRevertContext.getPrimaryKeyInsertValues()) {
-            revertParameters.add(each.values());
+            revertSQLResult.getParameters().add(each.values());
         }
     }
 }

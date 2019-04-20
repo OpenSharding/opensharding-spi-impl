@@ -18,6 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute.delete;
 
 import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.execute.SQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
@@ -57,9 +58,9 @@ public final class DeleteSQLRewriteWrapper implements SQLRewriteWrapper {
     }
     
     @Override
-    public void fillParameters(final List<Collection<Object>> revertParameters) {
+    public void fillParameters(final RevertSQLResult revertSQLResult) {
         for (Map<String, Object> each : sqlRevertContext.getUndoData()) {
-            revertParameters.add(each.values());
+            revertSQLResult.getParameters().add(each.values());
         }
     }
 }

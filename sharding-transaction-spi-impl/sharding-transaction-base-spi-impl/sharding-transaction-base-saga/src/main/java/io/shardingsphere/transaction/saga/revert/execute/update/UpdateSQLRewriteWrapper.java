@@ -18,6 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute.update;
 
 import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.execute.SQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
@@ -31,7 +32,6 @@ import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholder
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,9 +89,9 @@ public final class UpdateSQLRewriteWrapper implements SQLRewriteWrapper {
     }
     
     @Override
-    public void fillParameters(final List<Collection<Object>> revertParameters) {
+    public void fillParameters(final RevertSQLResult revertSQLResult) {
         for (Map<String, Object> each : sqlRevertContext.getUndoData()) {
-            revertParameters.add(getParameters(each));
+            revertSQLResult.getParameters().add(getParameters(each));
         }
     }
     

@@ -42,7 +42,7 @@ public class DMLRevertSQLRewriteEngine implements RevertSQLRewriteEngine {
             return Optional.absent();
         }
         RevertSQLResult result = new RevertSQLResult(sql.get());
-        sqlRewriteWrapper.fillParameters(result.getParameters());
+        sqlRewriteWrapper.fillParameters(result);
         return Optional.of(result);
     }
 }
