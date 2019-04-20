@@ -78,7 +78,6 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
-    
         StringBuilder builder = new StringBuilder();
         builder.append(DefaultKeyword.UPDATE).append(" ");
         builder.append(revertSQLContext.getActualTable()).append(" ");
