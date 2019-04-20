@@ -40,13 +40,13 @@ public final class SQLBuilder {
     }
     
     /**
-     * Append Query column names.
+     * Append columns.
      *
-     * @param columnNames column names
+     * @param columns column names
      */
-    public void appendQueryColumnNames(final Collection<String> columnNames) {
+    public void appendColumns(final Collection<String> columns) {
         boolean firstItem = true;
-        for (String each : columnNames) {
+        for (String each : columns) {
             if (firstItem) {
                 sqlBuilder.append(each);
                 firstItem = false;
