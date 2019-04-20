@@ -45,31 +45,32 @@ import java.util.Map.Entry;
  */
 public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper {
     
-    private final DMLSnapshotAccessor snapshotDataAccessor;
-    
     private UpdateRevertSQLContext revertSQLContext;
     
     public UpdateRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
-        this.snapshotDataAccessor = snapshotDataAccessor;
-        UpdateSnapshotSQLStatement snapshotSQLStatement = (UpdateSnapshotSQLStatement) snapshotDataAccessor.getSnapshotSQLStatement();
-        revertSQLContext = createRevertSQLContext(snapshotSQLStatement.getActualTableName(), snapshotSQLStatement.getUpdateStatement(),
-            snapshotSQLStatement.getActualSQLParameters(), snapshotSQLStatement.getPrimaryKeyColumns());
+        revertSQLContext = createRevertSQLContext(snapshotDataAccessor);
     }
     
-    private UpdateRevertSQLContext createRevertSQLContext(final String actualTableName, final UpdateStatement updateStatement,
-                                                          final List<Object> actualSQLParameters, final List<String> primaryKeyColumns) throws SQLException {
-        List<Map<String, Object>> undoData = snapshotDataAccessor.queryUndoData();
-        Map<String, Object> updateColumns = new LinkedHashMap<>();
+    private UpdateRevertSQLContext createRevertSQLContext(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
+        UpdateSnapshotSQLStatement snapshotSQLStatement = (UpdateSnapshotSQLStatement) snapshotAccessor.getSnapshotSQLStatement();
+        UpdateStatement updateStatement = snapshotSQLStatement.getUpdateStatement();
+        List<Object> parameters = (List<Object>) snapshotSQLStatement.getParameters();
+        Map<String, Object> updateSetAssignments = getUpdateSetAssignments(updateStatement, parameters);
+        return new UpdateRevertSQLContext(snapshotSQLStatement.getTableName(), snapshotAccessor.queryUndoData(), updateSetAssignments, snapshotSQLStatement.getPrimaryKeyColumns(), parameters);
+    }
+    
+    private Map<String, Object> getUpdateSetAssignments(final UpdateStatement updateStatement, final List<Object> parameters) {
+        Map<String, Object> result = new LinkedHashMap<>();
         for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
             if (entry.getValue() instanceof SQLPlaceholderExpression) {
-                updateColumns.put(entry.getKey().getName(), actualSQLParameters.get(((SQLPlaceholderExpression) entry.getValue()).getIndex()));
+                result.put(entry.getKey().getName(), parameters.get(((SQLPlaceholderExpression) entry.getValue()).getIndex()));
             } else if (entry.getValue() instanceof SQLTextExpression) {
-                updateColumns.put(entry.getKey().getName(), ((SQLTextExpression) entry.getValue()).getText());
+                result.put(entry.getKey().getName(), ((SQLTextExpression) entry.getValue()).getText());
             } else if (entry.getValue() instanceof SQLNumberExpression) {
-                updateColumns.put(entry.getKey().getName(), ((SQLNumberExpression) entry.getValue()).getNumber());
+                result.put(entry.getKey().getName(), ((SQLNumberExpression) entry.getValue()).getNumber());
             }
         }
-        return new UpdateRevertSQLContext(actualTableName, undoData, updateColumns, primaryKeyColumns, actualSQLParameters);
+        return result;
     }
     
     @Override
@@ -82,8 +83,8 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         builder.append(revertSQLContext.getActualTable()).append(" ");
         builder.append(DefaultKeyword.SET).append(" ");
         int pos = 0;
-        int size = revertSQLContext.getUpdateColumns().size();
-        for (String updateColumn : revertSQLContext.getUpdateColumns().keySet()) {
+        int size = revertSQLContext.getUpdateSetAssignments().size();
+        for (String updateColumn : revertSQLContext.getUpdateSetAssignments().keySet()) {
             builder.append(updateColumn).append(" = ?");
             if (pos < size - 1) {
                 builder.append(",");
@@ -107,11 +108,11 @@ public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
         for (Map<String, Object> each : revertSQLContext.getUndoData()) {
             List<Object> eachSQLParams = new LinkedList<>();
             result.getRevertParams().add(eachSQLParams);
-            for (String updateColumn : revertSQLContext.getUpdateColumns().keySet()) {
+            for (String updateColumn : revertSQLContext.getUpdateSetAssignments().keySet()) {
                 eachSQLParams.add(each.get(updateColumn.toLowerCase()));
             }
             for (String key : revertSQLContext.getPrimaryKeyColumns()) {
-                Object value = revertSQLContext.getUpdateColumns().get(key);
+                Object value = revertSQLContext.getUpdateSetAssignments().get(key);
                 if (null != value) {
                     eachSQLParams.add(value);
                 } else {

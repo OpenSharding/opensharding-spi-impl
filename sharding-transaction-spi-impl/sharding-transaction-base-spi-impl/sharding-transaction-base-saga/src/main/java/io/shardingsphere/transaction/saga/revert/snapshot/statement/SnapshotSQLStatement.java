@@ -32,7 +32,7 @@ import java.util.LinkedList;
 @Getter
 public class SnapshotSQLStatement {
     
-    private final String actualTableName;
+    private final String tableName;
     
     private final Collection<Object> parameters;
     

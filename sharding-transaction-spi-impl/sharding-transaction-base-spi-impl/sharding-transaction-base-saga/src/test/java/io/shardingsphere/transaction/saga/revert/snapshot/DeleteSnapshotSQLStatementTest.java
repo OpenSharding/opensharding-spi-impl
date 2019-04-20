@@ -56,7 +56,7 @@ public class DeleteSnapshotSQLStatementTest {
     @Test
     public void assertDeleteSnapshotSQLStatement() {
         actualSQLParameters.add(10);
-        assertThat(snapshotSQLStatement.getActualTableName(), is("t_order_0"));
+        assertThat(snapshotSQLStatement.getTableName(), is("t_order_0"));
         assertThat(snapshotSQLStatement.getQueryColumnNames(), CoreMatchers.<Collection<String>>is(Collections.singleton("*")));
         assertThat(snapshotSQLStatement.getParameters().size(), is(1));
         assertThat(snapshotSQLStatement.getParameters().iterator().next(), CoreMatchers.<Object>is(10));

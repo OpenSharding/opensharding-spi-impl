@@ -38,14 +38,11 @@ public final class UpdateSnapshotSQLStatement extends SnapshotSQLStatement {
     
     private final UpdateStatement updateStatement;
     
-    private final List<Object> actualSQLParameters;
-    
     private final List<String> primaryKeyColumns;
     
-    public UpdateSnapshotSQLStatement(final String actualTableName, final UpdateStatement updateStatement, final List<Object> actualSQLParameters, final List<String> primaryKeyColumns) {
-        super(actualTableName, actualSQLParameters);
+    public UpdateSnapshotSQLStatement(final String tableName, final UpdateStatement updateStatement, final List<Object> parameters, final List<String> primaryKeyColumns) {
+        super(tableName, parameters);
         this.updateStatement = updateStatement;
-        this.actualSQLParameters = actualSQLParameters;
         this.primaryKeyColumns = primaryKeyColumns;
     }
     
@@ -80,13 +77,4 @@ public final class UpdateSnapshotSQLStatement extends SnapshotSQLStatement {
     public String getWhereClause() {
         return 0 < updateStatement.getWhereStartIndex() ? updateStatement.getLogicSQL().substring(updateStatement.getWhereStartIndex(), updateStatement.getWhereStopIndex() + 1) : "";
     }
-    
-//    @Override
-//    public Collection<Object> getParameters() {
-//        Collection<Object> result = new LinkedList<>();
-//        for (int i = updateStatement.getWhereParameterStartIndex(); i <= updateStatement.getWhereParameterEndIndex(); i++) {
-//            result.add(actualSQLParameters.get(i));
-//        }
-//        return result;
-//    }
 }

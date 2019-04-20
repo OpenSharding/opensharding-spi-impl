@@ -55,7 +55,7 @@ public class DMLSnapshotAccessor implements SnapshotAccessor {
         sqlBuilder.appendLiterals(DefaultKeyword.SELECT);
         sqlBuilder.appendQueryColumnNames(snapshotSQLStatement.getQueryColumnNames());
         sqlBuilder.appendLiterals(DefaultKeyword.FROM);
-        sqlBuilder.appendLiterals(snapshotSQLStatement.getActualTableName());
+        sqlBuilder.appendLiterals(snapshotSQLStatement.getTableName());
         sqlBuilder.appendLiterals(snapshotSQLStatement.getTableAlias());
         sqlBuilder.appendLiterals(snapshotSQLStatement.getWhereClause());
         return sqlBuilder.toSQL();

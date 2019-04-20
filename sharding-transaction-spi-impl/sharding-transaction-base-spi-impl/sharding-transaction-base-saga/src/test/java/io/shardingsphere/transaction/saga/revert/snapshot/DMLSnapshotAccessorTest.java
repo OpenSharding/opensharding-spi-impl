@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.revert.snapshot;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.SnapshotSQLStatement;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +59,7 @@ public class DMLSnapshotAccessorTest {
     @Before
     public void setUp() throws SQLException {
         dmlSnapshotAccessor = new DMLSnapshotAccessor(snapshotSQLStatement, connection);
-        when(snapshotSQLStatement.getActualTableName()).thenReturn("t_order_0");
+        when(snapshotSQLStatement.getTableName()).thenReturn("t_order_0");
         when(snapshotSQLStatement.getParameters()).thenReturn(Lists.newLinkedList());
         when(snapshotSQLStatement.getQueryColumnNames()).thenReturn(Collections.singleton("*"));
         when(snapshotSQLStatement.getTableAlias()).thenReturn("t");

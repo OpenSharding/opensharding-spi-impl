@@ -55,7 +55,7 @@ public class DeleteRevertSQLExecuteWrapperTest {
     
     @Before
     public void setUp() {
-        when(snapshotSQLStatement.getActualTableName()).thenReturn("t_order_0");
+        when(snapshotSQLStatement.getTableName()).thenReturn("t_order_0");
         when(snapshotAccessor.getSnapshotSQLStatement()).thenReturn(snapshotSQLStatement);
         addUndoData();
     }

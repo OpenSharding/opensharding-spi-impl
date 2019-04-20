@@ -38,17 +38,17 @@ public final class UpdateRevertSQLContext implements RevertSQLContext {
     
     private final List<Map<String, Object>> undoData = new LinkedList<>();
     
-    private final Map<String, Object> updateColumns = new LinkedHashMap<>();
+    private final Map<String, Object> updateSetAssignments = new LinkedHashMap<>();
     
     private final List<String> primaryKeyColumns = new LinkedList<>();
     
     private final List<Object> parameters = new LinkedList<>();
     
-    public UpdateRevertSQLContext(final String tableName, final List<Map<String, Object>> undoData, final Map<String, Object> updateColumns, final List<String> primaryKeyColumns,
+    public UpdateRevertSQLContext(final String tableName, final List<Map<String, Object>> undoData, final Map<String, Object> updateSetAssignments, final List<String> primaryKeyColumns,
                                   final List<Object> parameters) {
         this.actualTable = tableName;
         this.undoData.addAll(undoData);
-        this.updateColumns.putAll(updateColumns);
+        this.updateSetAssignments.putAll(updateSetAssignments);
         this.primaryKeyColumns.addAll(primaryKeyColumns);
         this.parameters.addAll(parameters);
     }

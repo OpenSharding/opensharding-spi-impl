@@ -37,7 +37,7 @@ public final class DeleteRevertSQLExecuteWrapper implements RevertSQLExecuteWrap
     private DeleteRevertSQLContext revertSQLContext;
     
     public DeleteRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
-        revertSQLContext = new DeleteRevertSQLContext(snapshotDataAccessor.getSnapshotSQLStatement().getActualTableName(), snapshotDataAccessor.queryUndoData());
+        revertSQLContext = new DeleteRevertSQLContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
     }
     
     @Override
