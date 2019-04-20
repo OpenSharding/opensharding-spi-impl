@@ -81,6 +81,23 @@ public final class SQLBuilder {
     }
     
     /**
+     * Append insert values.
+     *
+     * @param placeholderCount placeholder count
+     */
+    public void appendInsertValues(final int placeholderCount) {
+        sqlBuilder.append(DefaultKeyword.VALUES).append(" ");
+        sqlBuilder.append("(");
+        for (int i = 0; i < placeholderCount; i++) {
+            sqlBuilder.append("?");
+            if (i < placeholderCount - 1) {
+                sqlBuilder.append(",");
+            }
+        }
+        sqlBuilder.append(")");
+    }
+    
+    /**
      * Generate SQL.
      *
      * @return snapshot query SQL

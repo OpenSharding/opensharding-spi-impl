@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute.delete;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
+import io.shardingsphere.transaction.saga.revert.snapshot.SQLBuilder;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
@@ -37,6 +38,8 @@ public final class DeleteRevertSQLBuilder implements RevertSQLBuilder {
     
     private DeleteRevertSQLContext revertSQLContext;
     
+    private final SQLBuilder sqlBuilder = new SQLBuilder();
+    
     public DeleteRevertSQLBuilder(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
         revertSQLContext = new DeleteRevertSQLContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
     }
@@ -46,21 +49,11 @@ public final class DeleteRevertSQLBuilder implements RevertSQLBuilder {
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }
-        StringBuilder builder = new StringBuilder();
-        builder.append(DefaultKeyword.INSERT).append(" ");
-        builder.append(DefaultKeyword.INTO).append(" ");
-        builder.append(revertSQLContext.getActualTable()).append(" ");
-        builder.append(DefaultKeyword.VALUES).append(" ");
-        builder.append("(");
-        int columnCount = revertSQLContext.getUndoData().get(0).size();
-        for (int i = 0; i < columnCount; i++) {
-            builder.append("?");
-            if (i < columnCount - 1) {
-                builder.append(",");
-            }
-        }
-        builder.append(")");
-        return Optional.of(builder.toString());
+        sqlBuilder.appendLiterals(DefaultKeyword.INSERT);
+        sqlBuilder.appendLiterals(DefaultKeyword.INTO);
+        sqlBuilder.appendLiterals(revertSQLContext.getActualTable());
+        sqlBuilder.appendInsertValues(revertSQLContext.getUndoData().iterator().next().size());
+        return Optional.of(sqlBuilder.toSQL());
     }
     
     @Override
