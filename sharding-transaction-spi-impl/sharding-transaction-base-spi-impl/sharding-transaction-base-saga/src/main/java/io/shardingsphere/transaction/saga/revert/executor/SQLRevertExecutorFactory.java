@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.revert.executor;
 
-import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertContext;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
@@ -35,12 +34,12 @@ import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatem
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
-import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.core.route.type.RoutingTable;
 import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -54,20 +53,18 @@ public final class SQLRevertExecutorFactory {
     /**
      * Create new revert SQL executor.
      *
-     * @param sqlRouteResult logic SQL transaction
      * @param routeUnit route unit
      * @return revert SQL engine
      */
     @SneakyThrows
-    public static SQLRevertExecutor newInstance(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit, final TableMetaData tableMetaData, final Connection connection) {
-        SQLStatement sqlStatement = sqlRouteResult.getSqlStatement();
+    public static SQLRevertExecutor newInstance(final SQLStatement sqlStatement, final Collection<TableUnit> tableUnits, InsertOptimizeResult insertOptimizeResult,
+                                                final RouteUnit routeUnit, final TableMetaData tableMetaData, final Connection connection) {
         List<Object> parameters = routeUnit.getSqlUnit().getParameters();
-        String actualTableName = getActualTableName(sqlRouteResult, routeUnit);
+        String actualTableName = getActualTableName(sqlStatement, tableUnits, routeUnit);
         List<String> primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
         SQLRevertExecutor sqlRevertExecutor;
         if (sqlStatement instanceof InsertStatement) {
-            Optional<InsertOptimizeResult> insertOptimizeResult = sqlRouteResult.getOptimizeResult().getInsertOptimizeResult();
-            sqlRevertExecutor = new InsertSQLRevertExecutor(new InsertSQLRevertContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull()));
+            sqlRevertExecutor = new InsertSQLRevertExecutor(new InsertSQLRevertContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult));
         } else if (sqlStatement instanceof DeleteStatement) {
             DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(actualTableName, (DeleteStatement) sqlStatement, parameters);
             sqlRevertExecutor = new DeleteSQLRevertExecutor(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
@@ -93,10 +90,10 @@ public final class SQLRevertExecutorFactory {
         return result;
     }
     
-    private static String getActualTableName(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit) {
-        for (TableUnit each : sqlRouteResult.getRoutingResult().getTableUnits().getTableUnits()) {
+    private static String getActualTableName(final SQLStatement sqlStatement, final Collection<TableUnit> tableUnits, final RouteUnit routeUnit) {
+        for (TableUnit each : tableUnits) {
             if (each.getDataSourceName().equalsIgnoreCase(routeUnit.getDataSourceName())) {
-                return getAvailableActualTableName(each, sqlRouteResult.getSqlStatement().getTables().getSingleTableName());
+                return getAvailableActualTableName(each, sqlStatement.getTables().getSingleTableName());
             }
         }
         throw new ShardingException(String.format("Could not find actual table name of [%s]", routeUnit));
