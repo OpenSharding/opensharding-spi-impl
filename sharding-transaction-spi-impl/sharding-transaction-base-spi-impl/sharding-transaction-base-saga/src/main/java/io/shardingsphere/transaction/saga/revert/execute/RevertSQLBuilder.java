@@ -23,11 +23,11 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Revert SQL execute wrapper.
+ * Revert SQL builder.
  *
  * @author zhaojun
  */
-public interface RevertSQLExecuteWrapper {
+public interface RevertSQLBuilder {
     
     /**
      * Generate revert SQL.

@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute.update;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
@@ -38,16 +38,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Update revert SQL execute wrapper.
+ * Update revert SQL builder.
  *
  * @author duhongjun
  * @author zhaojun
  */
-public final class UpdateRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper {
+public final class UpdateRevertSQLBuilder implements RevertSQLBuilder {
     
     private UpdateRevertSQLContext revertSQLContext;
     
-    public UpdateRevertSQLExecuteWrapper(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
+    public UpdateRevertSQLBuilder(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
         revertSQLContext = createRevertSQLContext(snapshotAccessor);
     }
     

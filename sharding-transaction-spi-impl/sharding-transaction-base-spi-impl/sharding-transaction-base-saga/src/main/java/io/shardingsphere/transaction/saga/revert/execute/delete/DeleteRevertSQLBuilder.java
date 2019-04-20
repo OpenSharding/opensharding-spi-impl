@@ -15,53 +15,57 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.execute.insert;
+package io.shardingsphere.transaction.saga.revert.execute.delete;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
-import lombok.RequiredArgsConstructor;
+import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
+import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Insert revert SQL execute wrapper.
+ * Delete revert SQL builder.
  *
  * @author duhongjun
  * @author zhaojun
  */
-@RequiredArgsConstructor
-public final class InsertRevertSQLExecuteWrapper implements RevertSQLExecuteWrapper {
+public final class DeleteRevertSQLBuilder implements RevertSQLBuilder {
     
-    private final InsertRevertSQLContext revertSQLContext;
+    private DeleteRevertSQLContext revertSQLContext;
+    
+    public DeleteRevertSQLBuilder(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
+        revertSQLContext = new DeleteRevertSQLContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
+    }
     
     @Override
     public Optional<String> generateSQL() {
-        Preconditions.checkState(!revertSQLContext.getPrimaryKeyInsertValues().isEmpty(),
-            "Could not found primary key values. datasource:[%s], table:[%s]", revertSQLContext.getDataSourceName(), revertSQLContext.getActualTable());
+        if (revertSQLContext.getUndoData().isEmpty()) {
+            return Optional.absent();
+        }
         StringBuilder builder = new StringBuilder();
-        builder.append(DefaultKeyword.DELETE).append(" ");
-        builder.append(DefaultKeyword.FROM).append(" ");
+        builder.append(DefaultKeyword.INSERT).append(" ");
+        builder.append(DefaultKeyword.INTO).append(" ");
         builder.append(revertSQLContext.getActualTable()).append(" ");
-        builder.append(DefaultKeyword.WHERE).append(" ");
-        boolean firstItem = true;
-        for (String each : revertSQLContext.getPrimaryKeyInsertValues().iterator().next().keySet()) {
-            if (firstItem) {
-                firstItem = false;
-                builder.append(each).append(" =?");
-            } else {
-                builder.append(" ").append(DefaultKeyword.AND).append(" ").append(each).append(" =?");
+        builder.append(DefaultKeyword.VALUES).append(" ");
+        builder.append("(");
+        int columnCount = revertSQLContext.getUndoData().get(0).size();
+        for (int i = 0; i < columnCount; i++) {
+            builder.append("?");
+            if (i < columnCount - 1) {
+                builder.append(",");
             }
         }
+        builder.append(")");
         return Optional.of(builder.toString());
     }
     
     @Override
     public void fillParameters(final List<Collection<Object>> revertParameters) {
-        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
+        for (Map<String, Object> each : revertSQLContext.getUndoData()) {
             revertParameters.add(each.values());
         }
     }

@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.engine;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLExecuteWrapper;
+import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,19 +30,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DMLRevertSQLEngine implements RevertSQLEngine {
     
-    private final RevertSQLExecuteWrapper revertSQLExecuteWrapper;
+    private final RevertSQLBuilder revertSQLBuilder;
     
     /**
      * Execute revert SQL.
      */
     @Override
     public Optional<RevertSQLUnit> execute() {
-        Optional<String> sql = revertSQLExecuteWrapper.generateSQL();
+        Optional<String> sql = revertSQLBuilder.generateSQL();
         if (!sql.isPresent()) {
             return Optional.absent();
         }
         RevertSQLUnit result = new RevertSQLUnit(sql.get());
-        revertSQLExecuteWrapper.fillParameters(result.getRevertParams());
+        revertSQLBuilder.fillParameters(result.getRevertParams());
         return Optional.of(result);
     }
 }
