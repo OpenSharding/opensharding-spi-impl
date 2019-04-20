@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.executor.update;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
@@ -51,6 +52,13 @@ public final class UpdateSQLRevertExecutor implements SQLRevertExecutor {
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     public UpdateSQLRevertExecutor(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
+        sqlRevertContext = createRevertSQLContext(snapshotAccessor);
+    }
+    
+    public UpdateSQLRevertExecutor(final SQLRevertExecutorContext context) throws SQLException {
+        UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(context.getActualTableName(),
+            (UpdateStatement) context.getSqlStatement(), context.getParameters(), context.getPrimaryKeyColumns());
+        DMLSnapshotAccessor snapshotAccessor = new DMLSnapshotAccessor(snapshotSQLStatement, context.getConnection());
         sqlRevertContext = createRevertSQLContext(snapshotAccessor);
     }
     

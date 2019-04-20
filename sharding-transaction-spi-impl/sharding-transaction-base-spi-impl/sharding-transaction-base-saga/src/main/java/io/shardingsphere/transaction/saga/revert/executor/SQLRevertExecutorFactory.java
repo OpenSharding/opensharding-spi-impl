@@ -20,8 +20,6 @@ package io.shardingsphere.transaction.saga.revert.executor;
 import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.update.UpdateSQLRevertExecutor;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
@@ -51,9 +49,7 @@ public final class SQLRevertExecutorFactory {
         } else if (sqlStatement instanceof DeleteStatement) {
             sqlRevertExecutor = new DeleteSQLRevertExecutor(context);
         } else if (sqlStatement instanceof UpdateStatement) {
-            UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(context.getActualTableName(),
-                (UpdateStatement) sqlStatement, context.getParameters(), context.getPrimaryKeyColumns());
-            sqlRevertExecutor = new UpdateSQLRevertExecutor(new DMLSnapshotAccessor(snapshotSQLStatement, context.getConnection()));
+            sqlRevertExecutor = new UpdateSQLRevertExecutor(context);
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
