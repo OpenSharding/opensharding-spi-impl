@@ -33,7 +33,7 @@ public class DMLSQLRevertEngine implements SQLRevertEngine {
     private final SQLRevertExecutor sqlRevertExecutor;
     
     /**
-     * Execute revert SQL.
+     * Execute revert.
      */
     @Override
     public Optional<RevertSQLResult> revert() {
