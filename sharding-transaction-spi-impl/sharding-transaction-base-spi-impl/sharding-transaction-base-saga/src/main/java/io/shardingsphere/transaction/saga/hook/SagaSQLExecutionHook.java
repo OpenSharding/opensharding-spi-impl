@@ -29,19 +29,16 @@ import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
 import io.shardingsphere.transaction.saga.revert.DMLSQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
-import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorFactory;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
-import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLUnit;
-import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -89,11 +86,8 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
             Connection connection = transactionResource.getConnectionMap().get(routeUnit.getDataSourceName());
-            Collection<TableUnit> tableUnits = logicSQLTransaction.getSqlRouteResult().getRoutingResult().getTableUnits().getTableUnits();
-            InsertOptimizeResult insertOptimizeResult = logicSQLTransaction.getSqlRouteResult().getOptimizeResult().getInsertOptimizeResult().orNull();
-            SQLRevertExecutor sqlRevertExecutor = SQLRevertExecutorFactory.newInstance(logicSQLTransaction.getSqlStatement(), tableUnits,
-                insertOptimizeResult, routeUnit, logicSQLTransaction.getTableMetaData(), connection);
-            Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(sqlRevertExecutor).revert();
+            SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
+            Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
             this.branchTransaction.setRevertSQLUnit(revertSQLResult.orNull());
             transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLResult.orNull()));
         }
