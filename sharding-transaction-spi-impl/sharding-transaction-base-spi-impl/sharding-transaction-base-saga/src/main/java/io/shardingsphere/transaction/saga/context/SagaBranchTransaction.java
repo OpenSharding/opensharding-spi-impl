@@ -43,7 +43,7 @@ public final class SagaBranchTransaction {
     
     private ExecuteStatus executeStatus;
     
-    private RevertSQLResult revertSQLUnit;
+    private RevertSQLResult revertSQLResult;
     
     public SagaBranchTransaction(final String dataSourceName, final String sql, final List<List<Object>> parameterSets, final ExecuteStatus executeStatus) {
         this(dataSourceName, sql, parameterSets);

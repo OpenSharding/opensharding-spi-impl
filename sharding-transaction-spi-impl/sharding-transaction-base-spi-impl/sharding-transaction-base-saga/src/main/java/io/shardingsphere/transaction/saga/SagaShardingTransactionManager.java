@@ -142,7 +142,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     private void addLogicSQLDefinition(final SagaDefinitionBuilder sagaDefinitionBuilder, final SagaLogicSQLTransaction sagaLogicSQLTransaction) {
         RevertSQLResult defaultValue = new RevertSQLResult("");
         for (SagaBranchTransaction each : sagaLogicSQLTransaction.getBranchTransactions()) {
-            RevertSQLResult revertSQLUnit = null != each.getRevertSQLUnit() ? each.getRevertSQLUnit() : defaultValue;
+            RevertSQLResult revertSQLUnit = null != each.getRevertSQLResult() ? each.getRevertSQLResult() : defaultValue;
             sagaDefinitionBuilder.addChildRequest(String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(),
                 revertSQLUnit.getSql(), revertSQLUnit.getParameters());
         }
