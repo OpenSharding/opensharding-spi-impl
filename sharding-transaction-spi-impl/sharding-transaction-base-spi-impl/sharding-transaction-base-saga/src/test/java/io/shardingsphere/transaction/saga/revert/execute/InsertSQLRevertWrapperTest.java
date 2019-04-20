@@ -18,8 +18,9 @@
 package io.shardingsphere.transaction.saga.revert.execute;
 
 import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertContext;
-import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRewriteWrapper;
+import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertWrapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +32,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -40,19 +40,19 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InsertSQLRewriteWrapperTest {
+public class InsertSQLRevertWrapperTest {
     
     @Mock
     private InsertSQLRevertContext revertSQLContext;
     
-    private InsertSQLRewriteWrapper insertSQLRewriteWrapper;
+    private InsertSQLRevertWrapper insertSQLRewriteWrapper;
     
-    private List<Collection<Object>> revertParameters = new LinkedList<>();
+    private RevertSQLResult revertSQLResult = new RevertSQLResult("");
     
     @Before
     public void setUp() {
         when(revertSQLContext.getActualTable()).thenReturn("t_order_0");
-        insertSQLRewriteWrapper = new InsertSQLRewriteWrapper(revertSQLContext);
+        insertSQLRewriteWrapper = new InsertSQLRevertWrapper(revertSQLContext);
     }
     
     private Collection<Map<String, Object>> mockPrimaryKeyInsertValues(final int count, final String... primaryKeys) {
@@ -80,9 +80,9 @@ public class InsertSQLRewriteWrapperTest {
     @Test
     public void assertFillParametersWithMultiPrimaryKeys() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(10, "user_id", "order_id"));
-        insertSQLRewriteWrapper.fillParameters(revertParameters);
-        assertThat(revertParameters.size(), is(10));
-        Collection<Object> firstItem = revertParameters.iterator().next();
+        insertSQLRewriteWrapper.fillParameters(revertSQLResult);
+        assertThat(revertSQLResult.getParameters().size(), is(10));
+        Collection<Object> firstItem = revertSQLResult.getParameters().iterator().next();
         assertThat(firstItem.size(), is(2));
         Iterator iterator = firstItem.iterator();
         assertThat(iterator.next(), CoreMatchers.<Object>is("user_id_1"));
@@ -100,9 +100,9 @@ public class InsertSQLRewriteWrapperTest {
     @Test
     public void assertFillParametersWithSinglePrimaryKey() {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5, "user_id"));
-        insertSQLRewriteWrapper.fillParameters(revertParameters);
-        assertThat(revertParameters.size(), is(5));
-        Collection<Object> firstItem = revertParameters.iterator().next();
+        insertSQLRewriteWrapper.fillParameters(revertSQLResult);
+        assertThat(revertSQLResult.getParameters().size(), is(5));
+        Collection<Object> firstItem = revertSQLResult.getParameters().iterator().next();
         assertThat(firstItem.size(), is(1));
         Iterator iterator = firstItem.iterator();
         assertThat(iterator.next(), CoreMatchers.<Object>is("user_id_1"));

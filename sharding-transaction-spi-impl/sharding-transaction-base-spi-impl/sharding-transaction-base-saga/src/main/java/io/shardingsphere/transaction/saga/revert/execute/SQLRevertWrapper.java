@@ -21,11 +21,11 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 
 /**
- * SQL rewrite wrapper.
+ * SQL revert wrapper.
  *
  * @author zhaojun
  */
-public interface SQLRewriteWrapper {
+public interface SQLRevertWrapper {
     
     /**
      * Revert SQL.
