@@ -58,13 +58,13 @@ public final class SQLBuilder {
      */
     public void appendUpdateSetAssignments(final Collection<String> columns) {
         appendLiterals(DefaultKeyword.SET);
-        int pos = 0;
+        int index = 0;
         for (String each : columns) {
             sqlBuilder.append(each).append(" = ?");
-            if (pos < columns.size() - 1) {
+            if (index < columns.size() - 1) {
                 sqlBuilder.append(",");
             }
-            pos++;
+            index++;
         }
     }
     
