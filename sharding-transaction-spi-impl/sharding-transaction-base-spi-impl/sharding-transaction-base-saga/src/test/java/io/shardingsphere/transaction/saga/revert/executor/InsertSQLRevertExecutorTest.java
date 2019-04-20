@@ -21,6 +21,7 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertContext;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
+import lombok.SneakyThrows;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +51,7 @@ public class InsertSQLRevertExecutorTest {
     private RevertSQLResult revertSQLResult = new RevertSQLResult("");
     
     @Before
+    @SneakyThrows
     public void setUp() {
         when(revertSQLContext.getActualTable()).thenReturn("t_order_0");
         insertSQLRevertExecutor = new InsertSQLRevertExecutor(revertSQLContext);

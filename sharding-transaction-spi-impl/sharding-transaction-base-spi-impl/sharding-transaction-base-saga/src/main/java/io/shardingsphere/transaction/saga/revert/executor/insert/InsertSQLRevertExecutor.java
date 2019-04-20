@@ -21,6 +21,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
@@ -36,9 +37,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 public final class InsertSQLRevertExecutor implements SQLRevertExecutor {
     
-    private final InsertSQLRevertContext sqlRevertContext;
+    private InsertSQLRevertContext sqlRevertContext;
     
     private GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
+    
+    public InsertSQLRevertExecutor(final InsertSQLRevertContext revertContext) {
+        sqlRevertContext = revertContext;
+    }
+    
+    public InsertSQLRevertExecutor(final SQLRevertExecutorContext executorContext) {
+        sqlRevertContext = new InsertSQLRevertContext(executorContext.getDataSourceName(), executorContext.getActualTableName(),
+            executorContext.getPrimaryKeyColumns(), executorContext.getOptimizeResult().getInsertOptimizeResult().orNull());
+    }
     
     @Override
     public Optional<String> revertSQL() {
