@@ -25,16 +25,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Revert context.
+ * Revert SQL result.
  *
  * @author duhongjun
  * @author zhaojun
  */
 @RequiredArgsConstructor
 @Getter
-public final class RevertSQLUnit {
+public final class RevertSQLResult {
     
-    private final String revertSQL;
+    private final String sql;
     
-    private final List<Collection<Object>> revertParams = new LinkedList<>();
+    private final List<Collection<Object>> parameters = new LinkedList<>();
 }

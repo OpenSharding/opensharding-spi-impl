@@ -36,13 +36,13 @@ public class DMLRevertSQLRewriteEngine implements RevertSQLRewriteEngine {
      * Execute revert SQL.
      */
     @Override
-    public Optional<RevertSQLUnit> rewrite() {
+    public Optional<RevertSQLResult> rewrite() {
         Optional<String> sql = sqlRewriteWrapper.revertSQL();
         if (!sql.isPresent()) {
             return Optional.absent();
         }
-        RevertSQLUnit result = new RevertSQLUnit(sql.get());
-        sqlRewriteWrapper.fillParameters(result.getRevertParams());
+        RevertSQLResult result = new RevertSQLResult(sql.get());
+        sqlRewriteWrapper.fillParameters(result.getParameters());
         return Optional.of(result);
     }
 }

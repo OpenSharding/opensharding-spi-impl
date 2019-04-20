@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.persistence.impl.jdbc;
 
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +73,7 @@ public class JDBCSagaSnapshotRepositoryTest {
     public void assertInsert() {
         SagaSnapshot sagaSnapshot = mock(SagaSnapshot.class);
         when(sagaSnapshot.getTransactionContext()).thenReturn(mock(SagaBranchTransaction.class));
-        when(sagaSnapshot.getRevertContext()).thenReturn(new RevertSQLUnit(""));
+        when(sagaSnapshot.getRevertContext()).thenReturn(new RevertSQLResult(""));
         snapshotRepository.insert(sagaSnapshot);
         verify(statement).executeUpdate();
     }

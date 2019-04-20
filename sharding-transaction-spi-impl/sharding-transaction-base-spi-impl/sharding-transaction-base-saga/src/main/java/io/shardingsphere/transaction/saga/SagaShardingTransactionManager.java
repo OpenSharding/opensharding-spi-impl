@@ -23,7 +23,7 @@ import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
 import lombok.SneakyThrows;
@@ -140,11 +140,11 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     }
     
     private void addLogicSQLDefinition(final SagaDefinitionBuilder sagaDefinitionBuilder, final SagaLogicSQLTransaction sagaLogicSQLTransaction) {
-        RevertSQLUnit defaultValue = new RevertSQLUnit("");
+        RevertSQLResult defaultValue = new RevertSQLResult("");
         for (SagaBranchTransaction each : sagaLogicSQLTransaction.getBranchTransactions()) {
-            RevertSQLUnit revertSQLUnit = null != each.getRevertSQLUnit() ? each.getRevertSQLUnit() : defaultValue;
+            RevertSQLResult revertSQLUnit = null != each.getRevertSQLUnit() ? each.getRevertSQLUnit() : defaultValue;
             sagaDefinitionBuilder.addChildRequest(String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(),
-                revertSQLUnit.getRevertSQL(), revertSQLUnit.getRevertParams());
+                revertSQLUnit.getSql(), revertSQLUnit.getParameters());
         }
     }
     

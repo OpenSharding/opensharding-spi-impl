@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.context;
 
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -43,7 +43,7 @@ public final class SagaBranchTransaction {
     
     private ExecuteStatus executeStatus;
     
-    private RevertSQLUnit revertSQLUnit;
+    private RevertSQLResult revertSQLUnit;
     
     public SagaBranchTransaction(final String dataSourceName, final String sql, final List<List<Object>> parameterSets, final ExecuteStatus executeStatus) {
         this(dataSourceName, sql, parameterSets);

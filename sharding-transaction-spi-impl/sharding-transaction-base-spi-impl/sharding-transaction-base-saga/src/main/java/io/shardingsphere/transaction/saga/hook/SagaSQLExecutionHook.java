@@ -28,7 +28,7 @@ import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
 import io.shardingsphere.transaction.saga.revert.SagaRevertSQLEngineFactory;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLUnit;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorExceptionHandler;
@@ -82,9 +82,9 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     private void saveUndoDataIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
-            Optional<RevertSQLUnit> revertSQLUnit = SagaRevertSQLEngineFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap()).rewrite();
-            this.branchTransaction.setRevertSQLUnit(revertSQLUnit.orNull());
-            transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLUnit.orNull()));
+            Optional<RevertSQLResult> revertSQLResult = SagaRevertSQLEngineFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap()).rewrite();
+            this.branchTransaction.setRevertSQLUnit(revertSQLResult.orNull());
+            transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLResult.orNull()));
         }
     }
     

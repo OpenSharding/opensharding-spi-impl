@@ -32,5 +32,5 @@ public interface RevertSQLRewriteEngine {
      * 
      * @return revert SQL unit
      */
-    Optional<RevertSQLUnit> rewrite();
+    Optional<RevertSQLResult> rewrite();
 }
