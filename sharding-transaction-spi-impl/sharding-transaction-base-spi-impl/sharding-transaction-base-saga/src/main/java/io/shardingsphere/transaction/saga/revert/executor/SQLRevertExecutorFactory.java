@@ -21,7 +21,6 @@ import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevert
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.update.UpdateSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.snapshot.statement.DeleteSnapshotSQLStatement;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
@@ -50,8 +49,7 @@ public final class SQLRevertExecutorFactory {
         if (sqlStatement instanceof InsertStatement) {
             sqlRevertExecutor = new InsertSQLRevertExecutor(context);
         } else if (sqlStatement instanceof DeleteStatement) {
-            DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(context.getActualTableName(), (DeleteStatement) sqlStatement, context.getParameters());
-            sqlRevertExecutor = new DeleteSQLRevertExecutor(new DMLSnapshotAccessor(snapshotSQLStatement, context.getConnection()));
+            sqlRevertExecutor = new DeleteSQLRevertExecutor(context);
         } else if (sqlStatement instanceof UpdateStatement) {
             UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(context.getActualTableName(),
                 (UpdateStatement) sqlStatement, context.getParameters(), context.getPrimaryKeyColumns());
