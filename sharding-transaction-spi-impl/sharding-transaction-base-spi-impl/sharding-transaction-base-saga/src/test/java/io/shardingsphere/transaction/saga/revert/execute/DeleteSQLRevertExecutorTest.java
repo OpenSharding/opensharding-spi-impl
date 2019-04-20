@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.revert.execute;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
+import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.SnapshotSQLStatement;

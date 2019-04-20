@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute.delete;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
+import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.execute.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;

@@ -15,26 +15,22 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.engine;
+package io.shardingsphere.transaction.saga.revert;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import com.google.common.base.Optional;
 
 /**
- * Revert SQL result.
+ * SQL Revert engine.
  *
  * @author duhongjun
  * @author zhaojun
  */
-@RequiredArgsConstructor
-@Getter
-public final class RevertSQLResult {
+public interface SQLRevertEngine {
     
-    private final String sql;
-    
-    private final List<Collection<Object>> parameters = new LinkedList<>();
+    /**
+     * Execute revert SQL.
+     * 
+     * @return revert SQL unit
+     */
+    Optional<RevertSQLResult> revert();
 }

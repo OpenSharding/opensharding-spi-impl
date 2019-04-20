@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.engine;
+package io.shardingsphere.transaction.saga.revert;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.execute.SQLRevertExecutor;
