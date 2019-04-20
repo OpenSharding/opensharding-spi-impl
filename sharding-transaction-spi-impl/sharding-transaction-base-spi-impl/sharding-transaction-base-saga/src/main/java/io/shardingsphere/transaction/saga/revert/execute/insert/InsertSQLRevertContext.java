@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute.insert;
 
 import com.google.common.base.Preconditions;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLContext;
+import io.shardingsphere.transaction.saga.revert.execute.SQLRevertContext;
 import lombok.Getter;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Insert revert SQL context.
+ * Insert SQL revert context.
  *
  * @author zhaojun
  */
 @Getter
-public final class InsertRevertSQLContext implements RevertSQLContext {
+public final class InsertSQLRevertContext implements SQLRevertContext {
     
     private final String actualTable;
     
@@ -46,7 +46,7 @@ public final class InsertRevertSQLContext implements RevertSQLContext {
     
     private final Collection<Map<String, Object>> primaryKeyInsertValues = new LinkedList<>();
 
-    public InsertRevertSQLContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
+    public InsertSQLRevertContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
         this.dataSourceName = dataSourceName;
         this.actualTable = actualTableName;
         loadPrimaryKeyInsertValues(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);

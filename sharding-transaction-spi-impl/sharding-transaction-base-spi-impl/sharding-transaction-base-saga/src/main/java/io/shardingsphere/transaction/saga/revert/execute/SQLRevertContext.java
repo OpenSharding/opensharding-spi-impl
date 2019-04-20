@@ -15,30 +15,12 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.execute.delete;
-
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLContext;
-import lombok.Getter;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+package io.shardingsphere.transaction.saga.revert.execute;
 
 /**
- * Delete revert SQL context.
+ * SQL revert context.
  *
- * @author duhongjun
  * @author zhaojun
  */
-@Getter
-public class DeleteRevertSQLContext implements RevertSQLContext {
-    
-    private final String actualTable;
-    
-    private final List<Map<String, Object>> undoData = new LinkedList<>();
-    
-    public DeleteRevertSQLContext(final String tableName, final List<Map<String, Object>> undoData) {
-        this.actualTable = tableName;
-        this.undoData.addAll(undoData);
-    }
+public interface SQLRevertContext {
 }

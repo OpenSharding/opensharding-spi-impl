@@ -36,12 +36,12 @@ import java.util.Map;
  */
 public final class DeleteSQLRewriteWrapper implements SQLRewriteWrapper {
     
-    private DeleteRevertSQLContext revertSQLContext;
+    private DeleteSQLRevertContext revertSQLContext;
     
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     public DeleteSQLRewriteWrapper(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
-        revertSQLContext = new DeleteRevertSQLContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
+        revertSQLContext = new DeleteSQLRevertContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
     }
     
     @Override

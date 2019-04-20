@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.execute;
 
-import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLContext;
+import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertContext;
 import org.apache.shardingsphere.core.optimize.result.insert.ColumnValueOptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
@@ -98,7 +98,7 @@ public class InsertRevertSQLContextTest {
     @Test
     public void assertCreateInsertRevertSQLContextWithSinglePrimaryKey() {
         primaryKeys.add("user_id");
-        InsertRevertSQLContext revertSQLContext = new InsertRevertSQLContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        InsertSQLRevertContext revertSQLContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
         assertThat(revertSQLContext.getPrimaryKeyInsertValues().size(), is(10));
         for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
             assertThat(each.get("user_id"), CoreMatchers.<Object>is(1));
@@ -109,7 +109,7 @@ public class InsertRevertSQLContextTest {
     public void assertCreateInsertRevertSQLContextWithMultiPrimaryKeys() {
         primaryKeys.add("order_id");
         primaryKeys.add("user_id");
-        InsertRevertSQLContext revertSQLContext = new InsertRevertSQLContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        InsertSQLRevertContext revertSQLContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
         assertThat(revertSQLContext.getPrimaryKeyInsertValues().size(), is(10));
         for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
             assertThat(each.get("order_id"), CoreMatchers.<Object>is(0));
@@ -119,7 +119,7 @@ public class InsertRevertSQLContextTest {
     
     @Test
     public void assertCreateInsertRevertSQLContextWithoutPrimaryKey() {
-        InsertRevertSQLContext revertSQLContext = new InsertRevertSQLContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        InsertSQLRevertContext revertSQLContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
         assertTrue(revertSQLContext.getPrimaryKeyInsertValues().isEmpty());
     }
 }

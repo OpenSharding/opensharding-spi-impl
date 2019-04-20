@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.execute.update;
 
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLContext;
+import io.shardingsphere.transaction.saga.revert.execute.SQLRevertContext;
 import lombok.Getter;
 
 import java.util.LinkedHashMap;
@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Update revert SQL context.
+ * Update SQL revert context.
  *
  * @author duhongjun
  * @author zhaojun
  */
 @Getter
-public final class UpdateRevertSQLContext implements RevertSQLContext {
+public final class UpdateSQLRevertContext implements SQLRevertContext {
     
     private final String actualTable;
     
@@ -44,7 +44,7 @@ public final class UpdateRevertSQLContext implements RevertSQLContext {
     
     private final List<Object> parameters = new LinkedList<>();
     
-    public UpdateRevertSQLContext(final String tableName, final List<Map<String, Object>> undoData, final Map<String, Object> updateSetAssignments, final List<String> primaryKeyColumns,
+    public UpdateSQLRevertContext(final String tableName, final List<Map<String, Object>> undoData, final Map<String, Object> updateSetAssignments, final List<String> primaryKeyColumns,
                                   final List<Object> parameters) {
         this.actualTable = tableName;
         this.undoData.addAll(undoData);

@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLContext;
+import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertContext;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRewriteWrapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class InsertSQLRewriteWrapperTest {
     
     @Mock
-    private InsertRevertSQLContext revertSQLContext;
+    private InsertSQLRevertContext revertSQLContext;
     
     private InsertSQLRewriteWrapper insertSQLRewriteWrapper;
     

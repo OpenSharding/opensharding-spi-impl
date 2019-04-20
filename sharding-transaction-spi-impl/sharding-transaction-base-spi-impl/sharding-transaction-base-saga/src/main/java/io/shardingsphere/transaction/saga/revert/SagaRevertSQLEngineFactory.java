@@ -23,7 +23,7 @@ import io.shardingsphere.transaction.saga.revert.engine.DMLRevertSQLRewriteEngin
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLRewriteEngine;
 import io.shardingsphere.transaction.saga.revert.execute.SQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteSQLRewriteWrapper;
-import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLContext;
+import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertContext;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.execute.update.UpdateSQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
@@ -74,7 +74,7 @@ public final class SagaRevertSQLEngineFactory {
         SQLRewriteWrapper sqlRewriteWrapper;
         if (sqlStatement instanceof InsertStatement) {
             Optional<InsertOptimizeResult> insertOptimizeResult = logicSQLTransaction.getSqlRouteResult().getOptimizeResult().getInsertOptimizeResult();
-            sqlRewriteWrapper = new InsertSQLRewriteWrapper(new InsertRevertSQLContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull()));
+            sqlRewriteWrapper = new InsertSQLRewriteWrapper(new InsertSQLRevertContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull()));
         } else if (sqlStatement instanceof DeleteStatement) {
             DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(actualTableName, (DeleteStatement) sqlStatement, parameters);
             sqlRewriteWrapper = new DeleteSQLRewriteWrapper(new DMLSnapshotAccessor(snapshotSQLStatement, connection));

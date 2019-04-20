@@ -46,7 +46,7 @@ import java.util.Map.Entry;
  */
 public final class UpdateSQLRewriteWrapper implements SQLRewriteWrapper {
     
-    private UpdateRevertSQLContext revertSQLContext;
+    private UpdateSQLRevertContext revertSQLContext;
     
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
@@ -54,12 +54,12 @@ public final class UpdateSQLRewriteWrapper implements SQLRewriteWrapper {
         revertSQLContext = createRevertSQLContext(snapshotAccessor);
     }
     
-    private UpdateRevertSQLContext createRevertSQLContext(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
+    private UpdateSQLRevertContext createRevertSQLContext(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
         UpdateSnapshotSQLStatement snapshotSQLStatement = (UpdateSnapshotSQLStatement) snapshotAccessor.getSnapshotSQLStatement();
         UpdateStatement updateStatement = snapshotSQLStatement.getUpdateStatement();
         List<Object> parameters = (List<Object>) snapshotSQLStatement.getParameters();
         Map<String, Object> updateSetAssignments = getUpdateSetAssignments(updateStatement, parameters);
-        return new UpdateRevertSQLContext(snapshotSQLStatement.getTableName(), snapshotAccessor.queryUndoData(), updateSetAssignments, snapshotSQLStatement.getPrimaryKeyColumns(), parameters);
+        return new UpdateSQLRevertContext(snapshotSQLStatement.getTableName(), snapshotAccessor.queryUndoData(), updateSetAssignments, snapshotSQLStatement.getPrimaryKeyColumns(), parameters);
     }
     
     private Map<String, Object> getUpdateSetAssignments(final UpdateStatement updateStatement, final List<Object> parameters) {

@@ -37,7 +37,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public final class InsertSQLRewriteWrapper implements SQLRewriteWrapper {
     
-    private final InsertRevertSQLContext revertSQLContext;
+    private final InsertSQLRevertContext revertSQLContext;
     
     private GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
