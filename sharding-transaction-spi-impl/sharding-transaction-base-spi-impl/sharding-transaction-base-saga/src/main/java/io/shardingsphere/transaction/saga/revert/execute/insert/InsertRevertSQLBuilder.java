@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.execute.insert;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
+import io.shardingsphere.transaction.saga.revert.snapshot.SQLBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
@@ -38,25 +39,17 @@ public final class InsertRevertSQLBuilder implements RevertSQLBuilder {
     
     private final InsertRevertSQLContext revertSQLContext;
     
+    private SQLBuilder sqlBuilder = new SQLBuilder();
+    
     @Override
     public Optional<String> generateSQL() {
         Preconditions.checkState(!revertSQLContext.getPrimaryKeyInsertValues().isEmpty(),
             "Could not found primary key values. datasource:[%s], table:[%s]", revertSQLContext.getDataSourceName(), revertSQLContext.getActualTable());
-        StringBuilder builder = new StringBuilder();
-        builder.append(DefaultKeyword.DELETE).append(" ");
-        builder.append(DefaultKeyword.FROM).append(" ");
-        builder.append(revertSQLContext.getActualTable()).append(" ");
-        builder.append(DefaultKeyword.WHERE).append(" ");
-        boolean firstItem = true;
-        for (String each : revertSQLContext.getPrimaryKeyInsertValues().iterator().next().keySet()) {
-            if (firstItem) {
-                firstItem = false;
-                builder.append(each).append(" =?");
-            } else {
-                builder.append(" ").append(DefaultKeyword.AND).append(" ").append(each).append(" =?");
-            }
-        }
-        return Optional.of(builder.toString());
+        sqlBuilder.appendLiterals(DefaultKeyword.DELETE);
+        sqlBuilder.appendLiterals(DefaultKeyword.FROM);
+        sqlBuilder.appendLiterals(revertSQLContext.getActualTable());
+        sqlBuilder.appendWhereCondition(revertSQLContext.getPrimaryKeyInsertValues().iterator().next().keySet());
+        return Optional.of(sqlBuilder.toSQL());
     }
     
     @Override

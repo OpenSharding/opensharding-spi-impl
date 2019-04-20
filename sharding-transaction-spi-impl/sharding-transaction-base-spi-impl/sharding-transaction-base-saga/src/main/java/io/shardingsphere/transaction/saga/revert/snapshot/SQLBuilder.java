@@ -17,6 +17,8 @@
 
 package io.shardingsphere.transaction.saga.revert.snapshot;
 
+import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
+
 import java.util.Collection;
 
 /**
@@ -55,6 +57,27 @@ public final class SQLBuilder {
             }
         }
         sqlBuilder.append(" ");
+    }
+    
+    /**
+     * Append where condition.
+     *
+     * @param columns columns
+     */
+    public void appendWhereCondition(final Collection<String> columns) {
+        if (columns.isEmpty()) {
+            return;
+        }
+        sqlBuilder.append(DefaultKeyword.WHERE).append(" ");
+        boolean firstItem = true;
+        for (String each : columns) {
+            if (firstItem) {
+                firstItem = false;
+                sqlBuilder.append(each).append(" =?");
+            } else {
+                sqlBuilder.append(" ").append(DefaultKeyword.AND).append(" ").append(each).append(" =?");
+            }
+        }
     }
     
     /**
