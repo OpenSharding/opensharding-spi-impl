@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.saga.revert;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
-import io.shardingsphere.transaction.saga.revert.engine.DMLRevertSQLEngine;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLEngine;
+import io.shardingsphere.transaction.saga.revert.engine.DMLRevertSQLRewriteEngine;
+import io.shardingsphere.transaction.saga.revert.engine.RevertSQLRewriteEngine;
 import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteRevertSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertRevertSQLContext;
@@ -65,26 +65,26 @@ public final class SagaRevertSQLEngineFactory {
      * @return revert SQL engine
      */
     @SneakyThrows
-    public static RevertSQLEngine newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
+    public static RevertSQLRewriteEngine newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
         SQLStatement sqlStatement = logicSQLTransaction.getSqlRouteResult().getSqlStatement();
         List<Object> parameters = routeUnit.getSqlUnit().getParameters();
         String actualTableName = getActualTableName(logicSQLTransaction.getSqlRouteResult(), routeUnit);
         Connection connection = connectionMap.get(routeUnit.getDataSourceName());
         List<String> primaryKeyColumns = getPrimaryKeyColumns(logicSQLTransaction.getTableMetaData());
-        RevertSQLBuilder revertSQLBuilder;
+        RevertSQLBuilder sqlBuilder;
         if (sqlStatement instanceof InsertStatement) {
             Optional<InsertOptimizeResult> insertOptimizeResult = logicSQLTransaction.getSqlRouteResult().getOptimizeResult().getInsertOptimizeResult();
-            revertSQLBuilder = new InsertRevertSQLBuilder(new InsertRevertSQLContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull()));
+            sqlBuilder = new InsertRevertSQLBuilder(new InsertRevertSQLContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult.orNull()));
         } else if (sqlStatement instanceof DeleteStatement) {
             DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(actualTableName, (DeleteStatement) sqlStatement, parameters);
-            revertSQLBuilder = new DeleteRevertSQLBuilder(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
+            sqlBuilder = new DeleteRevertSQLBuilder(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
         } else if (sqlStatement instanceof UpdateStatement) {
             UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(actualTableName, (UpdateStatement) sqlStatement, parameters, primaryKeyColumns);
-            revertSQLBuilder = new UpdateRevertSQLBuilder(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
+            sqlBuilder = new UpdateRevertSQLBuilder(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
-        return new DMLRevertSQLEngine(revertSQLBuilder);
+        return new DMLRevertSQLRewriteEngine(sqlBuilder);
     }
     
     private static List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {

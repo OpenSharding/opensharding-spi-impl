@@ -82,7 +82,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     private void saveUndoDataIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
-            Optional<RevertSQLUnit> revertSQLUnit = SagaRevertSQLEngineFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap()).execute();
+            Optional<RevertSQLUnit> revertSQLUnit = SagaRevertSQLEngineFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap()).rewrite();
             this.branchTransaction.setRevertSQLUnit(revertSQLUnit.orNull());
             transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLUnit.orNull()));
         }
