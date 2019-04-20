@@ -27,7 +27,7 @@ import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
-import io.shardingsphere.transaction.saga.revert.SagaRevertSQLEngineFactory;
+import io.shardingsphere.transaction.saga.revert.SagaSQLRevertEngineFactory;
 import io.shardingsphere.transaction.saga.revert.engine.RevertSQLResult;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
@@ -82,7 +82,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     private void saveUndoDataIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
             SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
-            Optional<RevertSQLResult> revertSQLResult = SagaRevertSQLEngineFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap()).rewrite();
+            Optional<RevertSQLResult> revertSQLResult = SagaSQLRevertEngineFactory.newInstance(logicSQLTransaction, routeUnit, transactionResource.getConnectionMap()).revert();
             this.branchTransaction.setRevertSQLUnit(revertSQLResult.orNull());
             transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLResult.orNull()));
         }

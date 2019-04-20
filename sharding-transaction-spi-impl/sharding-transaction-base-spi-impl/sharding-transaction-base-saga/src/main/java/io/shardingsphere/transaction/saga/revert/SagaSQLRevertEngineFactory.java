@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.saga.revert;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
-import io.shardingsphere.transaction.saga.revert.engine.DMLRevertSQLRewriteEngine;
-import io.shardingsphere.transaction.saga.revert.engine.RevertSQLRewriteEngine;
+import io.shardingsphere.transaction.saga.revert.engine.DMLSQLRevertEngine;
+import io.shardingsphere.transaction.saga.revert.engine.SQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.execute.SQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteSQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.execute.insert.InsertSQLRevertContext;
@@ -49,12 +49,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Revert SQL engine factory.
+ * Saga SQL revert engine factory.
  *
  * @author duhongjun
  * @author zhaojun
  */
-public final class SagaRevertSQLEngineFactory {
+public final class SagaSQLRevertEngineFactory {
     
     /**
      * Create new revert SQL engine.
@@ -65,7 +65,7 @@ public final class SagaRevertSQLEngineFactory {
      * @return revert SQL engine
      */
     @SneakyThrows
-    public static RevertSQLRewriteEngine newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
+    public static SQLRevertEngine newInstance(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit, final ConcurrentMap<String, Connection> connectionMap) {
         SQLStatement sqlStatement = logicSQLTransaction.getSqlRouteResult().getSqlStatement();
         List<Object> parameters = routeUnit.getSqlUnit().getParameters();
         String actualTableName = getActualTableName(logicSQLTransaction.getSqlRouteResult(), routeUnit);
@@ -84,7 +84,7 @@ public final class SagaRevertSQLEngineFactory {
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
-        return new DMLRevertSQLRewriteEngine(sqlRewriteWrapper);
+        return new DMLSQLRevertEngine(sqlRewriteWrapper);
     }
     
     private static List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {

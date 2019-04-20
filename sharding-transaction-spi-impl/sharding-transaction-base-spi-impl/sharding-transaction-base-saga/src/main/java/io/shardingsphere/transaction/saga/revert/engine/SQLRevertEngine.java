@@ -18,31 +18,19 @@
 package io.shardingsphere.transaction.saga.revert.engine;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.execute.SQLRewriteWrapper;
-import lombok.RequiredArgsConstructor;
 
 /**
- * DML revert SQL rewrite engine.
+ * SQL Revert engine.
  *
  * @author duhongjun
  * @author zhaojun
  */
-@RequiredArgsConstructor
-public class DMLRevertSQLRewriteEngine implements RevertSQLRewriteEngine {
-    
-    private final SQLRewriteWrapper sqlRewriteWrapper;
+public interface SQLRevertEngine {
     
     /**
      * Execute revert SQL.
+     * 
+     * @return revert SQL unit
      */
-    @Override
-    public Optional<RevertSQLResult> rewrite() {
-        Optional<String> sql = sqlRewriteWrapper.revertSQL();
-        if (!sql.isPresent()) {
-            return Optional.absent();
-        }
-        RevertSQLResult result = new RevertSQLResult(sql.get());
-        sqlRewriteWrapper.fillParameters(result);
-        return Optional.of(result);
-    }
+    Optional<RevertSQLResult> revert();
 }
