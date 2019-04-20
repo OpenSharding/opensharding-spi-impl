@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.saga.revert.execute;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteRevertSQLBuilder;
+import io.shardingsphere.transaction.saga.revert.execute.delete.DeleteSQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.SnapshotSQLStatement;
 import org.junit.Before;
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DeleteRevertSQLBuilderTest {
+public class DeleteSQLRewriteWrapperTest {
     
     @Mock
     private DMLSnapshotAccessor snapshotAccessor;
@@ -50,7 +50,7 @@ public class DeleteRevertSQLBuilderTest {
     @Mock
     private SnapshotSQLStatement snapshotSQLStatement;
     
-    private DeleteRevertSQLBuilder deleteRevertSQLBuilder;
+    private DeleteSQLRewriteWrapper deleteSQLRewriteWrapper;
     
     private List<Map<String, Object>> undoData = Lists.newLinkedList();
     
@@ -74,8 +74,8 @@ public class DeleteRevertSQLBuilderTest {
     @Test
     public void assertGenerateSQL() throws SQLException {
         when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
-        deleteRevertSQLBuilder = new DeleteRevertSQLBuilder(snapshotAccessor);
-        Optional<String> actual = deleteRevertSQLBuilder.generateSQL();
+        deleteSQLRewriteWrapper = new DeleteSQLRewriteWrapper(snapshotAccessor);
+        Optional<String> actual = deleteSQLRewriteWrapper.revertSQL();
         assertTrue(actual.isPresent());
         assertThat(actual.get(), is("INSERT INTO t_order_0 VALUES (?,?,?)"));
     }
@@ -83,9 +83,9 @@ public class DeleteRevertSQLBuilderTest {
     @Test
     public void assertFillParameters() throws SQLException {
         when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
-        deleteRevertSQLBuilder = new DeleteRevertSQLBuilder(snapshotAccessor);
+        deleteSQLRewriteWrapper = new DeleteSQLRewriteWrapper(snapshotAccessor);
         List<Collection<Object>> revertParams = new LinkedList<>();
-        deleteRevertSQLBuilder.fillParameters(revertParams);
+        deleteSQLRewriteWrapper.fillParameters(revertParams);
         assertThat(revertParams.size(), is(10));
         assertThat(revertParams.iterator().next().size(), is(3));
     }
@@ -93,8 +93,8 @@ public class DeleteRevertSQLBuilderTest {
     @Test
     public void assertGenerateRevertSQLWithoutUndoData() throws SQLException {
         when(snapshotAccessor.queryUndoData()).thenReturn(Lists.<Map<String, Object>>newLinkedList());
-        deleteRevertSQLBuilder = new DeleteRevertSQLBuilder(snapshotAccessor);
-        Optional<String> actual = deleteRevertSQLBuilder.generateSQL();
+        deleteSQLRewriteWrapper = new DeleteSQLRewriteWrapper(snapshotAccessor);
+        Optional<String> actual = deleteSQLRewriteWrapper.revertSQL();
         assertFalse(actual.isPresent());
     }
 }

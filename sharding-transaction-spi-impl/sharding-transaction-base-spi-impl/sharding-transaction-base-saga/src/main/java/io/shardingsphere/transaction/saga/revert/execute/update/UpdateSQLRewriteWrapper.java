@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.saga.revert.execute.update;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
+import io.shardingsphere.transaction.saga.revert.execute.SQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
@@ -39,18 +39,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Update revert SQL builder.
+ * Update SQL rewrite wrapper.
  *
  * @author duhongjun
  * @author zhaojun
  */
-public final class UpdateRevertSQLBuilder implements RevertSQLBuilder {
+public final class UpdateSQLRewriteWrapper implements SQLRewriteWrapper {
     
     private UpdateRevertSQLContext revertSQLContext;
     
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
-    public UpdateRevertSQLBuilder(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
+    public UpdateSQLRewriteWrapper(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
         revertSQLContext = createRevertSQLContext(snapshotAccessor);
     }
     
@@ -77,7 +77,7 @@ public final class UpdateRevertSQLBuilder implements RevertSQLBuilder {
     }
     
     @Override
-    public Optional<String> generateSQL() {
+    public Optional<String> revertSQL() {
         if (revertSQLContext.getUndoData().isEmpty()) {
             return Optional.absent();
         }

@@ -15,50 +15,46 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.execute.delete;
+package io.shardingsphere.transaction.saga.revert.execute.insert;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.revert.execute.RevertSQLBuilder;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
+import com.google.common.base.Preconditions;
+import io.shardingsphere.transaction.saga.revert.execute.SQLRewriteWrapper;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
+import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Delete revert SQL builder.
+ * Insert SQL rewrite wrapper.
  *
  * @author duhongjun
  * @author zhaojun
  */
-public final class DeleteRevertSQLBuilder implements RevertSQLBuilder {
+@RequiredArgsConstructor
+public final class InsertSQLRewriteWrapper implements SQLRewriteWrapper {
     
-    private DeleteRevertSQLContext revertSQLContext;
+    private final InsertRevertSQLContext revertSQLContext;
     
-    private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
-    
-    public DeleteRevertSQLBuilder(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
-        revertSQLContext = new DeleteRevertSQLContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
-    }
+    private GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
     @Override
-    public Optional<String> generateSQL() {
-        if (revertSQLContext.getUndoData().isEmpty()) {
-            return Optional.absent();
-        }
-        sqlBuilder.appendLiterals(DefaultKeyword.INSERT);
-        sqlBuilder.appendLiterals(DefaultKeyword.INTO);
+    public Optional<String> revertSQL() {
+        Preconditions.checkState(!revertSQLContext.getPrimaryKeyInsertValues().isEmpty(),
+            "Could not found primary key values. datasource:[%s], table:[%s]", revertSQLContext.getDataSourceName(), revertSQLContext.getActualTable());
+        sqlBuilder.appendLiterals(DefaultKeyword.DELETE);
+        sqlBuilder.appendLiterals(DefaultKeyword.FROM);
         sqlBuilder.appendLiterals(revertSQLContext.getActualTable());
-        sqlBuilder.appendInsertValues(revertSQLContext.getUndoData().iterator().next().size());
+        sqlBuilder.appendWhereCondition(revertSQLContext.getPrimaryKeyInsertValues().iterator().next().keySet());
         return Optional.of(sqlBuilder.toSQL());
     }
     
     @Override
     public void fillParameters(final List<Collection<Object>> revertParameters) {
-        for (Map<String, Object> each : revertSQLContext.getUndoData()) {
+        for (Map<String, Object> each : revertSQLContext.getPrimaryKeyInsertValues()) {
             revertParameters.add(each.values());
         }
     }

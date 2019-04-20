@@ -15,32 +15,16 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.execute;
+package io.shardingsphere.transaction.saga.revert.engine;
 
-import com.google.common.base.Optional;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collection;
-import java.util.List;
-
-/**
- * Revert SQL builder.
- *
- * @author zhaojun
- */
-public interface RevertSQLBuilder {
+@RunWith(MockitoJUnitRunner.class)
+public class DMLRevertSQLRewriteEngineTest {
     
-    /**
-     * Generate revert SQL.
-     *
-     * @return revert SQL
-     */
-    Optional<String> generateSQL();
-    
-    
-    /**
-     * Fill revert parameters.
-     *
-     * @param revertParameters revert parameters
-     */
-    void fillParameters(List<Collection<Object>> revertParameters);
+    @Test
+    public void rewrite() {
+    }
 }
