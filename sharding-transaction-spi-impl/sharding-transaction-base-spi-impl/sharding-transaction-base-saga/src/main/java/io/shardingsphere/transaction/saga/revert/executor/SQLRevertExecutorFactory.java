@@ -25,22 +25,10 @@ import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.DeleteSnapshotSQLStatement;
 import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
 import lombok.SneakyThrows;
-import org.apache.shardingsphere.core.exception.ShardingException;
-import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
-import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
-import org.apache.shardingsphere.core.route.RouteUnit;
-import org.apache.shardingsphere.core.route.type.RoutingTable;
-import org.apache.shardingsphere.core.route.type.TableUnit;
-
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * SQL revert executor factory.
@@ -53,58 +41,26 @@ public final class SQLRevertExecutorFactory {
     /**
      * Create new revert SQL executor.
      *
-     * @param routeUnit route unit
+     * @param context SQL revert executor context
      * @return revert SQL engine
      */
     @SneakyThrows
-    public static SQLRevertExecutor newInstance(final SQLStatement sqlStatement, final Collection<TableUnit> tableUnits, InsertOptimizeResult insertOptimizeResult,
-                                                final RouteUnit routeUnit, final TableMetaData tableMetaData, final Connection connection) {
-        List<Object> parameters = routeUnit.getSqlUnit().getParameters();
-        String actualTableName = getActualTableName(sqlStatement, tableUnits, routeUnit);
-        List<String> primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
+    public static SQLRevertExecutor newInstance(final SQLRevertExecutorContext context) {
+        SQLStatement sqlStatement = context.getSqlStatement();
         SQLRevertExecutor sqlRevertExecutor;
         if (sqlStatement instanceof InsertStatement) {
-            sqlRevertExecutor = new InsertSQLRevertExecutor(new InsertSQLRevertContext(routeUnit.getDataSourceName(), actualTableName, primaryKeyColumns, insertOptimizeResult));
+            sqlRevertExecutor = new InsertSQLRevertExecutor(new InsertSQLRevertContext(context.getDataSourceName(), context.getActualTableName(),
+                context.getPrimaryKeyColumns(), context.getOptimizeResult().getInsertOptimizeResult().orNull()));
         } else if (sqlStatement instanceof DeleteStatement) {
-            DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(actualTableName, (DeleteStatement) sqlStatement, parameters);
-            sqlRevertExecutor = new DeleteSQLRevertExecutor(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
+            DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(context.getActualTableName(), (DeleteStatement) sqlStatement, context.getParameters());
+            sqlRevertExecutor = new DeleteSQLRevertExecutor(new DMLSnapshotAccessor(snapshotSQLStatement, context.getConnection()));
         } else if (sqlStatement instanceof UpdateStatement) {
-            UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(actualTableName, (UpdateStatement) sqlStatement, parameters, primaryKeyColumns);
-            sqlRevertExecutor = new UpdateSQLRevertExecutor(new DMLSnapshotAccessor(snapshotSQLStatement, connection));
+            UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(context.getActualTableName(),
+                (UpdateStatement) sqlStatement, context.getParameters(), context.getPrimaryKeyColumns());
+            sqlRevertExecutor = new UpdateSQLRevertExecutor(new DMLSnapshotAccessor(snapshotSQLStatement, context.getConnection()));
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
         return sqlRevertExecutor;
-    }
-    
-    private static List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {
-        List<String> result = new ArrayList<>();
-        for (ColumnMetaData each : tableMetaData.getColumns().values()) {
-            if (each.isPrimaryKey()) {
-                result.add(each.getColumnName());
-            }
-        }
-        if (result.isEmpty()) {
-            throw new RuntimeException("Not supported table without primary key");
-        }
-        return result;
-    }
-    
-    private static String getActualTableName(final SQLStatement sqlStatement, final Collection<TableUnit> tableUnits, final RouteUnit routeUnit) {
-        for (TableUnit each : tableUnits) {
-            if (each.getDataSourceName().equalsIgnoreCase(routeUnit.getDataSourceName())) {
-                return getAvailableActualTableName(each, sqlStatement.getTables().getSingleTableName());
-            }
-        }
-        throw new ShardingException(String.format("Could not find actual table name of [%s]", routeUnit));
-    }
-    
-    private static String getAvailableActualTableName(final TableUnit tableUnit, final String logicTableName) {
-        for (RoutingTable each : tableUnit.getRoutingTables()) {
-            if (each.getLogicTableName().equalsIgnoreCase(logicTableName)) {
-                return each.getActualTableName();
-            }
-        }
-        throw new ShardingException(String.format("Could not get available actual table name of [%s]", tableUnit));
     }
 }
