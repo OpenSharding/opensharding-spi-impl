@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.revert.snapshot;
 
+import io.shardingsphere.transaction.saga.revert.GenericSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import lombok.Getter;

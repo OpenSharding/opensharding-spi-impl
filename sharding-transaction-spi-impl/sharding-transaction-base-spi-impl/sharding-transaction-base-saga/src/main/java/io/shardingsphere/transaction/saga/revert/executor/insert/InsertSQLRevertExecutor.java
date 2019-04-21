@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
-import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
+import io.shardingsphere.transaction.saga.revert.GenericSQLBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 

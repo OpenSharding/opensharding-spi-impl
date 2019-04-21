@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.snapshot;
+package io.shardingsphere.transaction.saga.revert;
 
 import com.google.common.base.Joiner;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;

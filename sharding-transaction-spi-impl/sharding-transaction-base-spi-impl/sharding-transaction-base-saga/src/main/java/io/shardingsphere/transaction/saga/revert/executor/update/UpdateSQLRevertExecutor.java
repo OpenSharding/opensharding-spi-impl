@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
-import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
+import io.shardingsphere.transaction.saga.revert.GenericSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.UpdateSnapshotAccessor;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
