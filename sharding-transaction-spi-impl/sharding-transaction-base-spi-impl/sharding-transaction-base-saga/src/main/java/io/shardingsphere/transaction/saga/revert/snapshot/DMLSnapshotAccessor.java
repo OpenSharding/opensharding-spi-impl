@@ -17,12 +17,12 @@
 
 package io.shardingsphere.transaction.saga.revert.snapshot;
 
-import io.shardingsphere.transaction.saga.revert.snapshot.statement.SnapshotSQLStatement;
+import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -32,26 +32,21 @@ import java.util.Map;
  *
  * @author zhaojun
  */
-public class DMLSnapshotAccessor implements SnapshotAccessor {
-    
-    @Getter
-    private final SnapshotSQLStatement snapshotSQLStatement;
+@RequiredArgsConstructor
+public abstract class DMLSnapshotAccessor implements SnapshotAccessor {
     
     private GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
-    private final Connection connection;
-    
-    public DMLSnapshotAccessor(final SnapshotSQLStatement snapshotSQLStatement, final Connection connection) {
-        this.snapshotSQLStatement = snapshotSQLStatement;
-        this.connection = connection;
-    }
+    @Getter
+    private final SQLRevertExecutorContext executorContext;
     
     @Override
     public final List<Map<String, Object>> queryUndoData() throws SQLException {
-        return JDBCUtil.executeQuery(connection, buildSnapshotQuerySQL(), snapshotSQLStatement.getParameters());
+        SnapshotSQLStatement snapshotSQLStatement = getSnapshotSQLStatement(executorContext);
+        return JDBCUtil.executeQuery(snapshotSQLStatement.getConnection(), buildSnapshotQuerySQL(snapshotSQLStatement), snapshotSQLStatement.getParameters());
     }
     
-    private String buildSnapshotQuerySQL() {
+    private String buildSnapshotQuerySQL(final SnapshotSQLStatement snapshotSQLStatement) {
         sqlBuilder.appendLiterals(DefaultKeyword.SELECT);
         sqlBuilder.appendColumns(snapshotSQLStatement.getQueryColumnNames());
         sqlBuilder.appendLiterals(DefaultKeyword.FROM);
@@ -60,4 +55,6 @@ public class DMLSnapshotAccessor implements SnapshotAccessor {
         sqlBuilder.appendLiterals(snapshotSQLStatement.getWhereClause());
         return sqlBuilder.toSQL();
     }
+    
+    protected abstract SnapshotSQLStatement getSnapshotSQLStatement(SQLRevertExecutorContext context);
 }

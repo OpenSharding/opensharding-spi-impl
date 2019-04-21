@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.revert.snapshot;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.revert.snapshot.statement.SnapshotSQLStatement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

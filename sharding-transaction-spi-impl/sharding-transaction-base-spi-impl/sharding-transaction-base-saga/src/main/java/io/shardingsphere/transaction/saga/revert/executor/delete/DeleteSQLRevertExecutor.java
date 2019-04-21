@@ -21,10 +21,8 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
+import io.shardingsphere.transaction.saga.revert.snapshot.DeleteSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
-import io.shardingsphere.transaction.saga.revert.snapshot.statement.DeleteSnapshotSQLStatement;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
@@ -42,13 +40,12 @@ public final class DeleteSQLRevertExecutor implements SQLRevertExecutor {
     
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
-    public DeleteSQLRevertExecutor(final DMLSnapshotAccessor snapshotDataAccessor) throws SQLException {
-        sqlRevertContext = new DeleteSQLRevertContext(snapshotDataAccessor.getSnapshotSQLStatement().getTableName(), snapshotDataAccessor.queryUndoData());
+    public DeleteSQLRevertExecutor(final DeleteSnapshotAccessor snapshotAccessor) throws SQLException {
+        sqlRevertContext = new DeleteSQLRevertContext(snapshotAccessor.getExecutorContext().getActualTableName(), snapshotAccessor.queryUndoData());
     }
     
     public DeleteSQLRevertExecutor(final SQLRevertExecutorContext context) throws SQLException {
-        DeleteSnapshotSQLStatement snapshotSQLStatement = new DeleteSnapshotSQLStatement(context.getActualTableName(), (DeleteStatement) context.getSqlStatement(), context.getParameters());
-        DMLSnapshotAccessor snapshotAccessor = new DMLSnapshotAccessor(snapshotSQLStatement, context.getConnection());
+        DeleteSnapshotAccessor snapshotAccessor = new DeleteSnapshotAccessor(context);
         sqlRevertContext = new DeleteSQLRevertContext(context.getActualTableName(), snapshotAccessor.queryUndoData());
     }
     

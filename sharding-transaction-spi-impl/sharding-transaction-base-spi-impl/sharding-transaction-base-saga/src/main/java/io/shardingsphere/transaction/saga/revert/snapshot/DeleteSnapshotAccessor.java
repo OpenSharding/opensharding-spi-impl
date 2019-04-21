@@ -15,44 +15,38 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.snapshot.statement;
+package io.shardingsphere.transaction.saga.revert.snapshot;
 
+import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
- * Delete snapshot SQL statement.
+ * Delete snapshot accessor.
  *
  * @author zhaojun
  */
-public final class DeleteSnapshotSQLStatement extends SnapshotSQLStatement {
+public final class DeleteSnapshotAccessor extends DMLSnapshotAccessor {
     
     private final DeleteStatement deleteStatement;
     
-    public DeleteSnapshotSQLStatement(final String actualTableName, final DeleteStatement deleteStatement, final List<Object> actualSQLParameters) {
-        super(actualTableName, actualSQLParameters);
-        this.deleteStatement = deleteStatement;
+    public DeleteSnapshotAccessor(final SQLRevertExecutorContext context) {
+        super(context);
+        this.deleteStatement = (DeleteStatement) context.getSqlStatement();
     }
     
     @Override
-    public Collection<String> getQueryColumnNames() {
+    protected SnapshotSQLStatement getSnapshotSQLStatement(final SQLRevertExecutorContext context) {
+        return new SnapshotSQLStatement(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(), "", getWhereClause());
+    }
+    
+    private Collection<String> getQueryColumnNames() {
         return Collections.singleton("*");
     }
     
-    @Override
-    public String getWhereClause() {
+    private String getWhereClause() {
         return 0 < deleteStatement.getWhereStartIndex() ? deleteStatement.getLogicSQL().substring(deleteStatement.getWhereStartIndex(), deleteStatement.getWhereStopIndex() + 1) : "";
     }
-    
-//    @Override
-//    public Collection<Object> getParameters() {
-//        Collection<Object> result = new LinkedList<>();
-//        for (int i = deleteStatement.getWhereParameterStartIndex(); i <= deleteStatement.getWhereParameterEndIndex(); i++) {
-//            result.add(actualSQLParameters.get(i));
-//        }
-//        return result;
-//    }
 }

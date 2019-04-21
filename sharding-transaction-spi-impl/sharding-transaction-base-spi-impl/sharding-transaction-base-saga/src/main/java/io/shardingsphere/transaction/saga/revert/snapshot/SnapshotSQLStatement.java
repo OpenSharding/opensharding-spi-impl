@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.snapshot.statement;
+package io.shardingsphere.transaction.saga.revert.snapshot;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.sql.Connection;
 import java.util.Collection;
-import java.util.LinkedList;
 
 /**
  * Snapshot SQL statement.
@@ -32,13 +32,15 @@ import java.util.LinkedList;
 @Getter
 public class SnapshotSQLStatement {
     
+    private final Connection connection;
+    
     private final String tableName;
     
     private final Collection<Object> parameters;
     
-    private Collection<String> queryColumnNames = new LinkedList<>();
+    private final Collection<String> queryColumnNames;
     
-    private String tableAlias = "";
+    private final String tableAlias;
     
-    private String whereClause = "";
+    private final String whereClause;
 }

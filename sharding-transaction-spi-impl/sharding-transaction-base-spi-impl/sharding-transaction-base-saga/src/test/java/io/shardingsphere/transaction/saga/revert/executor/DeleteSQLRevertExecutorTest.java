@@ -21,8 +21,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.snapshot.statement.SnapshotSQLStatement;
+import io.shardingsphere.transaction.saga.revert.snapshot.DeleteSnapshotAccessor;
+import io.shardingsphere.transaction.saga.revert.snapshot.SnapshotSQLStatement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,13 +38,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeleteSQLRevertExecutorTest {
     
     @Mock
-    private DMLSnapshotAccessor snapshotAccessor;
+    private DeleteSnapshotAccessor snapshotAccessor;
     
     @Mock
     private SnapshotSQLStatement snapshotSQLStatement;
@@ -58,7 +59,7 @@ public class DeleteSQLRevertExecutorTest {
     @Before
     public void setUp() {
         when(snapshotSQLStatement.getTableName()).thenReturn("t_order_0");
-        when(snapshotAccessor.getSnapshotSQLStatement()).thenReturn(snapshotSQLStatement);
+        when(snapshotAccessor.getSnapshotSQLStatement(any(SQLRevertExecutorContext.class))).thenReturn(snapshotSQLStatement);
         addUndoData();
     }
     

@@ -21,9 +21,8 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
-import io.shardingsphere.transaction.saga.revert.snapshot.DMLSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.GenericSQLBuilder;
-import io.shardingsphere.transaction.saga.revert.snapshot.statement.UpdateSnapshotSQLStatement;
+import io.shardingsphere.transaction.saga.revert.snapshot.UpdateSnapshotAccessor;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
@@ -51,23 +50,19 @@ public final class UpdateSQLRevertExecutor implements SQLRevertExecutor {
     
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
-    public UpdateSQLRevertExecutor(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
-        sqlRevertContext = createRevertSQLContext(snapshotAccessor);
-    }
-    
     public UpdateSQLRevertExecutor(final SQLRevertExecutorContext context) throws SQLException {
-        UpdateSnapshotSQLStatement snapshotSQLStatement = new UpdateSnapshotSQLStatement(context.getActualTableName(),
-            (UpdateStatement) context.getSqlStatement(), context.getParameters(), context.getPrimaryKeyColumns());
-        DMLSnapshotAccessor snapshotAccessor = new DMLSnapshotAccessor(snapshotSQLStatement, context.getConnection());
+        UpdateSnapshotAccessor snapshotAccessor = new UpdateSnapshotAccessor(context);
         sqlRevertContext = createRevertSQLContext(snapshotAccessor);
     }
     
-    private UpdateSQLRevertContext createRevertSQLContext(final DMLSnapshotAccessor snapshotAccessor) throws SQLException {
-        UpdateSnapshotSQLStatement snapshotSQLStatement = (UpdateSnapshotSQLStatement) snapshotAccessor.getSnapshotSQLStatement();
-        UpdateStatement updateStatement = snapshotSQLStatement.getUpdateStatement();
-        List<Object> parameters = (List<Object>) snapshotSQLStatement.getParameters();
-        Map<String, Object> updateSetAssignments = getUpdateSetAssignments(updateStatement, parameters);
-        return new UpdateSQLRevertContext(snapshotSQLStatement.getTableName(), snapshotAccessor.queryUndoData(), updateSetAssignments, snapshotSQLStatement.getPrimaryKeyColumns(), parameters);
+    public UpdateSQLRevertExecutor(final UpdateSnapshotAccessor snapshotAccessor) throws SQLException {
+        sqlRevertContext = createRevertSQLContext(snapshotAccessor);
+    }
+    
+    private UpdateSQLRevertContext createRevertSQLContext(final UpdateSnapshotAccessor snapshotAccessor) throws SQLException {
+        SQLRevertExecutorContext context = snapshotAccessor.getExecutorContext();
+        Map<String, Object> updateSetAssignments = getUpdateSetAssignments((UpdateStatement) context.getSqlStatement(), context.getParameters());
+        return new UpdateSQLRevertContext(context.getActualTableName(), snapshotAccessor.queryUndoData(), updateSetAssignments, context.getPrimaryKeyColumns(), context.getParameters());
     }
     
     private Map<String, Object> getUpdateSetAssignments(final UpdateStatement updateStatement, final List<Object> parameters) {

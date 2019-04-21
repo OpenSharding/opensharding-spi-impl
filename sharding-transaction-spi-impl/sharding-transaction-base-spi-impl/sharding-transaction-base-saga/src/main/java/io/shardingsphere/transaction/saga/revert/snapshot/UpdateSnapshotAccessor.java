@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.snapshot.statement;
+package io.shardingsphere.transaction.saga.revert.snapshot;
 
 import com.google.common.base.Optional;
-import lombok.Getter;
+import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
@@ -29,25 +29,28 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Update snapshot SQL statement.
+ * Update snapshot accessor.
  *
  * @author zhaojun
  */
-@Getter
-public final class UpdateSnapshotSQLStatement extends SnapshotSQLStatement {
+public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     
-    private final UpdateStatement updateStatement;
+    private UpdateStatement updateStatement;
     
-    private final List<String> primaryKeyColumns;
+    private List<String> primaryKeyColumns;
     
-    public UpdateSnapshotSQLStatement(final String tableName, final UpdateStatement updateStatement, final List<Object> parameters, final List<String> primaryKeyColumns) {
-        super(tableName, parameters);
-        this.updateStatement = updateStatement;
-        this.primaryKeyColumns = primaryKeyColumns;
+    public UpdateSnapshotAccessor(final SQLRevertExecutorContext executorContext) {
+        super(executorContext);
+        this.updateStatement = (UpdateStatement) executorContext.getSqlStatement();
+        this.primaryKeyColumns = executorContext.getPrimaryKeyColumns();
     }
     
     @Override
-    public Collection<String> getQueryColumnNames() {
+    protected SnapshotSQLStatement getSnapshotSQLStatement(final SQLRevertExecutorContext context) {
+        return new SnapshotSQLStatement(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(), getTableAlias(), getWhereClause());
+    }
+    
+    private Collection<String> getQueryColumnNames() {
         Collection<String> result = new LinkedList<>();
         if (primaryKeyColumns.isEmpty()) {
             return Collections.singleton("*");
@@ -63,8 +66,7 @@ public final class UpdateSnapshotSQLStatement extends SnapshotSQLStatement {
         return result;
     }
     
-    @Override
-    public String getTableAlias() {
+    private String getTableAlias() {
         String result = null;
         Optional<Table> table = updateStatement.getTables().find(updateStatement.getTables().getSingleTableName());
         if (table.isPresent() && table.get().getAlias().isPresent() && !table.get().getAlias().get().equals(table.get().getName())) {
@@ -73,8 +75,7 @@ public final class UpdateSnapshotSQLStatement extends SnapshotSQLStatement {
         return result;
     }
     
-    @Override
-    public String getWhereClause() {
+    private String getWhereClause() {
         return 0 < updateStatement.getWhereStartIndex() ? updateStatement.getLogicSQL().substring(updateStatement.getWhereStartIndex(), updateStatement.getWhereStopIndex() + 1) : "";
     }
 }
