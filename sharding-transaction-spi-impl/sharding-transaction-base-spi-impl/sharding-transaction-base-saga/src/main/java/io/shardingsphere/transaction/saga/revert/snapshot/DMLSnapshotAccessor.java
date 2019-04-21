@@ -43,17 +43,17 @@ public abstract class DMLSnapshotAccessor implements SnapshotAccessor {
     
     @Override
     public final List<Map<String, Object>> queryUndoData() throws SQLException {
-        SnapshotSQLContext snapshotSQLContext = getSnapshotSQLContext(executorContext);
-        return JDBCUtil.executeQuery(snapshotSQLContext.getConnection(), buildSnapshotQuerySQL(snapshotSQLContext), snapshotSQLContext.getParameters());
+        SnapshotSQLContext context = getSnapshotSQLContext(executorContext);
+        return JDBCUtil.executeQuery(context.getConnection(), buildSnapshotQuerySQL(context), context.getParameters());
     }
     
-    private String buildSnapshotQuerySQL(final SnapshotSQLContext snapshotSQLContext) {
+    private String buildSnapshotQuerySQL(final SnapshotSQLContext context) {
         sqlBuilder.appendLiterals(DefaultKeyword.SELECT);
-        sqlBuilder.appendColumns(snapshotSQLContext.getQueryColumnNames());
+        sqlBuilder.appendColumns(context.getQueryColumnNames());
         sqlBuilder.appendLiterals(DefaultKeyword.FROM);
-        sqlBuilder.appendLiterals(snapshotSQLContext.getTableName());
-        sqlBuilder.appendLiterals(snapshotSQLContext.getTableAlias());
-        sqlBuilder.appendLiterals(snapshotSQLContext.getWhereClause());
+        sqlBuilder.appendLiterals(context.getTableName());
+        sqlBuilder.appendLiterals(context.getTableAlias());
+        sqlBuilder.appendLiterals(context.getWhereClause());
         return sqlBuilder.toSQL();
     }
     
