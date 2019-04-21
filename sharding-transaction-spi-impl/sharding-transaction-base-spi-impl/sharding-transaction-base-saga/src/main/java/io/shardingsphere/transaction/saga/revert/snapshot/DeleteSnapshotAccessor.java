@@ -38,8 +38,8 @@ public final class DeleteSnapshotAccessor extends DMLSnapshotAccessor {
     }
     
     @Override
-    protected SnapshotSQLStatement getSnapshotSQLStatement(final SQLRevertExecutorContext context) {
-        return new SnapshotSQLStatement(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(), "", getWhereClause());
+    public SnapshotSQLContext getSnapshotSQLContext(final SQLRevertExecutorContext context) {
+        return new SnapshotSQLContext(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(), "", getWhereClause());
     }
     
     private Collection<String> getQueryColumnNames() {

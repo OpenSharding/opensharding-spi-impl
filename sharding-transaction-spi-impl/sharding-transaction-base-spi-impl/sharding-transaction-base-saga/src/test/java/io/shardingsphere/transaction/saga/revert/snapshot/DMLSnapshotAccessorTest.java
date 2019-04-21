@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class DMLSnapshotAccessorTest {
     
     @Mock
-    private SnapshotSQLStatement snapshotSQLStatement;
+    private SnapshotSQLContext snapshotSQLStatement;
     
     @Mock
     private Connection connection;

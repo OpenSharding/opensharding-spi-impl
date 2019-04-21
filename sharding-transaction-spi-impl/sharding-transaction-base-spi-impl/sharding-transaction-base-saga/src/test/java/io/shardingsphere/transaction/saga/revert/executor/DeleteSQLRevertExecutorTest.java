@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.DeleteSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.snapshot.SnapshotSQLStatement;
+import io.shardingsphere.transaction.saga.revert.snapshot.SnapshotSQLContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +48,7 @@ public class DeleteSQLRevertExecutorTest {
     private DeleteSnapshotAccessor snapshotAccessor;
     
     @Mock
-    private SnapshotSQLStatement snapshotSQLStatement;
+    private SnapshotSQLContext snapshotSQLContext;
     
     private DeleteSQLRevertExecutor deleteSQLRevertExecutor;
     
@@ -58,8 +58,8 @@ public class DeleteSQLRevertExecutorTest {
     
     @Before
     public void setUp() {
-        when(snapshotSQLStatement.getTableName()).thenReturn("t_order_0");
-        when(snapshotAccessor.getSnapshotSQLStatement(any(SQLRevertExecutorContext.class))).thenReturn(snapshotSQLStatement);
+        when(snapshotSQLContext.getTableName()).thenReturn("t_order_0");
+        when(snapshotAccessor.getSnapshotSQLContext(any(SQLRevertExecutorContext.class))).thenReturn(snapshotSQLContext);
         addUndoData();
     }
     

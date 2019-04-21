@@ -46,8 +46,8 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     }
     
     @Override
-    protected SnapshotSQLStatement getSnapshotSQLStatement(final SQLRevertExecutorContext context) {
-        return new SnapshotSQLStatement(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(), getTableAlias(), getWhereClause());
+    protected SnapshotSQLContext getSnapshotSQLContext(final SQLRevertExecutorContext context) {
+        return new SnapshotSQLContext(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(), getTableAlias(), getWhereClause());
     }
     
     private Collection<String> getQueryColumnNames() {

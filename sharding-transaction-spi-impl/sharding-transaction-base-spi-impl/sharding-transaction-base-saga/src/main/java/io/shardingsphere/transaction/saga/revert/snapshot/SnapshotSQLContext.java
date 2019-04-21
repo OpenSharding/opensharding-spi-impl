@@ -24,13 +24,13 @@ import java.sql.Connection;
 import java.util.Collection;
 
 /**
- * Snapshot SQL statement.
+ * Snapshot SQL context.
  *
  * @author zhaojun
  */
 @RequiredArgsConstructor
 @Getter
-public class SnapshotSQLStatement {
+public class SnapshotSQLContext {
     
     private final Connection connection;
     
