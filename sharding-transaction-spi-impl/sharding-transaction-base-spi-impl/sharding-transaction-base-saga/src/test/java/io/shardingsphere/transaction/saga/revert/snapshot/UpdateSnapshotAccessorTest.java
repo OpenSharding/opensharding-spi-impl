@@ -147,6 +147,14 @@ public class UpdateSnapshotAccessorTest {
         verify(connection).prepareStatement("SELECT status, modifier, order_id FROM t_order_0 where order_id=? and user_id=? ");
     }
     
+    @Test
+    public void assertQueryUndoDataWithTableAlias() throws SQLException {
+        String sql = "update t_order t set t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
+        setMockUpdateStatement(sql, "t_order", "t", 46, 79, "status", "modifier");
+        updateSnapshotAccessor.queryUndoData();
+        verify(connection).prepareStatement("SELECT status, modifier, order_id FROM t_order_0 t where t.order_id=? and t.user_id=? ");
+    }
+    
     private void setMockUpdateStatement(final String logicSQL, final String tableName, final String tableAlias, final int whereStartIndex, final int whereStopIndex, final String... updateColumns) {
         when(updateStatement.getLogicSQL()).thenReturn(logicSQL);
         when(updateStatement.getAssignments()).thenReturn(mockUpdateAssignments(tableName, updateColumns));
