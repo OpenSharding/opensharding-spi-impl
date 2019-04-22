@@ -36,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -123,6 +124,17 @@ public class UpdateSQLRevertExecutorTest {
         Optional<String> actual = sqlRevertExecutor.revertSQL();
         assertTrue(actual.isPresent());
         assertThat(actual.get(), is("UPDATE t_order_0 SET user_id = ?, status = ? WHERE order_id = ?"));
+    }
+    
+    @Test
+    public void assertRevertSQLWithMultiPrimaryKeys() throws SQLException {
+        when(executorContext.getPrimaryKeyColumns()).thenReturn(Arrays.asList("order_id", "pk_2"));
+        setUpdateAssignments("t_order", "user_id", "status");
+        setSnapshot(10, "user_id", "status", "order_id", "pk_2");
+        sqlRevertExecutor = new UpdateSQLRevertExecutor(executorContext, snapshotAccessor);
+        Optional<String> actual = sqlRevertExecutor.revertSQL();
+        assertTrue(actual.isPresent());
+        assertThat(actual.get(), is("UPDATE t_order_0 SET user_id = ?, status = ? WHERE order_id = ? AND pk_2 = ?"));
     }
     
     @Test
