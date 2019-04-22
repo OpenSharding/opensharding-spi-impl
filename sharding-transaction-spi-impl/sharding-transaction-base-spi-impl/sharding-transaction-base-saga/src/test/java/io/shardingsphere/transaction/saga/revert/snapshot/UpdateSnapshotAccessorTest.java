@@ -132,6 +132,19 @@ public class UpdateSnapshotAccessorTest {
         assertThat(actualColumns, CoreMatchers.<List<String>>is(Lists.newArrayList("order_id", "status", "modifier")));
     }
     
+    @Test(expected = IllegalStateException.class)
+    public void assertGetSnapshotSQLContextPrimaryKeyNotExist() {
+        String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
+        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
+        when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.<String>newArrayList());
+        updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
+    }
+    
+    @Test
+    public void assertQueryUndoData() {
+    
+    }
+    
     private void setMockUpdateStatement(final String logicSQL, final String tableName, final String tableAlias, final int whereStartIndex, final int whereStopIndex, final String... updateColumns) {
         when(updateStatement.getLogicSQL()).thenReturn(logicSQL);
         when(updateStatement.getAssignments()).thenReturn(mockUpdateAssignments(tableName, updateColumns));
