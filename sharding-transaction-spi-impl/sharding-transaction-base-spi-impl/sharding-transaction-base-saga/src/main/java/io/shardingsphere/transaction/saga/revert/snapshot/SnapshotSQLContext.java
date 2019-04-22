@@ -43,8 +43,4 @@ public class SnapshotSQLContext {
     private final String tableAlias;
     
     private final String whereClause;
-    
-    public SnapshotSQLContext(final Connection connection, final String tableName, final Collection<Object> parameters, final Collection<String> queryColumnNames, final String whereClause) {
-        this(connection, tableName, parameters, queryColumnNames, null, whereClause);
-    }
 }

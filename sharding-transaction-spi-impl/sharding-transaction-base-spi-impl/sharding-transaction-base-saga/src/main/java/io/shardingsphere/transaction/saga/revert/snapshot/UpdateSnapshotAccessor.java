@@ -44,7 +44,8 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     
     @Override
     protected SnapshotSQLContext getSnapshotSQLContext(final SQLRevertExecutorContext context) {
-        return new SnapshotSQLContext(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(context), getTableAlias(), getWhereClause());
+        return new SnapshotSQLContext(context.getConnection(), context.getActualTableName(), context.getParameters(),
+            getQueryColumnNames(context), getTableAlias().or(""), getWhereClause());
     }
     
     private Collection<String> getQueryColumnNames(final SQLRevertExecutorContext context) {
@@ -60,13 +61,12 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
         return result;
     }
     
-    private String getTableAlias() {
-        String result = null;
+    private Optional<String> getTableAlias() {
         Optional<Table> table = updateStatement.getTables().find(updateStatement.getTables().getSingleTableName());
         if (table.isPresent() && table.get().getAlias().isPresent() && !table.get().getAlias().get().equals(table.get().getName())) {
-            result = table.get().getAlias().get();
+            return table.get().getAlias();
         }
-        return result;
+        return Optional.absent();
     }
     
     private String getWhereClause() {

@@ -37,7 +37,7 @@ public final class GenericSQLBuilder {
      * @param literals literals
      */
     public void appendLiterals(final Object literals) {
-        if (null != literals) {
+        if (null != literals && "" != literals) {
             sqlBuilder.append(literals).append(" ");
         }
     }

@@ -22,7 +22,6 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.DeleteSnapshotAccessor;
-import io.shardingsphere.transaction.saga.revert.snapshot.SnapshotSQLContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +37,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -48,7 +46,7 @@ public class DeleteSQLRevertExecutorTest {
     private DeleteSnapshotAccessor snapshotAccessor;
     
     @Mock
-    private SnapshotSQLContext snapshotSQLContext;
+    private SQLRevertExecutorContext executorContext;
     
     private DeleteSQLRevertExecutor deleteSQLRevertExecutor;
     
@@ -57,9 +55,10 @@ public class DeleteSQLRevertExecutorTest {
     private RevertSQLResult revertSQLResult = new RevertSQLResult("");
     
     @Before
-    public void setUp() {
-        when(snapshotSQLContext.getTableName()).thenReturn("t_order_0");
-        when(snapshotAccessor.getSnapshotSQLContext(any(SQLRevertExecutorContext.class))).thenReturn(snapshotSQLContext);
+    public void setUp() throws SQLException {
+        when(snapshotAccessor.getExecutorContext()).thenReturn(executorContext);
+        when(executorContext.getActualTableName()).thenReturn("t_order_0");
+        when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
         addUndoData();
     }
     
@@ -75,20 +74,10 @@ public class DeleteSQLRevertExecutorTest {
     
     @Test
     public void assertGenerateSQL() throws SQLException {
-        when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
         deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
         Optional<String> actual = deleteSQLRevertExecutor.revertSQL();
         assertTrue(actual.isPresent());
         assertThat(actual.get(), is("INSERT INTO t_order_0 VALUES (?,?,?)"));
-    }
-    
-    @Test
-    public void assertFillParameters() throws SQLException {
-        when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
-        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
-        deleteSQLRevertExecutor.fillParameters(revertSQLResult);
-        assertThat(revertSQLResult.getParameters().size(), is(10));
-        assertThat(revertSQLResult.getParameters().iterator().next().size(), is(3));
     }
     
     @Test
@@ -97,5 +86,13 @@ public class DeleteSQLRevertExecutorTest {
         deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
         Optional<String> actual = deleteSQLRevertExecutor.revertSQL();
         assertFalse(actual.isPresent());
+    }
+    
+    @Test
+    public void assertFillParameters() throws SQLException {
+        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
+        deleteSQLRevertExecutor.fillParameters(revertSQLResult);
+        assertThat(revertSQLResult.getParameters().size(), is(10));
+        assertThat(revertSQLResult.getParameters().iterator().next().size(), is(3));
     }
 }

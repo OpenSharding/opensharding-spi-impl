@@ -96,6 +96,4 @@ public class DeleteSnapshotAccessorTest {
         deleteSnapshotAccessor.queryUndoData();
         verify(connection).prepareStatement("SELECT * FROM t_order_0 WHERE order_id = ? ");
     }
-    
-    
 }
