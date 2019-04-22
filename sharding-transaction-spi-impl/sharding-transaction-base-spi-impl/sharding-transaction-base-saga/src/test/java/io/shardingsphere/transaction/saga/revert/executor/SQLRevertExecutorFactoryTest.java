@@ -20,10 +20,14 @@ package io.shardingsphere.transaction.saga.revert.executor;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.executor.update.UpdateSQLRevertExecutor;
 import org.apache.shardingsphere.core.optimize.result.OptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
+import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
+import org.apache.shardingsphere.core.parse.old.parser.context.table.Tables;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,10 +60,19 @@ public class SQLRevertExecutorFactoryTest {
     private DeleteStatement deleteStatement;
     
     @Mock
+    private UpdateStatement updateStatement;
+    
+    @Mock
     private OptimizeResult optimizeResult;
     
     @Mock
     private InsertOptimizeResult insertOptimizeResult;
+    
+    @Mock
+    private Tables tables;
+    
+    @Mock
+    private Table table;
     
     @Mock
     private Connection connection;
@@ -75,8 +88,17 @@ public class SQLRevertExecutorFactoryTest {
     
     private List<Object> parameters = new LinkedList<>();
     
+    private List<String> primaryKeyColumns = new LinkedList<>();
+    
+    private String tableName;
+    
+    private String tableAlias;
+    
     @Before
     public void setUp() {
+        primaryKeyColumns.add("order_id");
+        tableName = "t_order";
+        tableAlias = "t";
     }
     
     @Test
@@ -97,5 +119,22 @@ public class SQLRevertExecutorFactoryTest {
         when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
         SQLRevertExecutor actual = SQLRevertExecutorFactory.newInstance(executorContext);
         assertThat(actual, instanceOf(DeleteSQLRevertExecutor.class));
+    }
+    
+    @Test
+    public void assertUpdateSQLRevertExecutor() throws SQLException {
+        when(executorContext.getSqlStatement()).thenReturn(updateStatement);
+        when(updateStatement.getTables()).thenReturn(tables);
+        when(tables.getSingleTableName()).thenReturn(tableName);
+        when(tables.find(tableName)).thenReturn(Optional.of(table));
+        when(table.getAlias()).thenReturn(Optional.of(tableAlias));
+        when(table.getName()).thenReturn(tableName);
+        when(executorContext.getConnection()).thenReturn(connection);
+        when(executorContext.getPrimaryKeyColumns()).thenReturn(primaryKeyColumns);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
+        SQLRevertExecutor actual = SQLRevertExecutorFactory.newInstance(executorContext);
+        assertThat(actual, instanceOf(UpdateSQLRevertExecutor.class));
     }
 }
