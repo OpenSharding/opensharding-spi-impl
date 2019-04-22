@@ -18,13 +18,13 @@
 package io.shardingsphere.transaction.saga.revert.snapshot;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,25 +37,21 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     
     private UpdateStatement updateStatement;
     
-    private List<String> primaryKeyColumns;
-    
     public UpdateSnapshotAccessor(final SQLRevertExecutorContext executorContext) {
         super(executorContext);
         this.updateStatement = (UpdateStatement) executorContext.getSqlStatement();
-        this.primaryKeyColumns = executorContext.getPrimaryKeyColumns();
     }
     
     @Override
     protected SnapshotSQLContext getSnapshotSQLContext(final SQLRevertExecutorContext context) {
-        return new SnapshotSQLContext(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(), getTableAlias(), getWhereClause());
+        return new SnapshotSQLContext(context.getConnection(), context.getActualTableName(), context.getParameters(), getQueryColumnNames(context), getTableAlias(), getWhereClause());
     }
     
-    private Collection<String> getQueryColumnNames() {
+    private Collection<String> getQueryColumnNames(final SQLRevertExecutorContext context) {
         Collection<String> result = new LinkedList<>();
-        if (primaryKeyColumns.isEmpty()) {
-            return Collections.singleton("*");
-        }
-        List<String> remainPrimaryKeys = new LinkedList<>(primaryKeyColumns);
+        Preconditions.checkState(!context.getPrimaryKeyColumns().isEmpty(),
+            "Could not found primary key columns, datasourceName:[%s], tableName:[%s]", context.getDataSourceName(), context.getActualTableName());
+        List<String> remainPrimaryKeys = new LinkedList<>(context.getPrimaryKeyColumns());
         for (Column each : updateStatement.getAssignments().keySet()) {
             int dotPosition = each.getName().indexOf('.');
             String columnName = dotPosition > 0 ? each.getName().substring(dotPosition + 1).toLowerCase() : each.getName().toLowerCase();
