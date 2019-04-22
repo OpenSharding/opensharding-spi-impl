@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.revert.executor.update;
+package io.shardingsphere.transaction.saga.revert.executor;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
-import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
+import io.shardingsphere.transaction.saga.revert.executor.update.UpdateSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.snapshot.UpdateSnapshotAccessor;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
