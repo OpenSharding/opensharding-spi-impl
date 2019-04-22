@@ -18,10 +18,10 @@
 package io.shardingsphere.transaction.saga.revert.executor.update;
 
 import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.GenericSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
-import io.shardingsphere.transaction.saga.revert.GenericSQLBuilder;
 import io.shardingsphere.transaction.saga.revert.snapshot.UpdateSnapshotAccessor;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
@@ -50,17 +50,11 @@ public final class UpdateSQLRevertExecutor implements SQLRevertExecutor {
     
     private final GenericSQLBuilder sqlBuilder = new GenericSQLBuilder();
     
-    public UpdateSQLRevertExecutor(final SQLRevertExecutorContext context) throws SQLException {
-        UpdateSnapshotAccessor snapshotAccessor = new UpdateSnapshotAccessor(context);
-        sqlRevertContext = createRevertSQLContext(snapshotAccessor);
+    public UpdateSQLRevertExecutor(final SQLRevertExecutorContext context, final UpdateSnapshotAccessor snapshotAccessor) throws SQLException {
+        sqlRevertContext = createRevertSQLContext(context, snapshotAccessor);
     }
     
-    public UpdateSQLRevertExecutor(final UpdateSnapshotAccessor snapshotAccessor) throws SQLException {
-        sqlRevertContext = createRevertSQLContext(snapshotAccessor);
-    }
-    
-    private UpdateSQLRevertContext createRevertSQLContext(final UpdateSnapshotAccessor snapshotAccessor) throws SQLException {
-        SQLRevertExecutorContext context = snapshotAccessor.getExecutorContext();
+    private UpdateSQLRevertContext createRevertSQLContext(final SQLRevertExecutorContext context, final UpdateSnapshotAccessor snapshotAccessor) throws SQLException {
         Map<String, Object> updateSetAssignments = getUpdateSetAssignments((UpdateStatement) context.getSqlStatement(), context.getParameters());
         return new UpdateSQLRevertContext(context.getActualTableName(), snapshotAccessor.queryUndoData(), updateSetAssignments, context.getPrimaryKeyColumns(), context.getParameters());
     }
