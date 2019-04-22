@@ -171,4 +171,24 @@ public class UpdateSQLRevertExecutorTest {
             offset++;
         }
     }
+    
+    @Test
+    public void assertFillParametersWithMultiPrimaryKeys() throws SQLException {
+        when(executorContext.getPrimaryKeyColumns()).thenReturn(Arrays.asList("order_id", "pk_2"));
+        setUpdateAssignments("t_order", "user_id", "status");
+        setSnapshot(10, "user_id", "status", "order_id", "pk_2");
+        sqlRevertExecutor = new UpdateSQLRevertExecutor(executorContext, snapshotAccessor);
+        sqlRevertExecutor.fillParameters(revertSQLResult);
+        assertThat(revertSQLResult.getParameters().size(), is(10));
+        int offset = 1;
+        for (Collection<Object> each : revertSQLResult.getParameters()) {
+            assertThat(each.size(), is(4));
+            List<Object> parameterRow = Lists.newArrayList(each);
+            assertThat(parameterRow.get(0), CoreMatchers.<Object>is("user_id_" + offset));
+            assertThat(parameterRow.get(1), CoreMatchers.<Object>is("status_" + offset));
+            assertThat(parameterRow.get(2), CoreMatchers.<Object>is("order_id_" + offset));
+            assertThat(parameterRow.get(3), CoreMatchers.<Object>is("pk_2_" + offset));
+            offset++;
+        }
+    }
 }
