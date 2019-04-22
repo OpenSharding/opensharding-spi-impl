@@ -20,11 +20,13 @@ package io.shardingsphere.transaction.saga.servicecomb.transport;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
 import lombok.SneakyThrows;
+import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.junit.Before;
@@ -37,17 +39,18 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,10 +59,25 @@ import static org.mockito.Mockito.when;
 public final class ShardingSQLTransportTest {
     
     @Mock
-    private PreparedStatement statement;
+    private Connection connection;
+    
+    @Mock
+    private PreparedStatement preparedStatement;
     
     @Mock
     private SagaTransaction sagaTransaction;
+    
+    @Mock
+    private SagaBranchTransaction branchTransaction;
+    
+    @Mock
+    private SagaLogicSQLTransaction sagaLogicSQLTransaction;
+    
+    private List<List<String>> parameters;
+    
+    private List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
+    
+    private Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
     
     @Mock
     private SagaTransactionResource transactionResource;
@@ -72,12 +90,17 @@ public final class ShardingSQLTransportTest {
     public void setUp() throws SQLException {
         mockGetConnections();
         mockGetResource();
+        logicSQLTransactions.add(sagaLogicSQLTransaction);
+        branchTransactions.offer(branchTransaction);
+        when(sagaTransaction.getLogicSQLTransactions()).thenReturn(logicSQLTransactions);
+        when(sagaLogicSQLTransaction.getBranchTransactions()).thenReturn(branchTransactions);
+        parameters = getParameters();
+        
     }
     
     private void mockGetConnections() throws SQLException {
         ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
-        Connection connection = mock(Connection.class);
-        when(connection.prepareStatement(anyString())).thenReturn(statement);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         connectionMap.put(dataSourceName, connection);
         when(transactionResource.getConnectionMap()).thenReturn(connectionMap);
     }
@@ -94,80 +117,34 @@ public final class ShardingSQLTransportTest {
     @Test
     public void assertWithSuccessResult() {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
-        List<List<String>> parameterSets = getParameterSets();
-        mockExecutionResults(parameterSets, ExecuteStatus.SUCCESS);
-        shardingSQLTransport.with(dataSourceName, sql, parameterSets);
-        verify(transactionResource, never()).getConnectionMap();
+        setBranchTransaction(ExecuteStatus.SUCCESS, parameters);
+        SagaResponse actual = shardingSQLTransport.with(dataSourceName, sql, parameters);
+        assertThat(actual.body(), is("{}"));
     }
     
     @Test(expected = TransportFailedException.class)
     public void assertWithFailureResult() {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
-        List<List<String>> parameterSets = getParameterSets();
-        mockExecutionResults(parameterSets, ExecuteStatus.FAILURE);
-        shardingSQLTransport.with(dataSourceName, sql, parameterSets);
+        setBranchTransaction(ExecuteStatus.FAILURE, parameters);
+        shardingSQLTransport.with(dataSourceName, sql, parameters);
     }
     
     @Test
     public void assertWithCompensatingResult() throws SQLException {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
-        List<List<String>> parameterSets = getParameterSets();
-        mockExecutionResults(parameterSets, ExecuteStatus.COMPENSATING);
-        shardingSQLTransport.with(dataSourceName, sql, parameterSets);
-        verify(transactionResource).getConnectionMap();
-        verify(statement, times(2)).addBatch();
-        verify(statement).executeBatch();
-    }
-    
-    private void mockExecutionResults(final List<List<String>> parameterSets, final ExecuteStatus executeStatus) {
-        sagaTransaction.addBranchTransaction(new SagaBranchTransaction(dataSourceName, sql, transferList(parameterSets), executeStatus));
-    }
-    
-    private List<List<Object>> transferList(final List<List<String>> origin) {
-        List<List<Object>> result = Lists.newArrayList();
-        for (List<String> each : origin) {
-            result.add(Lists.<Object>newArrayList(each));
-        }
-        return result;
-    }
-    
-    @Test
-    public void assertWithNoResultForMultiParametersSuccess() throws SQLException {
-        ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
-        List<List<String>> parameterSets = getParameterSets();
-        assertThat(shardingSQLTransport.with(dataSourceName, sql, parameterSets), instanceOf(JsonSuccessfulSagaResponse.class));
-        verify(statement, times(2)).addBatch();
-        verify(statement).executeBatch();
+        setBranchTransaction(ExecuteStatus.COMPENSATING, parameters);
+        shardingSQLTransport.with(dataSourceName, sql, getParameters());
+        verify(preparedStatement, times(2)).addBatch();
+        verify(preparedStatement).executeBatch();
     }
     
     @Test(expected = TransportFailedException.class)
     public void assertWithNoResultForMultiParametersFailure() throws SQLException {
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
-        when(statement.executeBatch()).thenThrow(new SQLException("test execute failed"));
-        List<List<String>> parameterSets = getParameterSets();
-        assertThat(shardingSQLTransport.with(dataSourceName, sql, parameterSets), instanceOf(JsonSuccessfulSagaResponse.class));
-        verify(statement, times(2)).addBatch();
-    }
-    
-    private List<List<String>> getParameterSets() {
-        List<List<String>> result = Lists.newArrayList();
-        List<String> parameters = Lists.newArrayList();
-        parameters.add("1");
-        parameters.add("x");
-        result.add(parameters);
-        parameters = Lists.newArrayList();
-        parameters.add("2");
-        parameters.add("y");
-        result.add(parameters);
-        return result;
-    }
-    
-    @Test
-    public void assertWithNoResultForEmptyParameters() throws SQLException {
-        ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
-        List<List<String>> parameterSets = Lists.newArrayList();
-        assertThat(shardingSQLTransport.with(dataSourceName, sql, parameterSets), instanceOf(JsonSuccessfulSagaResponse.class));
-        verify(statement).executeUpdate();
+        setBranchTransaction(ExecuteStatus.COMPENSATING, parameters);
+        when(preparedStatement.executeBatch()).thenThrow(new SQLException("test execute failed"));
+        assertThat(shardingSQLTransport.with(dataSourceName, sql, parameters), instanceOf(JsonSuccessfulSagaResponse.class));
+        verify(preparedStatement, times(2)).addBatch();
     }
     
     @Test
@@ -191,13 +168,37 @@ public final class ShardingSQLTransportTest {
     
     @Test(expected = TransportFailedException.class)
     public void assertGetConnectionFailure() throws SQLException {
-        ConcurrentMap<String, Connection> connectionMap = new ConcurrentHashMap<>();
-        Connection connection = mock(Connection.class);
-        connectionMap.put(dataSourceName, connection);
-        when(transactionResource.getConnectionMap()).thenReturn(connectionMap);
         when(connection.getAutoCommit()).thenThrow(new SQLException("test get autocommit fail"));
         ShardingSQLTransport shardingSQLTransport = new ShardingSQLTransport(sagaTransaction);
-        List<List<String>> parameterSets = Lists.newArrayList();
-        shardingSQLTransport.with(dataSourceName, sql, parameterSets);
+        setBranchTransaction(ExecuteStatus.COMPENSATING, parameters);
+        shardingSQLTransport.with(dataSourceName, sql, parameters);
+    }
+    
+    private void setBranchTransaction(final ExecuteStatus executeStatus, List<List<String>> sagaParameters) {
+        when(branchTransaction.getExecuteStatus()).thenReturn(executeStatus);
+        when(branchTransaction.getDataSourceName()).thenReturn(dataSourceName);
+        when(branchTransaction.getSql()).thenReturn(sql);
+        when(branchTransaction.getParameterSets()).thenReturn(transferList(sagaParameters));
+    }
+    
+    private List<List<Object>> transferList(final List<List<String>> origin) {
+        List<List<Object>> result = Lists.newArrayList();
+        for (List<String> each : origin) {
+            result.add(Lists.<Object>newArrayList(each));
+        }
+        return result;
+    }
+    
+    private List<List<String>> getParameters() {
+        List<List<String>> result = Lists.newArrayList();
+        List<String> parameters = Lists.newArrayList();
+        parameters.add("1");
+        parameters.add("x");
+        result.add(parameters);
+        parameters = Lists.newArrayList();
+        parameters.add("2");
+        parameters.add("y");
+        result.add(parameters);
+        return result;
     }
 }

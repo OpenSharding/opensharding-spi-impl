@@ -55,22 +55,14 @@ public final class ShardingSQLTransport implements SQLTransport {
         if (SagaDefinitionBuilder.ROLLBACK_TAG.equals(sql)) {
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
-        Optional<SagaBranchTransaction> branchTransaction = getBranchTransaction(datasourceName, sql, parameterSets);
+        Optional<SagaBranchTransaction> branchTransaction = getBranchTransaction(datasourceName, sql);
         return branchTransaction.isPresent() && isNeedExecute(branchTransaction.get()) ? executeSQL(branchTransaction.get()) : new JsonSuccessfulSagaResponse("{}");
     }
     
-//    private List<List<Object>> transferList(final List<List<String>> origin) {
-//        List<List<Object>> result = Lists.newArrayList();
-//        for (List<String> each : origin) {
-//            result.add(Lists.<Object>newArrayList(each));
-//        }
-//        return result;
-//    }
-    
-    private Optional<SagaBranchTransaction> getBranchTransaction(final String datasourceName, final String sql, final List<List<String>> parameterSets) {
+    private Optional<SagaBranchTransaction> getBranchTransaction(final String datasourceName, final String sql) {
         Optional<SagaBranchTransaction> result = Optional.absent();
         for (SagaLogicSQLTransaction each : sagaTransaction.getLogicSQLTransactions()) {
-            result = doGetBranchTransaction(each, datasourceName, sql, parameterSets);
+            result = doGetBranchTransaction(each, datasourceName, sql);
             if (result.isPresent()) {
                 return result;
             }
@@ -78,10 +70,9 @@ public final class ShardingSQLTransport implements SQLTransport {
         return result;
     }
     
-    private Optional<SagaBranchTransaction> doGetBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction,
-                                                                   final String datasourceName, final String sql, final List<List<String>> parameterSets) {
+    private Optional<SagaBranchTransaction> doGetBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction, final String datasourceName, final String sql) {
         for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
-            if (datasourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql()) && parameterSets.equals(each.getParameterSets())) {
+            if (datasourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql())) {
                 return Optional.of(each);
             }
         }
