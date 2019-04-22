@@ -53,10 +53,8 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
             "Could not found primary key columns, datasourceName:[%s], tableName:[%s]", context.getDataSourceName(), context.getActualTableName());
         List<String> remainPrimaryKeys = new LinkedList<>(context.getPrimaryKeyColumns());
         for (Column each : updateStatement.getAssignments().keySet()) {
-            int dotPosition = each.getName().indexOf('.');
-            String columnName = dotPosition > 0 ? each.getName().substring(dotPosition + 1).toLowerCase() : each.getName().toLowerCase();
-            result.add(columnName);
-            remainPrimaryKeys.remove(columnName);
+            result.add(each.getName());
+            remainPrimaryKeys.remove(each.getName());
         }
         result.addAll(remainPrimaryKeys);
         return result;

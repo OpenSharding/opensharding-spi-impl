@@ -93,8 +93,8 @@ public class UpdateSnapshotAccessorTest {
     
     @Test
     public void assertGetSnapshotSQLContext() {
-        String sql = "update t_order set status=? and modifier=? where order_id=? and user_id=?";
-        setMockUpdateStatement(sql, "t_order", "", 43, 72, "status", "modifier");
+        String sql = "update t_order set status=?, modifier=? where order_id=? and user_id=?";
+        setMockUpdateStatement(sql, "t_order", "", 40, 69, "status", "modifier");
         when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.newArrayList("order_id"));
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
         assertThat(actual.getConnection(), is(connection));
@@ -108,12 +108,10 @@ public class UpdateSnapshotAccessorTest {
     
     @Test
     public void assertGetSnapshotSQLContextWithTableAlias() {
-        String sql = "update t_order t set t.status=? and t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 49, 82, "t.status", "t.modifier");
+        String sql = "update t_order t set t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
+        setMockUpdateStatement(sql, "t_order", "t", 46, 79, "status", "modifier");
         when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.newArrayList("order_id"));
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
-        assertThat(actual.getConnection(), is(connection));
-        assertThat(actual.getParameters(), CoreMatchers.<Collection<Object>>is(parameters));
         assertThat(actual.getTableName(), is("t_order_0"));
         assertThat(actual.getWhereClause(), is("where t.order_id=? and t.user_id=?"));
         assertThat(actual.getTableAlias(), is("t"));
@@ -123,7 +121,15 @@ public class UpdateSnapshotAccessorTest {
     
     @Test
     public void assertGetSnapshotSQLContextWithPrimaryKeyColumn() {
-    
+        String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
+        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
+        when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.newArrayList("order_id"));
+        SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
+        assertThat(actual.getTableName(), is("t_order_0"));
+        assertThat(actual.getWhereClause(), is("where t.order_id=? and t.user_id=?"));
+        assertThat(actual.getTableAlias(), is("t"));
+        List<String> actualColumns = Lists.newArrayList(actual.getQueryColumnNames());
+        assertThat(actualColumns, CoreMatchers.<List<String>>is(Lists.newArrayList("order_id", "status", "modifier")));
     }
     
     private void setMockUpdateStatement(final String logicSQL, final String tableName, final String tableAlias, final int whereStartIndex, final int whereStopIndex, final String... updateColumns) {
