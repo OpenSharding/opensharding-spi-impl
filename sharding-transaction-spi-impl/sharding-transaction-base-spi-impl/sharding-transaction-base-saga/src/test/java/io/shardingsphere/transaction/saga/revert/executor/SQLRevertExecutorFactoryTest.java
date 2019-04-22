@@ -23,6 +23,7 @@ import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevert
 import io.shardingsphere.transaction.saga.revert.executor.update.UpdateSQLRevertExecutor;
 import org.apache.shardingsphere.core.optimize.result.OptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
@@ -45,6 +46,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -86,8 +88,6 @@ public class SQLRevertExecutorFactoryTest {
     @Mock
     private ResultSetMetaData resultSetMetaData;
     
-    private List<Object> parameters = new LinkedList<>();
-    
     private List<String> primaryKeyColumns = new LinkedList<>();
     
     private String tableName;
@@ -111,7 +111,7 @@ public class SQLRevertExecutorFactoryTest {
     }
     
     @Test
-    public void assertDeleteSQLRevertExecutor() throws SQLException {
+    public void assertNewDeleteSQLRevertExecutor() throws SQLException {
         when(executorContext.getSqlStatement()).thenReturn(deleteStatement);
         when(executorContext.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
@@ -122,7 +122,7 @@ public class SQLRevertExecutorFactoryTest {
     }
     
     @Test
-    public void assertUpdateSQLRevertExecutor() throws SQLException {
+    public void assertNewUpdateSQLRevertExecutor() throws SQLException {
         when(executorContext.getSqlStatement()).thenReturn(updateStatement);
         when(updateStatement.getTables()).thenReturn(tables);
         when(tables.getSingleTableName()).thenReturn(tableName);
@@ -136,5 +136,11 @@ public class SQLRevertExecutorFactoryTest {
         when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
         SQLRevertExecutor actual = SQLRevertExecutorFactory.newInstance(executorContext);
         assertThat(actual, instanceOf(UpdateSQLRevertExecutor.class));
+    }
+    
+    @Test(expected = UnsupportedOperationException.class)
+    public void assertNewUnsupportedSQLStatement() {
+        when(executorContext.getSqlStatement()).thenReturn(mock(DMLStatement.class));
+        SQLRevertExecutorFactory.newInstance(executorContext);
     }
 }
