@@ -141,4 +141,22 @@ public class UpdateSQLRevertExecutorTest {
             assertThat(parameterRow.get(3), CoreMatchers.<Object>is(1000L));
         }
     }
+    
+    @Test
+    public void assertFillParametersWithoutSetUpdatePrimaryKey() throws SQLException {
+        setUpdateAssignments("t_order", "user_id", "status");
+        setSnapshot(10, "user_id", "status", "order_id");
+        sqlRevertExecutor = new UpdateSQLRevertExecutor(executorContext, snapshotAccessor);
+        sqlRevertExecutor.fillParameters(revertSQLResult);
+        assertThat(revertSQLResult.getParameters().size(), is(10));
+        int offset = 1;
+        for (Collection<Object> each : revertSQLResult.getParameters()) {
+            assertThat(each.size(), is(3));
+            List<Object> parameterRow = Lists.newArrayList(each);
+            assertThat(parameterRow.get(0), CoreMatchers.<Object>is("user_id_" + offset));
+            assertThat(parameterRow.get(1), CoreMatchers.<Object>is("status_" + offset));
+            assertThat(parameterRow.get(2), CoreMatchers.<Object>is("order_id_" + offset));
+            offset++;
+        }
+    }
 }
