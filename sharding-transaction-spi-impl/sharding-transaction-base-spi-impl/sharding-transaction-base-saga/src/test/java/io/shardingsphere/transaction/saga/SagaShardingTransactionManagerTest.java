@@ -20,8 +20,8 @@ package io.shardingsphere.transaction.saga;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
-import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
+import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingSQLTransport;
 import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
 import lombok.SneakyThrows;
@@ -43,6 +43,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -72,6 +76,19 @@ public final class SagaShardingTransactionManagerTest {
     
     @Mock
     private SagaPersistence sagaPersistence;
+    
+    @Mock
+    private SagaTransaction sagaTransaction;
+    
+    @Mock
+    private SagaLogicSQLTransaction sagaLogicSQLTransaction;
+    
+    @Mock
+    private SagaBranchTransaction branchTransaction;
+    
+    private List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
+    
+    private Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
     
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
@@ -146,13 +163,11 @@ public final class SagaShardingTransactionManagerTest {
     }
     
     @Test
-    public void assertCommitWithException() throws NoSuchFieldException, IllegalAccessException {
+    public void assertCommitWithException() {
         when(sagaResourceManager.getSagaExecutionComponent()).thenReturn(sagaExecutionComponent);
         when(sagaResourceManager.getSagaPersistence()).thenReturn(sagaPersistence);
-        sagaShardingTransactionManager.begin();
-        Field containExceptionField = SagaTransaction.class.getDeclaredField("containsException");
-        containExceptionField.setAccessible(true);
-        containExceptionField.set(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY), true);
+        when(sagaTransaction.isContainsException()).thenReturn(true);
+        setCurrentTransaction(sagaTransaction);
         SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
         sagaShardingTransactionManager.commit();
         verify(sagaPersistence).cleanSnapshot(sagaTransaction.getId());
@@ -190,11 +205,11 @@ public final class SagaShardingTransactionManagerTest {
     public void assertRollbackWithBegin() {
         when(sagaResourceManager.getSagaExecutionComponent()).thenReturn(sagaExecutionComponent);
         when(sagaResourceManager.getSagaPersistence()).thenReturn(sagaPersistence);
-        sagaShardingTransactionManager.begin();
-        SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
-        SagaLogicSQLTransaction sagaBranchTransactionGroup = new SagaLogicSQLTransaction("", null, null);
-        sagaBranchTransactionGroup.getBranchTransactions().add(new SagaBranchTransaction("", "", null));
-        sagaTransaction.getLogicSQLTransactions().add(sagaBranchTransactionGroup);
+        logicSQLTransactions.add(sagaLogicSQLTransaction);
+        branchTransactions.offer(branchTransaction);
+        when(sagaTransaction.getLogicSQLTransactions()).thenReturn(logicSQLTransactions);
+        when(sagaLogicSQLTransaction.getBranchTransactions()).thenReturn(branchTransactions);
+        setCurrentTransaction(sagaTransaction);
         sagaShardingTransactionManager.rollback();
         assertNull(SagaShardingTransactionManager.getCurrentTransaction());
         assertTrue(ShardingExecuteDataMap.getDataMap().isEmpty());
@@ -212,5 +227,14 @@ public final class SagaShardingTransactionManagerTest {
     @Test
     public void assertIsNotInTransaction() {
         assertFalse(sagaShardingTransactionManager.isInTransaction());
+    }
+    
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private void setCurrentTransaction(final SagaTransaction sagaTransaction) {
+        Field field = SagaShardingTransactionManager.class.getDeclaredField("CURRENT_TRANSACTION");
+        field.setAccessible(true);
+        ThreadLocal<SagaTransaction> threadLocal = (ThreadLocal<SagaTransaction>) field.get(SagaShardingTransactionManager.class);
+        threadLocal.set(sagaTransaction);
     }
 }

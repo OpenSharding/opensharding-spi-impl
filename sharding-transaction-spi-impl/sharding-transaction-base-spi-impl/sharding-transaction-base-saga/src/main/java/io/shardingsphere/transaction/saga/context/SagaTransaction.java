@@ -41,13 +41,9 @@ public final class SagaTransaction {
     
     private final String recoveryPolicy;
     
-//    private final Map<SQLUnit, TableUnit> tableUnitMap = new ConcurrentHashMap<>();
-    
     private final List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
     
     private SagaLogicSQLTransaction currentLogicSQLTransaction;
-    
-//    private volatile boolean containsException;
     
     /**
      * Go to next logic SQL transaction.
@@ -62,15 +58,6 @@ public final class SagaTransaction {
             logicSQLTransactions.add(currentLogicSQLTransaction);
         }
     }
-    
-//    /**
-//     * Whether current logic SQL transaction is DML.
-//     *
-//     * @return current branch transaction group is DML
-//     */
-//    public boolean isDMLLogicSQLTransaction() {
-//        return SQLType.DML == currentLogicSQLTransaction.getSqlStatement().getType();
-//    }
     
     /**
      * Whether saga transaction contains exception or not.
@@ -94,19 +81,6 @@ public final class SagaTransaction {
         }
         return false;
     }
-    
-//    /**
-//     * Record execution result.
-//     *
-//     * @param sagaBranchTransaction saga branch transaction
-//     * @param executeStatus execute status
-//     */
-//    public void updateExecutionResult(final SagaBranchTransaction sagaBranchTransaction, final ExecuteStatus executeStatus) {
-//        if (containsException | ExecuteStatus.FAILURE == executeStatus) {
-//            containsException = true;
-//        }
-//        executionResults.put(sagaBranchTransaction, executeStatus);
-//    }
     
     /**
      * Add new branch transaction to current logic SQL transaction.
