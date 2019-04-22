@@ -62,10 +62,11 @@ public final class GenericSQLBuilder {
         for (String each : columns) {
             sqlBuilder.append(each).append(" = ?");
             if (index < columns.size() - 1) {
-                sqlBuilder.append(",");
+                sqlBuilder.append(", ");
             }
             index++;
         }
+        sqlBuilder.append(" ");
     }
     
     /**
@@ -82,9 +83,9 @@ public final class GenericSQLBuilder {
         for (String each : columns) {
             if (firstItem) {
                 firstItem = false;
-                sqlBuilder.append(each).append(" =?");
+                sqlBuilder.append(each).append(" = ?");
             } else {
-                sqlBuilder.append(" ").append(DefaultKeyword.AND).append(" ").append(each).append(" =?");
+                sqlBuilder.append(" ").append(DefaultKeyword.AND).append(" ").append(each).append(" = ?");
             }
         }
     }

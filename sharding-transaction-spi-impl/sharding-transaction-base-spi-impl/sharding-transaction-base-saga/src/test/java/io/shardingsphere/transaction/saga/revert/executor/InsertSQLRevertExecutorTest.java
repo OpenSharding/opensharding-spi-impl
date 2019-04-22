@@ -76,7 +76,7 @@ public class InsertSQLRevertExecutorTest {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(10, "user_id", "order_id"));
         Optional<String> actual = insertSQLRevertExecutor.revertSQL();
         assertTrue(actual.isPresent());
-        assertThat(actual.get(), is("DELETE FROM t_order_0 WHERE user_id =? AND order_id =?"));
+        assertThat(actual.get(), is("DELETE FROM t_order_0 WHERE user_id = ? AND order_id = ?"));
     }
     
     @Test
@@ -96,7 +96,7 @@ public class InsertSQLRevertExecutorTest {
         when(revertSQLContext.getPrimaryKeyInsertValues()).thenReturn(mockPrimaryKeyInsertValues(5, "user_id"));
         Optional<String> actual = insertSQLRevertExecutor.revertSQL();
         assertTrue(actual.isPresent());
-        assertThat(actual.get(), is("DELETE FROM t_order_0 WHERE user_id =?"));
+        assertThat(actual.get(), is("DELETE FROM t_order_0 WHERE user_id = ?"));
     }
     
     @Test
