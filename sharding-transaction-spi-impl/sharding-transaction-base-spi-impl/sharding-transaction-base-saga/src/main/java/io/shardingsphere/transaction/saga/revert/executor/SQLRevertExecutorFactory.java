@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.saga.revert.executor;
 import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.update.UpdateSQLRevertExecutor;
+import io.shardingsphere.transaction.saga.revert.snapshot.DeleteSnapshotAccessor;
 import io.shardingsphere.transaction.saga.revert.snapshot.UpdateSnapshotAccessor;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
@@ -48,7 +49,7 @@ public final class SQLRevertExecutorFactory {
         if (sqlStatement instanceof InsertStatement) {
             sqlRevertExecutor = new InsertSQLRevertExecutor(context);
         } else if (sqlStatement instanceof DeleteStatement) {
-            sqlRevertExecutor = new DeleteSQLRevertExecutor(context);
+            sqlRevertExecutor = new DeleteSQLRevertExecutor(context, new DeleteSnapshotAccessor(context));
         } else if (sqlStatement instanceof UpdateStatement) {
             sqlRevertExecutor = new UpdateSQLRevertExecutor(context, new UpdateSnapshotAccessor(context));
         } else {

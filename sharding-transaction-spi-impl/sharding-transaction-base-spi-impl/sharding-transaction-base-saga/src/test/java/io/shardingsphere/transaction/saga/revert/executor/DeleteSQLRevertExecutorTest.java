@@ -56,7 +56,6 @@ public class DeleteSQLRevertExecutorTest {
     
     @Before
     public void setUp() throws SQLException {
-        when(snapshotAccessor.getExecutorContext()).thenReturn(executorContext);
         when(executorContext.getActualTableName()).thenReturn("t_order_0");
         when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
         addUndoData();
@@ -74,7 +73,7 @@ public class DeleteSQLRevertExecutorTest {
     
     @Test
     public void assertGenerateSQL() throws SQLException {
-        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
+        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(executorContext, snapshotAccessor);
         Optional<String> actual = deleteSQLRevertExecutor.revertSQL();
         assertTrue(actual.isPresent());
         assertThat(actual.get(), is("INSERT INTO t_order_0 VALUES (?,?,?)"));
@@ -83,14 +82,14 @@ public class DeleteSQLRevertExecutorTest {
     @Test
     public void assertGenerateRevertSQLWithoutUndoData() throws SQLException {
         when(snapshotAccessor.queryUndoData()).thenReturn(Lists.<Map<String, Object>>newLinkedList());
-        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
+        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(executorContext, snapshotAccessor);
         Optional<String> actual = deleteSQLRevertExecutor.revertSQL();
         assertFalse(actual.isPresent());
     }
     
     @Test
     public void assertFillParameters() throws SQLException {
-        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(snapshotAccessor);
+        deleteSQLRevertExecutor = new DeleteSQLRevertExecutor(executorContext, snapshotAccessor);
         deleteSQLRevertExecutor.fillParameters(revertSQLResult);
         assertThat(revertSQLResult.getParameters().size(), is(10));
         assertThat(revertSQLResult.getParameters().iterator().next().size(), is(3));
