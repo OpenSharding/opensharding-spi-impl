@@ -155,6 +155,14 @@ public class UpdateSnapshotAccessorTest {
         verify(connection).prepareStatement("SELECT status, modifier, order_id FROM t_order_0 t where t.order_id=? and t.user_id=? ");
     }
     
+    @Test
+    public void assertQueryUndoDataWithPrimaryKeyColumn() throws SQLException {
+        String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
+        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
+        updateSnapshotAccessor.queryUndoData();
+        verify(connection).prepareStatement("SELECT order_id, status, modifier FROM t_order_0 t where t.order_id=? and t.user_id=? ");
+    }
+    
     private void setMockUpdateStatement(final String logicSQL, final String tableName, final String tableAlias, final int whereStartIndex, final int whereStopIndex, final String... updateColumns) {
         when(updateStatement.getLogicSQL()).thenReturn(logicSQL);
         when(updateStatement.getAssignments()).thenReturn(mockUpdateAssignments(tableName, updateColumns));
