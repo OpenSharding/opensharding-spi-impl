@@ -26,6 +26,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -46,5 +49,13 @@ public class DMLSQLRevertEngineTest {
         when(sqlRevertExecutor.revertSQL()).thenReturn(Optional.<String>absent());
         Optional<RevertSQLResult> actual = sqlRevertEngine.revert();
         assertFalse(actual.isPresent());
+    }
+    
+    @Test
+    public void assertRevertSQLExist() {
+        when(sqlRevertExecutor.revertSQL()).thenReturn(Optional.of("revert sql"));
+        Optional<RevertSQLResult> actual = sqlRevertEngine.revert();
+        assertTrue(actual.isPresent());
+        verify(sqlRevertExecutor).fillParameters(any(RevertSQLResult.class));
     }
 }
