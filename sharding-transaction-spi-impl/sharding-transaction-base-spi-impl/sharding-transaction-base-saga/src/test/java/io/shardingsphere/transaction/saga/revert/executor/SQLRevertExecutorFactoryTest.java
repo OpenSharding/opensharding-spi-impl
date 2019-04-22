@@ -18,9 +18,11 @@
 package io.shardingsphere.transaction.saga.revert.executor;
 
 import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.saga.revert.executor.insert.InsertSQLRevertExecutor;
 import org.apache.shardingsphere.core.optimize.result.OptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +30,17 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,10 +53,27 @@ public class SQLRevertExecutorFactoryTest {
     private InsertStatement insertStatement;
     
     @Mock
+    private DeleteStatement deleteStatement;
+    
+    @Mock
     private OptimizeResult optimizeResult;
     
     @Mock
     private InsertOptimizeResult insertOptimizeResult;
+    
+    @Mock
+    private Connection connection;
+    
+    @Mock
+    private PreparedStatement preparedStatement;
+    
+    @Mock
+    private ResultSet resultSet;
+    
+    @Mock
+    private ResultSetMetaData resultSetMetaData;
+    
+    private List<Object> parameters = new LinkedList<>();
     
     @Before
     public void setUp() {
@@ -58,5 +86,16 @@ public class SQLRevertExecutorFactoryTest {
         when(optimizeResult.getInsertOptimizeResult()).thenReturn(Optional.of(insertOptimizeResult));
         SQLRevertExecutor actual = SQLRevertExecutorFactory.newInstance(executorContext);
         assertThat(actual, instanceOf(InsertSQLRevertExecutor.class));
+    }
+    
+    @Test
+    public void assertDeleteSQLRevertExecutor() throws SQLException {
+        when(executorContext.getSqlStatement()).thenReturn(deleteStatement);
+        when(executorContext.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
+        SQLRevertExecutor actual = SQLRevertExecutorFactory.newInstance(executorContext);
+        assertThat(actual, instanceOf(DeleteSQLRevertExecutor.class));
     }
 }
