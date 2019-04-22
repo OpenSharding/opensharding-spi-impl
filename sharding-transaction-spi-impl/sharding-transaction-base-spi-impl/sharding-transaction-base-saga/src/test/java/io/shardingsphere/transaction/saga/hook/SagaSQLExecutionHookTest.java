@@ -102,9 +102,6 @@ public final class SagaSQLExecutionHookTest {
     private RoutingResult routingResult;
     
     @Mock
-    private TableUnits tableUnits;
-    
-    @Mock
     private TableUnit tableUnit;
     
     @Mock
