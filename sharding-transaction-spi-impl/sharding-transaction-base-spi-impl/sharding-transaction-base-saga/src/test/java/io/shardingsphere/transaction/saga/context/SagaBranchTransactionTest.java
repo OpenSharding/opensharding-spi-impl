@@ -39,13 +39,6 @@ public final class SagaBranchTransactionTest {
     }
     
     @Test
-    public void assertEquals() {
-        SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
-        assertThat(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()), is(sagaBranchTransaction));
-        assertThat(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()), is(sagaBranchTransaction));
-    }
-    
-    @Test
     public void assertToString() {
         SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
         assertThat(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).toString(), is(sagaBranchTransaction.toString()));

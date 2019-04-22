@@ -41,7 +41,7 @@ public final class SagaBranchTransaction {
     
     private final List<List<Object>> parameterSets;
     
-    private ExecuteStatus executeStatus;
+    private ExecuteStatus executeStatus = ExecuteStatus.EXECUTING;
     
     private RevertSQLResult revertSQLResult;
     
@@ -51,24 +51,13 @@ public final class SagaBranchTransaction {
     }
     
     @Override
-    public int hashCode() {
-        return toString().hashCode();
+    public String toString() {
+        return "SagaBranchTransaction{" + "dataSourceName='" + dataSourceName + '\'' + ", sql='" + sql + '\''
+            + ", parameterSets=" + parameterSets + ", executeStatus=" + executeStatus + ", revertSQLResult=" + revertSQLResult + '}';
     }
     
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        SagaBranchTransaction that = (SagaBranchTransaction) o;
-        return dataSourceName.equals(that.getDataSourceName()) && sql.equals(that.sql) && parameterSets.equals(that.parameterSets);
+    public int hashCode() {
+        return toString().hashCode();
     }
-    
-    //    @Override
-//    public boolean equals(final Object obj) {
-//        return this == obj || obj instanceof SagaBranchTransaction && this.toString().equals(obj.toString());
-//    }
 }
