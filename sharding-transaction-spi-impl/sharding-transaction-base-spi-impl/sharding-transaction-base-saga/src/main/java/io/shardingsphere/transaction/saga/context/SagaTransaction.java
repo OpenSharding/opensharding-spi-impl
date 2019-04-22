@@ -22,14 +22,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
-import org.apache.shardingsphere.core.route.SQLUnit;
-import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Saga transaction.
@@ -45,7 +41,7 @@ public final class SagaTransaction {
     
     private final String recoveryPolicy;
     
-    private final Map<SQLUnit, TableUnit> tableUnitMap = new ConcurrentHashMap<>();
+//    private final Map<SQLUnit, TableUnit> tableUnitMap = new ConcurrentHashMap<>();
     
     private final List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
     
