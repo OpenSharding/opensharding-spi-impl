@@ -28,7 +28,6 @@ import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
 import lombok.SneakyThrows;
-import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
@@ -162,7 +161,6 @@ public final class SagaSQLExecutionHookTest {
         when(tableUnit.getDataSourceName()).thenReturn("ds1");
         RoutingTable routingTable = new RoutingTable("t_order", "t_order_0");
         when(tableUnit.getRoutingTables()).thenReturn(Lists.newLinkedList(Collections.singleton(routingTable)));
-        when(globalTransaction.getRecoveryPolicy()).thenReturn(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
         when(globalTransaction.getCurrentLogicSQLTransaction()).thenReturn(sagaLogicSQLTransaction);
         when(sagaLogicSQLTransaction.getTableMetaData()).thenReturn(tableMetaData);
         when(sagaLogicSQLTransaction.isDMLLogicSQL()).thenReturn(true);
@@ -208,10 +206,8 @@ public final class SagaSQLExecutionHookTest {
     
     @Test
     public void assertFinishFailure() {
-        when(globalTransaction.getRecoveryPolicy()).thenReturn(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY);
         sagaSQLExecutionHook.start(routeUnit, null, true, ShardingExecuteDataMap.getDataMap());
         sagaSQLExecutionHook.finishFailure(new RuntimeException());
-        assertFalse(ExecutorExceptionHandler.isExceptionThrown());
     }
     
     @After

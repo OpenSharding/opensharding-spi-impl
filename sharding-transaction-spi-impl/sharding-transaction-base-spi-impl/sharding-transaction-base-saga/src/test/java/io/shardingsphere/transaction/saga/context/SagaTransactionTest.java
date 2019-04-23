@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.context;
 
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
-import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;
@@ -58,7 +57,7 @@ public final class SagaTransactionTest {
     
     @Before
     public void setUp() {
-        sagaTransaction = new SagaTransaction(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY);
+        sagaTransaction = new SagaTransaction();
         when(sqlStatement.getType()).thenReturn(SQLType.DML);
         when(sqlRouteResult.getSqlStatement()).thenReturn(sqlStatement);
         when(sqlStatement.getTables()).thenReturn(tables);

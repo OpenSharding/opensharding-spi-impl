@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Saga branch transaction.
@@ -34,6 +35,8 @@ import java.util.List;
 @Getter
 @Setter
 public final class SagaBranchTransaction {
+    
+    private String branchId = UUID.randomUUID().toString().replaceAll("-", "");
     
     private final String dataSourceName;
     

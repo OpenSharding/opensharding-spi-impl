@@ -122,10 +122,10 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     }
     
     private SagaDefinitionBuilder getSagaDefinitionBuilder(final String recoveryPolicy) {
-        SagaDefinitionBuilder result = new SagaDefinitionBuilder(recoveryPolicy,
-            sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
+        SagaDefinitionBuilder result = new SagaDefinitionBuilder(recoveryPolicy, sagaConfiguration.getTransactionMaxRetries(),
+            sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
         for (SagaLogicSQLTransaction each : CURRENT_TRANSACTION.get().getLogicSQLTransactions()) {
-            result.switchParents();
+            result.nextLogicSQL();
             addLogicSQLDefinition(result, each);
         }
         return result;
@@ -135,8 +135,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
         RevertSQLResult defaultValue = new RevertSQLResult("");
         for (SagaBranchTransaction each : sagaLogicSQLTransaction.getBranchTransactions()) {
             RevertSQLResult revertSQLUnit = null != each.getRevertSQLResult() ? each.getRevertSQLResult() : defaultValue;
-            sagaDefinitionBuilder.addChildRequest(String.valueOf(each.hashCode()), each.getDataSourceName(), each.getSql(), each.getParameterSets(),
-                revertSQLUnit.getSql(), revertSQLUnit.getParameters());
+            sagaDefinitionBuilder.addSagaRequest(each.getBranchId(), each.getDataSourceName(), each.getSql(), each.getParameterSets(), revertSQLUnit.getSql(), revertSQLUnit.getParameters());
         }
     }
     

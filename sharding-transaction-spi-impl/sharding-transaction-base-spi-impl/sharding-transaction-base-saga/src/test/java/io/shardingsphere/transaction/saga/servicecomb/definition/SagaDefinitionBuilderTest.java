@@ -92,17 +92,17 @@ public final class SagaDefinitionBuilderTest {
     
     @Test
     public void assertAddChildRequestAndBuild() throws JsonProcessingException {
-        builder.addChildRequest("1", "ds_0", EXAMPLE_INSERT_SQL, INSERT_PARAMETERS, EXAMPLE_DELETE_SQL, DELETE_PARAMETERS);
+        builder.addSagaRequest("1", "ds_0", EXAMPLE_INSERT_SQL, INSERT_PARAMETERS, EXAMPLE_DELETE_SQL, DELETE_PARAMETERS);
         assertThat(builder.build(), is(EXPECT_SINGLE_SQL_DEFINITION));
-        builder.addChildRequest("2", "ds_1", EXAMPLE_UPDATE_SQL, UPDATE_PARAMETERS, EXAMPLE_UPDATE_SQL, UPDATE_C_PARAMETERS);
+        builder.addSagaRequest("2", "ds_1", EXAMPLE_UPDATE_SQL, UPDATE_PARAMETERS, EXAMPLE_UPDATE_SQL, UPDATE_C_PARAMETERS);
         assertThat(builder.build(), is(EXPECT_DOUBLE_SQL_DEFINITION));
     }
     
     @Test
     public void assertSwitchParents() throws JsonProcessingException {
-        builder.addChildRequest("1", "ds_0", EXAMPLE_INSERT_SQL, INSERT_PARAMETERS, EXAMPLE_DELETE_SQL, DELETE_PARAMETERS);
-        builder.switchParents();
-        builder.addChildRequest("2", "ds_1", EXAMPLE_UPDATE_SQL, UPDATE_PARAMETERS, EXAMPLE_UPDATE_SQL, UPDATE_C_PARAMETERS);
+        builder.addSagaRequest("1", "ds_0", EXAMPLE_INSERT_SQL, INSERT_PARAMETERS, EXAMPLE_DELETE_SQL, DELETE_PARAMETERS);
+        builder.nextLogicSQL();
+        builder.addSagaRequest("2", "ds_1", EXAMPLE_UPDATE_SQL, UPDATE_PARAMETERS, EXAMPLE_UPDATE_SQL, UPDATE_C_PARAMETERS);
         assertThat(builder.build(), is(EXPECT_PARENTS_SQL_DEFINITION));
     }
     

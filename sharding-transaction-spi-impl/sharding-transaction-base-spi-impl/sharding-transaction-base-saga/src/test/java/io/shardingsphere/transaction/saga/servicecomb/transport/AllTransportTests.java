@@ -22,8 +22,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        ShardingSQLTransportTest.class,
-        ShardingTransportFactoryTest.class
+        ShardingSQLTransportTest.class
 })
 public final class AllTransportTests {
 }

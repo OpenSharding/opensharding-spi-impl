@@ -61,7 +61,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
             }
             branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
             globalTransaction.addBranchTransaction(branchTransaction);
-            persistSnapshot(globalTransaction.getCurrentLogicSQLTransaction(), branchTransaction, routeUnit);
+            persistSnapshot(globalTransaction.getCurrentLogicSQLTransaction(), routeUnit);
         }
     }
     
@@ -79,7 +79,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         }
     }
     
-    private void persistSnapshot(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
+    private void persistSnapshot(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit) {
         SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
         Connection connection = transactionResource.getConnectionMap().get(routeUnit.getDataSourceName());
         SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);

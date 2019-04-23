@@ -25,9 +25,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Saga definition builder.
@@ -49,22 +48,22 @@ public final class SagaDefinitionBuilder {
     
     private final int transactionRetryDelayMilliseconds;
     
-    private final Queue<SagaRequest> requests = new ConcurrentLinkedQueue<>();
+    private final Collection<SagaRequest> sagaRequests = new LinkedList<>();
     
-    private String[] parents = new String[]{};
+    private Collection<String> parentsIds;
     
-    private Queue<String> newRequestIds = new ConcurrentLinkedQueue<>();
+    private Collection<String> requestIds;
     
     /**
      * Switch to next logic SQL.
      */
-    public void switchParents() {
-        parents = newRequestIds.toArray(new String[]{});
-        newRequestIds = new ConcurrentLinkedQueue<>();
+    public void nextLogicSQL() {
+        parentsIds = null == requestIds ? new LinkedList<String>() : new LinkedList<>(requestIds);
+        requestIds = new LinkedList<>();
     }
     
     /**
-     * Add child request node to definition graph.
+     * Add saga request node to definition graph.
      *
      * @param id request ID
      * @param datasourceName data source name
@@ -73,20 +72,20 @@ public final class SagaDefinitionBuilder {
      * @param compensationSQL compensation SQL
      * @param compensationParameters compensation SQL parameters
      */
-    public void addChildRequest(final String id, final String datasourceName, final String sql, final List<List<Object>> parameterSets,
-                                final String compensationSQL, final List<Collection<Object>> compensationParameters) {
+    public void addSagaRequest(final String id, final String datasourceName, final String sql, final List<List<Object>> parameterSets,
+                               final String compensationSQL, final List<Collection<Object>> compensationParameters) {
         Transaction transaction = new Transaction(sql, parameterSets, transactionMaxRetries);
         Compensation compensation = new Compensation(compensationSQL, compensationParameters, compensationMaxRetries);
-        requests.add(new SagaRequest(id, datasourceName, TYPE, transaction, compensation, parents, transactionRetryDelayMilliseconds));
-        newRequestIds.add(id);
+        sagaRequests.add(new SagaRequest(id, datasourceName, TYPE, transaction, compensation, parentsIds, transactionRetryDelayMilliseconds));
+        requestIds.add(id);
     }
     
     /**
      * Add rollback request node to definition graph.
      */
     public void addRollbackRequest() {
-        switchParents();
-        addChildRequest(ROLLBACK_TAG, ROLLBACK_TAG, ROLLBACK_TAG, Lists.<List<Object>>newArrayList(), ROLLBACK_TAG, Lists.<Collection<Object>>newArrayList());
+        nextLogicSQL();
+        addSagaRequest(ROLLBACK_TAG, ROLLBACK_TAG, ROLLBACK_TAG, Lists.<List<Object>>newArrayList(), ROLLBACK_TAG, Lists.<Collection<Object>>newArrayList());
     }
     
     /**
@@ -96,7 +95,7 @@ public final class SagaDefinitionBuilder {
      * @throws JsonProcessingException json process exception
      */
     public String build() throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(new SagaDefinition(recoveryPolicy, requests));
+        return new ObjectMapper().writeValueAsString(new SagaDefinition(recoveryPolicy, sagaRequests));
     }
     
     @Getter
@@ -122,7 +121,7 @@ public final class SagaDefinitionBuilder {
         
         private final Compensation compensation;
         
-        private final String[] parents;
+        private final Collection<String> parents;
         
         private final int failRetryDelayMilliseconds;
     }
