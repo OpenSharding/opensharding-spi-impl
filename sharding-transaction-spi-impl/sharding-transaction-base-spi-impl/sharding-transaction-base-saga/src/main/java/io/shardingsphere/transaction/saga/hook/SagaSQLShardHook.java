@@ -35,7 +35,7 @@ public final class SagaSQLShardHook implements ShardHook {
     
     @Override
     public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        if (!SagaTransactionHolder.isInTransaction()) {
+        if (SagaTransactionHolder.isInTransaction()) {
             SagaTransactionHolder.get().nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
         }
     }

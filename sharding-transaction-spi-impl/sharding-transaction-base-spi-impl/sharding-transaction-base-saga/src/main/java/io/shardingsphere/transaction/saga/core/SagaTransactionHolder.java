@@ -53,6 +53,11 @@ public class SagaTransactionHolder {
         SAGA_TRANSACTION.remove();
     }
     
+    /**
+     * Whether current thread is in saga transaction or not.
+     *
+     * @return true or false
+     */
     public static boolean isInTransaction() {
         return null != get();
     }

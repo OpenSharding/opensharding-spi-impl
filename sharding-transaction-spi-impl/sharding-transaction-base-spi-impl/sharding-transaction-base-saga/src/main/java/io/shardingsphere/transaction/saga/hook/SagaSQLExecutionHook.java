@@ -53,11 +53,11 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
-        if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY)) {
-            sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
-            if (!sagaTransaction.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
-                return;
-            }
+        if (!shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY)) {
+            return;
+        }
+        sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
+        if (sagaTransaction.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
             branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
             sagaTransaction.addBranchTransaction(branchTransaction);
             persistSnapshot(sagaTransaction.getCurrentLogicSQLTransaction(), routeUnit);
