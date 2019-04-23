@@ -19,9 +19,19 @@ package io.shardingsphere.transaction.spring.boot;
 
 import io.shardingsphere.transaction.aspect.ShardingTransactionJDBCAspect;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import javax.sql.DataSource;
 
 /**
  * Spring boot sharding transaction configuration.
@@ -41,5 +51,39 @@ public class ShardingTransactionJDBCConfiguration {
     @Bean
     public ShardingTransactionJDBCAspect shardingTransactionalAspect() {
         return new ShardingTransactionJDBCAspect();
+    }
+    
+    /**
+     * Build hibernate transaction manager.
+     *
+     * @param transactionManagerCustomizers transaction manager customizers
+     * @return jpa transaction manager
+     */
+    @Bean
+    @ConditionalOnMissingBean(PlatformTransactionManager.class)
+    @ConditionalOnClass(value = LocalContainerEntityManagerFactoryBean.class, name = "javax.persistence.EntityManager")
+    public PlatformTransactionManager jpaTransactionManager(final ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
+        JpaTransactionManager result = new JpaTransactionManager();
+        if (null != transactionManagerCustomizers.getIfAvailable()) {
+            transactionManagerCustomizers.getIfAvailable().customize(result);
+        }
+        return result;
+    }
+    
+    /**
+     * Build datasource transaction manager.
+     *
+     * @param dataSource data source
+     * @param transactionManagerCustomizers transaction manager customizers
+     * @return datasource transaction manager
+     */
+    @Bean
+    @ConditionalOnMissingBean(PlatformTransactionManager.class)
+    public PlatformTransactionManager dataSourceTransactionManager(final DataSource dataSource, final ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
+        DataSourceTransactionManager result = new DataSourceTransactionManager(dataSource);
+        if (null != transactionManagerCustomizers.getIfAvailable()) {
+            transactionManagerCustomizers.getIfAvailable().customize(result);
+        }
+        return result;
     }
 }
