@@ -19,9 +19,9 @@ package io.shardingsphere.transaction.saga.servicecomb.transport;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
@@ -57,7 +57,8 @@ public final class ShardingSQLTransport implements SQLTransport {
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
         Optional<SagaBranchTransaction> branchTransaction = sagaTransaction.findBranchTransaction(datasourceName, sql, sagaParameters);
-        return branchTransaction.isPresent() && isNeedExecute(branchTransaction.get()) ? executeSQL(branchTransaction.get()) : new JsonSuccessfulSagaResponse("{}");
+        return branchTransaction.isPresent() && isNeedExecute(branchTransaction.get()) ?
+            executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
     }
     
     private boolean isNeedExecute(final SagaBranchTransaction branchTransaction) {
@@ -72,16 +73,17 @@ public final class ShardingSQLTransport implements SQLTransport {
         throw new TransportFailedException(String.format("branchTransaction %s execute failed, need to compensate", branchTransaction.toString()));
     }
         
-    private SagaResponse executeSQL(final SagaBranchTransaction branchTransaction) {
-        Connection connection = getConnection(branchTransaction.getDataSourceName());
-        try (PreparedStatement preparedStatement = connection.prepareStatement(branchTransaction.getSql())) {
-            if (branchTransaction.getParameterSets().isEmpty()) {
+    private SagaResponse executeSQL(final String datasourceName, final String sql, final List<List<String>> sagaParameters) {
+        Connection connection = getConnection(datasourceName);
+        List<List<Object>> sqlParameters = convertSagaParameters(sagaParameters);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            if (sqlParameters.isEmpty()) {
                 preparedStatement.executeUpdate();
             } else {
-                executeBatch(preparedStatement, branchTransaction.getParameterSets());
+                executeBatch(preparedStatement, sqlParameters);
             }
         } catch (SQLException ex) {
-            throw new TransportFailedException(String.format("Execute SQL `%s` occur exception.", branchTransaction.toString()), ex);
+            throw new TransportFailedException(String.format("Execute SQL `%s` occur exception. dataSourceName:[%s], parameters:[%s]", sql, datasourceName, sagaParameters), ex);
         }
         return new JsonSuccessfulSagaResponse("{}");
     }
@@ -96,6 +98,14 @@ public final class ShardingSQLTransport implements SQLTransport {
         } catch (final SQLException ex) {
             throw new TransportFailedException(String.format("Get connection of data source name `%s` occur exception: ", datasourceName), ex);
         }
+    }
+    
+    private List<List<Object>> convertSagaParameters(final List<List<String>> sagaParameters) {
+        List<List<Object>> result = Lists.newArrayList();
+        for (List<String> each : sagaParameters) {
+            result.add(Lists.<Object>newArrayList(each));
+        }
+        return result;
     }
     
     private void executeBatch(final PreparedStatement preparedStatement, final List<List<Object>> parameterSets) throws SQLException {

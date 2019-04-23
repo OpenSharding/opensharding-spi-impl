@@ -133,11 +133,14 @@ public final class SagaTransaction {
     private Optional<SagaBranchTransaction> doFindBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction, final String dataSourceName,
                                                                     final String sql, final List<List<String>> sagaParameters) {
         for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
-            if (dataSourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql()) && judgeParameters(sagaParameters, each.getParameterSets())) {
-                return Optional.of(each);
-            }
-            if (dataSourceName.equals(each.getDataSourceName()) && sql.equals(each.getRevertSQLResult().getSql()) && judgeRevertParameters(sagaParameters, each.getRevertSQLResult().getParameters())) {
-                return Optional.of(each);
+            if (dataSourceName.equals(each.getDataSourceName())) {
+                if (ExecuteStatus.COMPENSATING.equals(each.getExecuteStatus()) && sql.equals(each.getRevertSQLResult().getSql())
+                    && judgeRevertParameters(sagaParameters, each.getRevertSQLResult().getParameters())) {
+                    return Optional.of(each);
+                } else if (!ExecuteStatus.COMPENSATING.equals(each.getExecuteStatus()) && sql.equals(each.getSql())
+                    && judgeParameters(sagaParameters, each.getParameterSets())) {
+                    return Optional.of(each);
+                }
             }
         }
         return Optional.absent();
@@ -147,7 +150,7 @@ public final class SagaTransaction {
         Iterator<List<String>> sagaParameterIterator = sagaParameters.iterator();
         Iterator<List<Object>> sqlParameterIterator = sqlParameters.iterator();
         while (sagaParameterIterator.hasNext()) {
-            if (!sagaParameterIterator.next().equals(sqlParameterIterator.next())) {
+            if (!sagaParameterIterator.next().toString().equals(sqlParameterIterator.next().toString())) {
                 return false;
             }
         }
@@ -158,7 +161,7 @@ public final class SagaTransaction {
         Iterator<List<String>> sagaParameterIterator = sagaParameters.iterator();
         Iterator<Collection<Object>> revertParameterIterator = revertParameters.iterator();
         while (sagaParameterIterator.hasNext()) {
-            if (!sagaParameterIterator.next().equals(revertParameterIterator.next())) {
+            if (!sagaParameterIterator.next().toString().equals(revertParameterIterator.next().toString())) {
                 return false;
             }
         }
