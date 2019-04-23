@@ -36,8 +36,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Getter
 public class SagaLogicSQLTransaction {
     
-    private final String logicSQL;
-    
     private final SQLRouteResult sqlRouteResult;
     
     private String logicTableName;
@@ -48,8 +46,7 @@ public class SagaLogicSQLTransaction {
     
     private final Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
     
-    public SagaLogicSQLTransaction(final String logicSQL, final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        this.logicSQL = logicSQL;
+    public SagaLogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
         this.sqlRouteResult = sqlRouteResult;
         logicTableName = sqlRouteResult.getSqlStatement().getTables().getSingleTableName();
         sqlStatement = sqlRouteResult.getSqlStatement();

@@ -42,25 +42,20 @@ public final class SagaBranchTransaction {
     
     private final String sql;
     
-    private final List<List<Object>> parameterSets;
+    private final List<List<Object>> parameters;
     
     private ExecuteStatus executeStatus = ExecuteStatus.EXECUTING;
     
     private RevertSQLResult revertSQLResult;
     
-    public SagaBranchTransaction(final String dataSourceName, final String sql, final List<List<Object>> parameterSets, final ExecuteStatus executeStatus) {
-        this(dataSourceName, sql, parameterSets);
+    public SagaBranchTransaction(final String dataSourceName, final String sql, final List<List<Object>> parameters, final ExecuteStatus executeStatus) {
+        this(dataSourceName, sql, parameters);
         this.executeStatus = executeStatus;
     }
     
     @Override
     public String toString() {
         return "SagaBranchTransaction{" + "dataSourceName='" + dataSourceName + '\'' + ", sql='" + sql + '\''
-            + ", parameterSets=" + parameterSets + ", executeStatus=" + executeStatus + ", revertSQLResult=" + revertSQLResult + '}';
-    }
-    
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
+            + ", parameters=" + parameters + ", executeStatus=" + executeStatus + ", revertSQLResult=" + revertSQLResult + '}';
     }
 }

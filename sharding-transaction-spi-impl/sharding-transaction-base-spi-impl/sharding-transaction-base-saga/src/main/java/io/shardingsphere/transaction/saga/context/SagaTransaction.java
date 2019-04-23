@@ -54,12 +54,11 @@ public final class SagaTransaction {
     /**
      * Go to next logic SQL transaction.
      *
-     * @param logicSQL logic SQL
      * @param sqlRouteResult SQL route result
      * @param shardingTableMetaData sharding table meta data
      */
-    public void nextLogicSQLTransaction(final String logicSQL, final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        currentLogicSQLTransaction = new SagaLogicSQLTransaction(logicSQL, sqlRouteResult, shardingTableMetaData);
+    public void nextLogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
+        currentLogicSQLTransaction = new SagaLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
         if (currentLogicSQLTransaction.isDMLLogicSQL()) {
             logicSQLTransactions.add(currentLogicSQLTransaction);
         }
@@ -141,7 +140,7 @@ public final class SagaTransaction {
                     && judgeRevertParameters(sagaParameters, each.getRevertSQLResult().getParameters())) {
                     return Optional.of(each);
                 } else if (!ExecuteStatus.COMPENSATING.equals(each.getExecuteStatus()) && sql.equals(each.getSql())
-                    && judgeParameters(sagaParameters, each.getParameterSets())) {
+                    && judgeParameters(sagaParameters, each.getParameters())) {
                     return Optional.of(each);
                 }
             }

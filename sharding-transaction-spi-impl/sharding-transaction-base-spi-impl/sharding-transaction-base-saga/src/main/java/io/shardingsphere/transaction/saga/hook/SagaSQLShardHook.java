@@ -32,17 +32,15 @@ public final class SagaSQLShardHook implements ShardHook {
     
     private final SagaTransaction sagaTransaction = SagaShardingTransactionManager.getCurrentTransaction();
     
-    private String sql;
     
     @Override
     public void start(final String sql) {
-        this.sql = sql;
     }
     
     @Override
     public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
         if (null != sagaTransaction) {
-            sagaTransaction.nextLogicSQLTransaction(sql, sqlRouteResult, shardingTableMetaData);
+            sagaTransaction.nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
         }
     }
     

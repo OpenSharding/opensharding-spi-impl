@@ -178,7 +178,7 @@ public final class ShardingSQLTransportTest {
         when(branchTransaction.getExecuteStatus()).thenReturn(executeStatus);
         when(branchTransaction.getDataSourceName()).thenReturn(dataSourceName);
         when(branchTransaction.getSql()).thenReturn(sql);
-        when(branchTransaction.getParameterSets()).thenReturn(transferList(sagaParameters));
+        when(branchTransaction.getParameters()).thenReturn(transferList(sagaParameters));
     }
     
     private List<List<Object>> transferList(final List<List<String>> origin) {

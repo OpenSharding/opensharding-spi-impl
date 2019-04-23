@@ -69,6 +69,6 @@ public final class SagaSQLShardHookTest {
     public void assertFinishSuccess() {
         sagaSQLShardHook.start("logicSQL");
         sagaSQLShardHook.finishSuccess(sqlRouteResult, shardingTableMetaData);
-        verify(sagaTransaction).nextLogicSQLTransaction("logicSQL", sqlRouteResult, shardingTableMetaData);
+        verify(sagaTransaction).nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
     }
 }
