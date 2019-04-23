@@ -31,9 +31,7 @@ import io.shardingsphere.transaction.saga.revert.DMLSQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorFactory;
-import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
-import org.apache.shardingsphere.core.execute.sql.execute.threadlocal.ExecutorExceptionHandler;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLUnit;
@@ -63,7 +61,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
             }
             branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
             globalTransaction.addBranchTransaction(branchTransaction);
-            saveUndoDataIfNecessary(globalTransaction.getCurrentLogicSQLTransaction(), branchTransaction, routeUnit);
+            persistSnapshot(globalTransaction.getCurrentLogicSQLTransaction(), branchTransaction, routeUnit);
         }
     }
     
@@ -77,20 +75,17 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     @Override
     public void finishFailure(final Exception cause) {
         if (null != branchTransaction) {
-            ExecutorExceptionHandler.setExceptionThrown(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy()));
             branchTransaction.setExecuteStatus(ExecuteStatus.FAILURE);
         }
     }
     
-    private void saveUndoDataIfNecessary(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
-        if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(globalTransaction.getRecoveryPolicy())) {
-            SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
-            Connection connection = transactionResource.getConnectionMap().get(routeUnit.getDataSourceName());
-            SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
-            Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
-            this.branchTransaction.setRevertSQLResult(revertSQLResult.orNull());
-            transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLResult.orNull()));
-        }
+    private void persistSnapshot(final SagaLogicSQLTransaction logicSQLTransaction, final SagaBranchTransaction branchTransaction, final RouteUnit routeUnit) {
+        SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
+        Connection connection = transactionResource.getConnectionMap().get(routeUnit.getDataSourceName());
+        SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
+        Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
+        this.branchTransaction.setRevertSQLResult(revertSQLResult.orNull());
+        transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLResult.orNull()));
     }
     
     private List<List<Object>> splitParameters(final SQLUnit sqlUnit) {

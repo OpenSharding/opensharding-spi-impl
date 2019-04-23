@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.servicecomb.transport;
 
-import io.shardingsphere.transaction.saga.context.SagaTransaction;
+import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.servicecomb.saga.transports.SQLTransport;
@@ -33,8 +33,6 @@ public final class ShardingTransportFactory implements TransportFactory<SQLTrans
     
     private static final ShardingTransportFactory INSTANCE = new ShardingTransportFactory();
     
-    private final ThreadLocal<SQLTransport> transports = new ThreadLocal<>();
-    
     /**
      * Get instance of sharding transport factory.
      *
@@ -44,24 +42,8 @@ public final class ShardingTransportFactory implements TransportFactory<SQLTrans
         return INSTANCE;
     }
     
-    /**
-     * Cache transport.
-     *
-     * @param sagaTransaction saga transaction
-     */
-    public void cacheTransport(final SagaTransaction sagaTransaction) {
-        transports.set(new ShardingSQLTransport(sagaTransaction));
-    }
-    
-    /**
-     * Remove cached transport.
-     */
-    public void remove() {
-        transports.remove();
-    }
-    
     @Override
     public SQLTransport getTransport() {
-        return transports.get();
+        return new ShardingSQLTransport(SagaShardingTransactionManager.getCurrentTransaction());
     }
 }

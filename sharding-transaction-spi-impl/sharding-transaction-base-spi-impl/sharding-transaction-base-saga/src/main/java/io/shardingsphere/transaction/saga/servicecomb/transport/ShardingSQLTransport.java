@@ -57,21 +57,21 @@ public final class ShardingSQLTransport implements SQLTransport {
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
         Optional<SagaBranchTransaction> branchTransaction = sagaTransaction.findBranchTransaction(datasourceName, sql, sagaParameters);
-        return branchTransaction.isPresent() && isNeedExecute(branchTransaction.get()) ?
-            executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
+        return branchTransaction.isPresent() && branchTransaction.get().isExecuteSQL() ? executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
     }
     
-    private boolean isNeedExecute(final SagaBranchTransaction branchTransaction) {
-        ExecuteStatus executeStatus = branchTransaction.getExecuteStatus();
-        if (null == executeStatus || ExecuteStatus.COMPENSATING == executeStatus) {
-            return true;
-        }
-        if (ExecuteStatus.SUCCESS == executeStatus) {
-            return false;
-        }
-        branchTransaction.setExecuteStatus(ExecuteStatus.COMPENSATING);
-        throw new TransportFailedException(String.format("branchTransaction %s execute failed, need to compensate", branchTransaction.toString()));
-    }
+//    private boolean isExecuteSQL(final ExecuteStatus executeStatus) {
+//        return ExecuteStatus.COMPENSATING.equals(executeStatus) || ExecuteStatus.FAILURE.equals(executeStatus);
+//        ExecuteStatus executeStatus = branchTransaction.getExecuteStatus();
+//        if (null == executeStatus || ExecuteStatus.COMPENSATING == executeStatus) {
+//            return true;
+//        }
+//        if (ExecuteStatus.SUCCESS == executeStatus) {
+//            return false;
+//        }
+//        branchTransaction.setExecuteStatus(ExecuteStatus.COMPENSATING);
+//        throw new TransportFailedException(String.format("branchTransaction %s execute failed, need to compensate", branchTransaction.toString()));
+//    }
         
     private SagaResponse executeSQL(final String datasourceName, final String sql, final List<List<String>> sagaParameters) {
         Connection connection = getConnection(datasourceName);

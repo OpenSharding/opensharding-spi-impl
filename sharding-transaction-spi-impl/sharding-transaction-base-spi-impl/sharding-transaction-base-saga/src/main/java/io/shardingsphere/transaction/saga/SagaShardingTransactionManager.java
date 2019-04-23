@@ -25,7 +25,6 @@ import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;
-import io.shardingsphere.transaction.saga.servicecomb.transport.ShardingTransportFactory;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.DatabaseType;
@@ -92,11 +91,10 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void begin() {
         if (null == CURRENT_TRANSACTION.get()) {
-            SagaTransaction transaction = new SagaTransaction(sagaConfiguration.getRecoveryPolicy());
+            SagaTransaction transaction = new SagaTransaction();
             resourceManager.registerTransactionResource(transaction);
             ShardingExecuteDataMap.getDataMap().put(CURRENT_TRANSACTION_KEY, transaction);
             CURRENT_TRANSACTION.set(transaction);
-            ShardingTransportFactory.getInstance().cacheTransport(transaction);
         }
     }
     
@@ -144,7 +142,6 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
             resourceManager.getSagaPersistence().cleanSnapshot(CURRENT_TRANSACTION.get().getId());
             resourceManager.releaseTransactionResource(CURRENT_TRANSACTION.get());
         }
-        ShardingTransportFactory.getInstance().remove();
         ShardingExecuteDataMap.getDataMap().remove(CURRENT_TRANSACTION_KEY);
         CURRENT_TRANSACTION.remove();
     }

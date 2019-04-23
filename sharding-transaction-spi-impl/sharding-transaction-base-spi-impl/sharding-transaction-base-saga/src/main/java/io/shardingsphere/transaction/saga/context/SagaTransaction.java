@@ -42,8 +42,6 @@ public final class SagaTransaction {
     
     private final String id = UUID.randomUUID().toString();
     
-    private final String recoveryPolicy;
-    
     private final List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
     
     private SagaLogicSQLTransaction currentLogicSQLTransaction;
