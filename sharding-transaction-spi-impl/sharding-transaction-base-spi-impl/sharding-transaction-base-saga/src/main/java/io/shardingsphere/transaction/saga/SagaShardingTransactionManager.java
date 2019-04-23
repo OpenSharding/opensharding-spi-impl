@@ -30,6 +30,7 @@ import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
+import org.apache.shardingsphere.transaction.core.TransactionOperationType;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.apache.shardingsphere.transaction.spi.ShardingTransactionManager;
 
@@ -102,6 +103,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @SneakyThrows
     public void commit() {
         if (null != CURRENT_TRANSACTION.get() && CURRENT_TRANSACTION.get().isContainsException()) {
+            CURRENT_TRANSACTION.get().setTransactionOperationType(TransactionOperationType.COMMIT);
             resourceManager.getSagaExecutionComponent().run(getSagaDefinitionBuilder(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY).build());
         }
         cleanTransaction();
@@ -113,6 +115,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
         if (null != CURRENT_TRANSACTION.get()) {
             SagaDefinitionBuilder graphTaskBuilder = getSagaDefinitionBuilder(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
             graphTaskBuilder.addRollbackRequest();
+            CURRENT_TRANSACTION.get().setTransactionOperationType(TransactionOperationType.ROLLBACK);
             resourceManager.getSagaExecutionComponent().run(graphTaskBuilder.build());
         }
         cleanTransaction();

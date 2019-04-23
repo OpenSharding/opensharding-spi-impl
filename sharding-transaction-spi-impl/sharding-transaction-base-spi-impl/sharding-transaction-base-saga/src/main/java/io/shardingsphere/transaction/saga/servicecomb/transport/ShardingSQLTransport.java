@@ -31,6 +31,7 @@ import org.apache.servicecomb.saga.core.SuccessfulSagaResponse;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.servicecomb.saga.format.JsonSuccessfulSagaResponse;
 import org.apache.servicecomb.saga.transports.SQLTransport;
+import org.apache.shardingsphere.transaction.core.TransactionOperationType;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -57,26 +58,17 @@ public final class ShardingSQLTransport implements SQLTransport {
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
         Optional<SagaBranchTransaction> branchTransaction = sagaTransaction.findBranchTransaction(datasourceName, sql, sagaParameters);
-        return branchTransaction.isPresent() && branchTransaction.get().isExecuteSQL() ? executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
+        return branchTransaction.isPresent() && isExecuteSQL(branchTransaction.get().getExecuteStatus()) ? executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
     }
     
-//    private boolean isExecuteSQL(final ExecuteStatus executeStatus) {
-//        return ExecuteStatus.COMPENSATING.equals(executeStatus) || ExecuteStatus.FAILURE.equals(executeStatus);
-//        ExecuteStatus executeStatus = branchTransaction.getExecuteStatus();
-//        if (null == executeStatus || ExecuteStatus.COMPENSATING == executeStatus) {
-//            return true;
-//        }
-//        if (ExecuteStatus.SUCCESS == executeStatus) {
-//            return false;
-//        }
-//        branchTransaction.setExecuteStatus(ExecuteStatus.COMPENSATING);
-//        throw new TransportFailedException(String.format("branchTransaction %s execute failed, need to compensate", branchTransaction.toString()));
-//    }
-        
+    private boolean isExecuteSQL(final ExecuteStatus executeStatus) {
+        return ExecuteStatus.COMPENSATING.equals(executeStatus) ||
+            (TransactionOperationType.COMMIT.equals(sagaTransaction.getTransactionOperationType()) && ExecuteStatus.FAILURE.equals(executeStatus));
+    }
+    
     private SagaResponse executeSQL(final String datasourceName, final String sql, final List<List<String>> sagaParameters) {
-        Connection connection = getConnection(datasourceName);
         List<List<Object>> sqlParameters = convertSagaParameters(sagaParameters);
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = getConnection(datasourceName).prepareStatement(sql)) {
             if (sqlParameters.isEmpty()) {
                 preparedStatement.executeUpdate();
             } else {

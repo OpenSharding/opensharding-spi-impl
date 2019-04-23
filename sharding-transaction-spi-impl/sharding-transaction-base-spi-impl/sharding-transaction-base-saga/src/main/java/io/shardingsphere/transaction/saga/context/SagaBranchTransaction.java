@@ -50,10 +50,6 @@ public final class SagaBranchTransaction {
         this.executeStatus = executeStatus;
     }
     
-    public boolean isExecuteSQL() {
-        return ExecuteStatus.COMPENSATING.equals(executeStatus) || ExecuteStatus.FAILURE.equals(executeStatus);
-    }
-    
     @Override
     public String toString() {
         return "SagaBranchTransaction{" + "dataSourceName='" + dataSourceName + '\'' + ", sql='" + sql + '\''

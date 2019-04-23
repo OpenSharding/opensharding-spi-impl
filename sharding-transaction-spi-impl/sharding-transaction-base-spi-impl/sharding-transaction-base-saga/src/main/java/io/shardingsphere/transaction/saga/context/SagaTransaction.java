@@ -21,8 +21,10 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
+import org.apache.shardingsphere.transaction.core.TransactionOperationType;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -45,6 +47,9 @@ public final class SagaTransaction {
     private final List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
     
     private SagaLogicSQLTransaction currentLogicSQLTransaction;
+    
+    @Setter
+    private TransactionOperationType transactionOperationType = TransactionOperationType.BEGIN;
     
     /**
      * Go to next logic SQL transaction.
