@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.constant;
+package io.shardingsphere.transaction.saga.context;
 
 /**
  * SQL execute status.

@@ -18,7 +18,6 @@
 package io.shardingsphere.transaction.saga.context;
 
 import com.google.common.base.Optional;
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -34,8 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Saga transaction.

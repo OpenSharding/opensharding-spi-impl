@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.servicecomb.transport;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
+import io.shardingsphere.transaction.saga.context.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilder;

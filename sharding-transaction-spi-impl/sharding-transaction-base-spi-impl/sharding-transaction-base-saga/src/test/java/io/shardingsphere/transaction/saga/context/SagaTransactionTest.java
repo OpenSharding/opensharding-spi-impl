@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.context;
 
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DMLStatement;

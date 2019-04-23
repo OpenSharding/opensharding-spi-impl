@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.context;
 
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

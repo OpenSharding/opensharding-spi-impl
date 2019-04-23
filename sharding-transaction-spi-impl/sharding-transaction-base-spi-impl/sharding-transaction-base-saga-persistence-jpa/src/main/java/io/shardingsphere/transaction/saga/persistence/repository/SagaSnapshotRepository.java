@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.persistence.repository;
 
-import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
+import io.shardingsphere.transaction.saga.context.ExecuteStatus;
 import io.shardingsphere.transaction.saga.persistence.entity.SagaSnapshotEntity;
 
 import javax.persistence.EntityManager;
