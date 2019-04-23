@@ -17,15 +17,12 @@
 
 package io.shardingsphere.transaction.saga.servicecomb;
 
+import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilderTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import io.shardingsphere.transaction.saga.servicecomb.definition.SagaDefinitionBuilderTest;
-import io.shardingsphere.transaction.saga.servicecomb.transport.AllTransportTests;
-
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        AllTransportTests.class,
         SagaDefinitionBuilderTest.class,
         SagaExecutionComponentFactoryTest.class
 })

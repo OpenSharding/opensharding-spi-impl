@@ -21,7 +21,6 @@ import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
 import io.shardingsphere.transaction.saga.context.AllContextTests;
 import io.shardingsphere.transaction.saga.hook.AllHookTests;
 import io.shardingsphere.transaction.saga.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.resource.AllResourceTests;
 import io.shardingsphere.transaction.saga.servicecomb.AllServiceCombTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -29,12 +28,10 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        SagaShardingTransactionManagerTest.class,
         SagaConfigurationLoaderTest.class,
         AllContextTests.class,
         AllHookTests.class,
         AllPersistenceTests.class,
-        AllResourceTests.class,
         AllServiceCombTests.class
 })
 public final class AllTests {

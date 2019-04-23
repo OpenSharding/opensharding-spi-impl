@@ -59,7 +59,7 @@ public class SagaSnapshotEntity {
     private String transactionId;
     
     @Column(name = "snapshot_id")
-    private Integer snapshotId;
+    private String snapshotId;
     
     @Column(name = "transaction_context")
     private String transactionContext;
