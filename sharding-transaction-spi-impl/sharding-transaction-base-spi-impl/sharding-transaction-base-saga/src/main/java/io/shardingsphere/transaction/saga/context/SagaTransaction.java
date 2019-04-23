@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -114,12 +116,13 @@ public final class SagaTransaction {
      *
      * @param dataSourceName data source name
      * @param sql SQL
+     * @param sagaParameters saga parameters
      * @return saga branch transaction
      */
-    public Optional<SagaBranchTransaction> findBranchTransaction(final String dataSourceName, final String sql) {
+    public Optional<SagaBranchTransaction> findBranchTransaction(final String dataSourceName, final String sql, final List<List<String>> sagaParameters) {
         Optional<SagaBranchTransaction> result = Optional.absent();
         for (SagaLogicSQLTransaction each : logicSQLTransactions) {
-            result = doFindBranchTransaction(each, dataSourceName, sql);
+            result = doFindBranchTransaction(each, dataSourceName, sql, sagaParameters);
             if (result.isPresent()) {
                 return result;
             }
@@ -127,15 +130,38 @@ public final class SagaTransaction {
         return result;
     }
     
-    private Optional<SagaBranchTransaction> doFindBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction, final String dataSourceName, final String sql) {
+    private Optional<SagaBranchTransaction> doFindBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction, final String dataSourceName,
+                                                                    final String sql, final List<List<String>> sagaParameters) {
         for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
-            if (dataSourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql())) {
+            if (dataSourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql()) && judgeParameters(sagaParameters, each.getParameterSets())) {
                 return Optional.of(each);
             }
-            if (dataSourceName.equals(each.getDataSourceName()) && sql.equals(each.getRevertSQLResult().getSql())) {
+            if (dataSourceName.equals(each.getDataSourceName()) && sql.equals(each.getRevertSQLResult().getSql()) && judgeRevertParameters(sagaParameters, each.getRevertSQLResult().getParameters())) {
                 return Optional.of(each);
             }
         }
         return Optional.absent();
+    }
+    
+    private boolean judgeParameters(List<List<String>> sagaParameters, List<List<Object>> sqlParameters) {
+        Iterator<List<String>> sagaParameterIterator = sagaParameters.iterator();
+        Iterator<List<Object>> sqlParameterIterator = sqlParameters.iterator();
+        while (sagaParameterIterator.hasNext()) {
+            if (!sagaParameterIterator.next().equals(sqlParameterIterator.next())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean judgeRevertParameters(List<List<String>> sagaParameters, List<Collection<Object>> revertParameters) {
+        Iterator<List<String>> sagaParameterIterator = sagaParameters.iterator();
+        Iterator<Collection<Object>> revertParameterIterator = revertParameters.iterator();
+        while (sagaParameterIterator.hasNext()) {
+            if (!sagaParameterIterator.next().equals(revertParameterIterator.next())) {
+                return false;
+            }
+        }
+        return true;
     }
 }
