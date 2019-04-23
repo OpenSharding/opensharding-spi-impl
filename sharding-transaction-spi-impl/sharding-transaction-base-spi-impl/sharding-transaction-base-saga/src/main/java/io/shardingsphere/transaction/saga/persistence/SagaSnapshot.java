@@ -33,7 +33,7 @@ public final class SagaSnapshot {
     
     private final String transactionId;
     
-    private final int snapshotId;
+    private final String snapshotId;
     
     private final SagaBranchTransaction transactionContext;
     

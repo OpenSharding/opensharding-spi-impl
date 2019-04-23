@@ -24,9 +24,9 @@ import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
+import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.resource.SagaResourceManager;
-import io.shardingsphere.transaction.saga.resource.SagaTransactionResource;
 import io.shardingsphere.transaction.saga.revert.DMLSQLRevertEngine;
 import io.shardingsphere.transaction.saga.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.revert.executor.SQLRevertExecutorContext;
@@ -51,6 +51,7 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     private SagaTransaction globalTransaction;
     
     private SagaBranchTransaction branchTransaction;
+    
     
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
@@ -80,12 +81,12 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     }
     
     private void persistSnapshot(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit) {
-        SagaTransactionResource transactionResource = SagaResourceManager.getTransactionResource(globalTransaction);
-        Connection connection = transactionResource.getConnectionMap().get(routeUnit.getDataSourceName());
+        Connection connection = globalTransaction.getCachedConnections().get(routeUnit.getDataSourceName());
         SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
         Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
         this.branchTransaction.setRevertSQLResult(revertSQLResult.orNull());
-        transactionResource.getPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(), branchTransaction.hashCode(), branchTransaction, revertSQLResult.orNull()));
+        SagaResourceManager.getInstance().getSagaPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(),
+            branchTransaction.getBranchId(), branchTransaction, revertSQLResult.orNull()));
     }
     
     private List<List<Object>> splitParameters(final SQLUnit sqlUnit) {

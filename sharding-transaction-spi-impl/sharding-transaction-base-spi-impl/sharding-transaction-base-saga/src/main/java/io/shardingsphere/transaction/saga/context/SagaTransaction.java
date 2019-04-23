@@ -26,11 +26,16 @@ import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.transaction.core.TransactionOperationType;
 
+import java.sql.Connection;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Saga transaction.
@@ -47,6 +52,8 @@ public final class SagaTransaction {
     private final List<SagaLogicSQLTransaction> logicSQLTransactions = new LinkedList<>();
     
     private SagaLogicSQLTransaction currentLogicSQLTransaction;
+    
+    private final Map<String, Connection> cachedConnections = new HashMap<>();
     
     @Setter
     private TransactionOperationType transactionOperationType = TransactionOperationType.BEGIN;

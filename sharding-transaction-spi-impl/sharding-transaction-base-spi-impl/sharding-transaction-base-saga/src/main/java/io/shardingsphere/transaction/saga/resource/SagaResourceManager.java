@@ -17,106 +17,44 @@
 
 package io.shardingsphere.transaction.saga.resource;
 
-import io.shardingsphere.transaction.saga.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
+import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.persistence.SagaPersistenceLoader;
 import io.shardingsphere.transaction.saga.servicecomb.SagaExecutionComponentFactory;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
-import org.apache.shardingsphere.core.exception.ShardingException;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Saga resource manager.
  *
  * @author yangyi
  */
+@Getter
 public final class SagaResourceManager {
     
-    private static final Map<SagaTransaction, SagaTransactionResource> TRANSACTION_RESOURCE_MAP = new ConcurrentHashMap<>();
+    private static final SagaResourceManager INSTANCE = new SagaResourceManager();
     
-    @Getter
-    private final SagaPersistence sagaPersistence;
+    private SagaConfiguration sagaConfiguration;
     
-    @Getter
-    private final SagaExecutionComponent sagaExecutionComponent;
+    private SagaPersistence sagaPersistence;
     
-    private final Map<String, DataSource> dataSourceMap = new ConcurrentHashMap<>();
+    private SagaExecutionComponent sagaExecutionComponent;
     
-    public SagaResourceManager(final SagaConfiguration sagaConfiguration) {
+    private SagaResourceManager() {
+        sagaConfiguration = SagaConfigurationLoader.load();
         sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
         sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, sagaPersistence);
     }
     
     /**
-     * Get saga transaction resource.
+     * Get instance.
      *
-     * @param sagaTransaction saga transaction
-     * @return saga transaction resource
+     * @return saga resource manager.
      */
-    public static SagaTransactionResource getTransactionResource(final SagaTransaction sagaTransaction) {
-        return TRANSACTION_RESOURCE_MAP.get(sagaTransaction);
-    }
-    
-    /**
-     * Register transaction resource.
-     *
-     * @param sagaTransaction saga transaction
-     */
-    public void registerTransactionResource(final SagaTransaction sagaTransaction) {
-        TRANSACTION_RESOURCE_MAP.put(sagaTransaction, new SagaTransactionResource(sagaPersistence));
-    }
-    
-    /**
-     * Release transaction resource.
-     *
-     * @param sagaTransaction saga transaction
-     */
-    public void releaseTransactionResource(final SagaTransaction sagaTransaction) {
-        TRANSACTION_RESOURCE_MAP.remove(sagaTransaction);
-    }
-    
-    /**
-     * Register data source map.
-     *
-     * @param datasourceName data sourceName
-     * @param dataSource data source
-     */
-    public void registerDataSourceMap(final String datasourceName, final DataSource dataSource) {
-        validateDataSourceName(datasourceName, dataSource);
-        dataSourceMap.put(datasourceName, dataSource);
-    }
-    
-    private void validateDataSourceName(final String datasourceName, final DataSource dataSource) {
-        if (dataSourceMap.containsKey(datasourceName)) {
-            throw new ShardingException("datasource {} has registered", datasourceName);
-        }
-    }
-    
-    /**
-     * Get connection.
-     * 
-     * @param dataSourceName data source name
-     * @param sagaTransaction saga transaction
-     * @return connection
-     * @throws SQLException SQL exception
-     */
-    public Connection getConnection(final String dataSourceName, final SagaTransaction sagaTransaction) throws SQLException {
-        Connection result = dataSourceMap.get(dataSourceName).getConnection();
-        TRANSACTION_RESOURCE_MAP.get(sagaTransaction).getConnectionMap().putIfAbsent(dataSourceName, result);
-        return result;
-    }
-    
-    /**
-     * Release data source map.
-     */
-    public void releaseDataSourceMap() {
-        dataSourceMap.clear();
+    public static SagaResourceManager getInstance() {
+        return INSTANCE;
     }
 }
