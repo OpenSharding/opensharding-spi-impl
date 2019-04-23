@@ -56,33 +56,10 @@ public final class ShardingSQLTransport implements SQLTransport {
             sagaTransaction.changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
-        Optional<SagaBranchTransaction> branchTransaction = getBranchTransaction(datasourceName, sql);
+        Optional<SagaBranchTransaction> branchTransaction = sagaTransaction.findBranchTransaction(datasourceName, sql);
         return branchTransaction.isPresent() && isNeedExecute(branchTransaction.get()) ? executeSQL(branchTransaction.get()) : new JsonSuccessfulSagaResponse("{}");
     }
     
-    private Optional<SagaBranchTransaction> getBranchTransaction(final String datasourceName, final String sql) {
-        Optional<SagaBranchTransaction> result = Optional.absent();
-        for (SagaLogicSQLTransaction each : sagaTransaction.getLogicSQLTransactions()) {
-            result = doGetBranchTransaction(each, datasourceName, sql);
-            if (result.isPresent()) {
-                return result;
-            }
-        }
-        return result;
-    }
-    
-    private Optional<SagaBranchTransaction> doGetBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction, final String datasourceName, final String sql) {
-        for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
-            if (datasourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql())) {
-                return Optional.of(each);
-            }
-            if (datasourceName.equals(each.getDataSourceName()) && sql.equals(each.getRevertSQLResult().getSql())) {
-                return Optional.of(each);
-            }
-        }
-        return Optional.absent();
-    }
-   
     private boolean isNeedExecute(final SagaBranchTransaction branchTransaction) {
         ExecuteStatus executeStatus = branchTransaction.getExecuteStatus();
         if (null == executeStatus || ExecuteStatus.COMPENSATING == executeStatus) {

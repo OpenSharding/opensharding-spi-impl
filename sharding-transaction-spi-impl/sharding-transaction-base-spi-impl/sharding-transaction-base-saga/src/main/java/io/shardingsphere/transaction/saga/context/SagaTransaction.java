@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.saga.context;
 
+import com.google.common.base.Optional;
 import io.shardingsphere.transaction.saga.constant.ExecuteStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -106,5 +107,35 @@ public final class SagaTransaction {
         for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
             each.setExecuteStatus(executeStatus);
         }
+    }
+    
+    /**
+     * Find branch transaction.
+     *
+     * @param dataSourceName data source name
+     * @param sql SQL
+     * @return saga branch transaction
+     */
+    public Optional<SagaBranchTransaction> findBranchTransaction(final String dataSourceName, final String sql) {
+        Optional<SagaBranchTransaction> result = Optional.absent();
+        for (SagaLogicSQLTransaction each : logicSQLTransactions) {
+            result = doFindBranchTransaction(each, dataSourceName, sql);
+            if (result.isPresent()) {
+                return result;
+            }
+        }
+        return result;
+    }
+    
+    private Optional<SagaBranchTransaction> doFindBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction, final String dataSourceName, final String sql) {
+        for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
+            if (dataSourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql())) {
+                return Optional.of(each);
+            }
+            if (dataSourceName.equals(each.getDataSourceName()) && sql.equals(each.getRevertSQLResult().getSql())) {
+                return Optional.of(each);
+            }
+        }
+        return Optional.absent();
     }
 }
