@@ -105,7 +105,7 @@ public final class SagaShardingTransactionManagerTest {
     @SuppressWarnings("unchecked")
     @SneakyThrows
     private ThreadLocal<SagaTransaction> getTransactionThreadLocal() {
-        Field transactionField = SagaShardingTransactionManager.class.getDeclaredField("CURRENT_TRANSACTION");
+        Field transactionField = SagaShardingTransactionManager.class.getDeclaredField("SAGA_TRANSACTION_KEY");
         transactionField.setAccessible(true);
         return (ThreadLocal<SagaTransaction>) transactionField.get(SagaShardingTransactionManager.class);
     }
@@ -147,8 +147,8 @@ public final class SagaShardingTransactionManagerTest {
         sagaShardingTransactionManager.begin();
         verify(sagaResourceManager).registerTransactionResource(any(SagaTransaction.class));
         assertNotNull(SagaShardingTransactionManager.getCurrentTransaction());
-        assertTrue(ShardingExecuteDataMap.getDataMap().containsKey(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY));
-        assertThat(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY), instanceOf(SagaTransaction.class));
+        assertTrue(ShardingExecuteDataMap.getDataMap().containsKey(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY));
+        assertThat(ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY), instanceOf(SagaTransaction.class));
         assertThat(ShardingTransportFactory.getInstance().getTransport(), instanceOf(ShardingSQLTransport.class));
     }
     

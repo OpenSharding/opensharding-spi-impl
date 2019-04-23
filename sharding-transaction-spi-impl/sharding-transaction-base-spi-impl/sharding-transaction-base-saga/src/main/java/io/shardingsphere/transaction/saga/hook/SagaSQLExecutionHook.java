@@ -47,21 +47,20 @@ import java.util.Map;
  */
 public final class SagaSQLExecutionHook implements SQLExecutionHook {
     
-    private SagaTransaction globalTransaction;
+    private SagaTransaction sagaTransaction;
     
     private SagaBranchTransaction branchTransaction;
     
-    
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
-        if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY)) {
-            globalTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.CURRENT_TRANSACTION_KEY);
-            if (!globalTransaction.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
+        if (shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY)) {
+            sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
+            if (!sagaTransaction.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
                 return;
             }
             branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
-            globalTransaction.addBranchTransaction(branchTransaction);
-            persistSnapshot(globalTransaction.getCurrentLogicSQLTransaction(), routeUnit);
+            sagaTransaction.addBranchTransaction(branchTransaction);
+            persistSnapshot(sagaTransaction.getCurrentLogicSQLTransaction(), routeUnit);
         }
     }
     
@@ -80,11 +79,11 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     }
     
     private void persistSnapshot(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit) {
-        Connection connection = globalTransaction.getCachedConnections().get(routeUnit.getDataSourceName());
+        Connection connection = sagaTransaction.getCachedConnections().get(routeUnit.getDataSourceName());
         SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
         Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
         this.branchTransaction.setRevertSQLResult(revertSQLResult.orNull());
-        SagaResourceManager.getInstance().getSagaPersistence().persistSnapshot(new SagaSnapshot(globalTransaction.getId(),
+        SagaResourceManager.getInstance().getSagaPersistence().persistSnapshot(new SagaSnapshot(sagaTransaction.getId(),
             branchTransaction.getBranchId(), branchTransaction, revertSQLResult.orNull()));
     }
     
