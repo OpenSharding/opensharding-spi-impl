@@ -90,4 +90,21 @@ public final class SagaTransaction {
     public void addBranchTransaction(final SagaBranchTransaction branchTransaction) {
         currentLogicSQLTransaction.getBranchTransactions().add(branchTransaction);
     }
+    
+    /**
+     * Change all logic transaction status.
+     *
+     * @param executeStatus execute status
+     */
+    public void changeAllLogicTransactionStatus(final ExecuteStatus executeStatus) {
+        for (SagaLogicSQLTransaction each : logicSQLTransactions) {
+            changeAllBranchTransactionStatus(each, executeStatus);
+        }
+    }
+    
+    private void changeAllBranchTransactionStatus(final SagaLogicSQLTransaction logicSQLTransaction, final ExecuteStatus executeStatus) {
+        for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
+            each.setExecuteStatus(executeStatus);
+        }
+    }
 }

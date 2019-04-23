@@ -53,6 +53,7 @@ public final class ShardingSQLTransport implements SQLTransport {
             return new SuccessfulSagaResponse("Skip empty transaction/compensation");
         }
         if (SagaDefinitionBuilder.ROLLBACK_TAG.equals(sql)) {
+            sagaTransaction.changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
         Optional<SagaBranchTransaction> branchTransaction = getBranchTransaction(datasourceName, sql);
@@ -73,6 +74,9 @@ public final class ShardingSQLTransport implements SQLTransport {
     private Optional<SagaBranchTransaction> doGetBranchTransaction(final SagaLogicSQLTransaction logicSQLTransaction, final String datasourceName, final String sql) {
         for (SagaBranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
             if (datasourceName.equals(each.getDataSourceName()) && sql.equals(each.getSql())) {
+                return Optional.of(each);
+            }
+            if (datasourceName.equals(each.getDataSourceName()) && sql.equals(each.getRevertSQLResult().getSql())) {
                 return Optional.of(each);
             }
         }
