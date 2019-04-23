@@ -101,36 +101,27 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     }
     
     @Override
+    @SneakyThrows
     public void commit() {
         if (null != CURRENT_TRANSACTION.get() && CURRENT_TRANSACTION.get().isContainsException()) {
-            submitToSagaEngine(false);
+            resourceManager.getSagaExecutionComponent().run(getSagaDefinitionBuilder(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY).build());
         }
         cleanTransaction();
     }
     
     @Override
+    @SneakyThrows
     public void rollback() {
         if (null != CURRENT_TRANSACTION.get()) {
-            submitToSagaEngine(isForcedRollback());
+            SagaDefinitionBuilder graphTaskBuilder = getSagaDefinitionBuilder(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
+            graphTaskBuilder.addRollbackRequest();
+            resourceManager.getSagaExecutionComponent().run(graphTaskBuilder.build());
         }
         cleanTransaction();
     }
     
-    private boolean isForcedRollback() {
-        return !CURRENT_TRANSACTION.get().isContainsException() && RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(sagaConfiguration.getRecoveryPolicy());
-    }
-    
-    @SneakyThrows
-    private void submitToSagaEngine(final boolean isForcedRollback) {
-        SagaDefinitionBuilder sagaDefinitionBuilder = getSagaDefinitionBuilder();
-        if (isForcedRollback) {
-            sagaDefinitionBuilder.addRollbackRequest();
-        }
-        resourceManager.getSagaExecutionComponent().run(sagaDefinitionBuilder.build());
-    }
-    
-    private SagaDefinitionBuilder getSagaDefinitionBuilder() {
-        SagaDefinitionBuilder result = new SagaDefinitionBuilder(sagaConfiguration.getRecoveryPolicy(),
+    private SagaDefinitionBuilder getSagaDefinitionBuilder(final String recoveryPolicy) {
+        SagaDefinitionBuilder result = new SagaDefinitionBuilder(recoveryPolicy,
             sagaConfiguration.getTransactionMaxRetries(), sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
         for (SagaLogicSQLTransaction each : CURRENT_TRANSACTION.get().getLogicSQLTransactions()) {
             result.switchParents();
