@@ -15,32 +15,30 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.hook;
+package io.shardingsphere.transaction.saga.core.revert.executor;
 
-import io.shardingsphere.transaction.saga.core.SagaTransactionHolder;
-import org.apache.shardingsphere.core.hook.ShardHook;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.route.SQLRouteResult;
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.core.revert.RevertSQLResult;
 
 /**
- * Saga SQL shard hook.
+ * SQL revert executor.
  *
  * @author zhaojun
  */
-public final class SagaSQLShardHook implements ShardHook {
+public interface SQLRevertExecutor {
     
-    @Override
-    public void start(final String sql) {
-    }
+    /**
+     * Revert SQL.
+     *
+     * @return revert SQL
+     */
+    Optional<String> revertSQL();
     
-    @Override
-    public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        if (!SagaTransactionHolder.isInTransaction()) {
-            SagaTransactionHolder.get().nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
-        }
-    }
     
-    @Override
-    public void finishFailure(final Exception cause) {
-    }
+    /**
+     * Fill revert parameters.
+     *
+     * @param revertSQLResult revert SQL result
+     */
+    void fillParameters(RevertSQLResult revertSQLResult);
 }

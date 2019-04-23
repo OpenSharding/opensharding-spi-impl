@@ -15,32 +15,38 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.hook;
+package io.shardingsphere.transaction.saga.core.resource.persistence.impl;
 
-import io.shardingsphere.transaction.saga.core.SagaTransactionHolder;
-import org.apache.shardingsphere.core.hook.ShardHook;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.route.SQLRouteResult;
+import io.shardingsphere.transaction.saga.core.resource.persistence.SagaPersistence;
+import io.shardingsphere.transaction.saga.core.resource.persistence.SagaSnapshot;
+import org.apache.servicecomb.saga.core.EventEnvelope;
+import org.apache.servicecomb.saga.core.SagaEvent;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Saga SQL shard hook.
+ * Empty saga persistence.
  *
- * @author zhaojun
+ * @author yangyi
  */
-public final class SagaSQLShardHook implements ShardHook {
+public final class EmptySagaPersistence implements SagaPersistence {
     
     @Override
-    public void start(final String sql) {
+    public void persistSnapshot(final SagaSnapshot snapshot) {
     }
     
     @Override
-    public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        if (!SagaTransactionHolder.isInTransaction()) {
-            SagaTransactionHolder.get().nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
-        }
+    public void cleanSnapshot(final String transactionId) {
     }
     
     @Override
-    public void finishFailure(final Exception cause) {
+    public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
+        return new HashMap<>(1);
+    }
+    
+    @Override
+    public void offer(final SagaEvent sagaEvent) {
     }
 }

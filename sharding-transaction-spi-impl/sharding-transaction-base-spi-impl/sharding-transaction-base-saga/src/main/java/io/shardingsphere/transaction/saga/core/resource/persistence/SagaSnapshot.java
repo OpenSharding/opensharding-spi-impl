@@ -15,24 +15,27 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.core.resource.persistence;
 
-import io.shardingsphere.transaction.saga.core.resource.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.saga.core.context.AllContextTests;
-import io.shardingsphere.transaction.saga.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.core.resource.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.core.resource.servicecomb.AllServiceCombTests;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import io.shardingsphere.transaction.saga.core.context.SagaBranchTransaction;
+import io.shardingsphere.transaction.saga.core.revert.RevertSQLResult;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-        SagaConfigurationLoaderTest.class,
-        AllContextTests.class,
-        AllHookTests.class,
-        AllPersistenceTests.class,
-        AllServiceCombTests.class
-})
-public final class AllTests {
+/**
+ * Saga snapshot bean.
+ *
+ * @author yangyi
+ */
+@RequiredArgsConstructor
+@Getter
+public final class SagaSnapshot {
+    
+    private final String transactionId;
+    
+    private final String snapshotId;
+    
+    private final SagaBranchTransaction transactionContext;
+    
+    private final RevertSQLResult revertContext;
 }

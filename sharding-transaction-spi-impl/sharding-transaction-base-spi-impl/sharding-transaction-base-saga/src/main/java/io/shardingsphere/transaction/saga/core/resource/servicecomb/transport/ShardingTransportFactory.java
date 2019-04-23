@@ -15,32 +15,35 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.hook;
+package io.shardingsphere.transaction.saga.core.resource.servicecomb.transport;
 
 import io.shardingsphere.transaction.saga.core.SagaTransactionHolder;
-import org.apache.shardingsphere.core.hook.ShardHook;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.route.SQLRouteResult;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.apache.servicecomb.saga.transports.SQLTransport;
+import org.apache.servicecomb.saga.transports.TransportFactory;
 
 /**
- * Saga SQL shard hook.
+ * Sharding transport factory for service comb saga {@code TransportFactory}.
  *
- * @author zhaojun
+ * @author yangyi
  */
-public final class SagaSQLShardHook implements ShardHook {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ShardingTransportFactory implements TransportFactory<SQLTransport> {
     
-    @Override
-    public void start(final String sql) {
+    private static final ShardingTransportFactory INSTANCE = new ShardingTransportFactory();
+    
+    /**
+     * Get instance of sharding transport factory.
+     *
+     * @return instance of sharding transport factory
+     */
+    public static ShardingTransportFactory getInstance() {
+        return INSTANCE;
     }
     
     @Override
-    public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        if (!SagaTransactionHolder.isInTransaction()) {
-            SagaTransactionHolder.get().nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
-        }
-    }
-    
-    @Override
-    public void finishFailure(final Exception cause) {
+    public SQLTransport getTransport() {
+        return new ShardingSQLTransport(SagaTransactionHolder.get());
     }
 }

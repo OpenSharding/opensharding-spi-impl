@@ -15,32 +15,30 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.hook;
+package io.shardingsphere.transaction.saga.core.revert.executor.delete;
 
-import io.shardingsphere.transaction.saga.core.SagaTransactionHolder;
-import org.apache.shardingsphere.core.hook.ShardHook;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.route.SQLRouteResult;
+import io.shardingsphere.transaction.saga.core.revert.executor.SQLRevertContext;
+import lombok.Getter;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Saga SQL shard hook.
+ * Delete SQL revert context.
  *
+ * @author duhongjun
  * @author zhaojun
  */
-public final class SagaSQLShardHook implements ShardHook {
+@Getter
+public class DeleteSQLRevertContext implements SQLRevertContext {
     
-    @Override
-    public void start(final String sql) {
-    }
+    private final String actualTable;
     
-    @Override
-    public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        if (!SagaTransactionHolder.isInTransaction()) {
-            SagaTransactionHolder.get().nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
-        }
-    }
+    private final List<Map<String, Object>> undoData = new LinkedList<>();
     
-    @Override
-    public void finishFailure(final Exception cause) {
+    public DeleteSQLRevertContext(final String tableName, final List<Map<String, Object>> undoData) {
+        this.actualTable = tableName;
+        this.undoData.addAll(undoData);
     }
 }

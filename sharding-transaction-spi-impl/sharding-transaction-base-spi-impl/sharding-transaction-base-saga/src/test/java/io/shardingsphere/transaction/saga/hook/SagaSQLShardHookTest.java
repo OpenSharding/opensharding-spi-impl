@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.hook;
 
-import io.shardingsphere.transaction.saga.context.SagaTransaction;
+import io.shardingsphere.transaction.saga.core.context.SagaTransaction;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;

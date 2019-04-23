@@ -19,10 +19,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
     version="2.0">
-    <!--<persistence-unit name="io.shardingsphere.transaction.saga.persistence" transaction-type="RESOURCE_LOCAL">-->
+    <!--<persistence-unit name="io.shardingsphere.transaction.saga.core.resource.persistence" transaction-type="RESOURCE_LOCAL">-->
         <!--<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>-->
-        <!--<class>io.shardingsphere.transaction.saga.persistence.entity.SagaSnapshotEntity</class>-->
-        <!--<class>io.shardingsphere.transaction.saga.persistence.entity.SagaEventEntity</class>-->
+        <!--<class>io.shardingsphere.transaction.base.saga.persistence.jpa.entity.SagaSnapshotEntity</class>-->
+        <!--<class>io.shardingsphere.transaction.base.saga.persistence.jpa.entity.SagaEventEntity</class>-->
         <!--<properties>-->
             <!--<property name="javax.persistence.schema-generation.database.action" value="drop-and-create" />-->
             <!--<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />-->

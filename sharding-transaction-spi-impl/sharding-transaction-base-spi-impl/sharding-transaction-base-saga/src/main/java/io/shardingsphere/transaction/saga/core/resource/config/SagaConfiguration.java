@@ -15,24 +15,32 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.core.resource.config;
 
-import io.shardingsphere.transaction.saga.core.resource.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.saga.core.context.AllContextTests;
-import io.shardingsphere.transaction.saga.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.core.resource.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.core.resource.servicecomb.AllServiceCombTests;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-        SagaConfigurationLoaderTest.class,
-        AllContextTests.class,
-        AllHookTests.class,
-        AllPersistenceTests.class,
-        AllServiceCombTests.class
-})
-public final class AllTests {
+/**
+ * Saga configuration.
+ *
+ * @author yangyi
+ */
+@Getter
+@Setter
+public final class SagaConfiguration {
+    
+    private int executorSize = 5;
+    
+    private int transactionMaxRetries = 5;
+    
+    private int compensationMaxRetries = 3;
+    
+    private int transactionRetryDelayMilliseconds = 5000;
+    
+    private int compensationRetryDelayMilliseconds = 3000;
+    
+    private String recoveryPolicy = RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY;
+    
+    private SagaPersistenceConfiguration sagaPersistenceConfiguration = new SagaPersistenceConfiguration();
 }
