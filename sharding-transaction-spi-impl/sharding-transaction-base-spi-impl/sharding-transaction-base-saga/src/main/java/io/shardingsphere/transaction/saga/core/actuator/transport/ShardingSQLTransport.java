@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.core.servicecomb.transport;
+package io.shardingsphere.transaction.saga.core.actuator.transport;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.core.context.ExecuteStatus;
 import io.shardingsphere.transaction.saga.core.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.core.context.SagaTransaction;
-import io.shardingsphere.transaction.saga.core.servicecomb.definition.SagaDefinitionBuilder;
+import io.shardingsphere.transaction.saga.core.actuator.definition.SagaDefinitionBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.core.SuccessfulSagaResponse;

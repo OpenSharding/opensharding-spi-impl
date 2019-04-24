@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.core.servicecomb;
+package io.shardingsphere.transaction.saga.core.actuator;
 
-import io.shardingsphere.transaction.saga.core.servicecomb.definition.SagaDefinitionBuilderTest;
+import io.shardingsphere.transaction.saga.core.actuator.definition.SagaDefinitionBuilderTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

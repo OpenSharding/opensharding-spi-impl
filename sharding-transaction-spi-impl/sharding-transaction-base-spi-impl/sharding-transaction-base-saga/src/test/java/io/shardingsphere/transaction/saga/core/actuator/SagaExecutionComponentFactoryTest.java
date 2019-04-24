@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.core.servicecomb;
+package io.shardingsphere.transaction.saga.core.actuator;
 
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.core.persistence.impl.EmptySagaPersistence;

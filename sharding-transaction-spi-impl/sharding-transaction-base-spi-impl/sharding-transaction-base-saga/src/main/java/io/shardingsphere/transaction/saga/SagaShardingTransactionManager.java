@@ -23,7 +23,7 @@ import io.shardingsphere.transaction.saga.core.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.core.context.SagaTransaction;
 import io.shardingsphere.transaction.saga.core.SagaResourceManager;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.core.servicecomb.definition.SagaDefinitionBuilder;
+import io.shardingsphere.transaction.saga.core.actuator.definition.SagaDefinitionBuilder;
 import io.shardingsphere.transaction.saga.core.revert.RevertSQLResult;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;

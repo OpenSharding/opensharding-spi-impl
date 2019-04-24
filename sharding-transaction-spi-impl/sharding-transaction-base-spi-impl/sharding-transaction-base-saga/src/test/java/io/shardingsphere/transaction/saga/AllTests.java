@@ -21,7 +21,7 @@ import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
 import io.shardingsphere.transaction.saga.core.context.AllContextTests;
 import io.shardingsphere.transaction.saga.hook.AllHookTests;
 import io.shardingsphere.transaction.saga.core.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.core.servicecomb.AllServiceCombTests;
+import io.shardingsphere.transaction.saga.core.actuator.AllServiceCombTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;

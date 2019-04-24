@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.saga.core;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.core.persistence.SagaPersistenceLoader;
-import io.shardingsphere.transaction.saga.core.servicecomb.SagaExecutionComponentFactory;
+import io.shardingsphere.transaction.saga.core.actuator.SagaExecutionComponentFactory;
 import lombok.Getter;
 import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.core.servicecomb.transport;
+package io.shardingsphere.transaction.saga.core.actuator.transport;
 
 import io.shardingsphere.transaction.saga.core.SagaTransactionHolder;
 import lombok.AccessLevel;

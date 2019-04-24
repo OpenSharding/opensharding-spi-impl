@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.core.servicecomb;
+package io.shardingsphere.transaction.saga.core.actuator;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import io.shardingsphere.transaction.saga.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.core.servicecomb.transport.ShardingTransportFactory;
+import io.shardingsphere.transaction.saga.core.actuator.transport.ShardingTransportFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.servicecomb.saga.core.PersistentStore;
