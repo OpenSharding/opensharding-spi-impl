@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.saga.core.actuator.transport;
 
-import io.shardingsphere.transaction.saga.core.SagaTransactionHolder;
+import io.shardingsphere.transaction.saga.context.SagaTransactionHolder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.servicecomb.saga.transports.SQLTransport;

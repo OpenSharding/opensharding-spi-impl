@@ -15,32 +15,34 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.hook;
+package io.shardingsphere.transaction.saga.hook.revert;
 
-import io.shardingsphere.transaction.saga.context.SagaTransactionHolder;
-import org.apache.shardingsphere.core.hook.ShardHook;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.route.SQLRouteResult;
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.hook.revert.executor.SQLRevertExecutor;
+import lombok.RequiredArgsConstructor;
 
 /**
- * Saga SQL shard hook.
+ * DML SQL Revert engine.
  *
+ * @author duhongjun
  * @author zhaojun
  */
-public final class SagaSQLShardHook implements ShardHook {
+@RequiredArgsConstructor
+public class DMLSQLRevertEngine implements SQLRevertEngine {
     
-    @Override
-    public void start(final String sql) {
-    }
+    private final SQLRevertExecutor sqlRevertExecutor;
     
+    /**
+     * Execute revert.
+     */
     @Override
-    public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        if (SagaTransactionHolder.isInTransaction()) {
-            SagaTransactionHolder.get().nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+    public Optional<RevertSQLResult> revert() {
+        Optional<String> sql = sqlRevertExecutor.revertSQL();
+        if (!sql.isPresent()) {
+            return Optional.absent();
         }
-    }
-    
-    @Override
-    public void finishFailure(final Exception cause) {
+        RevertSQLResult result = new RevertSQLResult(sql.get());
+        sqlRevertExecutor.fillParameters(result);
+        return Optional.of(result);
     }
 }

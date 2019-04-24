@@ -15,50 +15,47 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga.hook;
+package io.shardingsphere.transaction.saga.hook.revert;
 
-import io.shardingsphere.transaction.saga.context.SagaTransactionHolder;
-import io.shardingsphere.transaction.saga.context.SagaTransaction;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.route.SQLRouteResult;
-import org.junit.After;
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.hook.revert.executor.SQLRevertExecutor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class SagaSQLShardHookTest {
+public class DMLSQLRevertEngineTest {
     
     @Mock
-    private SagaTransaction sagaTransaction;
+    private SQLRevertExecutor sqlRevertExecutor;
     
-    @Mock
-    private SQLRouteResult sqlRouteResult;
-    
-    @Mock
-    private ShardingTableMetaData shardingTableMetaData;
-    
-    
-    private final SagaSQLShardHook sagaSQLShardHook = new SagaSQLShardHook();
+    private DMLSQLRevertEngine sqlRevertEngine;
     
     @Before
     public void setUp() {
-        SagaTransactionHolder.set(sagaTransaction);
-    }
-    
-    @After
-    public void tearDown() {
-        SagaTransactionHolder.clear();
+        sqlRevertEngine = new DMLSQLRevertEngine(sqlRevertExecutor);
     }
     
     @Test
-    public void assertFinishSuccess() {
-        sagaSQLShardHook.start("logicSQL");
-        sagaSQLShardHook.finishSuccess(sqlRouteResult, shardingTableMetaData);
-        verify(sagaTransaction).nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+    public void assertRevertSQLNotExist() {
+        when(sqlRevertExecutor.revertSQL()).thenReturn(Optional.<String>absent());
+        Optional<RevertSQLResult> actual = sqlRevertEngine.revert();
+        assertFalse(actual.isPresent());
+    }
+    
+    @Test
+    public void assertRevertSQLExist() {
+        when(sqlRevertExecutor.revertSQL()).thenReturn(Optional.of("revert sql"));
+        Optional<RevertSQLResult> actual = sqlRevertEngine.revert();
+        assertTrue(actual.isPresent());
+        verify(sqlRevertExecutor).fillParameters(any(RevertSQLResult.class));
     }
 }

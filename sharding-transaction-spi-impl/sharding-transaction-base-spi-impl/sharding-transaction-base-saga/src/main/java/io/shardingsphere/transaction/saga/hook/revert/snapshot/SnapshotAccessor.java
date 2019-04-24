@@ -15,24 +15,24 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.hook.revert.snapshot;
 
-import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.saga.context.AllContextTests;
-import io.shardingsphere.transaction.saga.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.core.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.core.actuator.AllServiceCombTests;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-        SagaConfigurationLoaderTest.class,
-        AllContextTests.class,
-        AllHookTests.class,
-        AllPersistenceTests.class,
-        AllServiceCombTests.class
-})
-public final class AllTests {
+/**
+ * Snapshot data accessor.
+ *
+ * @author zhaojun
+ */
+public interface SnapshotAccessor {
+    
+    /**
+     * Query undo snapshot data from database.
+     *
+     * @return Collection
+     *  @throws SQLException SQL exception
+     */
+    List<Map<String, Object>> queryUndoData() throws SQLException;
 }

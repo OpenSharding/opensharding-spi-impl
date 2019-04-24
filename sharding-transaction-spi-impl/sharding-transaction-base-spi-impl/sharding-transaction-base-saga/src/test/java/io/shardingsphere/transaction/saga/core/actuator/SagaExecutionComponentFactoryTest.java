@@ -40,7 +40,7 @@ public final class SagaExecutionComponentFactoryTest {
     
     private void assertCreateWithFixedExecutors() throws NoSuchFieldException, IllegalAccessException {
         SagaConfiguration sagaConfiguration = new SagaConfiguration();
-        SagaExecutionComponent sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, new EmptySagaPersistence());
+        SagaExecutionComponent sagaExecutionComponent = SagaActuatorFactory.newInstance(sagaConfiguration, new EmptySagaPersistence());
         assertThat(sagaExecutionComponent, instanceOf(SagaExecutionComponent.class));
         ThreadPoolExecutor threadPoolExecutor = getExecutorFromComponent(sagaExecutionComponent);
         assertThat(threadPoolExecutor.getCorePoolSize(), is(sagaConfiguration.getExecutorSize()));
@@ -50,7 +50,7 @@ public final class SagaExecutionComponentFactoryTest {
     private void assertCreateWithCachedExecutors() throws NoSuchFieldException, IllegalAccessException {
         SagaConfiguration sagaConfiguration = new SagaConfiguration();
         sagaConfiguration.setExecutorSize(0);
-        SagaExecutionComponent sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, new EmptySagaPersistence());
+        SagaExecutionComponent sagaExecutionComponent = SagaActuatorFactory.newInstance(sagaConfiguration, new EmptySagaPersistence());
         assertThat(sagaExecutionComponent, instanceOf(SagaExecutionComponent.class));
         ThreadPoolExecutor threadPoolExecutor = getExecutorFromComponent(sagaExecutionComponent);
         assertThat(threadPoolExecutor.getCorePoolSize(), is(0));
