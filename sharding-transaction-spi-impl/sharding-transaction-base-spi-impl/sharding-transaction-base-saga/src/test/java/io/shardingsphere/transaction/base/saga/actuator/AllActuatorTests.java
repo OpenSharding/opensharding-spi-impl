@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.saga.actuator;
 
-import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
+import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactoryTest;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -25,7 +25,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     SagaActuatorFactoryTest.class,
-    SagaDefinitionFactory.class,
+    SagaDefinitionFactoryTest.class,
     SagaDefinitionTest.class
 })
 public final class AllActuatorTests {
