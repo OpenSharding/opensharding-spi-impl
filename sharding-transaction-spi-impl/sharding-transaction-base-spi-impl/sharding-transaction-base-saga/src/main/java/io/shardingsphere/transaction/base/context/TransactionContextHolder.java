@@ -18,41 +18,41 @@
 package io.shardingsphere.transaction.base.context;
 
 /**
- * Global transaction holder.
+ * Transaction context holder.
  *
  * @author zhaojun
  */
-public class GlobalTransactionHolder {
+public class TransactionContextHolder {
     
-    private static final ThreadLocal<GlobalTransaction> GLOBAL_TRANSACTION = new ThreadLocal<>();
+    private static final ThreadLocal<TransactionContext> TRANSACTION_CONTEXT = new ThreadLocal<>();
     
     /**
-     * Get global transaction for current thread.
+     * Get transaction context of current thread.
      *
-     * @return saga transaction
+     * @return transaction context
      */
-    public static GlobalTransaction get() {
-        return GLOBAL_TRANSACTION.get();
+    public static TransactionContext get() {
+        return TRANSACTION_CONTEXT.get();
     }
     
     /**
-     * Set global transaction.
+     * Set transaction context.
      *
-     * @param globalTransaction saga transaction
+     * @param transactionContext transaction context
      */
-    public static void set(final GlobalTransaction globalTransaction) {
-        GLOBAL_TRANSACTION.set(globalTransaction);
+    public static void set(final TransactionContext transactionContext) {
+        TRANSACTION_CONTEXT.set(transactionContext);
     }
     
     /**
-     * Clear global transaction.
+     * Clear transaction context.
      */
     public static void clear() {
-        GLOBAL_TRANSACTION.remove();
+        TRANSACTION_CONTEXT.remove();
     }
     
     /**
-     * Whether current thread is in saga transaction or not.
+     * Whether current thread is in transaction or not.
      *
      * @return true or false
      */

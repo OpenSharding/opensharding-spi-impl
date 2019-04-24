@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.hook;
 
-import io.shardingsphere.transaction.base.context.GlobalTransactionHolder;
+import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import org.apache.shardingsphere.core.hook.ShardHook;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
@@ -35,8 +35,8 @@ public final class TransactionalSQLShardHook implements ShardHook {
     
     @Override
     public void finishSuccess(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        if (GlobalTransactionHolder.isInTransaction()) {
-            GlobalTransactionHolder.get().nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+        if (TransactionContextHolder.isInTransaction()) {
+            TransactionContextHolder.get().nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
         }
     }
     

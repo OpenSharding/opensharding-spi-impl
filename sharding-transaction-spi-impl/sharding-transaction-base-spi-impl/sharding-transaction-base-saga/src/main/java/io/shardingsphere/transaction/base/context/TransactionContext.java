@@ -35,14 +35,14 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Global transaction.
+ * Transaction context.
  *
  * @author yangyi
  * @author zhaojun
  */
 @RequiredArgsConstructor
 @Getter
-public final class GlobalTransaction {
+public final class TransactionContext {
     
     private final String id = UUID.randomUUID().toString();
     
@@ -69,7 +69,7 @@ public final class GlobalTransaction {
     }
     
     /**
-     * Whether saga transaction contains exception or not.
+     * Whether branch transactions contain exception or not.
      *
      * @return true or false
      */
@@ -94,14 +94,14 @@ public final class GlobalTransaction {
     /**
      * Add new branch transaction to current logic SQL transaction.
      *
-     * @param branchTransaction saga branch transaction
+     * @param branchTransaction branch transaction
      */
-    public void addBranchTransaction(final BranchTransaction branchTransaction) {
+    public void participate(final BranchTransaction branchTransaction) {
         currentLogicSQLTransaction.getBranchTransactions().add(branchTransaction);
     }
     
     /**
-     * Change all logic transaction status.
+     * Change all logic transactions status.
      *
      * @param executeStatus execute status
      */

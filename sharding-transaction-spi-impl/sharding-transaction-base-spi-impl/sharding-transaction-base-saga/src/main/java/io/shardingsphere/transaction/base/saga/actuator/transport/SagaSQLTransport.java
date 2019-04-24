@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionBuilder;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.BranchTransaction;
-import io.shardingsphere.transaction.base.context.GlobalTransaction;
+import io.shardingsphere.transaction.base.context.TransactionContext;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.core.SuccessfulSagaResponse;
@@ -45,7 +45,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public final class SagaSQLTransport implements SQLTransport {
     
-    private final GlobalTransaction sagaTransaction;
+    private final TransactionContext sagaTransaction;
     
     @Override
     public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> sagaParameters) {

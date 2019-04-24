@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.base.saga;
 
 import io.shardingsphere.transaction.base.context.BranchTransaction;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
-import io.shardingsphere.transaction.base.context.GlobalTransaction;
-import io.shardingsphere.transaction.base.context.GlobalTransactionHolder;
+import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import io.shardingsphere.transaction.base.saga.actuator.SagaActuatorFactory;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionBuilder;
 import io.shardingsphere.transaction.base.saga.config.SagaConfiguration;
@@ -47,7 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Sharding transaction manager for Saga.
+ * Saga Sharding transaction manager.
  *
  * @author yangyi
  * @author zhaojun
@@ -82,30 +82,29 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     
     @Override
     public boolean isInTransaction() {
-        return GlobalTransactionHolder.isInTransaction();
+        return TransactionContextHolder.isInTransaction();
     }
     
     @Override
     public Connection getConnection(final String dataSourceName) throws SQLException {
         Connection result = dataSourceMap.get(dataSourceName).getConnection();
-        GlobalTransactionHolder.get().getCachedConnections().put(dataSourceName, result);
+        TransactionContextHolder.get().getCachedConnections().put(dataSourceName, result);
         return result;
     }
     
     @Override
     public void begin() {
-        if (!GlobalTransactionHolder.isInTransaction()) {
-            GlobalTransaction sagaTransaction = new GlobalTransaction();
-            GlobalTransactionHolder.set(sagaTransaction);
-            ShardingExecuteDataMap.getDataMap().put(SAGA_TRANSACTION_KEY, sagaTransaction);
+        if (!TransactionContextHolder.isInTransaction()) {
+            TransactionContextHolder.set(new TransactionContext());
+            ShardingExecuteDataMap.getDataMap().put(SAGA_TRANSACTION_KEY, TransactionContextHolder.get());
         }
     }
     
     @Override
     @SneakyThrows
     public void commit() {
-        if (GlobalTransactionHolder.isInTransaction() && GlobalTransactionHolder.get().isContainsException()) {
-            GlobalTransactionHolder.get().setTransactionOperationType(TransactionOperationType.COMMIT);
+        if (TransactionContextHolder.isInTransaction() && TransactionContextHolder.get().isContainsException()) {
+            TransactionContextHolder.get().setTransactionOperationType(TransactionOperationType.COMMIT);
             sagaActuator.run(getSagaDefinitionBuilder(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY).build());
         }
         clearSagaTransaction();
@@ -114,10 +113,10 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     @SneakyThrows
     public void rollback() {
-        if (GlobalTransactionHolder.isInTransaction()) {
+        if (TransactionContextHolder.isInTransaction()) {
             SagaDefinitionBuilder builder = getSagaDefinitionBuilder(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
             builder.addRollbackRequest();
-            GlobalTransactionHolder.get().setTransactionOperationType(TransactionOperationType.ROLLBACK);
+            TransactionContextHolder.get().setTransactionOperationType(TransactionOperationType.ROLLBACK);
             sagaActuator.run(builder.build());
         }
         clearSagaTransaction();
@@ -142,7 +141,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     private SagaDefinitionBuilder getSagaDefinitionBuilder(final String recoveryPolicy) {
         SagaDefinitionBuilder result = new SagaDefinitionBuilder(recoveryPolicy, sagaConfiguration.getTransactionMaxRetries(),
             sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
-        for (LogicSQLTransaction each : GlobalTransactionHolder.get().getLogicSQLTransactions()) {
+        for (LogicSQLTransaction each : TransactionContextHolder.get().getLogicSQLTransactions()) {
             result.nextLogicSQL();
             addLogicSQLDefinition(result, each);
         }
@@ -159,6 +158,6 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     
     private void clearSagaTransaction() {
         ShardingExecuteDataMap.getDataMap().remove(SAGA_TRANSACTION_KEY);
-        GlobalTransactionHolder.clear();
+        TransactionContextHolder.clear();
     }
 }

@@ -17,8 +17,8 @@
 
 package io.shardingsphere.transaction.base.hook;
 
-import io.shardingsphere.transaction.base.context.GlobalTransaction;
-import io.shardingsphere.transaction.base.context.GlobalTransactionHolder;
+import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.junit.After;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 public final class SagaSQLShardHookTest {
     
     @Mock
-    private GlobalTransaction sagaTransaction;
+    private TransactionContext sagaTransaction;
     
     @Mock
     private SQLRouteResult sqlRouteResult;
@@ -47,12 +47,12 @@ public final class SagaSQLShardHookTest {
     
     @Before
     public void setUp() {
-        GlobalTransactionHolder.set(sagaTransaction);
+        TransactionContextHolder.set(sagaTransaction);
     }
     
     @After
     public void tearDown() {
-        GlobalTransactionHolder.clear();
+        TransactionContextHolder.clear();
     }
     
     @Test
