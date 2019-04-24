@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.saga.core.resource.persistence.impl.jdbc;
 
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaSnapshot;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.SagaEvent;
 import org.junit.Before;
@@ -43,9 +42,6 @@ import static org.mockito.Mockito.when;
 public final class JDBCSagaPersistenceTest {
     
     @Mock
-    private JDBCSagaSnapshotRepository snapshotRepository;
-    
-    @Mock
     private JDBCSagaEventRepository eventRepository;
     
     @Mock
@@ -57,9 +53,6 @@ public final class JDBCSagaPersistenceTest {
     @SneakyThrows
     public void setUp() {
         sagaPersistence = new JDBCSagaPersistence(mockDataSource());
-        Field snapshotRepositoryField = JDBCSagaPersistence.class.getDeclaredField("snapshotRepository");
-        snapshotRepositoryField.setAccessible(true);
-        snapshotRepositoryField.set(sagaPersistence, snapshotRepository);
         Field eventRepositoryField = JDBCSagaPersistence.class.getDeclaredField("eventRepository");
         eventRepositoryField.setAccessible(true);
         eventRepositoryField.set(sagaPersistence, eventRepository);
@@ -79,20 +72,6 @@ public final class JDBCSagaPersistenceTest {
     public void assertCreateTableIfNotExists() {
         sagaPersistence.createTableIfNotExists();
         verify(statement, times(4)).executeUpdate();
-    }
-    
-    @Test
-    public void assertPersistSnapshot() {
-        SagaSnapshot snapshot = mock(SagaSnapshot.class);
-        sagaPersistence.persistSnapshot(snapshot);
-        verify(snapshotRepository).insert(snapshot);
-    }
-    
-    @Test
-    public void assertCleanSnapshot() {
-        String transactionId = "1";
-        sagaPersistence.cleanSnapshot(transactionId);
-        verify(snapshotRepository).delete(transactionId);
     }
     
     @Test

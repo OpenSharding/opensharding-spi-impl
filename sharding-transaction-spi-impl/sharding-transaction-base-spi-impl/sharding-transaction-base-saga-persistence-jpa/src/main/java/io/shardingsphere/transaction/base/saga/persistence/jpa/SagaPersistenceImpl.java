@@ -18,14 +18,11 @@
 package io.shardingsphere.transaction.base.saga.persistence.jpa;
 
 import io.shardingsphere.transaction.base.saga.persistence.jpa.entity.SagaEventEntity;
-import io.shardingsphere.transaction.base.saga.persistence.jpa.entity.SagaSnapshotEntity;
 import io.shardingsphere.transaction.base.saga.persistence.jpa.repository.SagaEventRepository;
-import io.shardingsphere.transaction.base.saga.persistence.jpa.repository.SagaSnapshotRepository;
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaPersistence;
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.core.resource.servicecomb.transport.ShardingTransportFactory;
 import org.apache.servicecomb.saga.core.EventEnvelope;
 import org.apache.servicecomb.saga.core.JacksonToJsonFormat;
+import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.SagaEvent;
 import org.apache.servicecomb.saga.core.ToJsonFormat;
 import org.apache.servicecomb.saga.format.JacksonSagaEventFormat;
@@ -41,29 +38,13 @@ import java.util.Map;
  *
  * @author yangyi
  */
-public final class SagaPersistenceImpl implements SagaPersistence {
+public final class SagaPersistenceImpl implements PersistentStore {
     
     private final SagaEventRepository sagaEventRepository = new SagaEventRepository();
-    
-    private final SagaSnapshotRepository sagaSnapshotRepository = new SagaSnapshotRepository();
     
     private final SagaEventFormat sagaEventFormat = new JacksonSagaEventFormat(ShardingTransportFactory.getInstance());
     
     private final ToJsonFormat toJsonFormat = new JacksonToJsonFormat();
-    
-    @Override
-    public void persistSnapshot(final SagaSnapshot snapshot) {
-        SagaSnapshotEntity snapshotEntity = new SagaSnapshotEntity();
-        snapshotEntity.setTransactionId(snapshot.getTransactionId());
-        snapshotEntity.setSnapshotId(snapshot.getSnapshotId());
-        snapshotEntity.setRevertContext(snapshot.getRevertContext().toString());
-        sagaSnapshotRepository.insert(snapshotEntity);
-    }
-    
-    @Override
-    public void cleanSnapshot(final String transactionId) {
-        sagaSnapshotRepository.deleteByTransactionId(transactionId);
-    }
     
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {

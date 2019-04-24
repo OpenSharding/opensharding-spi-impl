@@ -22,6 +22,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.shardingsphere.transaction.saga.core.resource.config.SagaPersistenceConfiguration;
 import io.shardingsphere.transaction.saga.core.resource.persistence.impl.EmptySagaPersistence;
 import io.shardingsphere.transaction.saga.core.resource.persistence.impl.jdbc.JDBCSagaPersistence;
+import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.exception.ShardingException;
 
@@ -45,12 +46,12 @@ public final class SagaPersistenceLoader {
      * @param persistenceConfiguration persistence configuration
      * @return saga persistence
      */
-    public static SagaPersistence load(final SagaPersistenceConfiguration persistenceConfiguration) {
+    public static PersistentStore load(final SagaPersistenceConfiguration persistenceConfiguration) {
         if (!persistenceConfiguration.isEnablePersistence()) {
             return new EmptySagaPersistence();
         }
-        SagaPersistence result = null;
-        for (SagaPersistence each : ServiceLoader.load(SagaPersistence.class)) {
+        PersistentStore result = null;
+        for (PersistentStore each : ServiceLoader.load(PersistentStore.class)) {
             result = each;
         }
         if (null == result) {
@@ -59,7 +60,7 @@ public final class SagaPersistenceLoader {
         return result;
     }
     
-    private static SagaPersistence loadDefaultPersistence(final SagaPersistenceConfiguration persistenceConfiguration) {
+    private static PersistentStore loadDefaultPersistence(final SagaPersistenceConfiguration persistenceConfiguration) {
         String driverClassName = getJDBCDriverClassName(judgeDatabaseType(persistenceConfiguration.getUrl()));
         JDBCSagaPersistence result = new JDBCSagaPersistence(initDataSource(driverClassName, persistenceConfiguration));
         result.createTableIfNotExists();

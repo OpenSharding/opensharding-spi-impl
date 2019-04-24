@@ -17,17 +17,13 @@
 
 package io.shardingsphere.transaction.saga.hook;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.saga.SagaShardingTransactionManager;
 import io.shardingsphere.transaction.saga.core.context.ExecuteStatus;
 import io.shardingsphere.transaction.saga.core.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.core.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.core.context.SagaTransaction;
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaSnapshot;
-import io.shardingsphere.transaction.saga.core.resource.SagaResourceManager;
 import io.shardingsphere.transaction.saga.core.revert.DMLSQLRevertEngine;
-import io.shardingsphere.transaction.saga.core.revert.RevertSQLResult;
 import io.shardingsphere.transaction.saga.core.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.saga.core.revert.executor.SQLRevertExecutorFactory;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;

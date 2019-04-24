@@ -19,10 +19,10 @@ package io.shardingsphere.transaction.saga.core.resource;
 
 import io.shardingsphere.transaction.saga.core.resource.config.SagaConfiguration;
 import io.shardingsphere.transaction.saga.core.resource.config.SagaConfigurationLoader;
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.core.resource.persistence.SagaPersistenceLoader;
 import io.shardingsphere.transaction.saga.core.resource.servicecomb.SagaExecutionComponentFactory;
 import lombok.Getter;
+import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 
 /**
@@ -41,7 +41,7 @@ public final class SagaResourceManager {
     
     private SagaResourceManager() {
         sagaConfiguration = SagaConfigurationLoader.load();
-        SagaPersistence sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
+        PersistentStore sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
         sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, sagaPersistence);
     }
     

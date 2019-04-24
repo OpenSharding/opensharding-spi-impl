@@ -25,7 +25,6 @@ import org.junit.runners.Suite;
         AsyncSnapshotPersistenceTest.class,
         JDBCSagaEventRepositoryTest.class,
         JDBCSagaPersistenceTest.class,
-        JDBCSagaSnapshotRepositoryTest.class,
         SQLFileReaderTest.class
 })
 public class AllJDBCPersistenceTests {

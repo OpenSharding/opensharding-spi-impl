@@ -17,9 +17,8 @@
 
 package io.shardingsphere.transaction.saga.core.resource.persistence.impl;
 
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaPersistence;
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaSnapshot;
 import org.apache.servicecomb.saga.core.EventEnvelope;
+import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.SagaEvent;
 
 import java.util.HashMap;
@@ -31,15 +30,7 @@ import java.util.Map;
  *
  * @author yangyi
  */
-public final class EmptySagaPersistence implements SagaPersistence {
-    
-    @Override
-    public void persistSnapshot(final SagaSnapshot snapshot) {
-    }
-    
-    @Override
-    public void cleanSnapshot(final String transactionId) {
-    }
+public final class EmptySagaPersistence implements PersistentStore {
     
     @Override
     public Map<String, List<EventEnvelope>> findPendingSagaEvents() {

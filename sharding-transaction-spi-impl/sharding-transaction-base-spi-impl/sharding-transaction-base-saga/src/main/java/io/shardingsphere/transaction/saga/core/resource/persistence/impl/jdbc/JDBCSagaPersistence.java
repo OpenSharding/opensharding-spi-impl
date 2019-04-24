@@ -18,10 +18,9 @@
 package io.shardingsphere.transaction.saga.core.resource.persistence.impl.jdbc;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaPersistence;
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaSnapshot;
 import io.shardingsphere.transaction.saga.utils.JDBCUtil;
 import org.apache.servicecomb.saga.core.EventEnvelope;
+import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.SagaEvent;
 import org.apache.shardingsphere.core.exception.ShardingException;
 
@@ -38,17 +37,14 @@ import java.util.Map;
  *
  * @author yangyi
  */
-public final class JDBCSagaPersistence implements SagaPersistence {
+public final class JDBCSagaPersistence implements PersistentStore {
     
     private final DataSource dataSource;
-    
-    private final JDBCSagaSnapshotRepository snapshotRepository;
     
     private final JDBCSagaEventRepository eventRepository;
     
     public JDBCSagaPersistence(final DataSource dataSource) {
         this.dataSource = dataSource;
-        snapshotRepository = new JDBCSagaSnapshotRepository(dataSource, new AsyncSnapshotPersistence(dataSource));
         eventRepository = new JDBCSagaEventRepository(dataSource);
     }
     
@@ -67,16 +63,6 @@ public final class JDBCSagaPersistence implements SagaPersistence {
         } catch (SQLException ex) {
             throw new ShardingException("Create saga persistence table failed", ex);
         }
-    }
-    
-    @Override
-    public void persistSnapshot(final SagaSnapshot snapshot) {
-        snapshotRepository.insert(snapshot);
-    }
-    
-    @Override
-    public void cleanSnapshot(final String transactionId) {
-        snapshotRepository.delete(transactionId);
     }
     
     @Override

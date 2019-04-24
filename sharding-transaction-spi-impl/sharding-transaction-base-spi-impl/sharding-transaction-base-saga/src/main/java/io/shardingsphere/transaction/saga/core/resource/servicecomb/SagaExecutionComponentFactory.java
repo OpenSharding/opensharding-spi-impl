@@ -19,10 +19,10 @@ package io.shardingsphere.transaction.saga.core.resource.servicecomb;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import io.shardingsphere.transaction.saga.core.resource.config.SagaConfiguration;
-import io.shardingsphere.transaction.saga.core.resource.persistence.SagaPersistence;
 import io.shardingsphere.transaction.saga.core.resource.servicecomb.transport.ShardingTransportFactory;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.SagaDefinition;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.servicecomb.saga.core.application.interpreter.FromJsonFormat;
@@ -51,7 +51,7 @@ public final class SagaExecutionComponentFactory {
      * @param sagaPersistence saga persistence
      * @return saga execution component
      */
-    public static SagaExecutionComponent createSagaExecutionComponent(final SagaConfiguration sagaConfiguration, final SagaPersistence sagaPersistence) {
+    public static SagaExecutionComponent createSagaExecutionComponent(final SagaConfiguration sagaConfiguration, final PersistentStore sagaPersistence) {
         FromJsonFormat<SagaDefinition> fromJsonFormat = new JacksonFromJsonFormat(ShardingTransportFactory.getInstance());
         GraphBasedSagaFactory sagaFactory = new GraphBasedSagaFactory(
                 sagaConfiguration.getCompensationRetryDelayMilliseconds(), sagaPersistence, new ChildrenExtractor(), createExecutorService(sagaConfiguration.getExecutorSize()));
