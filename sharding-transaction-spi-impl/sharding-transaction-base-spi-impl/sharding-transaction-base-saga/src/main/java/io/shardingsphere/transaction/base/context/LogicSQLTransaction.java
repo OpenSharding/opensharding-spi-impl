@@ -28,13 +28,13 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Saga logic SQL transaction.
+ * Logic SQL transaction.
  *
  * @author yangyi
  * @author zhaojun
  */
 @Getter
-public class SagaLogicSQLTransaction {
+public class LogicSQLTransaction {
     
     private final SQLRouteResult sqlRouteResult;
     
@@ -44,9 +44,9 @@ public class SagaLogicSQLTransaction {
     
     private TableMetaData tableMetaData;
     
-    private final Queue<SagaBranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
+    private final Queue<BranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
     
-    public SagaLogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
+    public LogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
         this.sqlRouteResult = sqlRouteResult;
         logicTableName = sqlRouteResult.getSqlStatement().getTables().getSingleTableName();
         sqlStatement = sqlRouteResult.getSqlStatement();

@@ -18,37 +18,37 @@
 package io.shardingsphere.transaction.base.context;
 
 /**
- * Saga transaction holder.
+ * Global transaction holder.
  *
  * @author zhaojun
  */
-public class SagaTransactionHolder {
+public class GlobalTransactionHolder {
     
-    private static final ThreadLocal<SagaTransaction> SAGA_TRANSACTION = new ThreadLocal<>();
+    private static final ThreadLocal<GlobalTransaction> GLOBAL_TRANSACTION = new ThreadLocal<>();
     
     /**
-     * Get saga transaction for current thread.
+     * Get global transaction for current thread.
      *
      * @return saga transaction
      */
-    public static SagaTransaction get() {
-        return SAGA_TRANSACTION.get();
+    public static GlobalTransaction get() {
+        return GLOBAL_TRANSACTION.get();
     }
     
     /**
-     * Set saga transaction.
+     * Set global transaction.
      *
-     * @param sagaTransaction saga transaction
+     * @param globalTransaction saga transaction
      */
-    public static void set(final SagaTransaction sagaTransaction) {
-        SAGA_TRANSACTION.set(sagaTransaction);
+    public static void set(final GlobalTransaction globalTransaction) {
+        GLOBAL_TRANSACTION.set(globalTransaction);
     }
     
     /**
-     * Clear saga transaction.
+     * Clear global transaction.
      */
     public static void clear() {
-        SAGA_TRANSACTION.remove();
+        GLOBAL_TRANSACTION.remove();
     }
     
     /**

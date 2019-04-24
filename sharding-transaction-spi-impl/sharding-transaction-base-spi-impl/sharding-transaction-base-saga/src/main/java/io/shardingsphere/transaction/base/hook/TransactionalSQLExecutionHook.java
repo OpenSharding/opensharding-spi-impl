@@ -19,15 +19,15 @@ package io.shardingsphere.transaction.base.hook;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.base.context.BranchTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
-import io.shardingsphere.transaction.base.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.base.context.SagaLogicSQLTransaction;
-import io.shardingsphere.transaction.base.context.SagaTransaction;
-import io.shardingsphere.transaction.base.saga.SagaShardingTransactionManager;
+import io.shardingsphere.transaction.base.context.GlobalTransaction;
+import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.hook.revert.DMLSQLRevertEngine;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorFactory;
+import io.shardingsphere.transaction.base.saga.SagaShardingTransactionManager;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.route.RouteUnit;
@@ -38,27 +38,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Saga SQL execution hook.
+ * Transactional SQL execution hook.
  *
  * @author yangyi
  * @author zhaojun
  */
-public final class SagaSQLExecutionHook implements SQLExecutionHook {
+public final class TransactionalSQLExecutionHook implements SQLExecutionHook {
     
-    private SagaTransaction sagaTransaction;
+    private GlobalTransaction globalTransaction;
     
-    private SagaBranchTransaction branchTransaction;
+    private BranchTransaction branchTransaction;
     
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
         if (!shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY)) {
             return;
         }
-        sagaTransaction = (SagaTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
-        if (sagaTransaction.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
-            branchTransaction = new SagaBranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
-            branchTransaction.setRevertSQLResult(doSQLRevert(sagaTransaction.getCurrentLogicSQLTransaction(), routeUnit).orNull());
-            sagaTransaction.addBranchTransaction(branchTransaction);
+        globalTransaction = (GlobalTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
+        if (globalTransaction.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
+            branchTransaction = new BranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
+            branchTransaction.setRevertSQLResult(doSQLRevert(globalTransaction.getCurrentLogicSQLTransaction(), routeUnit).orNull());
+            globalTransaction.addBranchTransaction(branchTransaction);
         }
     }
     
@@ -76,8 +76,8 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
         }
     }
     
-    private Optional<RevertSQLResult> doSQLRevert(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit) {
-        Connection connection = sagaTransaction.getCachedConnections().get(routeUnit.getDataSourceName());
+    private Optional<RevertSQLResult> doSQLRevert(final LogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit) {
+        Connection connection = globalTransaction.getCachedConnections().get(routeUnit.getDataSourceName());
         SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
         return new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
     }

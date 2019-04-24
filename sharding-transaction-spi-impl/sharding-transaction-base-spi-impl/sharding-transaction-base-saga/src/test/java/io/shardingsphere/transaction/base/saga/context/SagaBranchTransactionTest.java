@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.saga.context;
 
-import io.shardingsphere.transaction.base.context.SagaBranchTransaction;
+import io.shardingsphere.transaction.base.context.BranchTransaction;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,16 +34,16 @@ public final class SagaBranchTransactionTest {
     
     @Test
     public void assertHashCode() {
-        SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
-        assertThat(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).hashCode(), is(sagaBranchTransaction.hashCode()));
-        assertThat(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()).hashCode(), is(sagaBranchTransaction.hashCode()));
+        BranchTransaction sagaBranchTransaction = new BranchTransaction(dataSourceName, sql, getStringParameterSets());
+        assertThat(new BranchTransaction(dataSourceName, sql, getStringParameterSets()).hashCode(), is(sagaBranchTransaction.hashCode()));
+        assertThat(new BranchTransaction(dataSourceName, sql, getMixedParameterSets()).hashCode(), is(sagaBranchTransaction.hashCode()));
     }
     
     @Test
     public void assertToString() {
-        SagaBranchTransaction sagaBranchTransaction = new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets());
-        assertThat(new SagaBranchTransaction(dataSourceName, sql, getStringParameterSets()).toString(), is(sagaBranchTransaction.toString()));
-        assertThat(new SagaBranchTransaction(dataSourceName, sql, getMixedParameterSets()).toString(), is(sagaBranchTransaction.toString()));
+        BranchTransaction sagaBranchTransaction = new BranchTransaction(dataSourceName, sql, getStringParameterSets());
+        assertThat(new BranchTransaction(dataSourceName, sql, getStringParameterSets()).toString(), is(sagaBranchTransaction.toString()));
+        assertThat(new BranchTransaction(dataSourceName, sql, getMixedParameterSets()).toString(), is(sagaBranchTransaction.toString()));
     }
     
     private List<List<Object>> getStringParameterSets() {

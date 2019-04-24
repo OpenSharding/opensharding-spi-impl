@@ -22,8 +22,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionBuilder;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
-import io.shardingsphere.transaction.base.context.SagaBranchTransaction;
-import io.shardingsphere.transaction.base.context.SagaTransaction;
+import io.shardingsphere.transaction.base.context.BranchTransaction;
+import io.shardingsphere.transaction.base.context.GlobalTransaction;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.core.SuccessfulSagaResponse;
@@ -45,7 +45,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public final class ShardingSQLTransport implements SQLTransport {
     
-    private final SagaTransaction sagaTransaction;
+    private final GlobalTransaction sagaTransaction;
     
     @Override
     public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> sagaParameters) {
@@ -56,7 +56,7 @@ public final class ShardingSQLTransport implements SQLTransport {
             sagaTransaction.changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
-        Optional<SagaBranchTransaction> branchTransaction = sagaTransaction.findBranchTransaction(datasourceName, sql, sagaParameters);
+        Optional<BranchTransaction> branchTransaction = sagaTransaction.findBranchTransaction(datasourceName, sql, sagaParameters);
         return branchTransaction.isPresent() && isExecuteSQL(branchTransaction.get().getExecuteStatus()) ? executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
     }
     

@@ -26,14 +26,14 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Saga branch transaction.
+ * Branch transaction.
  *
  * @author yangyi
  */
 @RequiredArgsConstructor
 @Getter
 @Setter
-public final class SagaBranchTransaction {
+public final class BranchTransaction {
     
     private String branchId = UUID.randomUUID().toString().replaceAll("-", "");
     
@@ -47,7 +47,7 @@ public final class SagaBranchTransaction {
     
     private RevertSQLResult revertSQLResult;
     
-    public SagaBranchTransaction(final String dataSourceName, final String sql, final List<List<Object>> parameters, final ExecuteStatus executeStatus) {
+    public BranchTransaction(final String dataSourceName, final String sql, final List<List<Object>> parameters, final ExecuteStatus executeStatus) {
         this(dataSourceName, sql, parameters);
         this.executeStatus = executeStatus;
     }
