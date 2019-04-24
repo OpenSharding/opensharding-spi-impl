@@ -34,13 +34,6 @@ public final class SagaBranchTransactionTest {
     private String sql = "sql";
     
     @Test
-    public void assertHashCode() {
-        BranchTransaction sagaBranchTransaction = new BranchTransaction(dataSourceName, sql, getStringParameterSets());
-        assertThat(new BranchTransaction(dataSourceName, sql, getStringParameterSets()).hashCode(), is(sagaBranchTransaction.hashCode()));
-        assertThat(new BranchTransaction(dataSourceName, sql, getMixedParameterSets()).hashCode(), is(sagaBranchTransaction.hashCode()));
-    }
-    
-    @Test
     public void assertToString() {
         BranchTransaction sagaBranchTransaction = new BranchTransaction(dataSourceName, sql, getStringParameterSets());
         assertThat(new BranchTransaction(dataSourceName, sql, getStringParameterSets()).toString(), is(sagaBranchTransaction.toString()));

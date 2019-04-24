@@ -17,7 +17,6 @@
 
 package io.shardingsphere.transaction.base.saga.config;
 
-import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -34,7 +33,6 @@ public final class SagaConfigurationLoaderTest {
         assertThat(sagaConfiguration.getCompensationMaxRetries(), is(4));
         assertThat(sagaConfiguration.getTransactionRetryDelayMilliseconds(), is(1000));
         assertThat(sagaConfiguration.getCompensationRetryDelayMilliseconds(), is(2000));
-        assertThat(sagaConfiguration.getRecoveryPolicy(), is(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY));
         assertSagaPersistenceConfiguration(sagaConfiguration.getSagaPersistenceConfiguration());
     }
     
