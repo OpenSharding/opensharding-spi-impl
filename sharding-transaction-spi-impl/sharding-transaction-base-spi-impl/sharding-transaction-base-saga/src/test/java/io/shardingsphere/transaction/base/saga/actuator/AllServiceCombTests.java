@@ -24,7 +24,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         SagaDefinitionBuilderTest.class,
-        SagaExecutionComponentFactoryTest.class
+        SagaActuatorFactoryTest.class
 })
 public final class AllServiceCombTests {
 }
