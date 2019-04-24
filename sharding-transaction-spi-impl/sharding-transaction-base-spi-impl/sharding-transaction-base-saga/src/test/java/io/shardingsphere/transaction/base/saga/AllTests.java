@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.saga;
 
 import io.shardingsphere.transaction.base.hook.AllHookTests;
-import io.shardingsphere.transaction.base.saga.actuator.AllServiceCombTests;
+import io.shardingsphere.transaction.base.saga.actuator.AllActuatorTests;
 import io.shardingsphere.transaction.base.saga.config.SagaConfigurationLoaderTest;
 import io.shardingsphere.transaction.base.saga.context.AllContextTests;
 import io.shardingsphere.transaction.base.saga.persistence.AllPersistenceTests;
@@ -32,7 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
         AllContextTests.class,
         AllHookTests.class,
         AllPersistenceTests.class,
-        AllServiceCombTests.class
+        AllActuatorTests.class
 })
 public final class AllTests {
 }
