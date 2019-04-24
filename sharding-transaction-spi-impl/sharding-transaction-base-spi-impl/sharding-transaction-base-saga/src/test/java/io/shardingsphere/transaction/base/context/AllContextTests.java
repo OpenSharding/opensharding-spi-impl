@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.base.saga.context;
+package io.shardingsphere.transaction.base.context;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

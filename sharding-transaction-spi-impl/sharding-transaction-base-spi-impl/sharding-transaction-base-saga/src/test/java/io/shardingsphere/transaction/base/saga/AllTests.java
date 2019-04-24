@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.base.saga;
 import io.shardingsphere.transaction.base.hook.AllHookTests;
 import io.shardingsphere.transaction.base.saga.actuator.AllActuatorTests;
 import io.shardingsphere.transaction.base.saga.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.base.saga.context.AllContextTests;
+import io.shardingsphere.transaction.base.context.AllContextTests;
 import io.shardingsphere.transaction.base.saga.persistence.AllPersistenceTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.base.saga.context;
+package io.shardingsphere.transaction.base.context;
 
-import io.shardingsphere.transaction.base.context.BranchTransaction;
 import org.junit.Test;
 
 import java.util.ArrayList;
