@@ -37,13 +37,11 @@ public final class SagaResourceManager {
     
     private SagaConfiguration sagaConfiguration;
     
-    private SagaPersistence sagaPersistence;
-    
     private SagaExecutionComponent sagaExecutionComponent;
     
     private SagaResourceManager() {
         sagaConfiguration = SagaConfigurationLoader.load();
-        sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
+        SagaPersistence sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
         sagaExecutionComponent = SagaExecutionComponentFactory.createSagaExecutionComponent(sagaConfiguration, sagaPersistence);
     }
     

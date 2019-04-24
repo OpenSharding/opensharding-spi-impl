@@ -145,9 +145,6 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     }
     
     private void clearSagaTransaction() {
-        if (SagaTransactionHolder.isInTransaction()) {
-            SagaResourceManager.getInstance().getSagaPersistence().cleanSnapshot(SagaTransactionHolder.get().getId());
-        }
         ShardingExecuteDataMap.getDataMap().remove(SAGA_TRANSACTION_KEY);
         SagaTransactionHolder.clear();
     }
