@@ -15,24 +15,30 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.hook.revert.executor.delete;
 
-import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.saga.context.AllContextTests;
-import io.shardingsphere.transaction.saga.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.actuator.AllServiceCombTests;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import io.shardingsphere.transaction.saga.hook.revert.executor.SQLRevertContext;
+import lombok.Getter;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-        SagaConfigurationLoaderTest.class,
-        AllContextTests.class,
-        AllHookTests.class,
-        AllPersistenceTests.class,
-        AllServiceCombTests.class
-})
-public final class AllTests {
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Delete SQL revert context.
+ *
+ * @author duhongjun
+ * @author zhaojun
+ */
+@Getter
+public class DeleteSQLRevertContext implements SQLRevertContext {
+    
+    private final String actualTable;
+    
+    private final List<Map<String, Object>> undoData = new LinkedList<>();
+    
+    public DeleteSQLRevertContext(final String tableName, final List<Map<String, Object>> undoData) {
+        this.actualTable = tableName;
+        this.undoData.addAll(undoData);
+    }
 }

@@ -15,24 +15,29 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.persistence.impl;
 
-import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.saga.context.AllContextTests;
-import io.shardingsphere.transaction.saga.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.actuator.AllServiceCombTests;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.apache.servicecomb.saga.core.EventEnvelope;
+import org.apache.servicecomb.saga.core.PersistentStore;
+import org.apache.servicecomb.saga.core.SagaEvent;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-        SagaConfigurationLoaderTest.class,
-        AllContextTests.class,
-        AllHookTests.class,
-        AllPersistenceTests.class,
-        AllServiceCombTests.class
-})
-public final class AllTests {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Empty saga persistence.
+ *
+ * @author yangyi
+ */
+public final class EmptySagaPersistence implements PersistentStore {
+    
+    @Override
+    public Map<String, List<EventEnvelope>> findPendingSagaEvents() {
+        return new HashMap<>(1);
+    }
+    
+    @Override
+    public void offer(final SagaEvent sagaEvent) {
+    }
 }

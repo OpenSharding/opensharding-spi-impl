@@ -15,24 +15,30 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.hook.revert.executor;
 
-import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.saga.context.AllContextTests;
-import io.shardingsphere.transaction.saga.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.actuator.AllServiceCombTests;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import com.google.common.base.Optional;
+import io.shardingsphere.transaction.saga.hook.revert.RevertSQLResult;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-        SagaConfigurationLoaderTest.class,
-        AllContextTests.class,
-        AllHookTests.class,
-        AllPersistenceTests.class,
-        AllServiceCombTests.class
-})
-public final class AllTests {
+/**
+ * SQL revert executor.
+ *
+ * @author zhaojun
+ */
+public interface SQLRevertExecutor {
+    
+    /**
+     * Revert SQL.
+     *
+     * @return revert SQL
+     */
+    Optional<String> revertSQL();
+    
+    
+    /**
+     * Fill revert parameters.
+     *
+     * @param revertSQLResult revert SQL result
+     */
+    void fillParameters(RevertSQLResult revertSQLResult);
 }
