@@ -59,7 +59,7 @@ public final class TransactionalSQLExecutionHook implements SQLExecutionHook {
         if (transactionContext.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
             branchTransaction = new BranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
             branchTransaction.setRevertSQLResult(doSQLRevert(transactionContext.getCurrentLogicSQLTransaction(), routeUnit).orNull());
-            transactionContext.participate(branchTransaction);
+            transactionContext.addBranchTransaction(branchTransaction);
         }
     }
     

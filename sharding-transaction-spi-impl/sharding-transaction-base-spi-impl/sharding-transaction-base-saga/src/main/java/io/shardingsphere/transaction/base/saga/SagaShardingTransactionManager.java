@@ -99,7 +99,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void commit() {
         if (TransactionContextHolder.isInTransaction() && TransactionContextHolder.get().isContainsException()) {
-            TransactionContextHolder.get().setTransactionOperationType(TransactionOperationType.COMMIT);
+            TransactionContextHolder.get().setOperationType(TransactionOperationType.COMMIT);
             sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, TransactionContextHolder.get()).toJson());
         }
         clearSagaTransaction();
@@ -108,7 +108,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void rollback() {
         if (TransactionContextHolder.isInTransaction()) {
-            TransactionContextHolder.get().setTransactionOperationType(TransactionOperationType.ROLLBACK);
+            TransactionContextHolder.get().setOperationType(TransactionOperationType.ROLLBACK);
             sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, TransactionContextHolder.get()).toJson());
         }
         clearSagaTransaction();

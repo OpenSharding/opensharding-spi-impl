@@ -79,7 +79,7 @@ public final class SagaTransactionTest {
     @Test
     public void assertAddBranchTransactionWithFailureStatus() {
         sagaTransaction.nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
-        sagaTransaction.participate(new BranchTransaction("", actualSQL, null, ExecuteStatus.FAILURE));
+        sagaTransaction.addBranchTransaction(new BranchTransaction("", actualSQL, null, ExecuteStatus.FAILURE));
         assertThat(sagaTransaction.getCurrentLogicSQLTransaction().getBranchTransactions().size(), is(1));
         assertTrue(sagaTransaction.isContainsException());
     }
@@ -87,7 +87,7 @@ public final class SagaTransactionTest {
     @Test
     public void assertAddBranchTransactionWithSuccessStatus() {
         sagaTransaction.nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
-        sagaTransaction.participate(new BranchTransaction("", actualSQL, null, ExecuteStatus.SUCCESS));
+        sagaTransaction.addBranchTransaction(new BranchTransaction("", actualSQL, null, ExecuteStatus.SUCCESS));
         assertThat(sagaTransaction.getCurrentLogicSQLTransaction().getBranchTransactions().size(), is(1));
         assertFalse(sagaTransaction.isContainsException());
     }

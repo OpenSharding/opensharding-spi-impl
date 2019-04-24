@@ -53,7 +53,7 @@ public final class TransactionContext {
     private final Map<String, Connection> cachedConnections = new HashMap<>();
     
     @Setter
-    private TransactionOperationType transactionOperationType = TransactionOperationType.BEGIN;
+    private TransactionOperationType operationType = TransactionOperationType.BEGIN;
     
     /**
      * Go to next logic SQL transaction.
@@ -96,7 +96,7 @@ public final class TransactionContext {
      *
      * @param branchTransaction branch transaction
      */
-    public void participate(final BranchTransaction branchTransaction) {
+    public void addBranchTransaction(final BranchTransaction branchTransaction) {
         currentLogicSQLTransaction.getBranchTransactions().add(branchTransaction);
     }
     

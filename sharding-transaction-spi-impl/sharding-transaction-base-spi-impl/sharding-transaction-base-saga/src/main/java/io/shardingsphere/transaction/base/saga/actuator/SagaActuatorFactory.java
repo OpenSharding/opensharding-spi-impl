@@ -53,8 +53,8 @@ public final class SagaActuatorFactory {
      */
     public static SagaExecutionComponent newInstance(final SagaConfiguration sagaConfiguration, final PersistentStore sagaPersistence) {
         FromJsonFormat<SagaDefinition> fromJsonFormat = new JacksonFromJsonFormat(SagaTransportFactory.getInstance());
-        GraphBasedSagaFactory sagaFactory = new GraphBasedSagaFactory(
-                sagaConfiguration.getCompensationRetryDelayMilliseconds(), sagaPersistence, new ChildrenExtractor(), createExecutorService(sagaConfiguration.getExecutorSize()));
+        GraphBasedSagaFactory sagaFactory = new GraphBasedSagaFactory(sagaConfiguration.getCompensationRetryDelayMilliseconds(),
+            sagaPersistence, new ChildrenExtractor(), createExecutorService(sagaConfiguration.getExecutorSize()));
         return new SagaExecutionComponent(sagaPersistence, fromJsonFormat, null, sagaFactory);
     }
     

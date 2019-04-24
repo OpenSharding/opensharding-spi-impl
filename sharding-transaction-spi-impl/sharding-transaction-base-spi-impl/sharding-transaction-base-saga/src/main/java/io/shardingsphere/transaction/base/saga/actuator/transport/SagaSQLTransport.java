@@ -62,7 +62,7 @@ public final class SagaSQLTransport implements SQLTransport {
     
     private boolean isExecuteSQL(final ExecuteStatus executeStatus) {
         return ExecuteStatus.COMPENSATING.equals(executeStatus) ||
-            (TransactionOperationType.COMMIT.equals(sagaTransaction.getTransactionOperationType()) && ExecuteStatus.FAILURE.equals(executeStatus));
+            (TransactionOperationType.COMMIT.equals(sagaTransaction.getOperationType()) && ExecuteStatus.FAILURE.equals(executeStatus));
     }
     
     private SagaResponse executeSQL(final String datasourceName, final String sql, final List<List<String>> sagaParameters) {
