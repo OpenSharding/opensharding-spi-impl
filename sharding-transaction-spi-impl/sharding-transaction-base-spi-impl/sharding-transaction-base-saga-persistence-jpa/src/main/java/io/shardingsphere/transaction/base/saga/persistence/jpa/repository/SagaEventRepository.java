@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class SagaEventRepository {
     
-    private final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("io.shardingsphere.transaction.saga.core.resource.persistence");
+    private final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("io.shardingsphere.transaction.saga.core.persistence");
     
     /**
      * Insert new saga event.

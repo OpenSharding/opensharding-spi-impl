@@ -15,24 +15,17 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.core.persistence;
 
-import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.saga.core.context.AllContextTests;
-import io.shardingsphere.transaction.saga.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.core.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.core.servicecomb.AllServiceCombTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+
+import io.shardingsphere.transaction.saga.core.persistence.impl.jdbc.AllJDBCPersistenceTests;
 
 @RunWith(Suite.class)
-@SuiteClasses({
-        SagaConfigurationLoaderTest.class,
-        AllContextTests.class,
-        AllHookTests.class,
-        AllPersistenceTests.class,
-        AllServiceCombTests.class
+@Suite.SuiteClasses({
+        SagaPersistenceLoaderTest.class,
+        AllJDBCPersistenceTests.class
 })
-public final class AllTests {
+public class AllPersistenceTests {
 }

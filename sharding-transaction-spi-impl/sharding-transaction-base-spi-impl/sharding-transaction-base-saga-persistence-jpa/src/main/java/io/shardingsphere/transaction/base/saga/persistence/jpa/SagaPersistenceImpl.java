@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.base.saga.persistence.jpa;
 
 import io.shardingsphere.transaction.base.saga.persistence.jpa.entity.SagaEventEntity;
 import io.shardingsphere.transaction.base.saga.persistence.jpa.repository.SagaEventRepository;
-import io.shardingsphere.transaction.saga.core.resource.servicecomb.transport.ShardingTransportFactory;
+import io.shardingsphere.transaction.saga.core.servicecomb.transport.ShardingTransportFactory;
 import org.apache.servicecomb.saga.core.EventEnvelope;
 import org.apache.servicecomb.saga.core.JacksonToJsonFormat;
 import org.apache.servicecomb.saga.core.PersistentStore;
