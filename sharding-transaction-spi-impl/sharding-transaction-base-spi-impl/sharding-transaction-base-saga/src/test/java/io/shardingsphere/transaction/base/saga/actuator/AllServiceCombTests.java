@@ -17,13 +17,11 @@
 
 package io.shardingsphere.transaction.base.saga.actuator;
 
-import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionBuilderTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        SagaDefinitionBuilderTest.class,
         SagaActuatorFactoryTest.class
 })
 public final class AllServiceCombTests {
