@@ -17,16 +17,20 @@
 
 package io.shardingsphere.transaction.saga;
 
-import io.shardingsphere.transaction.saga.context.SagaTransactionHolder;
+import io.shardingsphere.transaction.saga.config.SagaConfiguration;
+import io.shardingsphere.transaction.saga.config.SagaConfigurationLoader;
 import io.shardingsphere.transaction.saga.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.context.SagaLogicSQLTransaction;
 import io.shardingsphere.transaction.saga.context.SagaTransaction;
-import io.shardingsphere.transaction.saga.core.SagaResourceManager;
-import io.shardingsphere.transaction.saga.config.SagaConfiguration;
+import io.shardingsphere.transaction.saga.context.SagaTransactionHolder;
+import io.shardingsphere.transaction.saga.core.actuator.SagaActuatorFactory;
 import io.shardingsphere.transaction.saga.core.actuator.definition.SagaDefinitionBuilder;
-import io.shardingsphere.transaction.saga.hook.revert.RevertSQLResult;
+import io.shardingsphere.transaction.saga.core.hook.revert.RevertSQLResult;
+import io.shardingsphere.transaction.saga.core.persistence.SagaPersistenceLoader;
 import lombok.SneakyThrows;
+import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
+import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
@@ -53,6 +57,16 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     public static final String SAGA_TRANSACTION_KEY = "saga_transaction";
     
     private final Map<String, DataSource> dataSourceMap = new HashMap<>();
+    
+    private SagaConfiguration sagaConfiguration;
+    
+    private SagaExecutionComponent sagaActuator;
+    
+    public SagaShardingTransactionManager() {
+        sagaConfiguration = SagaConfigurationLoader.load();
+        PersistentStore sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
+        sagaActuator = SagaActuatorFactory.newInstance(sagaConfiguration, sagaPersistence);
+    }
     
     @Override
     public void init(final DatabaseType databaseType, final Collection<ResourceDataSource> resourceDataSources) {
@@ -92,7 +106,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     public void commit() {
         if (SagaTransactionHolder.isInTransaction() && SagaTransactionHolder.get().isContainsException()) {
             SagaTransactionHolder.get().setTransactionOperationType(TransactionOperationType.COMMIT);
-            SagaResourceManager.getInstance().getSagaExecutionComponent().run(getSagaDefinitionBuilder(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY).build());
+            sagaActuator.run(getSagaDefinitionBuilder(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY).build());
         }
         clearSagaTransaction();
     }
@@ -104,7 +118,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
             SagaDefinitionBuilder builder = getSagaDefinitionBuilder(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
             builder.addRollbackRequest();
             SagaTransactionHolder.get().setTransactionOperationType(TransactionOperationType.ROLLBACK);
-            SagaResourceManager.getInstance().getSagaExecutionComponent().run(builder.build());
+            sagaActuator.run(builder.build());
         }
         clearSagaTransaction();
     }
@@ -126,7 +140,6 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     }
     
     private SagaDefinitionBuilder getSagaDefinitionBuilder(final String recoveryPolicy) {
-        SagaConfiguration sagaConfiguration = SagaResourceManager.getInstance().getSagaConfiguration();
         SagaDefinitionBuilder result = new SagaDefinitionBuilder(recoveryPolicy, sagaConfiguration.getTransactionMaxRetries(),
             sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
         for (SagaLogicSQLTransaction each : SagaTransactionHolder.get().getLogicSQLTransactions()) {

@@ -1,1 +1,1 @@
-io.shardingsphere.transaction.saga.hook.SagaSQLShardHook
+io.shardingsphere.transaction.saga.core.hook.SagaSQLShardHook

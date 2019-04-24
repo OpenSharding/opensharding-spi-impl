@@ -15,24 +15,32 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.saga;
+package io.shardingsphere.transaction.saga.core.hook.revert.snapshot;
 
-import io.shardingsphere.transaction.saga.config.SagaConfigurationLoaderTest;
-import io.shardingsphere.transaction.saga.context.AllContextTests;
-import io.shardingsphere.transaction.saga.core.hook.AllHookTests;
-import io.shardingsphere.transaction.saga.core.persistence.AllPersistenceTests;
-import io.shardingsphere.transaction.saga.core.actuator.AllServiceCombTests;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-        SagaConfigurationLoaderTest.class,
-        AllContextTests.class,
-        AllHookTests.class,
-        AllPersistenceTests.class,
-        AllServiceCombTests.class
-})
-public final class AllTests {
+import java.sql.Connection;
+import java.util.Collection;
+
+/**
+ * Snapshot SQL context.
+ *
+ * @author zhaojun
+ */
+@RequiredArgsConstructor
+@Getter
+public class SnapshotSQLContext {
+    
+    private final Connection connection;
+    
+    private final String tableName;
+    
+    private final Collection<Object> parameters;
+    
+    private final Collection<String> queryColumnNames;
+    
+    private final String tableAlias;
+    
+    private final String whereClause;
 }
