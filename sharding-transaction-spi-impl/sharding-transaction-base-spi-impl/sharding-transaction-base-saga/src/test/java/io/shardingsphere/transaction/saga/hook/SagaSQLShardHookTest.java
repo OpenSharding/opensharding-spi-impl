@@ -17,22 +17,18 @@
 
 package io.shardingsphere.transaction.saga.hook;
 
+import io.shardingsphere.transaction.saga.core.SagaTransactionHolder;
 import io.shardingsphere.transaction.saga.core.context.SagaTransaction;
-import lombok.SneakyThrows;
-import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.lang.reflect.Field;
-
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class SagaSQLShardHookTest {
@@ -46,23 +42,17 @@ public final class SagaSQLShardHookTest {
     @Mock
     private ShardingTableMetaData shardingTableMetaData;
     
-    @Mock
-    private SQLStatement sqlStatement;
     
     private final SagaSQLShardHook sagaSQLShardHook = new SagaSQLShardHook();
     
     @Before
     public void setUp() {
-        setSagaTransaction();
-        when(sqlRouteResult.getSqlStatement()).thenReturn(sqlStatement);
-        when(sqlStatement.getType()).thenReturn(SQLType.DML);
+        SagaTransactionHolder.set(sagaTransaction);
     }
     
-    @SneakyThrows
-    private void setSagaTransaction() {
-        Field sagaTransactionField = SagaSQLShardHook.class.getDeclaredField("sagaTransaction");
-        sagaTransactionField.setAccessible(true);
-        sagaTransactionField.set(sagaSQLShardHook, sagaTransaction);
+    @After
+    public void tearDown() {
+        SagaTransactionHolder.clear();
     }
     
     @Test
