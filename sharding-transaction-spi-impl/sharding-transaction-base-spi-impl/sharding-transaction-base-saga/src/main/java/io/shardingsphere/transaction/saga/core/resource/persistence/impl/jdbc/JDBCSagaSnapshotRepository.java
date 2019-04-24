@@ -39,8 +39,6 @@ public final class JDBCSagaSnapshotRepository {
     
     private static final String INSERT_SQL = "INSERT INTO saga_snapshot (transaction_id, snapshot_id, transaction_context, revert_context) values (?, ?, ?, ?)";
     
-    private static final String DELETE_SQL = "DELETE FROM saga_snapshot WHERE transaction_id = ?";
-    
     private final DataSource dataSource;
     
     private final AsyncSnapshotPersistence asyncSnapshotPersistence;
@@ -62,7 +60,6 @@ public final class JDBCSagaSnapshotRepository {
         List<Object> result = Lists.newArrayList();
         result.add(sagaSnapshot.getTransactionId());
         result.add(sagaSnapshot.getSnapshotId());
-        result.add(sagaSnapshot.getTransactionContext().toString());
         result.add(sagaSnapshot.getRevertContext().toString());
         return result;
     }

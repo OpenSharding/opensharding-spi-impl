@@ -81,10 +81,8 @@ public final class SagaSQLExecutionHook implements SQLExecutionHook {
     private void persistSnapshot(final SagaLogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit) {
         Connection connection = sagaTransaction.getCachedConnections().get(routeUnit.getDataSourceName());
         SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
-        Optional<RevertSQLResult> revertSQLResult = new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
-        this.branchTransaction.setRevertSQLResult(revertSQLResult.orNull());
-        SagaResourceManager.getInstance().getSagaPersistence().persistSnapshot(new SagaSnapshot(sagaTransaction.getId(),
-            branchTransaction.getBranchId(), branchTransaction, revertSQLResult.orNull()));
+        this.branchTransaction.setRevertSQLResult(new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert().orNull());
+        SagaResourceManager.getInstance().getSagaPersistence().persistSnapshot(new SagaSnapshot(sagaTransaction.getId(), branchTransaction));
     }
     
     private List<List<Object>> splitParameters(final SQLUnit sqlUnit) {

@@ -20,14 +20,12 @@ package io.shardingsphere.transaction.saga.core.resource.persistence;
 import io.shardingsphere.transaction.saga.core.context.SagaBranchTransaction;
 import io.shardingsphere.transaction.saga.core.revert.RevertSQLResult;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Saga snapshot bean.
  *
  * @author yangyi
  */
-@RequiredArgsConstructor
 @Getter
 public final class SagaSnapshot {
     
@@ -35,7 +33,11 @@ public final class SagaSnapshot {
     
     private final String snapshotId;
     
-    private final SagaBranchTransaction transactionContext;
-    
     private final RevertSQLResult revertContext;
+    
+    public SagaSnapshot(final String transactionId, final SagaBranchTransaction sagaBranchTransaction) {
+        this.transactionId = transactionId;
+        this.snapshotId = sagaBranchTransaction.getBranchId();
+        this.revertContext = sagaBranchTransaction.getRevertSQLResult();
+    }
 }
