@@ -23,7 +23,7 @@ import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import java.util.Collection;
 
 /**
- * Snapshot query SQL builder.
+ * Generic SQL builder.
  *
  * @author zhaojun
  */

@@ -24,26 +24,26 @@ import org.apache.servicecomb.saga.transports.SQLTransport;
 import org.apache.servicecomb.saga.transports.TransportFactory;
 
 /**
- * Sharding transport factory for service comb saga {@code TransportFactory}.
+ * Saga transport factory.
  *
  * @author yangyi
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ShardingTransportFactory implements TransportFactory<SQLTransport> {
+public final class SagaTransportFactory implements TransportFactory<SQLTransport> {
     
-    private static final ShardingTransportFactory INSTANCE = new ShardingTransportFactory();
+    private static final SagaTransportFactory INSTANCE = new SagaTransportFactory();
     
     /**
-     * Get instance of sharding transport factory.
+     * Get instance of saga transport factory.
      *
-     * @return instance of sharding transport factory
+     * @return instance of saga transport factory
      */
-    public static ShardingTransportFactory getInstance() {
+    public static SagaTransportFactory getInstance() {
         return INSTANCE;
     }
     
     @Override
     public SQLTransport getTransport() {
-        return new ShardingSQLTransport(GlobalTransactionHolder.get());
+        return new SagaSQLTransport(GlobalTransactionHolder.get());
     }
 }

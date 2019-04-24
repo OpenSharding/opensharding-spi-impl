@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.saga.actuator;
 
 import com.google.common.util.concurrent.MoreExecutors;
-import io.shardingsphere.transaction.base.saga.actuator.transport.ShardingTransportFactory;
+import io.shardingsphere.transaction.base.saga.actuator.transport.SagaTransportFactory;
 import io.shardingsphere.transaction.base.saga.config.SagaConfiguration;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -37,7 +37,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Service comb saga execution component factory.
+ * Saga actuator factory.
  *
  * @author yangyi
  */
@@ -52,7 +52,7 @@ public final class SagaActuatorFactory {
      * @return saga execution component
      */
     public static SagaExecutionComponent newInstance(final SagaConfiguration sagaConfiguration, final PersistentStore sagaPersistence) {
-        FromJsonFormat<SagaDefinition> fromJsonFormat = new JacksonFromJsonFormat(ShardingTransportFactory.getInstance());
+        FromJsonFormat<SagaDefinition> fromJsonFormat = new JacksonFromJsonFormat(SagaTransportFactory.getInstance());
         GraphBasedSagaFactory sagaFactory = new GraphBasedSagaFactory(
                 sagaConfiguration.getCompensationRetryDelayMilliseconds(), sagaPersistence, new ChildrenExtractor(), createExecutorService(sagaConfiguration.getExecutorSize()));
         return new SagaExecutionComponent(sagaPersistence, fromJsonFormat, null, sagaFactory);

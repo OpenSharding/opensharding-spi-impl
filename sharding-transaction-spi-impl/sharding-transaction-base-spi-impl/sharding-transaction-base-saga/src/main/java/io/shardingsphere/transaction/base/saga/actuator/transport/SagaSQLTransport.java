@@ -38,12 +38,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Sharding SQL transport.
+ * Saga SQL transport.
  *
  * @author yangyi
  */
 @RequiredArgsConstructor
-public final class ShardingSQLTransport implements SQLTransport {
+public final class SagaSQLTransport implements SQLTransport {
     
     private final GlobalTransaction sagaTransaction;
     

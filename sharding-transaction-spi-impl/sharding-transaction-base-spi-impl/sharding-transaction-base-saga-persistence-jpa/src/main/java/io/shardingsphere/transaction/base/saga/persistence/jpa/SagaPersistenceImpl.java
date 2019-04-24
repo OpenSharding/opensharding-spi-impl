@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.saga.persistence.jpa;
 
-import io.shardingsphere.transaction.base.saga.actuator.transport.ShardingTransportFactory;
+import io.shardingsphere.transaction.base.saga.actuator.transport.SagaTransportFactory;
 import io.shardingsphere.transaction.base.saga.persistence.jpa.entity.SagaEventEntity;
 import io.shardingsphere.transaction.base.saga.persistence.jpa.repository.SagaEventRepository;
 import org.apache.servicecomb.saga.core.EventEnvelope;
@@ -42,7 +42,7 @@ public final class SagaPersistenceImpl implements PersistentStore {
     
     private final SagaEventRepository sagaEventRepository = new SagaEventRepository();
     
-    private final SagaEventFormat sagaEventFormat = new JacksonSagaEventFormat(ShardingTransportFactory.getInstance());
+    private final SagaEventFormat sagaEventFormat = new JacksonSagaEventFormat(SagaTransportFactory.getInstance());
     
     private final ToJsonFormat toJsonFormat = new JacksonToJsonFormat();
     
