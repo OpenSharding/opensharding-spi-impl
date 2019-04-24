@@ -20,7 +20,6 @@ package io.shardingsphere.transaction.base.saga.config;
 import com.google.common.base.Strings;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.servicecomb.saga.core.RecoveryPolicy;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,8 +47,6 @@ public final class SagaConfigurationLoader {
     private static final String TRANSACTION_RETRY_DELAY_MILLISECONDS = ACTUATOR_PREFIX + "transaction.retry.delay.milliseconds";
     
     private static final String COMPENSATION_RETRY_DELAY_MILLISECONDS = ACTUATOR_PREFIX + "compensation.retry.delay.milliseconds";
-    
-    private static final String RECOVERY_POLICY = ACTUATOR_PREFIX + "recovery.policy";
     
     private static final String ENABLED_PERSISTENCE = "saga.persistence.enabled";
     
@@ -115,10 +112,6 @@ public final class SagaConfigurationLoader {
         String compensationRetryDelayMilliseconds = sagaProperties.getProperty(COMPENSATION_RETRY_DELAY_MILLISECONDS);
         if (!Strings.isNullOrEmpty(transactionMaxRetries)) {
             result.setCompensationRetryDelayMilliseconds(Integer.parseInt(compensationRetryDelayMilliseconds));
-        }
-        String recoveryPolicy = sagaProperties.getProperty(RECOVERY_POLICY);
-        if (RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY.equals(recoveryPolicy) || RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(recoveryPolicy)) {
-            result.setRecoveryPolicy(recoveryPolicy);
         }
         result.setSagaPersistenceConfiguration(createSagaPersistenceConfiguration(sagaProperties));
         return result;
