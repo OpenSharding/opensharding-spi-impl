@@ -21,8 +21,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.context.BranchTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
-import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
+import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.hook.revert.DMLSQLRevertEngine;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
@@ -34,6 +34,7 @@ import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLUnit;
 
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -82,8 +83,8 @@ public final class TransactionalSQLExecutionHook implements SQLExecutionHook {
         return new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
     }
     
-    private List<List<Object>> splitParameters(final SQLUnit sqlUnit) {
-        List<List<Object>> result = Lists.newArrayList();
+    private List<Collection<Object>> splitParameters(final SQLUnit sqlUnit) {
+        List<Collection<Object>> result = Lists.newArrayList();
         int placeholderCount = countPlaceholder(sqlUnit.getSql());
         if (placeholderCount == sqlUnit.getParameters().size()) {
             result.add(sqlUnit.getParameters());

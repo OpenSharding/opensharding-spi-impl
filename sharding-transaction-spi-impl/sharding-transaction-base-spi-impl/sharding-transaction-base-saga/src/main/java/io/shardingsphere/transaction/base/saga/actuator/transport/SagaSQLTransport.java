@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.base.saga.actuator.transport;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionBuilder;
+import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.BranchTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
@@ -52,7 +52,7 @@ public final class SagaSQLTransport implements SQLTransport {
         if (Strings.isNullOrEmpty(sql)) {
             return new SuccessfulSagaResponse("Skip empty transaction/compensation");
         }
-        if (SagaDefinitionBuilder.ROLLBACK_TAG.equals(sql)) {
+        if (SagaDefinitionFactory.ROLLBACK_TAG.equals(sql)) {
             sagaTransaction.changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }

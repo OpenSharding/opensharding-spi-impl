@@ -152,9 +152,9 @@ public final class TransactionContext {
         return Optional.absent();
     }
     
-    private boolean judgeParameters(List<List<String>> sagaParameters, List<List<Object>> sqlParameters) {
+    private boolean judgeParameters(List<List<String>> sagaParameters, List<Collection<Object>> sqlParameters) {
         Iterator<List<String>> sagaParameterIterator = sagaParameters.iterator();
-        Iterator<List<Object>> sqlParameterIterator = sqlParameters.iterator();
+        Iterator<Collection<Object>> sqlParameterIterator = sqlParameters.iterator();
         while (sagaParameterIterator.hasNext()) {
             if (!sagaParameterIterator.next().toString().equals(sqlParameterIterator.next().toString())) {
                 return false;

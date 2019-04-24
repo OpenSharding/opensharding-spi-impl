@@ -17,17 +17,13 @@
 
 package io.shardingsphere.transaction.base.saga;
 
-import io.shardingsphere.transaction.base.context.BranchTransaction;
-import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import io.shardingsphere.transaction.base.saga.actuator.SagaActuatorFactory;
-import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionBuilder;
+import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
 import io.shardingsphere.transaction.base.saga.config.SagaConfiguration;
 import io.shardingsphere.transaction.base.saga.config.SagaConfigurationLoader;
-import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.saga.persistence.SagaPersistenceLoader;
-import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.PersistentStore;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
@@ -101,23 +97,19 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     }
     
     @Override
-    @SneakyThrows
     public void commit() {
         if (TransactionContextHolder.isInTransaction() && TransactionContextHolder.get().isContainsException()) {
             TransactionContextHolder.get().setTransactionOperationType(TransactionOperationType.COMMIT);
-            sagaActuator.run(getSagaDefinitionBuilder(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY).build());
+            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, TransactionContextHolder.get()).toJson());
         }
         clearSagaTransaction();
     }
     
     @Override
-    @SneakyThrows
     public void rollback() {
         if (TransactionContextHolder.isInTransaction()) {
-            SagaDefinitionBuilder builder = getSagaDefinitionBuilder(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY);
-            builder.addRollbackRequest();
             TransactionContextHolder.get().setTransactionOperationType(TransactionOperationType.ROLLBACK);
-            sagaActuator.run(builder.build());
+            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, TransactionContextHolder.get()).toJson());
         }
         clearSagaTransaction();
     }
@@ -135,24 +127,6 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     private void validateDataSourceName(final String datasourceName) {
         if (dataSourceMap.containsKey(datasourceName)) {
             throw new ShardingException("datasource {} has registered", datasourceName);
-        }
-    }
-    
-    private SagaDefinitionBuilder getSagaDefinitionBuilder(final String recoveryPolicy) {
-        SagaDefinitionBuilder result = new SagaDefinitionBuilder(recoveryPolicy, sagaConfiguration.getTransactionMaxRetries(),
-            sagaConfiguration.getCompensationMaxRetries(), sagaConfiguration.getTransactionRetryDelayMilliseconds());
-        for (LogicSQLTransaction each : TransactionContextHolder.get().getLogicSQLTransactions()) {
-            result.nextLogicSQL();
-            addLogicSQLDefinition(result, each);
-        }
-        return result;
-    }
-    
-    private void addLogicSQLDefinition(final SagaDefinitionBuilder sagaDefinitionBuilder, final LogicSQLTransaction sagaLogicSQLTransaction) {
-        RevertSQLResult defaultValue = new RevertSQLResult("");
-        for (BranchTransaction each : sagaLogicSQLTransaction.getBranchTransactions()) {
-            RevertSQLResult revertSQLUnit = null != each.getRevertSQLResult() ? each.getRevertSQLResult() : defaultValue;
-            sagaDefinitionBuilder.addSagaRequest(each.getBranchId(), each.getDataSourceName(), each.getSql(), each.getParameters(), revertSQLUnit.getSql(), revertSQLUnit.getParameters());
         }
     }
     

@@ -21,6 +21,7 @@ import io.shardingsphere.transaction.base.context.BranchTransaction;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -46,8 +47,8 @@ public final class SagaBranchTransactionTest {
         assertThat(new BranchTransaction(dataSourceName, sql, getMixedParameterSets()).toString(), is(sagaBranchTransaction.toString()));
     }
     
-    private List<List<Object>> getStringParameterSets() {
-        List<List<Object>> result = new ArrayList<>();
+    private List<Collection<Object>> getStringParameterSets() {
+        List<Collection<Object>> result = new ArrayList<>();
         List<Object> parameters = new ArrayList<>();
         parameters.add("1");
         parameters.add("x");
@@ -58,8 +59,8 @@ public final class SagaBranchTransactionTest {
         return result;
     }
     
-    private List<List<Object>> getMixedParameterSets() {
-        List<List<Object>> result = new ArrayList<>();
+    private List<Collection<Object>> getMixedParameterSets() {
+        List<Collection<Object>> result = new ArrayList<>();
         List<Object> parameters = new ArrayList<>();
         parameters.add(1);
         parameters.add("x");

@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,13 +42,13 @@ public final class BranchTransaction {
     
     private final String sql;
     
-    private final List<List<Object>> parameters;
+    private final List<Collection<Object>> parameters;
     
     private ExecuteStatus executeStatus = ExecuteStatus.EXECUTING;
     
     private RevertSQLResult revertSQLResult;
     
-    public BranchTransaction(final String dataSourceName, final String sql, final List<List<Object>> parameters, final ExecuteStatus executeStatus) {
+    public BranchTransaction(final String dataSourceName, final String sql, final List<Collection<Object>> parameters, final ExecuteStatus executeStatus) {
         this(dataSourceName, sql, parameters);
         this.executeStatus = executeStatus;
     }
