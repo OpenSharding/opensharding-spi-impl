@@ -44,7 +44,7 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     
     @Override
     protected SnapshotSQLContext getSnapshotSQLContext(final SQLRevertExecutorContext context) {
-        return new SnapshotSQLContext(context.getConnection(), context.getActualTableName(), context.getParameters(),
+        return new SnapshotSQLContext(context.getConnection(), context.getActualTableName(), getWhereParameters(context),
             getQueryColumnNames(context), getTableAlias().or(""), getWhereClause());
     }
     
@@ -71,5 +71,13 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     
     private String getWhereClause() {
         return 0 < updateStatement.getWhereStartIndex() ? updateStatement.getLogicSQL().substring(updateStatement.getWhereStartIndex(), updateStatement.getWhereStopIndex() + 1) : "";
+    }
+    
+    private Collection<Object> getWhereParameters(final SQLRevertExecutorContext context) {
+        Collection<Object> result = new LinkedList<>();
+        for (int i = updateStatement.getWhereParameterStartIndex(); i <= updateStatement.getWhereParameterEndIndex(); i++) {
+            result.add(context.getParameters().get(i));
+        }
+        return result;
     }
 }

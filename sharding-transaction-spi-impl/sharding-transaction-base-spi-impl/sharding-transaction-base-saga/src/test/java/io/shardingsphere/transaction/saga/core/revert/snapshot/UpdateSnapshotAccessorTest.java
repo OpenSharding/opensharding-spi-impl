@@ -37,7 +37,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,6 +83,8 @@ public class UpdateSnapshotAccessorTest {
     
     @Before
     public void setUp() throws SQLException {
+        parameters.addAll(Arrays.asList(1, 2));
+        when(executorContext.getParameters()).thenReturn(parameters);
         when(executorContext.getActualTableName()).thenReturn("t_order_0");
         when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.newArrayList("order_id"));
         when(executorContext.getSqlStatement()).thenReturn(updateStatement);
@@ -99,7 +101,7 @@ public class UpdateSnapshotAccessorTest {
         setMockUpdateStatement(sql, "t_order", "", 40, 69, "status", "modifier");
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
         assertThat(actual.getConnection(), is(connection));
-        assertThat(actual.getParameters(), CoreMatchers.<Collection<Object>>is(parameters));
+        assertThat(actual.getParameters().size(), is(2));
         assertThat(actual.getTableName(), is("t_order_0"));
         assertThat(actual.getWhereClause(), is("where order_id=? and user_id=?"));
         assertThat(actual.getTableAlias(), is(""));
@@ -168,6 +170,8 @@ public class UpdateSnapshotAccessorTest {
         when(updateStatement.getAssignments()).thenReturn(mockUpdateAssignments(tableName, updateColumns));
         when(updateStatement.getWhereStartIndex()).thenReturn(whereStartIndex);
         when(updateStatement.getWhereStopIndex()).thenReturn(whereStopIndex);
+        when(updateStatement.getWhereParameterStartIndex()).thenReturn(0);
+        when(updateStatement.getWhereParameterEndIndex()).thenReturn(1);
         when(updateStatement.getTables()).thenReturn(tables);
         when(tables.getSingleTableName()).thenReturn(tableName);
         when(tables.find(tableName)).thenReturn(Optional.of(table));
