@@ -152,7 +152,12 @@ public class SagaShardingTransactionManagerTest {
     }
     
     @Test
-    public void close() {
+    public void assertClose() {
+        dataSourceMap.put("ds1", dataSource);
+        setDataSourceMap(dataSourceMap);
+        transactionManager.close();
+        Map<String, DataSource> actual = getDataSourceMap();
+        assertTrue(actual.isEmpty());
     }
     
     @SneakyThrows
