@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import lombok.SneakyThrows;
+import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
@@ -44,6 +45,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,6 +59,12 @@ public class SagaShardingTransactionManagerTest {
     
     @Mock
     private Connection connection;
+    
+    @Mock
+    private TransactionContext transactionContext;
+    
+    @Mock
+    private SagaExecutionComponent sagaActuator;
     
     private Map<String, DataSource> dataSourceMap = new HashMap<>();
     
@@ -112,7 +121,12 @@ public class SagaShardingTransactionManagerTest {
     }
     
     @Test
-    public void commit() {
+    public void assertCommitContainsException() {
+        setSagaActuator();
+        when(transactionContext.isContainsException()).thenReturn(true);
+        TransactionContextHolder.set(transactionContext);
+        transactionManager.commit();
+        verify(sagaActuator).run(anyString());
     }
     
     @Test
@@ -137,5 +151,13 @@ public class SagaShardingTransactionManagerTest {
         Field field = transactionManager.getClass().getDeclaredField("dataSourceMap");
         field.setAccessible(true);
         field.set(transactionManager, dataSourceMap);
+    }
+    
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private void setSagaActuator() {
+        Field field = transactionManager.getClass().getDeclaredField("sagaActuator");
+        field.setAccessible(true);
+        field.set(transactionManager, sagaActuator);
     }
 }
