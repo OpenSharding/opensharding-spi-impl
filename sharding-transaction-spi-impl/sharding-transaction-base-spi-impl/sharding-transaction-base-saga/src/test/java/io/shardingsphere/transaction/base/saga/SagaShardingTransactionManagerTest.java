@@ -25,6 +25,7 @@ import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
+import org.apache.shardingsphere.transaction.core.TransactionOperationType;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +47,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -126,7 +128,18 @@ public class SagaShardingTransactionManagerTest {
         when(transactionContext.isContainsException()).thenReturn(true);
         TransactionContextHolder.set(transactionContext);
         transactionManager.commit();
+        verify(transactionContext).setOperationType(TransactionOperationType.COMMIT);
         verify(sagaActuator).run(anyString());
+    }
+    
+    @Test
+    public void assertCommitWithoutException() {
+        setSagaActuator();
+        when(transactionContext.isContainsException()).thenReturn(false);
+        TransactionContextHolder.set(transactionContext);
+        transactionManager.commit();
+        verify(transactionContext, never()).setOperationType(TransactionOperationType.COMMIT);
+        verify(sagaActuator, never()).run(anyString());
     }
     
     @Test
