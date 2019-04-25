@@ -22,6 +22,7 @@ import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.constant.DatabaseType;
+import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.junit.After;
@@ -40,6 +41,7 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -76,14 +78,6 @@ public class SagaShardingTransactionManagerTest {
         assertThat(actual.get("ds"), is(dataSource));
     }
     
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
-    private Map<String, DataSource> getDataSourceMap() {
-        Field field = transactionManager.getClass().getDeclaredField("dataSourceMap");
-        field.setAccessible(true);
-        return (Map<String, DataSource>) field.get(transactionManager);
-    }
-    
     @Test
     public void assertGetTransactionType() {
         assertThat(transactionManager.getTransactionType(), is(TransactionType.BASE));
@@ -108,16 +102,13 @@ public class SagaShardingTransactionManagerTest {
         assertThat(TransactionContextHolder.get().getCachedConnections().get("ds1"), is(connection));
     }
     
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
-    private void setDataSourceMap(final Map<String, DataSource> dataSourceMap) {
-        Field field = transactionManager.getClass().getDeclaredField("dataSourceMap");
-        field.setAccessible(true);
-        field.set(transactionManager, dataSourceMap);
-    }
-    
     @Test
-    public void begin() {
+    public void assertBegin() {
+        transactionManager.begin();
+        TransactionContext expect = TransactionContextHolder.get();
+        assertNotNull(expect);
+        TransactionContext actual = (TransactionContext) ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
+        assertThat(actual, is(expect));
     }
     
     @Test
@@ -130,5 +121,21 @@ public class SagaShardingTransactionManagerTest {
     
     @Test
     public void close() {
+    }
+    
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private Map<String, DataSource> getDataSourceMap() {
+        Field field = transactionManager.getClass().getDeclaredField("dataSourceMap");
+        field.setAccessible(true);
+        return (Map<String, DataSource>) field.get(transactionManager);
+    }
+    
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private void setDataSourceMap(final Map<String, DataSource> dataSourceMap) {
+        Field field = transactionManager.getClass().getDeclaredField("dataSourceMap");
+        field.setAccessible(true);
+        field.set(transactionManager, dataSourceMap);
     }
 }
