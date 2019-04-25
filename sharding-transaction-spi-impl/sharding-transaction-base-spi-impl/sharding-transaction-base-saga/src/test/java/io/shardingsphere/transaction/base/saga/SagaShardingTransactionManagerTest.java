@@ -143,7 +143,12 @@ public class SagaShardingTransactionManagerTest {
     }
     
     @Test
-    public void rollback() {
+    public void assertRollback() {
+        setSagaActuator();
+        TransactionContextHolder.set(transactionContext);
+        transactionManager.rollback();
+        verify(transactionContext).setOperationType(TransactionOperationType.ROLLBACK);
+        verify(sagaActuator).run(anyString());
     }
     
     @Test
