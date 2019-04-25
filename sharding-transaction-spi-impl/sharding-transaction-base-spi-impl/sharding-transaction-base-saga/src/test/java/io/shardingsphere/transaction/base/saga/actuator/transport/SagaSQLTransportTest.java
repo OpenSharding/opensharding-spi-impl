@@ -17,7 +17,9 @@
 
 package io.shardingsphere.transaction.base.saga.actuator.transport;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.base.context.BranchTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
@@ -25,18 +27,26 @@ import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SagaSQLTransportTest {
     
     @Mock
     private TransactionContext transactionContext;
+    
+    @Mock
+    private BranchTransaction branchTransaction;
     
     private SagaSQLTransport sagaSQLTransport;
     
@@ -53,5 +63,12 @@ public class SagaSQLTransportTest {
             verify(transactionContext).changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
             throw ex;
         }
+    }
+    
+    @Test
+    public void assertWithBranchTransactionNotPresent() {
+        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.<BranchTransaction>absent());
+        sagaSQLTransport.with("ds1", "sql", Lists.<List<String>>newLinkedList());
+        verify(transactionContext).findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList());
     }
 }
