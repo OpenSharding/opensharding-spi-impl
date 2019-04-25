@@ -18,10 +18,14 @@
 package io.shardingsphere.transaction.base.saga;
 
 import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
 import org.apache.shardingsphere.transaction.core.TransactionType;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +38,9 @@ import java.util.Collection;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SagaShardingTransactionManagerTest {
@@ -47,6 +53,11 @@ public class SagaShardingTransactionManagerTest {
     @Before
     public void setUp() {
         transactionManager = new SagaShardingTransactionManager();
+    }
+    
+    @After
+    public void tearDown() {
+        TransactionContextHolder.clear();
     }
     
     @Test
@@ -72,7 +83,10 @@ public class SagaShardingTransactionManagerTest {
     }
     
     @Test
-    public void isInTransaction() {
+    public void assertIsInTransaction() {
+        assertFalse(transactionManager.isInTransaction());
+        TransactionContextHolder.set(new TransactionContext());
+        assertTrue(transactionManager.isInTransaction());
     }
     
     @Test
