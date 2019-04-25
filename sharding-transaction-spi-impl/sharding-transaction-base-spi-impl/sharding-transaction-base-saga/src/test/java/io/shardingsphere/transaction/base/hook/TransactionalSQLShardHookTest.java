@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,5 +61,10 @@ public final class TransactionalSQLShardHookTest {
         sagaSQLShardHook.start("logicSQL");
         sagaSQLShardHook.finishSuccess(sqlRouteResult, shardingTableMetaData);
         verify(sagaTransaction).nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+    }
+    
+    @Test
+    public void assertFinishFailure() {
+        sagaSQLShardHook.finishFailure(mock(Exception.class));
     }
 }
