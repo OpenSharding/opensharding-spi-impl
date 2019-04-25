@@ -24,6 +24,7 @@ import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
 import org.apache.servicecomb.saga.core.TransportFailedException;
+import org.apache.shardingsphere.transaction.core.TransactionOperationType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,6 +89,16 @@ public class SagaSQLTransportTest {
         cachedConnections.put("ds1", connection);
         sagaSQLTransport.with("ds1", "sql", Lists.<List<String>>newLinkedList());
         verify(connection, never()).prepareStatement("sql");
-        
+    }
+    
+    @Test
+    public void assertWithExecuteStatusFailedOfRollback() throws SQLException {
+        when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.FAILURE);
+        when(transactionContext.getOperationType()).thenReturn(TransactionOperationType.ROLLBACK);
+        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
+        when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
+        cachedConnections.put("ds1", connection);
+        sagaSQLTransport.with("ds1", "sql", Lists.<List<String>>newLinkedList());
+        verify(connection, never()).prepareStatement("sql");
     }
 }
