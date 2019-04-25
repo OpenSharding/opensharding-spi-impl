@@ -66,7 +66,6 @@ public class TransactionalSQLExecutionHookTest {
     
     @Before
     public void setUp() {
-        when(logicSQLTransaction.isDMLLogicSQL()).thenReturn(true);
         when(transactionContext.getCurrentLogicSQLTransaction()).thenReturn(logicSQLTransaction);
         TableMetaData tableMetaData = MockTestUtil.mockTableMetaData("c1", "c2");
         MockTestUtil.addPrimaryKeyColumn(tableMetaData, "pk1");
@@ -75,6 +74,7 @@ public class TransactionalSQLExecutionHookTest {
     
     @Test
     public void assertStartWithinTransaction() throws SQLException {
+        when(logicSQLTransaction.isDMLLogicSQL()).thenReturn(true);
         shardingExecuteDataMap.put(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY, transactionContext);
         cachedConnections.put("ds", MockTestUtil.mockConnection());
         when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
@@ -87,6 +87,13 @@ public class TransactionalSQLExecutionHookTest {
     
     @Test
     public void assertStartWithoutTransaction() {
+        sqlExecutionHook.start(mock(RouteUnit.class), dataSourceMetaData, true, shardingExecuteDataMap);
+        verify(transactionContext, never()).addBranchTransaction(any(BranchTransaction.class));
+    }
+    
+    @Test
+    public void assertStartIsNotDMLLogicSQL() {
+        when(logicSQLTransaction.isDMLLogicSQL()).thenReturn(false);
         sqlExecutionHook.start(mock(RouteUnit.class), dataSourceMetaData, true, shardingExecuteDataMap);
         verify(transactionContext, never()).addBranchTransaction(any(BranchTransaction.class));
     }

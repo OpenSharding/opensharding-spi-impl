@@ -56,11 +56,12 @@ public final class TransactionalSQLExecutionHook implements SQLExecutionHook {
             return;
         }
         transactionContext = (TransactionContext) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
-        if (transactionContext.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
-            branchTransaction = new BranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
-            branchTransaction.setRevertSQLResult(doSQLRevert(transactionContext.getCurrentLogicSQLTransaction(), routeUnit).orNull());
-            transactionContext.addBranchTransaction(branchTransaction);
+        if (!transactionContext.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
+            return;
         }
+        branchTransaction = new BranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
+        branchTransaction.setRevertSQLResult(doSQLRevert(transactionContext.getCurrentLogicSQLTransaction(), routeUnit).orNull());
+        transactionContext.addBranchTransaction(branchTransaction);
     }
     
     @Override
