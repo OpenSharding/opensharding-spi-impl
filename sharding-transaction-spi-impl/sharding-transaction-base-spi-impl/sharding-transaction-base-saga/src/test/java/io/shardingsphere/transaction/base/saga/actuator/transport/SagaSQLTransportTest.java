@@ -31,9 +31,12 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -48,7 +51,12 @@ public class SagaSQLTransportTest {
     @Mock
     private BranchTransaction branchTransaction;
     
+    @Mock
+    private Connection connection;
+    
     private SagaSQLTransport sagaSQLTransport;
+    
+    private final Map<String, Connection> cachedConnections = new HashMap<>();
     
     @Before
     public void setUp() {
@@ -70,5 +78,16 @@ public class SagaSQLTransportTest {
         when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.<BranchTransaction>absent());
         sagaSQLTransport.with("ds1", "sql", Lists.<List<String>>newLinkedList());
         verify(transactionContext).findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList());
+    }
+    
+    @Test
+    public void assertWithExecuteStatusSuccess() throws SQLException {
+        when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.SUCCESS);
+        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
+        when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
+        cachedConnections.put("ds1", connection);
+        sagaSQLTransport.with("ds1", "sql", Lists.<List<String>>newLinkedList());
+        verify(connection, never()).prepareStatement("sql");
+        
     }
 }
