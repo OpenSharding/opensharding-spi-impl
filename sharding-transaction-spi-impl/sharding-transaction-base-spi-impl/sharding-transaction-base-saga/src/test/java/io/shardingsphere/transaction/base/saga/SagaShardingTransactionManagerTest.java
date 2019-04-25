@@ -25,7 +25,6 @@ import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,13 +33,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SagaShardingTransactionManagerTest {
@@ -49,6 +51,11 @@ public class SagaShardingTransactionManagerTest {
     
     @Mock
     private DataSource dataSource;
+    
+    @Mock
+    private Connection connection;
+    
+    private Map<String, DataSource> dataSourceMap = new HashMap<>();
     
     @Before
     public void setUp() {
@@ -90,7 +97,23 @@ public class SagaShardingTransactionManagerTest {
     }
     
     @Test
-    public void getConnection() {
+    @SneakyThrows
+    public void assertGetConnection() {
+        dataSourceMap.put("ds1", dataSource);
+        setDataSourceMap(dataSourceMap);
+        when(dataSource.getConnection()).thenReturn(connection);
+        TransactionContextHolder.set(new TransactionContext());
+        Connection actual = transactionManager.getConnection("ds1");
+        assertThat(actual, is(connection));
+        assertThat(TransactionContextHolder.get().getCachedConnections().get("ds1"), is(connection));
+    }
+    
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    private void setDataSourceMap(final Map<String, DataSource> dataSourceMap) {
+        Field field = transactionManager.getClass().getDeclaredField("dataSourceMap");
+        field.setAccessible(true);
+        field.set(transactionManager, dataSourceMap);
     }
     
     @Test
