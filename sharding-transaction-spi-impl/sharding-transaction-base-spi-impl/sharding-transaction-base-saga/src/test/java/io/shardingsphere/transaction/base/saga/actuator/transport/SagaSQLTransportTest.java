@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -55,13 +56,19 @@ public class SagaSQLTransportTest {
     @Mock
     private Connection connection;
     
+    @Mock
+    private PreparedStatement preparedStatement;
+    
     private SagaSQLTransport sagaSQLTransport;
     
     private final Map<String, Connection> cachedConnections = new HashMap<>();
     
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         sagaSQLTransport = new SagaSQLTransport(transactionContext);
+        when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
+        cachedConnections.put("ds1", connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
     }
     
     @Test(expected = TransportFailedException.class)
@@ -85,8 +92,6 @@ public class SagaSQLTransportTest {
     public void assertWithExecuteStatusSuccess() throws SQLException {
         when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.SUCCESS);
         when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
-        when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
-        cachedConnections.put("ds1", connection);
         sagaSQLTransport.with("ds1", "sql", Lists.<List<String>>newLinkedList());
         verify(connection, never()).prepareStatement("sql");
     }
@@ -97,8 +102,16 @@ public class SagaSQLTransportTest {
         when(transactionContext.getOperationType()).thenReturn(TransactionOperationType.ROLLBACK);
         when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
         when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
-        cachedConnections.put("ds1", connection);
         sagaSQLTransport.with("ds1", "sql", Lists.<List<String>>newLinkedList());
         verify(connection, never()).prepareStatement("sql");
+    }
+    
+    @Test
+    public void assertWithExecuteSQL() throws SQLException {
+        when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.COMPENSATING);
+        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
+        sagaSQLTransport.with("ds1", "sql", Lists.<List<String>>newLinkedList());
+        verify(connection).prepareStatement("sql");
+        verify(preparedStatement).executeUpdate();
     }
 }
