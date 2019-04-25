@@ -15,50 +15,43 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.base.hook;
+package io.shardingsphere.transaction.base.saga.actuator.transport;
 
+import com.google.common.collect.Lists;
+import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.TransactionContext;
-import io.shardingsphere.transaction.base.context.TransactionContextHolder;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.route.SQLRouteResult;
-import org.junit.After;
+import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
+import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
+
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class SagaSQLShardHookTest {
+public class SagaSQLTransportTest {
     
     @Mock
-    private TransactionContext sagaTransaction;
+    private TransactionContext transactionContext;
     
-    @Mock
-    private SQLRouteResult sqlRouteResult;
-    
-    @Mock
-    private ShardingTableMetaData shardingTableMetaData;
-    
-    
-    private final TransactionalSQLShardHook sagaSQLShardHook = new TransactionalSQLShardHook();
+    private SagaSQLTransport sagaSQLTransport;
     
     @Before
     public void setUp() {
-        TransactionContextHolder.set(sagaTransaction);
+        sagaSQLTransport = new SagaSQLTransport(transactionContext);
     }
     
-    @After
-    public void tearDown() {
-        TransactionContextHolder.clear();
-    }
-    
-    @Test
-    public void assertFinishSuccess() {
-        sagaSQLShardHook.start("logicSQL");
-        sagaSQLShardHook.finishSuccess(sqlRouteResult, shardingTableMetaData);
-        verify(sagaTransaction).nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+    @Test(expected = TransportFailedException.class)
+    public void assertTransportWithRollback() {
+        try {
+            sagaSQLTransport.with("ds1", SagaDefinitionFactory.ROLLBACK_TAG, Lists.<List<String>>newLinkedList());
+        } catch (final TransportFailedException ex) {
+            verify(transactionContext).changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
+            throw ex;
+        }
     }
 }

@@ -23,7 +23,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        SagaSQLShardHookTest.class
+        TransactionalSQLShardHookTest.class
 })
 public final class AllHookTests {
 }
