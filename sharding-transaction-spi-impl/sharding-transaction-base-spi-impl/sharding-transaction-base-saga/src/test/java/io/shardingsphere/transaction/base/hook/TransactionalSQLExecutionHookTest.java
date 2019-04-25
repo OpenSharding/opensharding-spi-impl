@@ -1,0 +1,89 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.shardingsphere.transaction.base.hook;
+
+import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
+import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.hook.revert.utils.MockTestUtil;
+import io.shardingsphere.transaction.base.saga.SagaShardingTransactionManager;
+import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
+import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.route.RouteUnit;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class TransactionalSQLExecutionHookTest {
+    
+    @Mock
+    private TransactionContext transactionContext;
+    
+    @Mock
+    private DataSourceMetaData dataSourceMetaData;
+    
+    @Mock
+    private LogicSQLTransaction logicSQLTransaction;
+    
+    private Map<String, Object> shardingExecuteDataMap = new LinkedHashMap<>();
+    
+    private TransactionalSQLExecutionHook sqlExecutionHook = new TransactionalSQLExecutionHook();
+    
+    private Map<String, Connection> cachedConnections = new HashMap<>();
+    
+    
+    @Before
+    public void setUp() {
+        shardingExecuteDataMap.put(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY, transactionContext);
+        when(logicSQLTransaction.isDMLLogicSQL()).thenReturn(true);
+        when(transactionContext.getCurrentLogicSQLTransaction()).thenReturn(logicSQLTransaction);
+        TableMetaData tableMetaData = MockTestUtil.mockTableMetaData("c1", "c2");
+        MockTestUtil.addPrimaryKeyColumn(tableMetaData, "pk1");
+        when(logicSQLTransaction.getTableMetaData()).thenReturn(tableMetaData);
+    }
+    
+    @Test
+    public void assertStart() throws SQLException {
+        cachedConnections.put("ds", MockTestUtil.mockConnection());
+        when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
+        SQLStatement sqlStatement = MockTestUtil.mockDeleteStatement("t_order");
+        when(logicSQLTransaction.getSqlRouteResult()).thenReturn(MockTestUtil.mockSQLRouteResult(sqlStatement, "ds", "t_order", "t_order_0"));
+        RouteUnit routeUnit = MockTestUtil.mockRouteUnit("ds", "delete from t_order_0 where c1=? and c2=? and c3=?", Arrays.<Object>asList(1, 2, 3));
+        sqlExecutionHook.start(routeUnit, dataSourceMetaData, true, shardingExecuteDataMap);
+    }
+    
+    @Test
+    public void finishSuccess() {
+    }
+    
+    @Test
+    public void finishFailure() {
+    }
+}
