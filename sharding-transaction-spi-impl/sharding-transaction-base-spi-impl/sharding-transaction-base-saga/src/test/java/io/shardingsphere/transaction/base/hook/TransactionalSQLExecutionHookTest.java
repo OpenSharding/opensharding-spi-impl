@@ -18,10 +18,12 @@
 package io.shardingsphere.transaction.base.hook;
 
 import io.shardingsphere.transaction.base.context.BranchTransaction;
+import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.hook.revert.utils.MockTestUtil;
 import io.shardingsphere.transaction.base.saga.SagaShardingTransactionManager;
+import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
@@ -32,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -56,6 +59,9 @@ public class TransactionalSQLExecutionHookTest {
     
     @Mock
     private LogicSQLTransaction logicSQLTransaction;
+    
+    @Mock
+    private BranchTransaction branchTransaction;
     
     private Map<String, Object> shardingExecuteDataMap = new LinkedHashMap<>();
     
@@ -99,10 +105,20 @@ public class TransactionalSQLExecutionHookTest {
     }
     
     @Test
-    public void finishSuccess() {
+    public void assertFinishSuccess() {
+        setBranchTransaction();
+        sqlExecutionHook.finishSuccess();
+        verify(branchTransaction).setExecuteStatus(ExecuteStatus.SUCCESS);
     }
     
     @Test
     public void finishFailure() {
+    }
+    
+    @SneakyThrows
+    private void setBranchTransaction() {
+        Field field = sqlExecutionHook.getClass().getDeclaredField("branchTransaction");
+        field.setAccessible(true);
+        field.set(sqlExecutionHook, branchTransaction);
     }
 }
