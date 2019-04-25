@@ -99,7 +99,6 @@ public class TransactionalSQLExecutionHookTest {
     
     @Test
     public void assertStartIsNotDMLLogicSQL() {
-        when(logicSQLTransaction.isDMLLogicSQL()).thenReturn(false);
         sqlExecutionHook.start(mock(RouteUnit.class), dataSourceMetaData, true, shardingExecuteDataMap);
         verify(transactionContext, never()).addBranchTransaction(any(BranchTransaction.class));
     }
@@ -112,7 +111,10 @@ public class TransactionalSQLExecutionHookTest {
     }
     
     @Test
-    public void finishFailure() {
+    public void assertFinishFailure() {
+        setBranchTransaction();
+        sqlExecutionHook.finishFailure(mock(Exception.class));
+        verify(branchTransaction).setExecuteStatus(ExecuteStatus.FAILURE);
     }
     
     @SneakyThrows
