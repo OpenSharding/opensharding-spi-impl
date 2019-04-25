@@ -17,6 +17,7 @@
 
 package io.shardingsphere.transaction.base.hook;
 
+import io.shardingsphere.transaction.base.context.BranchTransaction;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.hook.revert.utils.MockTestUtil;
@@ -38,6 +39,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -61,7 +66,6 @@ public class TransactionalSQLExecutionHookTest {
     
     @Before
     public void setUp() {
-        shardingExecuteDataMap.put(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY, transactionContext);
         when(logicSQLTransaction.isDMLLogicSQL()).thenReturn(true);
         when(transactionContext.getCurrentLogicSQLTransaction()).thenReturn(logicSQLTransaction);
         TableMetaData tableMetaData = MockTestUtil.mockTableMetaData("c1", "c2");
@@ -70,13 +74,21 @@ public class TransactionalSQLExecutionHookTest {
     }
     
     @Test
-    public void assertStart() throws SQLException {
+    public void assertStartWithinTransaction() throws SQLException {
+        shardingExecuteDataMap.put(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY, transactionContext);
         cachedConnections.put("ds", MockTestUtil.mockConnection());
         when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
         SQLStatement sqlStatement = MockTestUtil.mockDeleteStatement("t_order");
         when(logicSQLTransaction.getSqlRouteResult()).thenReturn(MockTestUtil.mockSQLRouteResult(sqlStatement, "ds", "t_order", "t_order_0"));
         RouteUnit routeUnit = MockTestUtil.mockRouteUnit("ds", "delete from t_order_0 where c1=? and c2=? and c3=?", Arrays.<Object>asList(1, 2, 3));
         sqlExecutionHook.start(routeUnit, dataSourceMetaData, true, shardingExecuteDataMap);
+        verify(transactionContext).addBranchTransaction(any(BranchTransaction.class));
+    }
+    
+    @Test
+    public void assertStartWithoutTransaction() {
+        sqlExecutionHook.start(mock(RouteUnit.class), dataSourceMetaData, true, shardingExecuteDataMap);
+        verify(transactionContext, never()).addBranchTransaction(any(BranchTransaction.class));
     }
     
     @Test
