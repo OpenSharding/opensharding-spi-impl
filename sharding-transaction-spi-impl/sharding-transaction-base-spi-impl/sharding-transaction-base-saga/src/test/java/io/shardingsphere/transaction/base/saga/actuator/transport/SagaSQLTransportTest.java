@@ -102,7 +102,6 @@ public class SagaSQLTransportTest {
         when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.FAILURE);
         when(transactionContext.getOperationType()).thenReturn(TransactionOperationType.ROLLBACK);
         when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
-        when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
         verify(connection, never()).prepareStatement("xxx");
     }
