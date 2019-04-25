@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.constant.DatabaseType;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
+import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +67,8 @@ public class SagaShardingTransactionManagerTest {
     }
     
     @Test
-    public void getTransactionType() {
+    public void assertGetTransactionType() {
+        assertThat(transactionManager.getTransactionType(), is(TransactionType.BASE));
     }
     
     @Test
