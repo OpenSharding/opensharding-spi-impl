@@ -40,6 +40,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -131,6 +132,7 @@ public class SQLRevertExecutorFactoryTest {
         when(table.getName()).thenReturn(tableName);
         when(executorContext.getConnection()).thenReturn(connection);
         when(executorContext.getPrimaryKeyColumns()).thenReturn(primaryKeyColumns);
+        when(executorContext.getParameters()).thenReturn(Arrays.<Object>asList(1, 2, 3));
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.getMetaData()).thenReturn(resultSetMetaData);
