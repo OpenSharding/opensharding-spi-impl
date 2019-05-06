@@ -18,16 +18,16 @@
 package io.shardingsphere.transaction.base.hook;
 
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
-import org.apache.shardingsphere.core.hook.ShardHook;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
+import org.apache.shardingsphere.core.route.hook.RoutingHook;
 
 /**
- * Transactional SQL shard hook.
+ * Transactional SQL routing hook.
  *
  * @author zhaojun
  */
-public final class TransactionalSQLShardHook implements ShardHook {
+public final class TransactionalSQLRoutingHook implements RoutingHook {
     
     @Override
     public void start(final String sql) {
