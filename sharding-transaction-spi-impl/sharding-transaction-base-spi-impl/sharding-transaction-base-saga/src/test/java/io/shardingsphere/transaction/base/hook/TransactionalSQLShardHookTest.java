@@ -44,7 +44,7 @@ public final class TransactionalSQLShardHookTest {
     private ShardingTableMetaData shardingTableMetaData;
     
     
-    private final TransactionalSQLShardHook sagaSQLShardHook = new TransactionalSQLShardHook();
+    private final TransactionalSQLRoutingHook sagaSQLShardHook = new TransactionalSQLRoutingHook();
     
     @Before
     public void setUp() {
