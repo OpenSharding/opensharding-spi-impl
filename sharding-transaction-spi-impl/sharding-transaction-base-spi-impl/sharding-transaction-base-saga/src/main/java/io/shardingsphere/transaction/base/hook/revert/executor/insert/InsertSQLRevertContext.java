@@ -22,8 +22,14 @@ import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertContext;
 import lombok.Getter;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLIgnoreExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLParameterMarkerExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 import org.apache.shardingsphere.core.rule.DataNode;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -81,8 +87,17 @@ public final class InsertSQLRevertContext implements SQLRevertContext {
     private Map<String, Object> convertInsertOptimizeResultUnit(final InsertOptimizeResultUnit insertOptimizeResultUnit) {
         Map<String, Object> result = new HashMap<>(insertOptimizeResultUnit.getColumnNames().size(), 1);
         Iterator<String> columnNamesIterator = insertOptimizeResultUnit.getColumnNames().iterator();
-        for (Object each : insertOptimizeResultUnit.getParameters()) {
-            result.put(columnNamesIterator.next(), each);
+        Iterator<Object> parametersIterator = Arrays.asList(insertOptimizeResultUnit.getParameters()).iterator();
+        for (SQLExpression each : insertOptimizeResultUnit.getValues()) {
+            if (each instanceof SQLParameterMarkerExpression) {
+                result.put(columnNamesIterator.next(), parametersIterator.next());
+            } else if (each instanceof SQLTextExpression) {
+                result.put(columnNamesIterator.next(), ((SQLTextExpression) each).getText());
+            } else if (each instanceof SQLNumberExpression) {
+                result.put(columnNamesIterator.next(), ((SQLNumberExpression) each).getNumber());
+            } else if (each instanceof SQLIgnoreExpression) {
+                result.put(columnNamesIterator.next(), ((SQLIgnoreExpression) each).getExpression());
+            }
         }
         return result;
     }

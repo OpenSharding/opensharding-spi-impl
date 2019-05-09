@@ -28,7 +28,7 @@ import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLParameterMarkerExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 
 import java.sql.SQLException;
@@ -62,8 +62,8 @@ public final class UpdateSQLRevertExecutor implements SQLRevertExecutor {
     private Map<String, Object> getUpdateSetAssignments(final UpdateStatement updateStatement, final List<Object> parameters) {
         Map<String, Object> result = new LinkedHashMap<>();
         for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
-            if (entry.getValue() instanceof SQLPlaceholderExpression) {
-                result.put(entry.getKey().getName(), parameters.get(((SQLPlaceholderExpression) entry.getValue()).getIndex()));
+            if (entry.getValue() instanceof SQLParameterMarkerExpression) {
+                result.put(entry.getKey().getName(), parameters.get(((SQLParameterMarkerExpression) entry.getValue()).getIndex()));
             } else if (entry.getValue() instanceof SQLTextExpression) {
                 result.put(entry.getKey().getName(), ((SQLTextExpression) entry.getValue()).getText());
             } else if (entry.getValue() instanceof SQLNumberExpression) {

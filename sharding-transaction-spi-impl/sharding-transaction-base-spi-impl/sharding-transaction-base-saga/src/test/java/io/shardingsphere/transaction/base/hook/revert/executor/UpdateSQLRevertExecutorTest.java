@@ -26,7 +26,7 @@ import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatem
 import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLPlaceholderExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLParameterMarkerExpression;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -90,7 +90,7 @@ public class UpdateSQLRevertExecutorTest {
             } else if ("user_id".equals(each)) {
                 updateAssignments.put(column, new SQLNumberExpression(1L));
             } else if ("order_id".equals(each)) {
-                updateAssignments.put(column, new SQLPlaceholderExpression(parameters.size()));
+                updateAssignments.put(column, new SQLParameterMarkerExpression(parameters.size()));
                 parameters.add(1000L);
             }
         }

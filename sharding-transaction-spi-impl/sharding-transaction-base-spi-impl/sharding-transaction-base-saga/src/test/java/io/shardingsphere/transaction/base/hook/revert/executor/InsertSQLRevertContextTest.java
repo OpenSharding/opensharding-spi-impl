@@ -22,6 +22,7 @@ import org.apache.shardingsphere.core.optimize.result.insert.ColumnValueOptimize
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
 import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
+import org.apache.shardingsphere.core.parse.old.parser.expression.SQLParameterMarkerExpression;
 import org.apache.shardingsphere.core.rule.DataNode;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -66,7 +67,7 @@ public class InsertSQLRevertContextTest {
     private List<InsertOptimizeResultUnit> mockInsertOptimizeResult(final String... columnNames) {
         List<InsertOptimizeResultUnit> result = new LinkedList<>();
         for (int i = 1; i <= shard; i++) {
-            InsertOptimizeResultUnit unit = new ColumnValueOptimizeResult(mockColumnNames(columnNames), mockSQLExpression(columnNames.length), mockParameters(columnNames.length));
+            InsertOptimizeResultUnit unit = new ColumnValueOptimizeResult(mockColumnNames(columnNames), mockSQLExpression(columnNames.length), mockParameters(columnNames.length), 1);
             unit.getDataNodes().add(new DataNode(dataSourceName, tableName));
             result.add(unit);
         }
@@ -76,7 +77,7 @@ public class InsertSQLRevertContextTest {
     private SQLExpression[] mockSQLExpression(final int length) {
         SQLExpression[] result = new SQLExpression[length];
         for (int i = 0; i < length; i++) {
-            result[i] = mock(SQLExpression.class);
+            result[i] = mock(SQLParameterMarkerExpression.class);
         }
         return result;
     }
