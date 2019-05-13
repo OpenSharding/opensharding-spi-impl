@@ -25,7 +25,7 @@ import org.apache.shardingsphere.core.optimize.result.OptimizeResult;
 import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
-import org.apache.shardingsphere.core.route.type.RoutingTable;
+import org.apache.shardingsphere.core.route.type.RoutingUnit;
 import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
@@ -62,14 +62,14 @@ public class SQLRevertExecutorContext implements SQLRevertContext {
         this.optimizeResult = sqlRouteResult.getOptimizeResult();
         this.routeUnit = routeUnit;
         this.dataSourceName = routeUnit.getDataSourceName();
-        this.actualTableName = getActualTableName(sqlRouteResult.getSqlStatement(), sqlRouteResult.getRoutingResult().getTableUnits().getTableUnits(), routeUnit);
+        this.actualTableName = getActualTableName(sqlRouteResult.getSqlStatement(), sqlRouteResult.getRoutingResult().getRoutingUnits(), routeUnit);
         this.parameters = routeUnit.getSqlUnit().getParameters();
         this.primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
         this.connection = connection;
     }
     
-    private String getActualTableName(final SQLStatement sqlStatement, final Collection<TableUnit> tableUnits, final RouteUnit routeUnit) {
-        for (TableUnit each : tableUnits) {
+    private String getActualTableName(final SQLStatement sqlStatement, final Collection<RoutingUnit> routingUnits, final RouteUnit routeUnit) {
+        for (RoutingUnit each : routingUnits) {
             if (each.getDataSourceName().equalsIgnoreCase(routeUnit.getDataSourceName())) {
                 return getAvailableActualTableName(each, sqlStatement.getTables().getSingleTableName());
             }
@@ -77,13 +77,13 @@ public class SQLRevertExecutorContext implements SQLRevertContext {
         throw new ShardingException(String.format("Could not find actual table name of [%s]", routeUnit));
     }
     
-    private String getAvailableActualTableName(final TableUnit tableUnit, final String logicTableName) {
-        for (RoutingTable each : tableUnit.getRoutingTables()) {
+    private String getAvailableActualTableName(final RoutingUnit routingUnit, final String logicTableName) {
+        for (TableUnit each : routingUnit.getTableUnits()) {
             if (each.getLogicTableName().equalsIgnoreCase(logicTableName)) {
                 return each.getActualTableName();
             }
         }
-        throw new ShardingException(String.format("Could not get available actual table name of [%s]", tableUnit));
+        throw new ShardingException(String.format("Could not get available actual table name of [%s]", routingUnit));
     }
     
     private List<String> getPrimaryKeyColumns(final TableMetaData tableMetaData) {
