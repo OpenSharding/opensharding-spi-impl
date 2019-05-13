@@ -26,7 +26,7 @@ import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.core.route.SQLUnit;
 import org.apache.shardingsphere.core.route.type.RoutingResult;
-import org.apache.shardingsphere.core.route.type.RoutingTable;
+import org.apache.shardingsphere.core.route.type.RoutingUnit;
 import org.apache.shardingsphere.core.route.type.TableUnit;
 
 import java.sql.Connection;
@@ -57,15 +57,15 @@ public class MockTestUtil {
     
     private static RoutingResult mockRoutingResult(final String dataSourceName, final String logicTableName, final String actualTableName) {
         RoutingResult result = new RoutingResult();
-        TableUnit tableUnit = mockTableUnit(dataSourceName, logicTableName, actualTableName);
-        result.getTableUnits().getTableUnits().add(tableUnit);
+        RoutingUnit tableUnit = mockRoutingUnit(dataSourceName, logicTableName, actualTableName);
+        result.getRoutingUnits().add(tableUnit);
         return result;
     }
     
-    private static TableUnit mockTableUnit(final String dataSourceName, final String logicTableName, final String actualTableName) {
-        TableUnit result = new TableUnit(dataSourceName);
-        RoutingTable routingTable = new RoutingTable(logicTableName, actualTableName);
-        result.getRoutingTables().add(routingTable);
+    private static RoutingUnit mockRoutingUnit(final String dataSourceName, final String logicTableName, final String actualTableName) {
+        RoutingUnit result = new RoutingUnit(dataSourceName);
+        TableUnit tableUnit = new TableUnit(logicTableName, actualTableName);
+        result.getTableUnits().add(tableUnit);
         return result;
     }
     
