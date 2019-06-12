@@ -23,13 +23,9 @@ import io.shardingsphere.transaction.base.saga.config.SagaPersistenceConfigurati
 import io.shardingsphere.transaction.base.saga.persistence.impl.EmptySagaPersistence;
 import io.shardingsphere.transaction.base.saga.persistence.impl.jdbc.JDBCSagaPersistence;
 import org.apache.servicecomb.saga.core.PersistentStore;
-import org.apache.shardingsphere.core.constant.DatabaseType;
-import org.apache.shardingsphere.core.exception.ShardingException;
 
 import javax.sql.DataSource;
 import java.util.ServiceLoader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Saga persistence loader.
@@ -37,8 +33,6 @@ import java.util.regex.Pattern;
  * @author yangyi
  */
 public final class SagaPersistenceLoader {
-    
-    private static final Pattern JDBC_DATABASE_TYPE_JDBC_URL_PATTERN = Pattern.compile("jdbc:(.*?):.*", Pattern.CASE_INSENSITIVE);
     
     /**
      * Load saga persistence.
@@ -61,46 +55,13 @@ public final class SagaPersistenceLoader {
     }
     
     private static PersistentStore loadDefaultPersistence(final SagaPersistenceConfiguration persistenceConfiguration) {
-        String driverClassName = getJDBCDriverClassName(judgeDatabaseType(persistenceConfiguration.getUrl()));
-        JDBCSagaPersistence result = new JDBCSagaPersistence(initDataSource(driverClassName, persistenceConfiguration));
+        JDBCSagaPersistence result = new JDBCSagaPersistence(initDataSource(persistenceConfiguration));
         result.createTableIfNotExists();
         return result;
     }
     
-    private static DatabaseType judgeDatabaseType(final String url) {
-        Matcher matcher = JDBC_DATABASE_TYPE_JDBC_URL_PATTERN.matcher(url);
-        if (matcher.find()) {
-            String databaseType = matcher.group(1).toLowerCase();
-            switch (databaseType) {
-                case "mysql":
-                    return DatabaseType.MySQL;
-                case "h2":
-                    return DatabaseType.H2;
-                case "postgresql":
-                    return DatabaseType.PostgreSQL;
-                default:
-            }
-        }
-        throw new UnsupportedOperationException(String.format("Cannot support url `%s`", url));
-    }
-    
-    private static String getJDBCDriverClassName(final DatabaseType databaseType) {
-        switch (databaseType) {
-            case MySQL:
-                return "com.mysql.jdbc.Driver";
-            case H2:
-                return "org.h2.Driver";
-            case PostgreSQL:
-                return "org.postgresql.Driver";
-            default:
-                return "";
-        }
-    }
-    
-    private static DataSource initDataSource(final String driverClassName, final SagaPersistenceConfiguration persistenceConfiguration) {
+    private static DataSource initDataSource(final SagaPersistenceConfiguration persistenceConfiguration) {
         HikariConfig config = new HikariConfig();
-        validateDriverClassName(driverClassName);
-        config.setDriverClassName(driverClassName);
         config.setJdbcUrl(persistenceConfiguration.getUrl());
         config.setUsername(persistenceConfiguration.getUsername());
         config.setPassword(persistenceConfiguration.getPassword());
@@ -121,13 +82,5 @@ public final class SagaPersistenceLoader {
         config.addDataSourceProperty("maintainTimeStats", Boolean.FALSE.toString());
         config.addDataSourceProperty("netTimeoutForStreamingResults", 0);
         return new HikariDataSource(config);
-    }
-    
-    private static void validateDriverClassName(final String driverClassName) {
-        try {
-            Class.forName(driverClassName);
-        } catch (final ClassNotFoundException ex) {
-            throw new ShardingException("Cannot load JDBC driver class `%s`, make sure it in classpath.", driverClassName);
-        }
     }
 }
