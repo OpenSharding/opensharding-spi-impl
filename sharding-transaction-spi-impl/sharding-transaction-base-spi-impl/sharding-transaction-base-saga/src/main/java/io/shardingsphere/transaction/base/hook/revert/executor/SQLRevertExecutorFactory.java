@@ -23,10 +23,10 @@ import io.shardingsphere.transaction.base.hook.revert.executor.update.UpdateSQLR
 import io.shardingsphere.transaction.base.hook.revert.snapshot.DeleteSnapshotAccessor;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.UpdateSnapshotAccessor;
 import lombok.SneakyThrows;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.InsertStatement;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.InsertStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 
 /**
  * SQL revert executor factory.

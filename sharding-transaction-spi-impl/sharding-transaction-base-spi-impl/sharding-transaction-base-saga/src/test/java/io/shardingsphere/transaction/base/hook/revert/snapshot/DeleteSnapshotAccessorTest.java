@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.hook.revert.snapshot;
 
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.DeleteStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;

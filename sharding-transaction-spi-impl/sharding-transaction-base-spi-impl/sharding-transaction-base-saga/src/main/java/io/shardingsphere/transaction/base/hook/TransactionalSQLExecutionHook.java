@@ -29,9 +29,9 @@ import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutor
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorFactory;
 import io.shardingsphere.transaction.base.saga.SagaShardingTransactionManager;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
-import org.apache.shardingsphere.core.metadata.datasource.DataSourceMetaData;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLUnit;
+import org.apache.shardingsphere.spi.database.DataSourceMetaData;
 
 import java.sql.Connection;
 import java.util.Collection;

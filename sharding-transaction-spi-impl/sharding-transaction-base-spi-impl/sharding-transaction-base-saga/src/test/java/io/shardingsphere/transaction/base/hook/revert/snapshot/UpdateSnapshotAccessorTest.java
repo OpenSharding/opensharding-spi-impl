@@ -20,11 +20,11 @@ package io.shardingsphere.transaction.base.hook.revert.snapshot;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
-import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
-import org.apache.shardingsphere.core.parse.old.parser.context.table.Table;
-import org.apache.shardingsphere.core.parse.old.parser.context.table.Tables;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
+import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
+import org.apache.shardingsphere.core.parse.sql.context.table.Table;
+import org.apache.shardingsphere.core.parse.sql.context.table.Tables;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -179,10 +179,10 @@ public class UpdateSnapshotAccessorTest {
         when(table.getName()).thenReturn(tableName);
     }
     
-    private Map<Column, SQLExpression> mockUpdateAssignments(final String tableName, final String... columns) {
-        Map<Column, SQLExpression> result = new LinkedHashMap<>();
+    private Map<Column, ExpressionSegment> mockUpdateAssignments(final String tableName, final String... columns) {
+        Map<Column, ExpressionSegment> result = new LinkedHashMap<>();
         for (String each : columns) {
-            result.put(new Column(each, tableName), mock(SQLExpression.class));
+            result.put(new Column(each, tableName), mock(ExpressionSegment.class));
         }
         return result;
     }

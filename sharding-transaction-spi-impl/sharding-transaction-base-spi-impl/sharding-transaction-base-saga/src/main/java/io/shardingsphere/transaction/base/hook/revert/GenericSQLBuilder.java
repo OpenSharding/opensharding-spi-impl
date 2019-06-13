@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.hook.revert;
 
 import com.google.common.base.Joiner;
-import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
+import io.shardingsphere.transaction.base.hook.revert.constant.DefaultKeyword;
 
 import java.util.Collection;
 

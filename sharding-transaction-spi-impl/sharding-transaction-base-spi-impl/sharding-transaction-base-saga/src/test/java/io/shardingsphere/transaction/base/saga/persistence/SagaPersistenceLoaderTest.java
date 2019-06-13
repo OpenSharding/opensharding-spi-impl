@@ -23,6 +23,7 @@ import io.shardingsphere.transaction.base.saga.persistence.impl.EmptySagaPersist
 import io.shardingsphere.transaction.base.saga.persistence.impl.jdbc.JDBCSagaPersistence;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.junit.Test;
+import org.postgresql.util.PSQLException;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -51,11 +52,11 @@ public final class SagaPersistenceLoaderTest {
         assertThat(SagaPersistenceLoader.load(persistenceConfiguration), instanceOf(JDBCSagaPersistence.class));
     }
     
-    @Test(expected = ShardingException.class)
+    @Test(expected = PoolInitializationException.class)
     public void assertWithoutJDBCDriver() {
         SagaPersistenceConfiguration persistenceConfiguration = new SagaPersistenceConfiguration();
         persistenceConfiguration.setEnablePersistence(true);
-        persistenceConfiguration.setUrl("jdbc:postgresql://localhost:5432/saga");
+        persistenceConfiguration.setUrl("jdbc:postgresql://127.0.0.1:5432/saga");
         SagaPersistenceLoader.load(persistenceConfiguration);
     }
 }

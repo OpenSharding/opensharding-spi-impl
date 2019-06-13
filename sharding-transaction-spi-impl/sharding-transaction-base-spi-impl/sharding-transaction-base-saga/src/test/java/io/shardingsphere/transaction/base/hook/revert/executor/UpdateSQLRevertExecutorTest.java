@@ -22,12 +22,12 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.hook.revert.executor.update.UpdateSQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.UpdateSnapshotAccessor;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
-import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLParameterMarkerExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
+import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.LiteralExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class UpdateSQLRevertExecutorTest {
     
     private RevertSQLResult revertSQLResult = new RevertSQLResult("");
     
-    private Map<Column, SQLExpression> updateAssignments = new LinkedHashMap<>();
+    private Map<Column, ExpressionSegment> updateAssignments = new LinkedHashMap<>();
     
     private List<Object> parameters = new LinkedList<>();
     
@@ -86,11 +86,11 @@ public class UpdateSQLRevertExecutorTest {
         for (String each : columns) {
             Column column = new Column(each, tableName);
             if ("status".equals(each)) {
-                updateAssignments.put(column, new SQLTextExpression("modified"));
+                updateAssignments.put(column, new CommonExpressionSegment(0, 0,"modified"));
             } else if ("user_id".equals(each)) {
-                updateAssignments.put(column, new SQLNumberExpression(1L));
+                updateAssignments.put(column, new LiteralExpressionSegment(0, 0, 1L));
             } else if ("order_id".equals(each)) {
-                updateAssignments.put(column, new SQLParameterMarkerExpression(parameters.size()));
+                updateAssignments.put(column, new ParameterMarkerExpressionSegment(0, 0, parameters.size()));
                 parameters.add(1000L);
             }
         }
