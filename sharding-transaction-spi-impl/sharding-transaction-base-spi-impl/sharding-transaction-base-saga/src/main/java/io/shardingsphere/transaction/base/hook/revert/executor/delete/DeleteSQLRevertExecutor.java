@@ -20,10 +20,10 @@ package io.shardingsphere.transaction.base.hook.revert.executor.delete;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.base.hook.revert.GenericSQLBuilder;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
+import io.shardingsphere.transaction.base.hook.revert.constant.DefaultKeyword;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.DeleteSnapshotAccessor;
-import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
 
 import java.sql.SQLException;
 import java.util.Map;

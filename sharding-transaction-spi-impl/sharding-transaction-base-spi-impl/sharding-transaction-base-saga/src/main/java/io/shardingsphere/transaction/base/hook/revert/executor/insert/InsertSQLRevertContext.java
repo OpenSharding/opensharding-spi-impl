@@ -22,11 +22,10 @@ import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertContext;
 import lombok.Getter;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLIgnoreExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLParameterMarkerExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.LiteralExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.core.rule.DataNode;
 
 import java.util.Arrays;
@@ -88,15 +87,13 @@ public final class InsertSQLRevertContext implements SQLRevertContext {
         Map<String, Object> result = new HashMap<>(insertOptimizeResultUnit.getColumnNames().size(), 1);
         Iterator<String> columnNamesIterator = insertOptimizeResultUnit.getColumnNames().iterator();
         Iterator<Object> parametersIterator = Arrays.asList(insertOptimizeResultUnit.getParameters()).iterator();
-        for (SQLExpression each : insertOptimizeResultUnit.getValues()) {
-            if (each instanceof SQLParameterMarkerExpression) {
+        for (ExpressionSegment each : insertOptimizeResultUnit.getValues()) {
+            if (each instanceof ParameterMarkerExpressionSegment) {
                 result.put(columnNamesIterator.next(), parametersIterator.next());
-            } else if (each instanceof SQLTextExpression) {
-                result.put(columnNamesIterator.next(), ((SQLTextExpression) each).getText());
-            } else if (each instanceof SQLNumberExpression) {
-                result.put(columnNamesIterator.next(), ((SQLNumberExpression) each).getNumber());
-            } else if (each instanceof SQLIgnoreExpression) {
-                result.put(columnNamesIterator.next(), ((SQLIgnoreExpression) each).getExpression());
+            } else if (each instanceof LiteralExpressionSegment) {
+                result.put(columnNamesIterator.next(), ((LiteralExpressionSegment) each).getLiterals());
+            } else if (each instanceof CommonExpressionSegment) {
+                result.put(columnNamesIterator.next(), ((CommonExpressionSegment) each).getText());
             }
         }
         return result;

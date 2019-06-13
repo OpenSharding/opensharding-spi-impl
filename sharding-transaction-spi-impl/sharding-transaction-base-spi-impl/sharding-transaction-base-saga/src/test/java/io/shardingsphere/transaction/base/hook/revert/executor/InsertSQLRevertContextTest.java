@@ -18,11 +18,10 @@
 package io.shardingsphere.transaction.base.hook.revert.executor;
 
 import io.shardingsphere.transaction.base.hook.revert.executor.insert.InsertSQLRevertContext;
-import org.apache.shardingsphere.core.optimize.result.insert.ColumnValueOptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
 import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLParameterMarkerExpression;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.core.rule.DataNode;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -67,17 +66,17 @@ public class InsertSQLRevertContextTest {
     private List<InsertOptimizeResultUnit> mockInsertOptimizeResult(final String... columnNames) {
         List<InsertOptimizeResultUnit> result = new LinkedList<>();
         for (int i = 1; i <= shard; i++) {
-            InsertOptimizeResultUnit unit = new ColumnValueOptimizeResult(mockColumnNames(columnNames), mockSQLExpression(columnNames.length), mockParameters(columnNames.length), 1);
+            InsertOptimizeResultUnit unit = new InsertOptimizeResultUnit(mockColumnNames(columnNames), mockExpressionSegment(columnNames.length), mockParameters(columnNames.length), 1);
             unit.getDataNodes().add(new DataNode(dataSourceName, tableName));
             result.add(unit);
         }
         return result;
     }
     
-    private SQLExpression[] mockSQLExpression(final int length) {
-        SQLExpression[] result = new SQLExpression[length];
+    private ExpressionSegment[] mockExpressionSegment(final int length) {
+        ExpressionSegment[] result = new ExpressionSegment[length];
         for (int i = 0; i < length; i++) {
-            result[i] = mock(SQLParameterMarkerExpression.class);
+            result[i] = mock(ParameterMarkerExpressionSegment.class);
         }
         return result;
     }

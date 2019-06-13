@@ -20,16 +20,16 @@ package io.shardingsphere.transaction.base.hook.revert.executor.update;
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.base.hook.revert.GenericSQLBuilder;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
+import io.shardingsphere.transaction.base.hook.revert.constant.DefaultKeyword;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.UpdateSnapshotAccessor;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.dml.UpdateStatement;
-import org.apache.shardingsphere.core.parse.old.lexer.token.DefaultKeyword;
-import org.apache.shardingsphere.core.parse.old.parser.context.condition.Column;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLNumberExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLParameterMarkerExpression;
-import org.apache.shardingsphere.core.parse.old.parser.expression.SQLTextExpression;
+import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.LiteralExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
@@ -61,13 +61,13 @@ public final class UpdateSQLRevertExecutor implements SQLRevertExecutor {
     
     private Map<String, Object> getUpdateSetAssignments(final UpdateStatement updateStatement, final List<Object> parameters) {
         Map<String, Object> result = new LinkedHashMap<>();
-        for (Entry<Column, SQLExpression> entry : updateStatement.getAssignments().entrySet()) {
-            if (entry.getValue() instanceof SQLParameterMarkerExpression) {
-                result.put(entry.getKey().getName(), parameters.get(((SQLParameterMarkerExpression) entry.getValue()).getIndex()));
-            } else if (entry.getValue() instanceof SQLTextExpression) {
-                result.put(entry.getKey().getName(), ((SQLTextExpression) entry.getValue()).getText());
-            } else if (entry.getValue() instanceof SQLNumberExpression) {
-                result.put(entry.getKey().getName(), ((SQLNumberExpression) entry.getValue()).getNumber());
+        for (Entry<Column, ExpressionSegment> entry : updateStatement.getAssignments().entrySet()) {
+            if (entry.getValue() instanceof ParameterMarkerExpressionSegment) {
+                result.put(entry.getKey().getName(), parameters.get(((ParameterMarkerExpressionSegment) entry.getValue()).getParameterMarkerIndex()));
+            } else if (entry.getValue() instanceof CommonExpressionSegment) {
+                result.put(entry.getKey().getName(), ((CommonExpressionSegment) entry.getValue()).getText());
+            } else if (entry.getValue() instanceof LiteralExpressionSegment) {
+                result.put(entry.getKey().getName(), ((LiteralExpressionSegment) entry.getValue()).getLiterals());
             }
         }
         return result;

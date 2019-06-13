@@ -22,7 +22,7 @@ import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
-import org.apache.shardingsphere.core.constant.DatabaseType;
+import org.apache.shardingsphere.core.database.DatabaseTypes;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.shardingsphere.transaction.core.ResourceDataSource;
 import org.apache.shardingsphere.transaction.core.TransactionOperationType;
@@ -84,7 +84,7 @@ public class SagaShardingTransactionManagerTest {
     public void assertInit() {
         Collection<ResourceDataSource> resourceDataSources = Lists.newLinkedList();
         resourceDataSources.add(new ResourceDataSource("ds", dataSource));
-        transactionManager.init(DatabaseType.MySQL, resourceDataSources);
+        transactionManager.init(DatabaseTypes.getActualDatabaseType("MySQL"), resourceDataSources);
         Map<String, DataSource> actual = getDataSourceMap();
         assertThat(actual.get("ds"), is(dataSource));
     }

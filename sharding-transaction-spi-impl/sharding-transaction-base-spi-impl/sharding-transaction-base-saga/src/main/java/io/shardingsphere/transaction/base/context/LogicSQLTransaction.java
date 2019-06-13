@@ -18,10 +18,10 @@
 package io.shardingsphere.transaction.base.context;
 
 import lombok.Getter;
-import org.apache.shardingsphere.core.constant.SQLType;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.parse.antlr.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.DMLStatement;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 
 import java.util.Queue;
@@ -59,6 +59,6 @@ public class LogicSQLTransaction {
      * @return true or false
      */
     public boolean isDMLLogicSQL() {
-        return SQLType.DML.equals(sqlStatement.getType());
+        return sqlStatement instanceof DMLStatement;
     }
 }
