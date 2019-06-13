@@ -30,7 +30,6 @@
     <packaging>pom</packaging>
     
     <modules>
-        <module>sharding-transaction-xa-spi-impl</module>
         <module>sharding-transaction-base-spi-impl</module>
     </modules>
 </project>
