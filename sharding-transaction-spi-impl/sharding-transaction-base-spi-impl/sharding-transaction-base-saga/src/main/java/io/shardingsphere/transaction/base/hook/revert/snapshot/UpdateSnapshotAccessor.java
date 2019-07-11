@@ -39,7 +39,7 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     
     public UpdateSnapshotAccessor(final SQLRevertExecutorContext executorContext) {
         super(executorContext);
-        this.updateStatement = (UpdateStatement) executorContext.getSqlStatement();
+        this.updateStatement = (UpdateStatement) executorContext.getOptimizedStatement().getSQLStatement();
     }
     
     @Override

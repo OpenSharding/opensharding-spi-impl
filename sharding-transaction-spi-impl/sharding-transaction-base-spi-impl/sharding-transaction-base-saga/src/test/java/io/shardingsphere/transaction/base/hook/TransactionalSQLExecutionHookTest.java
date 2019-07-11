@@ -25,6 +25,8 @@ import io.shardingsphere.transaction.base.hook.revert.utils.MockTestUtil;
 import io.shardingsphere.transaction.base.saga.SagaShardingTransactionManager;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.statement.transparent.TransparentOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.spi.database.DataSourceMetaData;
@@ -85,7 +87,8 @@ public class TransactionalSQLExecutionHookTest {
         cachedConnections.put("ds", MockTestUtil.mockConnection());
         when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
         SQLStatement sqlStatement = MockTestUtil.mockDeleteStatement("t_order");
-        when(logicSQLTransaction.getSqlRouteResult()).thenReturn(MockTestUtil.mockSQLRouteResult(sqlStatement, "ds", "t_order", "t_order_0"));
+        OptimizedStatement optimizedStatement = new TransparentOptimizedStatement(sqlStatement);
+        when(logicSQLTransaction.getSqlRouteResult()).thenReturn(MockTestUtil.mockSQLRouteResult(optimizedStatement, "ds", "t_order", "t_order_0"));
         RouteUnit routeUnit = MockTestUtil.mockRouteUnit("ds", "delete from t_order_0 where c1=? and c2=? and c3=?", Arrays.<Object>asList(1, 2, 3));
         sqlExecutionHook.start(routeUnit, dataSourceMetaData, true, shardingExecuteDataMap);
         verify(transactionContext).addBranchTransaction(any(BranchTransaction.class));

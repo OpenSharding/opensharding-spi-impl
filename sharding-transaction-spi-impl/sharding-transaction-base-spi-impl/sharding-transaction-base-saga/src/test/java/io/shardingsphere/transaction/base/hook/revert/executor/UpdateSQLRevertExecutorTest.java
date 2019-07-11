@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.hook.revert.executor.update.UpdateSQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.UpdateSnapshotAccessor;
+import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
@@ -60,6 +61,9 @@ public class UpdateSQLRevertExecutorTest {
     private UpdateSnapshotAccessor snapshotAccessor;
     
     @Mock
+    private OptimizedStatement optimizedStatement;
+    
+    @Mock
     private UpdateStatement updateStatement;
     
     private RevertSQLResult revertSQLResult = new RevertSQLResult("");
@@ -76,7 +80,8 @@ public class UpdateSQLRevertExecutorTest {
     public void setUp() throws SQLException {
         when(updateStatement.getAssignments()).thenReturn(updateAssignments);
         when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
-        when(executorContext.getSqlStatement()).thenReturn(updateStatement);
+        when(executorContext.getOptimizedStatement()).thenReturn(optimizedStatement);
+        when(optimizedStatement.getSQLStatement()).thenReturn(updateStatement);
         when(executorContext.getParameters()).thenReturn(parameters);
         when(executorContext.getActualTableName()).thenReturn("t_order_0");
         when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.newLinkedList(Collections.singleton("order_id")));

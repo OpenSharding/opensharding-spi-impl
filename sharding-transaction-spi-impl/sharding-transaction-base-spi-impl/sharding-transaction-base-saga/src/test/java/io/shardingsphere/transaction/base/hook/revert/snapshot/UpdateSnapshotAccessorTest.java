@@ -20,6 +20,7 @@ package io.shardingsphere.transaction.base.hook.revert.snapshot;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
+import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
 import org.apache.shardingsphere.core.parse.sql.context.table.Table;
 import org.apache.shardingsphere.core.parse.sql.context.table.Tables;
@@ -57,6 +58,9 @@ public class UpdateSnapshotAccessorTest {
     private SQLRevertExecutorContext executorContext;
     
     @Mock
+    private OptimizedStatement optimizedStatement;
+    
+    @Mock
     private UpdateStatement updateStatement;
     
     @Mock
@@ -87,7 +91,8 @@ public class UpdateSnapshotAccessorTest {
         when(executorContext.getParameters()).thenReturn(parameters);
         when(executorContext.getActualTableName()).thenReturn("t_order_0");
         when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.newArrayList("order_id"));
-        when(executorContext.getSqlStatement()).thenReturn(updateStatement);
+        when(executorContext.getOptimizedStatement()).thenReturn(optimizedStatement);
+        when(optimizedStatement.getSQLStatement()).thenReturn(updateStatement);
         when(executorContext.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);

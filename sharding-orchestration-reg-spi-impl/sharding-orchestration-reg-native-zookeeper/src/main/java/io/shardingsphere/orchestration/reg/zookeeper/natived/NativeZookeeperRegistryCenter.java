@@ -251,6 +251,21 @@ public final class NativeZookeeperRegistryCenter implements RegistryCenter {
     }
     
     @Override
+    public void initLock(String key) {
+    
+    }
+    
+    @Override
+    public boolean tryLock() {
+        return false;
+    }
+    
+    @Override
+    public void tryRelease() {
+    
+    }
+    
+    @Override
     public String getType() {
         return "native-zookeeper";
     }

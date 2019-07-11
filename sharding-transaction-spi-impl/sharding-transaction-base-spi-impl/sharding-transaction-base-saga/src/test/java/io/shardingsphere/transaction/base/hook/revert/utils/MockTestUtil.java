@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.base.hook.revert.utils;
 
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.context.table.Tables;
-import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
@@ -49,8 +49,8 @@ import static org.mockito.Mockito.when;
  */
 public class MockTestUtil {
     
-    public static SQLRouteResult mockSQLRouteResult(final SQLStatement sqlStatement, final String dataSourceName, final String logicTableName, final String actualTableName) {
-        SQLRouteResult result = new SQLRouteResult(sqlStatement);
+    public static SQLRouteResult mockSQLRouteResult(final OptimizedStatement optimizedStatement, final String dataSourceName, final String logicTableName, final String actualTableName) {
+        SQLRouteResult result = new SQLRouteResult(optimizedStatement);
         result.setRoutingResult(mockRoutingResult(dataSourceName, logicTableName, actualTableName));
         return result;
     }
@@ -87,7 +87,7 @@ public class MockTestUtil {
         for (String each : columns) {
             columnMetaDataList.add(new ColumnMetaData(each, "String", false));
         }
-        return new TableMetaData(columnMetaDataList);
+        return new TableMetaData(columnMetaDataList, new LinkedList<String>());
     }
     
     public static void addPrimaryKeyColumn(final TableMetaData tableMetaData, final String... columns) {
