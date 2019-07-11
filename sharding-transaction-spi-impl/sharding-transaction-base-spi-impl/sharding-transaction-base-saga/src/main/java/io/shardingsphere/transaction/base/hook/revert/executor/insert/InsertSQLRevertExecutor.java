@@ -25,6 +25,7 @@ import io.shardingsphere.transaction.base.hook.revert.constant.DefaultKeyword;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.core.optimize.statement.sharding.dml.insert.ShardingInsertOptimizedStatement;
 
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public final class InsertSQLRevertExecutor implements SQLRevertExecutor {
     
     public InsertSQLRevertExecutor(final SQLRevertExecutorContext executorContext) {
         sqlRevertContext = new InsertSQLRevertContext(executorContext.getDataSourceName(), executorContext.getActualTableName(),
-            executorContext.getPrimaryKeyColumns(), executorContext.getOptimizeResult().getInsertOptimizeResult().orNull());
+            executorContext.getPrimaryKeyColumns(), (ShardingInsertOptimizedStatement) executorContext.getOptimizedStatement());
     }
     
     @Override

@@ -21,7 +21,7 @@ import lombok.Getter;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.optimize.result.OptimizeResult;
+import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
@@ -41,9 +41,7 @@ import java.util.List;
 @Getter
 public class SQLRevertExecutorContext implements SQLRevertContext {
     
-    private SQLStatement sqlStatement;
-    
-    private OptimizeResult optimizeResult;
+    private OptimizedStatement optimizedStatement;
     
     private RouteUnit routeUnit;
     
@@ -58,11 +56,10 @@ public class SQLRevertExecutorContext implements SQLRevertContext {
     private List<String> primaryKeyColumns;
     
     public SQLRevertExecutorContext(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit, final TableMetaData tableMetaData, final Connection connection) {
-        this.sqlStatement = sqlRouteResult.getSqlStatement();
-        this.optimizeResult = sqlRouteResult.getOptimizeResult();
+        this.optimizedStatement = sqlRouteResult.getOptimizedStatement();
         this.routeUnit = routeUnit;
         this.dataSourceName = routeUnit.getDataSourceName();
-        this.actualTableName = getActualTableName(sqlRouteResult.getSqlStatement(), sqlRouteResult.getRoutingResult().getRoutingUnits(), routeUnit);
+        this.actualTableName = getActualTableName(optimizedStatement.getSQLStatement(), sqlRouteResult.getRoutingResult().getRoutingUnits(), routeUnit);
         this.parameters = routeUnit.getSqlUnit().getParameters();
         this.primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
         this.connection = connection;

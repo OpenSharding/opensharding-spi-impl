@@ -48,8 +48,8 @@ public class LogicSQLTransaction {
     
     public LogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
         this.sqlRouteResult = sqlRouteResult;
-        logicTableName = sqlRouteResult.getSqlStatement().getTables().getSingleTableName();
-        sqlStatement = sqlRouteResult.getSqlStatement();
+        logicTableName = sqlRouteResult.getOptimizedStatement().getSQLStatement().getTables().getSingleTableName();
+        sqlStatement = sqlRouteResult.getOptimizedStatement().getSQLStatement();
         tableMetaData = shardingTableMetaData.get(logicTableName);
     }
     

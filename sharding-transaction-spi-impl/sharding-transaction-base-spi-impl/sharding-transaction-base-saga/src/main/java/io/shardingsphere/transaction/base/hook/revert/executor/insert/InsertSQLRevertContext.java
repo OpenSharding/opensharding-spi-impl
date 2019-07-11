@@ -20,8 +20,8 @@ package io.shardingsphere.transaction.base.hook.revert.executor.insert;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertContext;
 import lombok.Getter;
-import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
-import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
+import org.apache.shardingsphere.core.optimize.statement.sharding.dml.insert.InsertOptimizeResultUnit;
+import org.apache.shardingsphere.core.optimize.statement.sharding.dml.insert.ShardingInsertOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.LiteralExpressionSegment;
@@ -51,15 +51,15 @@ public final class InsertSQLRevertContext implements SQLRevertContext {
     
     private final Collection<Map<String, Object>> primaryKeyInsertValues = new LinkedList<>();
 
-    public InsertSQLRevertContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
+    public InsertSQLRevertContext(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final ShardingInsertOptimizedStatement insertOptimizedStatement) {
         this.dataSourceName = dataSourceName;
         this.actualTable = actualTableName;
-        loadPrimaryKeyInsertValues(dataSourceName, actualTableName, primaryKeys, insertOptimizeResult);
+        loadPrimaryKeyInsertValues(dataSourceName, actualTableName, primaryKeys, insertOptimizedStatement);
     }
     
-    private void loadPrimaryKeyInsertValues(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final InsertOptimizeResult insertOptimizeResult) {
-        Preconditions.checkNotNull(insertOptimizeResult, "Could not found insert optimize result. datasourceName:%s, actualTable:%s", dataSourceName, actualTableName);
-        for (Map<String, Object> each : getRoutedInsertValues(insertOptimizeResult.getUnits(), new DataNode(dataSourceName, actualTableName))) {
+    private void loadPrimaryKeyInsertValues(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final ShardingInsertOptimizedStatement insertOptimizedStatement) {
+        Preconditions.checkNotNull(insertOptimizedStatement, "Could not found insert optimized statement. datasourceName:%s, actualTable:%s", dataSourceName, actualTableName);
+        for (Map<String, Object> each : getRoutedInsertValues(insertOptimizedStatement.getUnits(), new DataNode(dataSourceName, actualTableName))) {
             addPrimaryKeyColumnValues(each, primaryKeys);
         }
     }

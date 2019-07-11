@@ -18,8 +18,10 @@
 package io.shardingsphere.transaction.base.context;
 
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.context.table.Tables;
-import org.apache.shardingsphere.core.parse.sql.statement.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +42,10 @@ public final class SagaTransactionTest {
     private TransactionContext sagaTransaction;
 
     @Mock
-    private DMLStatement sqlStatement;
+    private OptimizedStatement optimizedStatement;
+    
+    @Mock
+    private InsertStatement sqlStatement;
     
     @Mock
     private Tables tables;
@@ -56,7 +61,8 @@ public final class SagaTransactionTest {
     @Before
     public void setUp() {
         sagaTransaction = new TransactionContext();
-        when(sqlRouteResult.getSqlStatement()).thenReturn(sqlStatement);
+        when(sqlRouteResult.getOptimizedStatement()).thenReturn(optimizedStatement);
+        when(optimizedStatement.getSQLStatement()).thenReturn(sqlStatement);
         when(sqlStatement.getTables()).thenReturn(tables);
         when(tables.getSingleTableName()).thenReturn("t_order");
     }

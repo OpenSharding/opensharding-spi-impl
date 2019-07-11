@@ -34,7 +34,7 @@ public final class DeleteSnapshotAccessor extends DMLSnapshotAccessor {
     
     public DeleteSnapshotAccessor(final SQLRevertExecutorContext context) {
         super(context);
-        this.deleteStatement = (DeleteStatement) context.getSqlStatement();
+        this.deleteStatement = (DeleteStatement) context.getOptimizedStatement().getSQLStatement();
     }
     
     @Override

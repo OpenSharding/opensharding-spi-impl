@@ -18,8 +18,8 @@
 package io.shardingsphere.transaction.base.hook.revert.executor;
 
 import io.shardingsphere.transaction.base.hook.revert.executor.insert.InsertSQLRevertContext;
-import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResult;
-import org.apache.shardingsphere.core.optimize.result.insert.InsertOptimizeResultUnit;
+import org.apache.shardingsphere.core.optimize.statement.sharding.dml.insert.InsertOptimizeResultUnit;
+import org.apache.shardingsphere.core.optimize.statement.sharding.dml.insert.ShardingInsertOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.core.rule.DataNode;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 public class InsertSQLRevertContextTest {
     
     @Mock
-    private InsertOptimizeResult insertOptimizeResult;
+    private ShardingInsertOptimizedStatement shardingInsertOptimizedStatement;
     
     private List<String> primaryKeys = new LinkedList<>();
     
@@ -60,7 +60,7 @@ public class InsertSQLRevertContextTest {
         dataSourceName = "ds_0";
         tableName = "t_order_0";
         shard = 10;
-        when(insertOptimizeResult.getUnits()).thenReturn(mockInsertOptimizeResult("order_id", "user_id", "status"));
+        when(shardingInsertOptimizedStatement.getUnits()).thenReturn(mockInsertOptimizeResult("order_id", "user_id", "status"));
     }
     
     private List<InsertOptimizeResultUnit> mockInsertOptimizeResult(final String... columnNames) {
@@ -98,7 +98,7 @@ public class InsertSQLRevertContextTest {
     @Test
     public void assertCreateInsertSQLRevertContextWithSinglePrimaryKey() {
         primaryKeys.add("user_id");
-        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, shardingInsertOptimizedStatement);
         assertThat(sqlRevertContext.getPrimaryKeyInsertValues().size(), is(10));
         for (Map<String, Object> each : sqlRevertContext.getPrimaryKeyInsertValues()) {
             assertThat(each.get("user_id"), CoreMatchers.<Object>is(1));
@@ -109,7 +109,7 @@ public class InsertSQLRevertContextTest {
     public void assertCreateInsertSQLRevertContextWithMultiPrimaryKeys() {
         primaryKeys.add("order_id");
         primaryKeys.add("user_id");
-        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, shardingInsertOptimizedStatement);
         assertThat(sqlRevertContext.getPrimaryKeyInsertValues().size(), is(10));
         for (Map<String, Object> each : sqlRevertContext.getPrimaryKeyInsertValues()) {
             assertThat(each.get("order_id"), CoreMatchers.<Object>is(0));
@@ -119,7 +119,7 @@ public class InsertSQLRevertContextTest {
     
     @Test
     public void assertCreateInsertSQLRevertContextWithoutPrimaryKey() {
-        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, insertOptimizeResult);
+        InsertSQLRevertContext sqlRevertContext = new InsertSQLRevertContext(dataSourceName, tableName, primaryKeys, shardingInsertOptimizedStatement);
         assertTrue(sqlRevertContext.getPrimaryKeyInsertValues().isEmpty());
     }
 }
