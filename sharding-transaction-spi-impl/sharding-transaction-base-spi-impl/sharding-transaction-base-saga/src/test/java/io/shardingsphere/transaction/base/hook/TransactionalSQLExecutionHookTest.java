@@ -82,7 +82,7 @@ public class TransactionalSQLExecutionHookTest {
     
     @Test
     public void assertStartWithinTransaction() throws SQLException {
-        when(logicSQLTransaction.isDMLLogicSQL()).thenReturn(true);
+        when(logicSQLTransaction.isWritableTransaction()).thenReturn(true);
         shardingExecuteDataMap.put(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY, transactionContext);
         cachedConnections.put("ds", MockTestUtil.mockConnection());
         when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);

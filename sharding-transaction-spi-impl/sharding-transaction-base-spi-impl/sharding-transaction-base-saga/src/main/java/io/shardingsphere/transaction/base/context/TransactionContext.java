@@ -63,7 +63,7 @@ public final class TransactionContext {
      */
     public void nextLogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
         currentLogicSQLTransaction = new LogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
-        if (currentLogicSQLTransaction.isDMLLogicSQL()) {
+        if (currentLogicSQLTransaction.isWritableTransaction()) {
             logicSQLTransactions.add(currentLogicSQLTransaction);
         }
     }
