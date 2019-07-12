@@ -21,7 +21,9 @@ import lombok.Getter;
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
-import org.apache.shardingsphere.core.parse.sql.statement.dml.DMLStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.InsertStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 
 import java.util.Queue;
@@ -54,11 +56,11 @@ public class LogicSQLTransaction {
     }
     
     /**
-     * Whether logic SQL is DML statement or not.
+     * Whether logic SQL is writable transaction or not.
      *
      * @return true or false
      */
-    public boolean isDMLLogicSQL() {
-        return sqlStatement instanceof DMLStatement;
+    public boolean isWritableTransaction() {
+        return sqlStatement instanceof DeleteStatement || sqlStatement instanceof InsertStatement || sqlStatement instanceof UpdateStatement;
     }
 }

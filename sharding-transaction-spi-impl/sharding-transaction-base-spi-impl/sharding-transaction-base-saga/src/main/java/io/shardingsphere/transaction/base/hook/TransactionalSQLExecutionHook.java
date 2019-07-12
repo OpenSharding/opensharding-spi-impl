@@ -56,7 +56,7 @@ public final class TransactionalSQLExecutionHook implements SQLExecutionHook {
             return;
         }
         transactionContext = (TransactionContext) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
-        if (!transactionContext.getCurrentLogicSQLTransaction().isDMLLogicSQL()) {
+        if (!transactionContext.getCurrentLogicSQLTransaction().isWritableTransaction()) {
             return;
         }
         branchTransaction = new BranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
