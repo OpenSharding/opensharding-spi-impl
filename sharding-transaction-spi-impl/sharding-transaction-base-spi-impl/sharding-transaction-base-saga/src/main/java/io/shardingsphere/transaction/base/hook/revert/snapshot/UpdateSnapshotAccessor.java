@@ -20,8 +20,8 @@ package io.shardingsphere.transaction.base.hook.revert.snapshot;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
-import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
-import org.apache.shardingsphere.core.parse.sql.context.table.Table;
+import org.apache.shardingsphere.core.optimize.api.segment.Table;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.AssignmentSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 
 import java.util.Collection;
@@ -53,9 +53,9 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
         Preconditions.checkState(!context.getPrimaryKeyColumns().isEmpty(),
             "Could not found primary key columns, datasourceName:[%s], tableName:[%s]", context.getDataSourceName(), context.getActualTableName());
         List<String> remainPrimaryKeys = new LinkedList<>(context.getPrimaryKeyColumns());
-        for (Column each : updateStatement.getAssignments().keySet()) {
-            result.add(each.getName());
-            remainPrimaryKeys.remove(each.getName());
+        for (AssignmentSegment each : updateStatement.getSetAssignment().getAssignments()) {
+            result.add(each.getColumn().getName());
+            remainPrimaryKeys.remove(each.getColumn().getName());
         }
         result.addAll(remainPrimaryKeys);
         return result;
