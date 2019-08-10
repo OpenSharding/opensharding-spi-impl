@@ -21,8 +21,7 @@ import lombok.Getter;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
-import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.core.route.type.RoutingUnit;
@@ -59,16 +58,16 @@ public class SQLRevertExecutorContext implements SQLRevertContext {
         this.optimizedStatement = sqlRouteResult.getOptimizedStatement();
         this.routeUnit = routeUnit;
         this.dataSourceName = routeUnit.getDataSourceName();
-        this.actualTableName = getActualTableName(optimizedStatement.getSQLStatement(), sqlRouteResult.getRoutingResult().getRoutingUnits(), routeUnit);
+        this.actualTableName = getActualTableName(optimizedStatement, sqlRouteResult.getRoutingResult().getRoutingUnits(), routeUnit);
         this.parameters = routeUnit.getSqlUnit().getParameters();
         this.primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
         this.connection = connection;
     }
     
-    private String getActualTableName(final SQLStatement sqlStatement, final Collection<RoutingUnit> routingUnits, final RouteUnit routeUnit) {
+    private String getActualTableName(final OptimizedStatement optimizedStatement, final Collection<RoutingUnit> routingUnits, final RouteUnit routeUnit) {
         for (RoutingUnit each : routingUnits) {
             if (each.getDataSourceName().equalsIgnoreCase(routeUnit.getDataSourceName())) {
-                return getAvailableActualTableName(each, sqlStatement.getTables().getSingleTableName());
+                return getAvailableActualTableName(each, optimizedStatement.getTables().getSingleTableName());
             }
         }
         throw new ShardingException(String.format("Could not find actual table name of [%s]", routeUnit));

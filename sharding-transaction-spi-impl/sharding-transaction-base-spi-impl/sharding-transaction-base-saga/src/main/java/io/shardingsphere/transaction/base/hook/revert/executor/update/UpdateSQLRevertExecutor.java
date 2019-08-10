@@ -24,7 +24,7 @@ import io.shardingsphere.transaction.base.hook.revert.constant.DefaultKeyword;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.UpdateSnapshotAccessor;
-import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
+import org.apache.shardingsphere.core.optimize.api.segment.Column;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.LiteralExpressionSegment;
