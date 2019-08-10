@@ -20,8 +20,8 @@ package io.shardingsphere.transaction.base.hook.revert.snapshot;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
-import org.apache.shardingsphere.core.optimize.api.segment.Table;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.AssignmentSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.generic.TableSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 
 import java.util.Collection;
@@ -62,20 +62,27 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     }
     
     private Optional<String> getTableAlias() {
-        Optional<Table> table = updateStatement.getTables().find(updateStatement.getTables().getSingleTableName());
-        if (table.isPresent() && table.get().getAlias().isPresent() && !table.get().getAlias().get().equals(table.get().getName())) {
-            return table.get().getAlias();
+        String tableName = updateStatement.getTables().iterator().next().getTableName();
+        Optional<TableSegment> tableSegmentOptional = Optional.absent();
+        for(TableSegment each : updateStatement.getTables()){
+            if (each.getTableName().equals(tableName)){
+                tableSegmentOptional = Optional.of(each);
+                break;
+            }
+        }
+        if (tableSegmentOptional.isPresent() && tableSegmentOptional.get().getAlias().isPresent() && !tableSegmentOptional.get().getAlias().get().equals(tableSegmentOptional.get().getTableName())) {
+            return tableSegmentOptional.get().getAlias();
         }
         return Optional.absent();
     }
     
     private String getWhereClause() {
-        return 0 < updateStatement.getWhereStartIndex() ? updateStatement.getLogicSQL().substring(updateStatement.getWhereStartIndex(), updateStatement.getWhereStopIndex() + 1) : "";
+        return 0 < updateStatement.getWhere().get().getStartIndex() ? updateStatement.getLogicSQL().substring(updateStatement.getWhere().get().getStartIndex(), updateStatement.getWhere().get().getStopIndex() + 1) : "";
     }
     
     private Collection<Object> getWhereParameters(final SQLRevertExecutorContext context) {
         Collection<Object> result = new LinkedList<>();
-        for (int i = updateStatement.getWhereParameterStartIndex(); i <= updateStatement.getWhereParameterEndIndex(); i++) {
+        for (int i = updateStatement.getWhere().get().getStartIndex(); i <= updateStatement.getWhere().get().getStopIndex(); i++) {
             result.add(context.getParameters().get(i));
         }
         return result;
