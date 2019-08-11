@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.hook.revert.snapshot;
 
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
-import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -77,8 +77,8 @@ public class DeleteSnapshotAccessorTest {
         when(executorContext.getActualTableName()).thenReturn("t_order_0");
         when(optimizedStatement.getSQLStatement()).thenReturn(deleteStatement);
         when(deleteStatement.getLogicSQL()).thenReturn("DELETE FROM t_order WHERE order_id = ?");
-        when(deleteStatement.getWhereStartIndex()).thenReturn(20);
-        when(deleteStatement.getWhereStopIndex()).thenReturn(37);
+        when(deleteStatement.getWhere().get().getStartIndex()).thenReturn(20);
+        when(deleteStatement.getWhere().get().getStopIndex()).thenReturn(37);
         when(executorContext.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
