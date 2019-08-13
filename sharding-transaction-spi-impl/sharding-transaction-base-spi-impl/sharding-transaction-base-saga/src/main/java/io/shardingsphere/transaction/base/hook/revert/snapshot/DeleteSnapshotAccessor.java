@@ -17,7 +17,9 @@
 
 package io.shardingsphere.transaction.base.hook.revert.snapshot;
 
+import com.google.common.base.Optional;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 
 import java.util.Collection;
@@ -47,6 +49,7 @@ public final class DeleteSnapshotAccessor extends DMLSnapshotAccessor {
     }
     
     private String getWhereClause() {
-        return 0 < deleteStatement.getWhereStartIndex() ? deleteStatement.getLogicSQL().substring(deleteStatement.getWhereStartIndex(), deleteStatement.getWhereStopIndex() + 1) : "";
+        Optional<WhereSegment> whereSegment = deleteStatement.getWhere();
+        return whereSegment.isPresent() ? getExecutorContext().getLogicSQL().substring(whereSegment.get().getStartIndex(), whereSegment.get().getStopIndex()) : "";
     }
 }

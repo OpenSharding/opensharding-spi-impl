@@ -22,12 +22,15 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.hook.revert.executor.update.UpdateSQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.UpdateSnapshotAccessor;
-import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
-import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
+import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.AssignmentSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.SetAssignmentsSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.generic.TableSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -41,7 +44,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,10 @@ public class UpdateSQLRevertExecutorTest {
     
     private RevertSQLResult revertSQLResult = new RevertSQLResult("");
     
-    private Map<Column, ExpressionSegment> updateAssignments = new LinkedHashMap<>();
+    private Collection<AssignmentSegment> assignments = new LinkedList<>();
+    
+    @Mock
+    private SetAssignmentsSegment setAssignmentsSegment;
     
     private List<Object> parameters = new LinkedList<>();
     
@@ -78,7 +83,8 @@ public class UpdateSQLRevertExecutorTest {
     
     @Before
     public void setUp() throws SQLException {
-        when(updateStatement.getAssignments()).thenReturn(updateAssignments);
+        when(updateStatement.getSetAssignment()).thenReturn(setAssignmentsSegment);
+        when(setAssignmentsSegment.getAssignments()).thenReturn(assignments);
         when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
         when(executorContext.getOptimizedStatement()).thenReturn(optimizedStatement);
         when(optimizedStatement.getSQLStatement()).thenReturn(updateStatement);
@@ -88,16 +94,20 @@ public class UpdateSQLRevertExecutorTest {
     }
     
     private void setUpdateAssignments(final String tableName, String... columns) {
+        TableSegment tableSegment = new TableSegment(0, 0, tableName);
         for (String each : columns) {
-            Column column = new Column(each, tableName);
+            ColumnSegment  columnSegment = new ColumnSegment(0, 0, each);
+            columnSegment.setOwner(tableSegment);
+            ExpressionSegment expressionSegment = null;
             if ("status".equals(each)) {
-                updateAssignments.put(column, new CommonExpressionSegment(0, 0,"modified"));
+                expressionSegment = new CommonExpressionSegment(0, 0,"modified");
             } else if ("user_id".equals(each)) {
-                updateAssignments.put(column, new LiteralExpressionSegment(0, 0, 1L));
+                expressionSegment = new LiteralExpressionSegment(0, 0, 1L);
             } else if ("order_id".equals(each)) {
-                updateAssignments.put(column, new ParameterMarkerExpressionSegment(0, 0, parameters.size()));
+                expressionSegment = new ParameterMarkerExpressionSegment(0, 0, parameters.size());
                 parameters.add(1000L);
             }
+            assignments.add(new AssignmentSegment(0, 0, columnSegment, expressionSegment));
         }
     }
     

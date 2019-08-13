@@ -21,8 +21,11 @@ import lombok.Getter;
 import org.apache.shardingsphere.core.exception.ShardingException;
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.InsertStatement;
+import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.core.route.type.RoutingUnit;
@@ -41,6 +44,8 @@ import java.util.List;
 @Getter
 public class SQLRevertExecutorContext implements SQLRevertContext {
     
+    private String logicSQL;
+    
     private OptimizedStatement optimizedStatement;
     
     private RouteUnit routeUnit;
@@ -49,29 +54,46 @@ public class SQLRevertExecutorContext implements SQLRevertContext {
     
     private String dataSourceName;
     
+    private String logicTableName;
+    
     private String actualTableName;
     
     private List<Object> parameters;
     
     private List<String> primaryKeyColumns;
     
-    public SQLRevertExecutorContext(final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit, final TableMetaData tableMetaData, final Connection connection) {
+    public SQLRevertExecutorContext(final String logicSQL, final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit, final TableMetaData tableMetaData, final Connection connection) {
+        this.logicSQL = logicSQL;
         this.optimizedStatement = sqlRouteResult.getOptimizedStatement();
         this.routeUnit = routeUnit;
         this.dataSourceName = routeUnit.getDataSourceName();
-        this.actualTableName = getActualTableName(optimizedStatement.getSQLStatement(), sqlRouteResult.getRoutingResult().getRoutingUnits(), routeUnit);
+        this.logicTableName = getLogicTableName(optimizedStatement.getSQLStatement());
+        this.actualTableName = getActualTableName(sqlRouteResult.getRoutingResult().getRoutingUnits(), routeUnit);
         this.parameters = routeUnit.getSqlUnit().getParameters();
         this.primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
         this.connection = connection;
     }
     
-    private String getActualTableName(final SQLStatement sqlStatement, final Collection<RoutingUnit> routingUnits, final RouteUnit routeUnit) {
+    private String getActualTableName(final Collection<RoutingUnit> routingUnits, final RouteUnit routeUnit) {
         for (RoutingUnit each : routingUnits) {
             if (each.getDataSourceName().equalsIgnoreCase(routeUnit.getDataSourceName())) {
-                return getAvailableActualTableName(each, sqlStatement.getTables().getSingleTableName());
+                return getAvailableActualTableName(each, logicTableName);
             }
         }
         throw new ShardingException(String.format("Could not find actual table name of [%s]", routeUnit));
+    }
+    
+    private String getLogicTableName(final SQLStatement sqlStatement) {
+        if (sqlStatement instanceof InsertStatement) {
+            return ((InsertStatement) sqlStatement).getTable().getTableName();
+        }
+        if (sqlStatement instanceof UpdateStatement) {
+            return ((UpdateStatement) sqlStatement).getTables().iterator().next().getTableName();
+        }
+        if (sqlStatement instanceof DeleteStatement) {
+            return ((DeleteStatement) sqlStatement).getTables().iterator().next().getTableName();
+        }
+        throw new UnsupportedOperationException("Can not support transaction for operate multiple tables");
     }
     
     private String getAvailableActualTableName(final RoutingUnit routingUnit, final String logicTableName) {

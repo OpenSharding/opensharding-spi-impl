@@ -20,8 +20,9 @@ package io.shardingsphere.transaction.base.hook.revert.snapshot;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
-import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
-import org.apache.shardingsphere.core.parse.sql.context.table.Table;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.AssignmentSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.predicate.WhereSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.generic.TableSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 
 import java.util.Collection;
@@ -53,30 +54,43 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
         Preconditions.checkState(!context.getPrimaryKeyColumns().isEmpty(),
             "Could not found primary key columns, datasourceName:[%s], tableName:[%s]", context.getDataSourceName(), context.getActualTableName());
         List<String> remainPrimaryKeys = new LinkedList<>(context.getPrimaryKeyColumns());
-        for (Column each : updateStatement.getAssignments().keySet()) {
-            result.add(each.getName());
-            remainPrimaryKeys.remove(each.getName());
+        for (AssignmentSegment each : updateStatement.getSetAssignment().getAssignments()) {
+            result.add(each.getColumn().getName());
+            remainPrimaryKeys.remove(each.getColumn().getName());
         }
         result.addAll(remainPrimaryKeys);
         return result;
     }
     
     private Optional<String> getTableAlias() {
-        Optional<Table> table = updateStatement.getTables().find(updateStatement.getTables().getSingleTableName());
-        if (table.isPresent() && table.get().getAlias().isPresent() && !table.get().getAlias().get().equals(table.get().getName())) {
+        Optional<TableSegment> table = findLogicTable(getExecutorContext().getLogicTableName());
+        if (table.isPresent() && table.get().getAlias().isPresent() && !table.get().getAlias().get().equals(table.get().getTableName())) {
             return table.get().getAlias();
         }
         return Optional.absent();
     }
     
+    private Optional<TableSegment> findLogicTable(final String logicTableName) {
+        for (TableSegment each : updateStatement.getTables()) {
+            if (logicTableName.equals(each.getTableName())) {
+                return Optional.of(each);
+            }
+        }
+        return Optional.absent();
+    }
+    
     private String getWhereClause() {
-        return 0 < updateStatement.getWhereStartIndex() ? updateStatement.getLogicSQL().substring(updateStatement.getWhereStartIndex(), updateStatement.getWhereStopIndex() + 1) : "";
+        Optional<WhereSegment> whereSegment = updateStatement.getWhere();
+        return whereSegment.isPresent() ? getExecutorContext().getLogicSQL().substring(whereSegment.get().getStartIndex(), whereSegment.get().getStopIndex()) : "";
     }
     
     private Collection<Object> getWhereParameters(final SQLRevertExecutorContext context) {
         Collection<Object> result = new LinkedList<>();
-        for (int i = updateStatement.getWhereParameterStartIndex(); i <= updateStatement.getWhereParameterEndIndex(); i++) {
-            result.add(context.getParameters().get(i));
+        Optional<WhereSegment> whereSegment = updateStatement.getWhere();
+        if (whereSegment.isPresent()) {
+            for (int i = whereSegment.get().getParameterStartIndex(); i <= whereSegment.get().getParametersCount(); i++) {
+                result.add(context.getParameters().get(i));
+            }
         }
         return result;
     }

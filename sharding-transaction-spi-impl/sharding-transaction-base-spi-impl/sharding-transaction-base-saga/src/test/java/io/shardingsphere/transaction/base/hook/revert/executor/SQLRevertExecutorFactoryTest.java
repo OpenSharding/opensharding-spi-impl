@@ -21,10 +21,10 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.base.hook.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.insert.InsertSQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.update.UpdateSQLRevertExecutor;
-import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
-import org.apache.shardingsphere.core.optimize.statement.sharding.dml.insert.ShardingInsertOptimizedStatement;
-import org.apache.shardingsphere.core.parse.sql.context.table.Table;
-import org.apache.shardingsphere.core.parse.sql.context.table.Tables;
+import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.sharding.statement.dml.ShardingInsertOptimizedStatement;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.SetAssignmentsSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DMLStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.InsertStatement;
@@ -66,16 +66,13 @@ public class SQLRevertExecutorFactoryTest {
     private UpdateStatement updateStatement;
     
     @Mock
+    private SetAssignmentsSegment setAssignmentsSegment;
+    
+    @Mock
     private OptimizedStatement optimizedStatement;
     
     @Mock
     private ShardingInsertOptimizedStatement shardingInsertOptimizedStatement;
-    
-    @Mock
-    private Tables tables;
-    
-    @Mock
-    private Table table;
     
     @Mock
     private Connection connection;
@@ -91,16 +88,13 @@ public class SQLRevertExecutorFactoryTest {
     
     private List<String> primaryKeyColumns = new LinkedList<>();
     
-    private String tableName;
-    
-    private String tableAlias;
-    
     @Before
     public void setUp() {
         when(executorContext.getOptimizedStatement()).thenReturn(optimizedStatement);
         primaryKeyColumns.add("order_id");
-        tableName = "t_order";
-        tableAlias = "t";
+        when(updateStatement.getSetAssignment()).thenReturn(setAssignmentsSegment);
+        when(updateStatement.getWhere()).thenReturn(Optional.<WhereSegment>absent());
+        when(deleteStatement.getWhere()).thenReturn(Optional.<WhereSegment>absent());
     }
     
     @Test
@@ -125,11 +119,6 @@ public class SQLRevertExecutorFactoryTest {
     @Test
     public void assertNewUpdateSQLRevertExecutor() throws SQLException {
         when(optimizedStatement.getSQLStatement()).thenReturn(updateStatement);
-        when(updateStatement.getTables()).thenReturn(tables);
-        when(tables.getSingleTableName()).thenReturn(tableName);
-        when(tables.find(tableName)).thenReturn(Optional.of(table));
-        when(table.getAlias()).thenReturn(Optional.of(tableAlias));
-        when(table.getName()).thenReturn(tableName);
         when(executorContext.getConnection()).thenReturn(connection);
         when(executorContext.getPrimaryKeyColumns()).thenReturn(primaryKeyColumns);
         when(executorContext.getParameters()).thenReturn(Arrays.<Object>asList(1, 2, 3));

@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.base.hook.revert.utils;
 
 import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
-import org.apache.shardingsphere.core.parse.sql.context.table.Tables;
+import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.parse.sql.segment.generic.TableSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
@@ -40,6 +40,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -75,10 +76,14 @@ public class MockTestUtil {
     }
     
     public static DeleteStatement mockDeleteStatement(final String logicTableName) {
-        DeleteStatement result = mock(DeleteStatement.class);
-        Tables tables = mock(Tables.class);
-        when(tables.getSingleTableName()).thenReturn(logicTableName);
-        when(result.getTables()).thenReturn(tables);
+        DeleteStatement result = spy(new DeleteStatement());
+        result.getTables().add(mockTableSegment(logicTableName));
+        return result;
+    }
+    
+    private static TableSegment mockTableSegment(final String logicTableName) {
+        TableSegment result = mock(TableSegment.class);
+        when(result.getTableName()).thenReturn(logicTableName);
         return result;
     }
     

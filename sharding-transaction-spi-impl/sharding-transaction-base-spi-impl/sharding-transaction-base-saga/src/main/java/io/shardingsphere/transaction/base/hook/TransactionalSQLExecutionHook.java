@@ -79,9 +79,13 @@ public final class TransactionalSQLExecutionHook implements SQLExecutionHook {
     }
     
     private Optional<RevertSQLResult> doSQLRevert(final LogicSQLTransaction logicSQLTransaction, final RouteUnit routeUnit) {
-        Connection connection = transactionContext.getCachedConnections().get(routeUnit.getDataSourceName());
-        SQLRevertExecutorContext context = new SQLRevertExecutorContext(logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
+        SQLRevertExecutorContext context = getSqlRevertExecutorContext(logicSQLTransaction, routeUnit);
         return new DMLSQLRevertEngine(SQLRevertExecutorFactory.newInstance(context)).revert();
+    }
+    
+    private SQLRevertExecutorContext getSqlRevertExecutorContext(LogicSQLTransaction logicSQLTransaction, RouteUnit routeUnit) {
+        Connection connection = transactionContext.getCachedConnections().get(routeUnit.getDataSourceName());
+        return new SQLRevertExecutorContext(logicSQLTransaction.getLogicSQL(), logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
     }
     
     private List<Collection<Object>> splitParameters(final SQLUnit sqlUnit) {
