@@ -20,17 +20,22 @@ package io.shardingsphere.transaction.base.hook.revert.snapshot;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
-import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
-import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
-import org.apache.shardingsphere.core.parse.sql.context.table.Table;
-import org.apache.shardingsphere.core.parse.sql.context.table.Tables;
+import org.apache.shardingsphere.core.optimize.api.segment.Table;
+import org.apache.shardingsphere.core.optimize.api.segment.Tables;
+import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.AssignmentSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.SetAssignmentsSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.column.ColumnSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.predicate.WhereSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.generic.TableSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.UpdateStatement;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.Connection;
@@ -39,10 +44,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -60,8 +64,11 @@ public class UpdateSnapshotAccessorTest {
     @Mock
     private OptimizedStatement optimizedStatement;
     
+    @Spy
+    private UpdateStatement updateStatement = new UpdateStatement();
+    
     @Mock
-    private UpdateStatement updateStatement;
+    private TableSegment tableSegment;
     
     @Mock
     private Tables tables;
@@ -103,7 +110,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertGetSnapshotSQLContext() {
         String sql = "update t_order set status=?, modifier=? where order_id=? and user_id=?";
-        setMockUpdateStatement(sql, "t_order", "", 40, 69, "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "", 40, 70, "status", "modifier");
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
         assertThat(actual.getConnection(), is(connection));
         assertThat(actual.getParameters().size(), is(2));
@@ -117,7 +124,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertGetSnapshotSQLContextWithTableAlias() {
         String sql = "update t_order t set t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 46, 79, "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 46, 80, "status", "modifier");
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
         assertThat(actual.getTableName(), is("t_order_0"));
         assertThat(actual.getWhereClause(), is("where t.order_id=? and t.user_id=?"));
@@ -129,7 +136,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertGetSnapshotSQLContextWithPrimaryKeyColumn() {
         String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 60, 94, "order_id", "status", "modifier");
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
         assertThat(actual.getTableName(), is("t_order_0"));
         assertThat(actual.getWhereClause(), is("where t.order_id=? and t.user_id=?"));
@@ -141,7 +148,7 @@ public class UpdateSnapshotAccessorTest {
     @Test(expected = IllegalStateException.class)
     public void assertGetSnapshotSQLContextPrimaryKeyNotExist() {
         String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 60, 94, "order_id", "status", "modifier");
         when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.<String>newArrayList());
         updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
     }
@@ -149,7 +156,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertQueryUndoData() throws SQLException {
         String sql = "update t_order set status=?, modifier=? where order_id=? and user_id=?";
-        setMockUpdateStatement(sql, "t_order", "", 40, 69, "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "", 40, 70, "status", "modifier");
         updateSnapshotAccessor.queryUndoData();
         verify(connection).prepareStatement("SELECT status, modifier, order_id FROM t_order_0 where order_id=? and user_id=? ");
     }
@@ -157,7 +164,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertQueryUndoDataWithTableAlias() throws SQLException {
         String sql = "update t_order t set t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 46, 79, "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 46, 80, "status", "modifier");
         updateSnapshotAccessor.queryUndoData();
         verify(connection).prepareStatement("SELECT status, modifier, order_id FROM t_order_0 t where t.order_id=? and t.user_id=? ");
     }
@@ -165,30 +172,30 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertQueryUndoDataWithPrimaryKeyColumn() throws SQLException {
         String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 60, 94, "order_id", "status", "modifier");
         updateSnapshotAccessor.queryUndoData();
         verify(connection).prepareStatement("SELECT order_id, status, modifier FROM t_order_0 t where t.order_id=? and t.user_id=? ");
     }
     
     private void setMockUpdateStatement(final String logicSQL, final String tableName, final String tableAlias, final int whereStartIndex, final int whereStopIndex, final String... updateColumns) {
-        when(updateStatement.getLogicSQL()).thenReturn(logicSQL);
-        when(updateStatement.getAssignments()).thenReturn(mockUpdateAssignments(tableName, updateColumns));
-        when(updateStatement.getWhereStartIndex()).thenReturn(whereStartIndex);
-        when(updateStatement.getWhereStopIndex()).thenReturn(whereStopIndex);
-        when(updateStatement.getWhereParameterStartIndex()).thenReturn(0);
-        when(updateStatement.getWhereParameterEndIndex()).thenReturn(1);
-        when(updateStatement.getTables()).thenReturn(tables);
-        when(tables.getSingleTableName()).thenReturn(tableName);
-        when(tables.find(tableName)).thenReturn(Optional.of(table));
-        when(table.getAlias()).thenReturn(Optional.of(tableAlias));
-        when(table.getName()).thenReturn(tableName);
+        when(executorContext.getLogicTableName()).thenReturn(tableName);
+        when(executorContext.getLogicSQL()).thenReturn(logicSQL);
+        when(updateStatement.getSetAssignment()).thenReturn(mockUpdateAssignments(tableName, updateColumns));
+        when(updateStatement.getWhere()).thenReturn(Optional.of(new WhereSegment(whereStartIndex, whereStopIndex, 1)));
+        updateStatement.getTables().add(tableSegment);
+        when(tableSegment.getTableName()).thenReturn(tableName);
+        when(tableSegment.getAlias()).thenReturn(Optional.of(tableAlias));
     }
     
-    private Map<Column, ExpressionSegment> mockUpdateAssignments(final String tableName, final String... columns) {
-        Map<Column, ExpressionSegment> result = new LinkedHashMap<>();
+    private SetAssignmentsSegment mockUpdateAssignments(final String tableName, String... columns) {
+        Collection<AssignmentSegment> assignments = new LinkedList<>();
+        TableSegment tableSegment = new TableSegment(0, 0, tableName);
         for (String each : columns) {
-            result.put(new Column(each, tableName), mock(ExpressionSegment.class));
+            ColumnSegment columnSegment = new ColumnSegment(0, 0, each);
+            columnSegment.setOwner(tableSegment);
+            ExpressionSegment expressionSegment = mock(ExpressionSegment.class);
+            assignments.add(new AssignmentSegment(0, 0, columnSegment, expressionSegment));
         }
-        return result;
+        return new SetAssignmentsSegment(0, 0, assignments);
     }
 }

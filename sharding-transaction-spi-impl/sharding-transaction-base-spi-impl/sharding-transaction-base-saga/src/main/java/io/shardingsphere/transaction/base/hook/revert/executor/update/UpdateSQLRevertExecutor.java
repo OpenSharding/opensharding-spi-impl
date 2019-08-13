@@ -24,8 +24,7 @@ import io.shardingsphere.transaction.base.hook.revert.constant.DefaultKeyword;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.UpdateSnapshotAccessor;
-import org.apache.shardingsphere.core.parse.sql.context.condition.Column;
-import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
+import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.AssignmentSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
@@ -36,7 +35,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Update SQL revert executor.
@@ -61,13 +59,13 @@ public final class UpdateSQLRevertExecutor implements SQLRevertExecutor {
     
     private Map<String, Object> getUpdateSetAssignments(final UpdateStatement updateStatement, final List<Object> parameters) {
         Map<String, Object> result = new LinkedHashMap<>();
-        for (Entry<Column, ExpressionSegment> entry : updateStatement.getAssignments().entrySet()) {
-            if (entry.getValue() instanceof ParameterMarkerExpressionSegment) {
-                result.put(entry.getKey().getName(), parameters.get(((ParameterMarkerExpressionSegment) entry.getValue()).getParameterMarkerIndex()));
-            } else if (entry.getValue() instanceof CommonExpressionSegment) {
-                result.put(entry.getKey().getName(), ((CommonExpressionSegment) entry.getValue()).getText());
-            } else if (entry.getValue() instanceof LiteralExpressionSegment) {
-                result.put(entry.getKey().getName(), ((LiteralExpressionSegment) entry.getValue()).getLiterals());
+        for (AssignmentSegment each : updateStatement.getSetAssignment().getAssignments()) {
+            if (each.getValue() instanceof ParameterMarkerExpressionSegment) {
+                result.put(each.getColumn().getName(), parameters.get(((ParameterMarkerExpressionSegment) each.getValue()).getParameterMarkerIndex()));
+            } else if (each.getValue() instanceof CommonExpressionSegment) {
+                result.put(each.getColumn().getName(), ((CommonExpressionSegment) each.getValue()).getText());
+            } else if (each.getValue() instanceof LiteralExpressionSegment) {
+                result.put(each.getColumn().getName(), ((LiteralExpressionSegment) each.getValue()).getLiterals());
             }
         }
         return result;

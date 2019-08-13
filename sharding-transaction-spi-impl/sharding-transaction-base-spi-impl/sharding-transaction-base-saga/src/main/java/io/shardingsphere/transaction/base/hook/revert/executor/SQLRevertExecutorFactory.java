@@ -45,16 +45,14 @@ public final class SQLRevertExecutorFactory {
     @SneakyThrows
     public static SQLRevertExecutor newInstance(final SQLRevertExecutorContext context) {
         SQLStatement sqlStatement = context.getOptimizedStatement().getSQLStatement();
-        SQLRevertExecutor sqlRevertExecutor;
         if (sqlStatement instanceof InsertStatement) {
-            sqlRevertExecutor = new InsertSQLRevertExecutor(context);
+            return new InsertSQLRevertExecutor(context);
         } else if (sqlStatement instanceof DeleteStatement) {
-            sqlRevertExecutor = new DeleteSQLRevertExecutor(context, new DeleteSnapshotAccessor(context));
+            return new DeleteSQLRevertExecutor(context, new DeleteSnapshotAccessor(context));
         } else if (sqlStatement instanceof UpdateStatement) {
-            sqlRevertExecutor = new UpdateSQLRevertExecutor(context, new UpdateSnapshotAccessor(context));
+            return new UpdateSQLRevertExecutor(context, new UpdateSnapshotAccessor(context));
         } else {
             throw new UnsupportedOperationException("unsupported SQL statement");
         }
-        return sqlRevertExecutor;
     }
 }

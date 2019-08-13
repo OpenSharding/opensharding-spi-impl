@@ -25,7 +25,7 @@ import io.shardingsphere.transaction.base.hook.revert.constant.DefaultKeyword;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.core.optimize.statement.sharding.dml.insert.ShardingInsertOptimizedStatement;
+import org.apache.shardingsphere.core.optimize.sharding.statement.dml.ShardingInsertOptimizedStatement;
 
 import java.util.Map;
 

@@ -18,9 +18,8 @@
 package io.shardingsphere.transaction.base.context;
 
 import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
-import org.apache.shardingsphere.core.optimize.statement.OptimizedStatement;
-import org.apache.shardingsphere.core.parse.sql.context.table.Tables;
-import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
+import org.apache.shardingsphere.core.optimize.api.segment.Tables;
+import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.InsertStatement;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.junit.Before;
@@ -63,22 +62,25 @@ public final class SagaTransactionTest {
         sagaTransaction = new TransactionContext();
         when(sqlRouteResult.getOptimizedStatement()).thenReturn(optimizedStatement);
         when(optimizedStatement.getSQLStatement()).thenReturn(sqlStatement);
-        when(sqlStatement.getTables()).thenReturn(tables);
+        when(optimizedStatement.getTables()).thenReturn(tables);
         when(tables.getSingleTableName()).thenReturn("t_order");
     }
     
     @Test
     public void assertNextLogicSQLTransaction() {
-        sagaTransaction.nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+        sagaTransaction.nextLogicSQLTransaction("sql1");
+        sagaTransaction.initLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
         assertThat(sagaTransaction.getCurrentLogicSQLTransaction(), instanceOf(LogicSQLTransaction.class));
         assertThat(sagaTransaction.getLogicSQLTransactions().size(), is(1));
-        sagaTransaction.nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+        sagaTransaction.nextLogicSQLTransaction("sql2");
+        sagaTransaction.initLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
         assertThat(sagaTransaction.getLogicSQLTransactions().size(), is(2));
     }
     
     @Test
     public void assertAddBranchTransactionWithFailureStatus() {
-        sagaTransaction.nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+        sagaTransaction.nextLogicSQLTransaction("sql1");
+        sagaTransaction.initLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
         sagaTransaction.addBranchTransaction(new BranchTransaction("", actualSQL, null, ExecuteStatus.FAILURE));
         assertThat(sagaTransaction.getCurrentLogicSQLTransaction().getBranchTransactions().size(), is(1));
         assertTrue(sagaTransaction.isContainsException());
@@ -86,7 +88,8 @@ public final class SagaTransactionTest {
     
     @Test
     public void assertAddBranchTransactionWithSuccessStatus() {
-        sagaTransaction.nextLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+        sagaTransaction.nextLogicSQLTransaction("sql1");
+        sagaTransaction.initLogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
         sagaTransaction.addBranchTransaction(new BranchTransaction("", actualSQL, null, ExecuteStatus.SUCCESS));
         assertThat(sagaTransaction.getCurrentLogicSQLTransaction().getBranchTransactions().size(), is(1));
         assertFalse(sagaTransaction.isContainsException());

@@ -58,11 +58,20 @@ public final class TransactionContext {
     /**
      * Go to next logic SQL transaction.
      *
+     * @param sql logic SQL
+     */
+    public void nextLogicSQLTransaction(final String sql) {
+        currentLogicSQLTransaction = new LogicSQLTransaction(sql);
+    }
+    
+    /**
+     * Go to next logic SQL transaction.
+     *
      * @param sqlRouteResult SQL route result
      * @param shardingTableMetaData sharding table meta data
      */
-    public void nextLogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        currentLogicSQLTransaction = new LogicSQLTransaction(sqlRouteResult, shardingTableMetaData);
+    public void initLogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
+        currentLogicSQLTransaction.doInit(sqlRouteResult, shardingTableMetaData);
         if (currentLogicSQLTransaction.isWritableTransaction()) {
             logicSQLTransactions.add(currentLogicSQLTransaction);
         }
