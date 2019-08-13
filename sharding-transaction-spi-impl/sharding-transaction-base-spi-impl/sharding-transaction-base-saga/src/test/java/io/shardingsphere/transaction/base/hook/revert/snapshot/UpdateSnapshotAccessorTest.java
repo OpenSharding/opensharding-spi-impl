@@ -110,7 +110,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertGetSnapshotSQLContext() {
         String sql = "update t_order set status=?, modifier=? where order_id=? and user_id=?";
-        setMockUpdateStatement(sql, "t_order", "", 40, 70, "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "", 40, 69, "status", "modifier");
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
         assertThat(actual.getConnection(), is(connection));
         assertThat(actual.getParameters().size(), is(2));
@@ -124,7 +124,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertGetSnapshotSQLContextWithTableAlias() {
         String sql = "update t_order t set t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 46, 80, "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 46, 79, "status", "modifier");
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
         assertThat(actual.getTableName(), is("t_order_0"));
         assertThat(actual.getWhereClause(), is("where t.order_id=? and t.user_id=?"));
@@ -136,7 +136,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertGetSnapshotSQLContextWithPrimaryKeyColumn() {
         String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 60, 94, "order_id", "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
         SnapshotSQLContext actual = updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
         assertThat(actual.getTableName(), is("t_order_0"));
         assertThat(actual.getWhereClause(), is("where t.order_id=? and t.user_id=?"));
@@ -148,7 +148,7 @@ public class UpdateSnapshotAccessorTest {
     @Test(expected = IllegalStateException.class)
     public void assertGetSnapshotSQLContextPrimaryKeyNotExist() {
         String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 60, 94, "order_id", "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
         when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.<String>newArrayList());
         updateSnapshotAccessor.getSnapshotSQLContext(executorContext);
     }
@@ -156,7 +156,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertQueryUndoData() throws SQLException {
         String sql = "update t_order set status=?, modifier=? where order_id=? and user_id=?";
-        setMockUpdateStatement(sql, "t_order", "", 40, 70, "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "", 40, 69, "status", "modifier");
         updateSnapshotAccessor.queryUndoData();
         verify(connection).prepareStatement("SELECT status, modifier, order_id FROM t_order_0 where order_id=? and user_id=? ");
     }
@@ -164,7 +164,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertQueryUndoDataWithTableAlias() throws SQLException {
         String sql = "update t_order t set t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 46, 80, "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 46, 79, "status", "modifier");
         updateSnapshotAccessor.queryUndoData();
         verify(connection).prepareStatement("SELECT status, modifier, order_id FROM t_order_0 t where t.order_id=? and t.user_id=? ");
     }
@@ -172,7 +172,7 @@ public class UpdateSnapshotAccessorTest {
     @Test
     public void assertQueryUndoDataWithPrimaryKeyColumn() throws SQLException {
         String sql = "update t_order t set t.order_id=?, t.status=?, t.modifier=? where t.order_id=? and t.user_id=?";
-        setMockUpdateStatement(sql, "t_order", "t", 60, 94, "order_id", "status", "modifier");
+        setMockUpdateStatement(sql, "t_order", "t", 60, 93, "order_id", "status", "modifier");
         updateSnapshotAccessor.queryUndoData();
         verify(connection).prepareStatement("SELECT order_id, status, modifier FROM t_order_0 t where t.order_id=? and t.user_id=? ");
     }

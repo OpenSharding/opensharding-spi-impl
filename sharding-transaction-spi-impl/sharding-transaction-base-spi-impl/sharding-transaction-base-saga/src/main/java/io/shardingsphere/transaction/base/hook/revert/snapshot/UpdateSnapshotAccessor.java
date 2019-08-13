@@ -81,7 +81,7 @@ public final class UpdateSnapshotAccessor extends DMLSnapshotAccessor {
     
     private String getWhereClause() {
         Optional<WhereSegment> whereSegment = updateStatement.getWhere();
-        return whereSegment.isPresent() ? getExecutorContext().getLogicSQL().substring(whereSegment.get().getStartIndex(), whereSegment.get().getStopIndex()) : "";
+        return whereSegment.isPresent() ? getExecutorContext().getLogicSQL().substring(whereSegment.get().getStartIndex(), whereSegment.get().getStopIndex() + 1) : "";
     }
     
     private Collection<Object> getWhereParameters(final SQLRevertExecutorContext context) {

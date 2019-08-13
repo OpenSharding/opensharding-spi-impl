@@ -50,6 +50,6 @@ public final class DeleteSnapshotAccessor extends DMLSnapshotAccessor {
     
     private String getWhereClause() {
         Optional<WhereSegment> whereSegment = deleteStatement.getWhere();
-        return whereSegment.isPresent() ? getExecutorContext().getLogicSQL().substring(whereSegment.get().getStartIndex(), whereSegment.get().getStopIndex()) : "";
+        return whereSegment.isPresent() ? getExecutorContext().getLogicSQL().substring(whereSegment.get().getStartIndex(), whereSegment.get().getStopIndex() + 1) : "";
     }
 }

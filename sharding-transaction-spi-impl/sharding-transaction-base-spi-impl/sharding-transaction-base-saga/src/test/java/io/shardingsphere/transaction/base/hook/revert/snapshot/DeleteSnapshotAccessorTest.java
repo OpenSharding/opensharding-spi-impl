@@ -83,7 +83,7 @@ public class DeleteSnapshotAccessorTest {
         when(optimizedStatement.getSQLStatement()).thenReturn(deleteStatement);
         when(executorContext.getLogicSQL()).thenReturn("DELETE FROM t_order WHERE order_id = ?");
         when(whereSegment.getStartIndex()).thenReturn(20);
-        when(whereSegment.getStopIndex()).thenReturn(38);
+        when(whereSegment.getStopIndex()).thenReturn(37);
         when(deleteStatement.getWhere()).thenReturn(Optional.of(whereSegment));
         when(executorContext.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
