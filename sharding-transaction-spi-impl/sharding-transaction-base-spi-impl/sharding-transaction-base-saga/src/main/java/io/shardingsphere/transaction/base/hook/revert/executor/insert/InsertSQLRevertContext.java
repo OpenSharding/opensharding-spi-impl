@@ -67,6 +67,7 @@ public final class InsertSQLRevertContext implements SQLRevertContext {
     private List<Map<String, Object>> getRoutedInsertValues(final List<InsertOptimizeResultUnit> units, final DataNode dataNode) {
         List<Map<String, Object>> result = new LinkedList<>();
         for (InsertOptimizeResultUnit each : units) {
+            // TODO could not handle sharding-master-slave datasource.
             if (isRoutedDataNode(each.getDataNodes(), dataNode)) {
                 result.add(convertInsertOptimizeResultUnit(each));
             }
