@@ -23,7 +23,7 @@
     <parent>
         <artifactId>sharding-transaction-spring-boot-starter</artifactId>
         <groupId>io.shardingsphere</groupId>
-        <version>4.0.0-RC2-SNAPSHOT</version>
+        <version>4.0.0-RC2</version>
     </parent>
     <artifactId>sharding-transaction-proxy-spring-boot-starter</artifactId>
     <name>${project.artifactId}</name>
