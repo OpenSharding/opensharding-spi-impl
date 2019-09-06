@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
 import io.shardingsphere.transaction.base.hook.revert.executor.delete.DeleteSQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.insert.InsertSQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.executor.update.UpdateSQLRevertExecutor;
-import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.sharding.statement.ShardingOptimizedStatement;
 import org.apache.shardingsphere.core.optimize.sharding.statement.dml.ShardingInsertOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.SetAssignmentsSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.predicate.WhereSegment;
@@ -69,7 +69,7 @@ public class SQLRevertExecutorFactoryTest {
     private SetAssignmentsSegment setAssignmentsSegment;
     
     @Mock
-    private OptimizedStatement optimizedStatement;
+    private ShardingOptimizedStatement shardingStatement;
     
     @Mock
     private ShardingInsertOptimizedStatement shardingInsertOptimizedStatement;
@@ -90,7 +90,7 @@ public class SQLRevertExecutorFactoryTest {
     
     @Before
     public void setUp() {
-        when(executorContext.getOptimizedStatement()).thenReturn(optimizedStatement);
+        when(executorContext.getShardingStatement()).thenReturn(shardingStatement);
         primaryKeyColumns.add("order_id");
         when(updateStatement.getSetAssignment()).thenReturn(setAssignmentsSegment);
         when(updateStatement.getWhere()).thenReturn(Optional.<WhereSegment>absent());
@@ -99,7 +99,7 @@ public class SQLRevertExecutorFactoryTest {
     
     @Test
     public void assertNewSQLRevertExecutor() {
-        when(executorContext.getOptimizedStatement()).thenReturn(shardingInsertOptimizedStatement);
+        when(executorContext.getShardingStatement()).thenReturn(shardingInsertOptimizedStatement);
         when(shardingInsertOptimizedStatement.getSQLStatement()).thenReturn(insertStatement);
         SQLRevertExecutor actual = SQLRevertExecutorFactory.newInstance(executorContext);
         assertThat(actual, instanceOf(InsertSQLRevertExecutor.class));
@@ -107,7 +107,7 @@ public class SQLRevertExecutorFactoryTest {
     
     @Test
     public void assertNewDeleteSQLRevertExecutor() throws SQLException {
-        when(optimizedStatement.getSQLStatement()).thenReturn(deleteStatement);
+        when(shardingStatement.getSQLStatement()).thenReturn(deleteStatement);
         when(executorContext.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
@@ -118,7 +118,7 @@ public class SQLRevertExecutorFactoryTest {
     
     @Test
     public void assertNewUpdateSQLRevertExecutor() throws SQLException {
-        when(optimizedStatement.getSQLStatement()).thenReturn(updateStatement);
+        when(shardingStatement.getSQLStatement()).thenReturn(updateStatement);
         when(executorContext.getConnection()).thenReturn(connection);
         when(executorContext.getPrimaryKeyColumns()).thenReturn(primaryKeyColumns);
         when(executorContext.getParameters()).thenReturn(Arrays.<Object>asList(1, 2, 3));
@@ -131,7 +131,7 @@ public class SQLRevertExecutorFactoryTest {
     
     @Test(expected = UnsupportedOperationException.class)
     public void assertNewUnsupportedSQLStatement() {
-        when(optimizedStatement.getSQLStatement()).thenReturn(mock(DMLStatement.class));
+        when(shardingStatement.getSQLStatement()).thenReturn(mock(DMLStatement.class));
         SQLRevertExecutorFactory.newInstance(executorContext);
     }
 }

@@ -17,9 +17,10 @@
 
 package io.shardingsphere.transaction.base.hook.revert.utils;
 
-import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
+import org.apache.shardingsphere.core.metadata.column.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.encrypt.statement.EncryptOptimizedStatement;
+import org.apache.shardingsphere.core.optimize.sharding.statement.ShardingOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.segment.generic.TableSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.route.RouteUnit;
@@ -50,8 +51,9 @@ import static org.mockito.Mockito.when;
  */
 public class MockTestUtil {
     
-    public static SQLRouteResult mockSQLRouteResult(final OptimizedStatement optimizedStatement, final String dataSourceName, final String logicTableName, final String actualTableName) {
-        SQLRouteResult result = new SQLRouteResult(optimizedStatement);
+    public static SQLRouteResult mockSQLRouteResult(final ShardingOptimizedStatement shardingOptimizedStatement, final String dataSourceName, final String logicTableName, final String actualTableName) {
+        EncryptOptimizedStatement encryptStatement = mock(EncryptOptimizedStatement.class);
+        SQLRouteResult result = new SQLRouteResult(shardingOptimizedStatement, encryptStatement);
         result.setRoutingResult(mockRoutingResult(dataSourceName, logicTableName, actualTableName));
         return result;
     }

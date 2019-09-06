@@ -53,7 +53,7 @@ public final class UpdateSQLRevertExecutor implements SQLRevertExecutor {
     }
     
     private UpdateSQLRevertContext createRevertSQLContext(final SQLRevertExecutorContext context, final UpdateSnapshotAccessor snapshotAccessor) throws SQLException {
-        Map<String, Object> updateSetAssignments = getUpdateSetAssignments((UpdateStatement) context.getOptimizedStatement().getSQLStatement(), context.getParameters());
+        Map<String, Object> updateSetAssignments = getUpdateSetAssignments((UpdateStatement) context.getShardingStatement().getSQLStatement(), context.getParameters());
         return new UpdateSQLRevertContext(context.getActualTableName(), snapshotAccessor.queryUndoData(), updateSetAssignments, context.getPrimaryKeyColumns(), context.getParameters());
     }
     

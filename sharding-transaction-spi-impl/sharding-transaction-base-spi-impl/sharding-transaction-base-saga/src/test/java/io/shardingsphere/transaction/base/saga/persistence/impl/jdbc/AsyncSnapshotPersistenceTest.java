@@ -19,6 +19,7 @@ package io.shardingsphere.transaction.base.saga.persistence.impl.jdbc;
 
 import lombok.SneakyThrows;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class AsyncSnapshotPersistenceTest {
     
     @Mock

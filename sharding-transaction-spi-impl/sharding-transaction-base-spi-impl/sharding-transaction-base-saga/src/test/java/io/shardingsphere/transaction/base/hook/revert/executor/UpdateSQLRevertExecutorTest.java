@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.hook.revert.executor.update.UpdateSQLRevertExecutor;
 import io.shardingsphere.transaction.base.hook.revert.snapshot.UpdateSnapshotAccessor;
-import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.sharding.statement.ShardingOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.AssignmentSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.assignment.SetAssignmentsSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.column.ColumnSegment;
@@ -63,7 +63,7 @@ public class UpdateSQLRevertExecutorTest {
     private UpdateSnapshotAccessor snapshotAccessor;
     
     @Mock
-    private OptimizedStatement optimizedStatement;
+    private ShardingOptimizedStatement shardingOptimizedStatement;
     
     @Mock
     private UpdateStatement updateStatement;
@@ -86,8 +86,8 @@ public class UpdateSQLRevertExecutorTest {
         when(updateStatement.getSetAssignment()).thenReturn(setAssignmentsSegment);
         when(setAssignmentsSegment.getAssignments()).thenReturn(assignments);
         when(snapshotAccessor.queryUndoData()).thenReturn(undoData);
-        when(executorContext.getOptimizedStatement()).thenReturn(optimizedStatement);
-        when(optimizedStatement.getSQLStatement()).thenReturn(updateStatement);
+        when(executorContext.getShardingStatement()).thenReturn(shardingOptimizedStatement);
+        when(shardingOptimizedStatement.getSQLStatement()).thenReturn(updateStatement);
         when(executorContext.getParameters()).thenReturn(parameters);
         when(executorContext.getActualTableName()).thenReturn("t_order_0");
         when(executorContext.getPrimaryKeyColumns()).thenReturn(Lists.newLinkedList(Collections.singleton("order_id")));

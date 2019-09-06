@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.metadata.table.TableMetas;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.transaction.core.TransactionOperationType;
 
@@ -68,10 +68,10 @@ public final class TransactionContext {
      * Go to next logic SQL transaction.
      *
      * @param sqlRouteResult SQL route result
-     * @param shardingTableMetaData sharding table meta data
+     * @param tableMetas sharding table meta data
      */
-    public void initLogicSQLTransaction(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
-        currentLogicSQLTransaction.doInit(sqlRouteResult, shardingTableMetaData);
+    public void initLogicSQLTransaction(final SQLRouteResult sqlRouteResult, final TableMetas tableMetas) {
+        currentLogicSQLTransaction.doInit(sqlRouteResult, tableMetas);
         if (currentLogicSQLTransaction.isWritableTransaction()) {
             logicSQLTransactions.add(currentLogicSQLTransaction);
         }

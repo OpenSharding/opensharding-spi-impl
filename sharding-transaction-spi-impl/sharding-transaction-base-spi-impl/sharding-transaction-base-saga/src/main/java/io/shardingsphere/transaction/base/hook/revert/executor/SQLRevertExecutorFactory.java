@@ -44,7 +44,7 @@ public final class SQLRevertExecutorFactory {
      */
     @SneakyThrows
     public static SQLRevertExecutor newInstance(final SQLRevertExecutorContext context) {
-        SQLStatement sqlStatement = context.getOptimizedStatement().getSQLStatement();
+        SQLStatement sqlStatement = context.getShardingStatement().getSQLStatement();
         if (sqlStatement instanceof InsertStatement) {
             return new InsertSQLRevertExecutor(context);
         } else if (sqlStatement instanceof DeleteStatement) {

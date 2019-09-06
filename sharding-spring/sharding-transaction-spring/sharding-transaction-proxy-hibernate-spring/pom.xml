@@ -23,7 +23,7 @@
     <parent>
         <groupId>io.shardingsphere</groupId>
         <artifactId>sharding-transaction-spring</artifactId>
-        <version>4.0.0-RC2</version>
+        <version>4.0.0-RC3-SNAPSHOT</version>
     </parent>
     <artifactId>sharding-transaction-proxy-hibernate-spring</artifactId>
     <name>${project.artifactId}</name>

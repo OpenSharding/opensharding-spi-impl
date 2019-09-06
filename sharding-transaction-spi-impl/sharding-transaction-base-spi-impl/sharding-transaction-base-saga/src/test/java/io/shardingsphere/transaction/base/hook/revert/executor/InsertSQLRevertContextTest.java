@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.hook.revert.executor;
 
 import io.shardingsphere.transaction.base.hook.revert.executor.insert.InsertSQLRevertContext;
-import org.apache.shardingsphere.core.optimize.sharding.segment.insert.InsertOptimizeResultUnit;
+import org.apache.shardingsphere.core.optimize.api.segment.InsertValue;
 import org.apache.shardingsphere.core.optimize.sharding.statement.dml.ShardingInsertOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
@@ -60,23 +60,23 @@ public class InsertSQLRevertContextTest {
         dataSourceName = "ds_0";
         tableName = "t_order_0";
         shard = 10;
-        when(shardingInsertOptimizedStatement.getUnits()).thenReturn(mockInsertOptimizeResult("order_id", "user_id", "status"));
+        when(shardingInsertOptimizedStatement.getInsertValues()).thenReturn(mockInsertOptimizeResult("order_id", "user_id", "status"));
     }
     
-    private List<InsertOptimizeResultUnit> mockInsertOptimizeResult(final String... columnNames) {
-        List<InsertOptimizeResultUnit> result = new LinkedList<>();
+    private List<InsertValue> mockInsertOptimizeResult(final String... columnNames) {
+        List<InsertValue> result = new LinkedList<>();
         for (int i = 1; i <= shard; i++) {
-            InsertOptimizeResultUnit unit = new InsertOptimizeResultUnit(mockColumnNames(columnNames), mockExpressionSegment(columnNames.length), mockParameters(columnNames.length), 1);
+            InsertValue unit = new InsertValue(mockColumnNames(columnNames), mockExpressionSegment(columnNames.length), 0, mockParameters(columnNames.length), 0);
             unit.getDataNodes().add(new DataNode(dataSourceName, tableName));
             result.add(unit);
         }
         return result;
     }
     
-    private ExpressionSegment[] mockExpressionSegment(final int length) {
-        ExpressionSegment[] result = new ExpressionSegment[length];
+    private List<ExpressionSegment> mockExpressionSegment(final int length) {
+        List<ExpressionSegment> result = new LinkedList<>();
         for (int i = 0; i < length; i++) {
-            result[i] = mock(ParameterMarkerExpressionSegment.class);
+            result.add(mock(ParameterMarkerExpressionSegment.class));
         }
         return result;
     }
@@ -87,10 +87,10 @@ public class InsertSQLRevertContextTest {
         return result;
     }
     
-    private Object[] mockParameters(final int length) {
-        Object[] result = new Object[length];
+    private List<Object> mockParameters(final int length) {
+        List<Object> result = new LinkedList<>();
         for (int i = 0; i < length; i++) {
-            result[i] = i;
+            result.add(i);
         }
         return result;
     }

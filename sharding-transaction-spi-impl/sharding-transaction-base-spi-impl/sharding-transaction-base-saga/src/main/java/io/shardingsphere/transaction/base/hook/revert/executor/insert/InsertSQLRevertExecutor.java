@@ -48,7 +48,7 @@ public final class InsertSQLRevertExecutor implements SQLRevertExecutor {
     
     public InsertSQLRevertExecutor(final SQLRevertExecutorContext executorContext) {
         sqlRevertContext = new InsertSQLRevertContext(executorContext.getDataSourceName(), executorContext.getActualTableName(),
-            executorContext.getPrimaryKeyColumns(), (ShardingInsertOptimizedStatement) executorContext.getOptimizedStatement());
+            executorContext.getPrimaryKeyColumns(), (ShardingInsertOptimizedStatement) executorContext.getShardingStatement());
     }
     
     @Override

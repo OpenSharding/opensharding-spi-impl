@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.base.hook.revert.executor.insert;
 import com.google.common.base.Preconditions;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertContext;
 import lombok.Getter;
-import org.apache.shardingsphere.core.optimize.sharding.segment.insert.InsertOptimizeResultUnit;
+import org.apache.shardingsphere.core.optimize.api.segment.InsertValue;
 import org.apache.shardingsphere.core.optimize.sharding.statement.dml.ShardingInsertOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.complex.CommonExpressionSegment;
@@ -28,7 +28,6 @@ import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.LiteralE
 import org.apache.shardingsphere.core.parse.sql.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
 import org.apache.shardingsphere.core.rule.DataNode;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,17 +58,17 @@ public final class InsertSQLRevertContext implements SQLRevertContext {
     
     private void loadPrimaryKeyInsertValues(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final ShardingInsertOptimizedStatement insertOptimizedStatement) {
         Preconditions.checkNotNull(insertOptimizedStatement, "Could not found insert optimized statement. datasourceName:%s, actualTable:%s", dataSourceName, actualTableName);
-        for (Map<String, Object> each : getRoutedInsertValues(insertOptimizedStatement.getUnits(), new DataNode(dataSourceName, actualTableName))) {
+        for (Map<String, Object> each : getRoutedInsertValues(insertOptimizedStatement.getInsertValues(), new DataNode(dataSourceName, actualTableName))) {
             addPrimaryKeyColumnValues(each, primaryKeys);
         }
     }
     
-    private List<Map<String, Object>> getRoutedInsertValues(final List<InsertOptimizeResultUnit> units, final DataNode dataNode) {
+    private List<Map<String, Object>> getRoutedInsertValues(final List<InsertValue> insertValues, final DataNode dataNode) {
         List<Map<String, Object>> result = new LinkedList<>();
-        for (InsertOptimizeResultUnit each : units) {
+        for (InsertValue each : insertValues) {
             // TODO could not handle sharding-master-slave datasource.
             if (isRoutedDataNode(each.getDataNodes(), dataNode)) {
-                result.add(convertInsertOptimizeResultUnit(each));
+                result.add(getInsertValueMap(each));
             }
         }
         return result;
@@ -84,11 +83,11 @@ public final class InsertSQLRevertContext implements SQLRevertContext {
         return false;
     }
     
-    private Map<String, Object> convertInsertOptimizeResultUnit(final InsertOptimizeResultUnit insertOptimizeResultUnit) {
-        Map<String, Object> result = new HashMap<>(insertOptimizeResultUnit.getColumnNames().size(), 1);
-        Iterator<String> columnNamesIterator = insertOptimizeResultUnit.getColumnNames().iterator();
-        Iterator<Object> parametersIterator = Arrays.asList(insertOptimizeResultUnit.getParameters()).iterator();
-        for (ExpressionSegment each : insertOptimizeResultUnit.getValues()) {
+    private Map<String, Object> getInsertValueMap(final InsertValue insertValue) {
+        Map<String, Object> result = new HashMap<>(insertValue.getColumnNames().size(), 1);
+        Iterator<String> columnNamesIterator = insertValue.getColumnNames().iterator();
+        Iterator<Object> parametersIterator = insertValue.getParameters().iterator();
+        for (ExpressionSegment each : insertValue.getValueExpressions()) {
             if (each instanceof ParameterMarkerExpressionSegment) {
                 result.put(columnNamesIterator.next(), parametersIterator.next());
             } else if (each instanceof LiteralExpressionSegment) {

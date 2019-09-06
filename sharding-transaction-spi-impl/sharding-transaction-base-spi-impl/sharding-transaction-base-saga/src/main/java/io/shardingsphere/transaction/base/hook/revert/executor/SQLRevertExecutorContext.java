@@ -19,9 +19,9 @@ package io.shardingsphere.transaction.base.hook.revert.executor;
 
 import lombok.Getter;
 import org.apache.shardingsphere.core.exception.ShardingException;
-import org.apache.shardingsphere.core.metadata.table.ColumnMetaData;
+import org.apache.shardingsphere.core.metadata.column.ColumnMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
-import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.sharding.statement.ShardingOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.InsertStatement;
@@ -46,7 +46,7 @@ public class SQLRevertExecutorContext implements SQLRevertContext {
     
     private String logicSQL;
     
-    private OptimizedStatement optimizedStatement;
+    private ShardingOptimizedStatement shardingStatement;
     
     private RouteUnit routeUnit;
     
@@ -64,10 +64,10 @@ public class SQLRevertExecutorContext implements SQLRevertContext {
     
     public SQLRevertExecutorContext(final String logicSQL, final SQLRouteResult sqlRouteResult, final RouteUnit routeUnit, final TableMetaData tableMetaData, final Connection connection) {
         this.logicSQL = logicSQL;
-        this.optimizedStatement = sqlRouteResult.getOptimizedStatement();
+        this.shardingStatement = sqlRouteResult.getShardingStatement();
         this.routeUnit = routeUnit;
         this.dataSourceName = routeUnit.getDataSourceName();
-        this.logicTableName = getLogicTableName(optimizedStatement.getSQLStatement());
+        this.logicTableName = getLogicTableName(shardingStatement.getSQLStatement());
         this.actualTableName = getActualTableName(sqlRouteResult.getRoutingResult().getRoutingUnits(), routeUnit);
         this.parameters = routeUnit.getSqlUnit().getParameters();
         this.primaryKeyColumns = getPrimaryKeyColumns(tableMetaData);
@@ -109,7 +109,7 @@ public class SQLRevertExecutorContext implements SQLRevertContext {
         List<String> result = new ArrayList<>();
         for (ColumnMetaData each : tableMetaData.getColumns().values()) {
             if (each.isPrimaryKey()) {
-                result.add(each.getColumnName());
+                result.add(each.getName());
             }
         }
         if (result.isEmpty()) {

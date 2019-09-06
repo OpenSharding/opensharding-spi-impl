@@ -19,8 +19,8 @@ package io.shardingsphere.transaction.base.context;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
+import org.apache.shardingsphere.core.metadata.table.TableMetas;
 import org.apache.shardingsphere.core.parse.sql.statement.SQLStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.InsertStatement;
@@ -52,11 +52,11 @@ public class LogicSQLTransaction {
     
     private final Queue<BranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
     
-    public void doInit(final SQLRouteResult sqlRouteResult, final ShardingTableMetaData shardingTableMetaData) {
+    public void doInit(final SQLRouteResult sqlRouteResult, final TableMetas tableMetas) {
         this.sqlRouteResult = sqlRouteResult;
-        logicTableName = sqlRouteResult.getOptimizedStatement().getTables().getSingleTableName();
-        sqlStatement = sqlRouteResult.getOptimizedStatement().getSQLStatement();
-        tableMetaData = shardingTableMetaData.get(logicTableName);
+        logicTableName = sqlRouteResult.getShardingStatement().getTables().getSingleTableName();
+        sqlStatement = sqlRouteResult.getShardingStatement().getSQLStatement();
+        tableMetaData = tableMetas.get(logicTableName);
     }
     
     /**

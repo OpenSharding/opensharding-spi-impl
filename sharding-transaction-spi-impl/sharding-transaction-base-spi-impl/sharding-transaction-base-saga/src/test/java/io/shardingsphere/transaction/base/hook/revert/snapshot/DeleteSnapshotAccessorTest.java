@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.base.hook.revert.snapshot;
 
 import com.google.common.base.Optional;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
-import org.apache.shardingsphere.core.optimize.api.statement.OptimizedStatement;
+import org.apache.shardingsphere.core.optimize.sharding.statement.ShardingOptimizedStatement;
 import org.apache.shardingsphere.core.parse.sql.segment.dml.predicate.WhereSegment;
 import org.apache.shardingsphere.core.parse.sql.statement.dml.DeleteStatement;
 import org.hamcrest.CoreMatchers;
@@ -58,7 +58,7 @@ public class DeleteSnapshotAccessorTest {
     private WhereSegment whereSegment;
     
     @Mock
-    private OptimizedStatement optimizedStatement;
+    private ShardingOptimizedStatement shardingOptimizedStatement;
     
     @Mock
     private Connection connection;
@@ -78,9 +78,9 @@ public class DeleteSnapshotAccessorTest {
     
     @Before
     public void setUp() throws SQLException {
-        when(executorContext.getOptimizedStatement()).thenReturn(optimizedStatement);
+        when(executorContext.getShardingStatement()).thenReturn(shardingOptimizedStatement);
         when(executorContext.getActualTableName()).thenReturn("t_order_0");
-        when(optimizedStatement.getSQLStatement()).thenReturn(deleteStatement);
+        when(shardingOptimizedStatement.getSQLStatement()).thenReturn(deleteStatement);
         when(executorContext.getLogicSQL()).thenReturn("DELETE FROM t_order WHERE order_id = ?");
         when(whereSegment.getStartIndex()).thenReturn(20);
         when(whereSegment.getStopIndex()).thenReturn(37);

@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.base.hook;
 
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
-import org.apache.shardingsphere.core.metadata.table.ShardingTableMetaData;
+import org.apache.shardingsphere.core.metadata.table.TableMetas;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.junit.After;
 import org.junit.Before;
@@ -41,7 +41,7 @@ public final class TransactionalSQLShardHookTest {
     private SQLRouteResult sqlRouteResult;
     
     @Mock
-    private ShardingTableMetaData shardingTableMetaData;
+    private TableMetas tableMetas;
     
     
     private final TransactionalSQLRoutingHook sagaSQLShardHook = new TransactionalSQLRoutingHook();
@@ -59,7 +59,7 @@ public final class TransactionalSQLShardHookTest {
     @Test
     public void assertFinishSuccess() {
         sagaSQLShardHook.start("logicSQL");
-        sagaSQLShardHook.finishSuccess(sqlRouteResult, shardingTableMetaData);
+        sagaSQLShardHook.finishSuccess(sqlRouteResult, tableMetas);
         verify(sagaTransaction).nextLogicSQLTransaction("logicSQL");
     }
     
