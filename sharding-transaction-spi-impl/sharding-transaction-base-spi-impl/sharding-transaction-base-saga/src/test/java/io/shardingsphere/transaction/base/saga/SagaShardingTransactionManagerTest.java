@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.base.saga;
 
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
-import io.shardingsphere.transaction.base.context.TransactionContextHolder;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransactionHolder;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
 import org.apache.shardingsphere.core.database.DatabaseTypes;
@@ -77,7 +77,7 @@ public class SagaShardingTransactionManagerTest {
     
     @After
     public void tearDown() {
-        TransactionContextHolder.clear();
+        ShardingSQLTransactionHolder.clear();
     }
     
     @Test
@@ -97,7 +97,7 @@ public class SagaShardingTransactionManagerTest {
     @Test
     public void assertIsInTransaction() {
         assertFalse(transactionManager.isInTransaction());
-        TransactionContextHolder.set(new ShardingSQLTransaction());
+        ShardingSQLTransactionHolder.set(new ShardingSQLTransaction());
         assertTrue(transactionManager.isInTransaction());
     }
     
@@ -107,16 +107,16 @@ public class SagaShardingTransactionManagerTest {
         dataSourceMap.put("ds1", dataSource);
         setDataSourceMap(dataSourceMap);
         when(dataSource.getConnection()).thenReturn(connection);
-        TransactionContextHolder.set(new ShardingSQLTransaction());
+        ShardingSQLTransactionHolder.set(new ShardingSQLTransaction());
         Connection actual = transactionManager.getConnection("ds1");
         assertThat(actual, is(connection));
-        assertThat(TransactionContextHolder.get().getCachedConnections().get("ds1"), is(connection));
+        assertThat(ShardingSQLTransactionHolder.get().getCachedConnections().get("ds1"), is(connection));
     }
     
     @Test
     public void assertBegin() {
         transactionManager.begin();
-        ShardingSQLTransaction expect = TransactionContextHolder.get();
+        ShardingSQLTransaction expect = ShardingSQLTransactionHolder.get();
         assertNotNull(expect);
         ShardingSQLTransaction actual = (ShardingSQLTransaction) ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
         assertThat(actual, is(expect));
@@ -126,7 +126,7 @@ public class SagaShardingTransactionManagerTest {
     public void assertCommitContainsException() {
         setSagaActuator();
         when(shardingSQLTransaction.isContainsException()).thenReturn(true);
-        TransactionContextHolder.set(shardingSQLTransaction);
+        ShardingSQLTransactionHolder.set(shardingSQLTransaction);
         transactionManager.commit();
         verify(shardingSQLTransaction).setOperationType(TransactionOperationType.COMMIT);
         verify(sagaActuator).run(anyString());
@@ -136,7 +136,7 @@ public class SagaShardingTransactionManagerTest {
     public void assertCommitWithoutException() {
         setSagaActuator();
         when(shardingSQLTransaction.isContainsException()).thenReturn(false);
-        TransactionContextHolder.set(shardingSQLTransaction);
+        ShardingSQLTransactionHolder.set(shardingSQLTransaction);
         transactionManager.commit();
         verify(shardingSQLTransaction, never()).setOperationType(TransactionOperationType.COMMIT);
         verify(sagaActuator, never()).run(anyString());
@@ -145,7 +145,7 @@ public class SagaShardingTransactionManagerTest {
     @Test
     public void assertRollback() {
         setSagaActuator();
-        TransactionContextHolder.set(shardingSQLTransaction);
+        ShardingSQLTransactionHolder.set(shardingSQLTransaction);
         transactionManager.rollback();
         verify(shardingSQLTransaction).setOperationType(TransactionOperationType.ROLLBACK);
         verify(sagaActuator).run(anyString());

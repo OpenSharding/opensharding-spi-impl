@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.saga;
 
 import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
-import io.shardingsphere.transaction.base.context.TransactionContextHolder;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransactionHolder;
 import io.shardingsphere.transaction.base.saga.actuator.SagaActuatorFactory;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
 import io.shardingsphere.transaction.base.saga.config.SagaConfiguration;
@@ -78,40 +78,40 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     
     @Override
     public boolean isInTransaction() {
-        return TransactionContextHolder.isInTransaction();
+        return ShardingSQLTransactionHolder.isInTransaction();
     }
     
     @Override
     public Connection getConnection(final String dataSourceName) throws SQLException {
         Connection result = dataSourceMap.get(dataSourceName).getConnection();
         if (isInTransaction()) {
-            TransactionContextHolder.get().getCachedConnections().put(dataSourceName, result);
+            ShardingSQLTransactionHolder.get().getCachedConnections().put(dataSourceName, result);
         }
         return result;
     }
     
     @Override
     public void begin() {
-        if (!TransactionContextHolder.isInTransaction()) {
-            TransactionContextHolder.set(new ShardingSQLTransaction());
-            ShardingExecuteDataMap.getDataMap().put(SAGA_TRANSACTION_KEY, TransactionContextHolder.get());
+        if (!ShardingSQLTransactionHolder.isInTransaction()) {
+            ShardingSQLTransactionHolder.set(new ShardingSQLTransaction());
+            ShardingExecuteDataMap.getDataMap().put(SAGA_TRANSACTION_KEY, ShardingSQLTransactionHolder.get());
         }
     }
     
     @Override
     public void commit() {
-        if (TransactionContextHolder.isInTransaction() && TransactionContextHolder.get().isContainsException()) {
-            TransactionContextHolder.get().setOperationType(TransactionOperationType.COMMIT);
-            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, TransactionContextHolder.get()).toJson());
+        if (ShardingSQLTransactionHolder.isInTransaction() && ShardingSQLTransactionHolder.get().isContainsException()) {
+            ShardingSQLTransactionHolder.get().setOperationType(TransactionOperationType.COMMIT);
+            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, ShardingSQLTransactionHolder.get()).toJson());
         }
         clearSagaTransaction();
     }
     
     @Override
     public void rollback() {
-        if (TransactionContextHolder.isInTransaction()) {
-            TransactionContextHolder.get().setOperationType(TransactionOperationType.ROLLBACK);
-            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, TransactionContextHolder.get()).toJson());
+        if (ShardingSQLTransactionHolder.isInTransaction()) {
+            ShardingSQLTransactionHolder.get().setOperationType(TransactionOperationType.ROLLBACK);
+            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, ShardingSQLTransactionHolder.get()).toJson());
         }
         clearSagaTransaction();
     }
@@ -134,6 +134,6 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     
     private void clearSagaTransaction() {
         ShardingExecuteDataMap.getDataMap().remove(SAGA_TRANSACTION_KEY);
-        TransactionContextHolder.clear();
+        ShardingSQLTransactionHolder.clear();
     }
 }

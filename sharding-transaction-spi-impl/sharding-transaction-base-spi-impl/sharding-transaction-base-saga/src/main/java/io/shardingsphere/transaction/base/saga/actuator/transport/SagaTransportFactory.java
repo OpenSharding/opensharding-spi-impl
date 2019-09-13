@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.saga.actuator.transport;
 
-import io.shardingsphere.transaction.base.context.TransactionContextHolder;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransactionHolder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.servicecomb.saga.transports.SQLTransport;
@@ -44,6 +44,6 @@ public final class SagaTransportFactory implements TransportFactory<SQLTransport
     
     @Override
     public SQLTransport getTransport() {
-        return new SagaSQLTransport(TransactionContextHolder.get());
+        return new SagaSQLTransport(ShardingSQLTransactionHolder.get());
     }
 }

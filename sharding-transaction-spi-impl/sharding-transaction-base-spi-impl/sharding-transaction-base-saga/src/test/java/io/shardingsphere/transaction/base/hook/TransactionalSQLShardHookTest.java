@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.hook;
 
 import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
-import io.shardingsphere.transaction.base.context.TransactionContextHolder;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransactionHolder;
 import org.apache.shardingsphere.core.metadata.table.TableMetas;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.junit.After;
@@ -48,12 +48,12 @@ public final class TransactionalSQLShardHookTest {
     
     @Before
     public void setUp() {
-        TransactionContextHolder.set(sagaTransaction);
+        ShardingSQLTransactionHolder.set(sagaTransaction);
     }
     
     @After
     public void tearDown() {
-        TransactionContextHolder.clear();
+        ShardingSQLTransactionHolder.clear();
     }
     
     @Test

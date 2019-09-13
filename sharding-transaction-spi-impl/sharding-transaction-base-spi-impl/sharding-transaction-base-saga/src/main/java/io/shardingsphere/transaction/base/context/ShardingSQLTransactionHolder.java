@@ -18,13 +18,13 @@
 package io.shardingsphere.transaction.base.context;
 
 /**
- * Transaction context holder.
+ * Sharding SQL transaction holder.
  *
  * @author zhaojun
  */
-public class TransactionContextHolder {
+public class ShardingSQLTransactionHolder {
     
-    private static final ThreadLocal<ShardingSQLTransaction> TRANSACTION_CONTEXT = new ThreadLocal<>();
+    private static final ThreadLocal<ShardingSQLTransaction> CURRENT_TRANSACTION = new ThreadLocal<>();
     
     /**
      * Get sharding SQL transaction of current thread.
@@ -32,7 +32,7 @@ public class TransactionContextHolder {
      * @return transaction context
      */
     public static ShardingSQLTransaction get() {
-        return TRANSACTION_CONTEXT.get();
+        return CURRENT_TRANSACTION.get();
     }
     
     /**
@@ -41,14 +41,14 @@ public class TransactionContextHolder {
      * @param shardingSQLTransaction sharding SQL transaction
      */
     public static void set(final ShardingSQLTransaction shardingSQLTransaction) {
-        TRANSACTION_CONTEXT.set(shardingSQLTransaction);
+        CURRENT_TRANSACTION.set(shardingSQLTransaction);
     }
     
     /**
      * Clear sharding SQL transaction.
      */
     public static void clear() {
-        TRANSACTION_CONTEXT.remove();
+        CURRENT_TRANSACTION.remove();
     }
     
     /**
