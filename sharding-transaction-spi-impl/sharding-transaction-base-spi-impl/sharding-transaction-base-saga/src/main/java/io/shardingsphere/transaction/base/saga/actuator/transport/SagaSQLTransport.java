@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.SQLTransaction;
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
 import org.apache.servicecomb.saga.core.SuccessfulSagaResponse;
@@ -45,7 +45,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public final class SagaSQLTransport implements SQLTransport {
     
-    private final TransactionContext transactionContext;
+    private final ShardingSQLTransaction shardingSQLTransaction;
     
     @Override
     public SagaResponse with(final String datasourceName, final String sql, final List<List<String>> sagaParameters) {
@@ -53,16 +53,16 @@ public final class SagaSQLTransport implements SQLTransport {
             return new SuccessfulSagaResponse("Skip empty transaction/compensation");
         }
         if (SagaDefinitionFactory.ROLLBACK_TAG.equals(sql)) {
-            transactionContext.changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
+            shardingSQLTransaction.changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
-        Optional<SQLTransaction> sqlTransaction = transactionContext.findSQLTransaction(datasourceName, sql, sagaParameters);
+        Optional<SQLTransaction> sqlTransaction = shardingSQLTransaction.findSQLTransaction(datasourceName, sql, sagaParameters);
         return sqlTransaction.isPresent() && isExecuteSQL(sqlTransaction.get().getExecuteStatus()) ? executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
     }
     
     private boolean isExecuteSQL(final ExecuteStatus executeStatus) {
         return ExecuteStatus.COMPENSATING.equals(executeStatus) ||
-            (TransactionOperationType.COMMIT.equals(transactionContext.getOperationType()) && ExecuteStatus.FAILURE.equals(executeStatus));
+            (TransactionOperationType.COMMIT.equals(shardingSQLTransaction.getOperationType()) && ExecuteStatus.FAILURE.equals(executeStatus));
     }
     
     private SagaResponse executeSQL(final String datasourceName, final String sql, final List<List<String>> sagaParameters) {
@@ -81,7 +81,7 @@ public final class SagaSQLTransport implements SQLTransport {
     
     private Connection getConnection(final String datasourceName) {
         try {
-            Connection result = transactionContext.getCachedConnections().get(datasourceName);
+            Connection result = shardingSQLTransaction.getCachedConnections().get(datasourceName);
             if (!result.getAutoCommit()) {
                 result.setAutoCommit(true);
             }

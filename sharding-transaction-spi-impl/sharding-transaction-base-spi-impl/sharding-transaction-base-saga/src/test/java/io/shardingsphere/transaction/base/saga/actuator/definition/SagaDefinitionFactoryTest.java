@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.base.saga.actuator.definition;
 
 import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.saga.config.SagaConfiguration;
 import org.apache.servicecomb.saga.core.RecoveryPolicy;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SagaDefinitionFactoryTest {
     
-    private TransactionContext transactionContext = new TransactionContext();
+    private ShardingSQLTransaction shardingSQLTransaction = new ShardingSQLTransaction();
     
     private SagaConfiguration sagaConfiguration = new SagaConfiguration();
     
@@ -54,8 +54,8 @@ public class SagaDefinitionFactoryTest {
     
     @Test
     public void assertNewInstanceOfBackwardRecovery() {
-        transactionContext.getLogicSQLTransactions().addAll(mockLogicSQLTransactions(3, 2));
-        SagaDefinition actual = SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, transactionContext);
+        shardingSQLTransaction.getLogicSQLTransactions().addAll(mockLogicSQLTransactions(3, 2));
+        SagaDefinition actual = SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, shardingSQLTransaction);
         assertThat(actual.getPolicy(), is(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY));
         assertThat(actual.getRequests().size(), is(7));
         int i = 0;
@@ -88,8 +88,8 @@ public class SagaDefinitionFactoryTest {
     
     @Test
     public void assertNewInstanceOfForwardRecovery() {
-        transactionContext.getLogicSQLTransactions().addAll(mockLogicSQLTransactions(2, 4));
-        SagaDefinition actual = SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, transactionContext);
+        shardingSQLTransaction.getLogicSQLTransactions().addAll(mockLogicSQLTransactions(2, 4));
+        SagaDefinition actual = SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, shardingSQLTransaction);
         assertThat(actual.getPolicy(), is(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY));
         assertThat(actual.getRequests().size(), is(8));
         for (SagaRequest each : actual.getRequests()) {

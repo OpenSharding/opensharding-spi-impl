@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.base.hook;
 import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.hook.revert.utils.MockTestUtil;
 import io.shardingsphere.transaction.base.saga.SagaShardingTransactionManager;
 import lombok.SneakyThrows;
@@ -54,7 +54,7 @@ import static org.mockito.Mockito.when;
 public class SQLTransactionExecutionHookTest {
     
     @Mock
-    private TransactionContext transactionContext;
+    private ShardingSQLTransaction shardingSQLTransaction;
     
     @Mock
     private DataSourceMetaData dataSourceMetaData;
@@ -74,7 +74,7 @@ public class SQLTransactionExecutionHookTest {
     
     @Before
     public void setUp() {
-        when(transactionContext.getCurrentLogicSQLTransaction()).thenReturn(logicSQLTransaction);
+        when(shardingSQLTransaction.getCurrentLogicSQLTransaction()).thenReturn(logicSQLTransaction);
         TableMetaData tableMetaData = MockTestUtil.mockTableMetaData("c1", "c2");
         MockTestUtil.addPrimaryKeyColumn(tableMetaData, "pk1");
         when(logicSQLTransaction.getTableMetaData()).thenReturn(tableMetaData);
@@ -83,27 +83,27 @@ public class SQLTransactionExecutionHookTest {
     @Test
     public void assertStartWithinTransaction() throws SQLException {
         when(logicSQLTransaction.isWritableTransaction()).thenReturn(true);
-        shardingExecuteDataMap.put(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY, transactionContext);
+        shardingExecuteDataMap.put(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY, shardingSQLTransaction);
         cachedConnections.put("ds", MockTestUtil.mockConnection());
-        when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
+        when(shardingSQLTransaction.getCachedConnections()).thenReturn(cachedConnections);
         SQLStatement sqlStatement = MockTestUtil.mockDeleteStatement("t_order");
         ShardingOptimizedStatement optimizedStatement = new ShardingTransparentOptimizedStatement(sqlStatement);
         when(logicSQLTransaction.getSqlRouteResult()).thenReturn(MockTestUtil.mockSQLRouteResult(optimizedStatement, "ds", "t_order", "t_order_0"));
         RouteUnit routeUnit = MockTestUtil.mockRouteUnit("ds", "delete from t_order_0 where c1=? and c2=? and c3=?", Arrays.<Object>asList(1, 2, 3));
         sqlExecutionHook.start(routeUnit, dataSourceMetaData, true, shardingExecuteDataMap);
-        verify(transactionContext).addSQLTransaction(any(SQLTransaction.class));
+        verify(shardingSQLTransaction).addSQLTransaction(any(SQLTransaction.class));
     }
     
     @Test
     public void assertStartWithoutTransaction() {
         sqlExecutionHook.start(mock(RouteUnit.class), dataSourceMetaData, true, shardingExecuteDataMap);
-        verify(transactionContext, never()).addSQLTransaction(any(SQLTransaction.class));
+        verify(shardingSQLTransaction, never()).addSQLTransaction(any(SQLTransaction.class));
     }
     
     @Test
     public void assertStartIsNotDMLLogicSQL() {
         sqlExecutionHook.start(mock(RouteUnit.class), dataSourceMetaData, true, shardingExecuteDataMap);
-        verify(transactionContext, never()).addSQLTransaction(any(SQLTransaction.class));
+        verify(shardingSQLTransaction, never()).addSQLTransaction(any(SQLTransaction.class));
     }
     
     @Test

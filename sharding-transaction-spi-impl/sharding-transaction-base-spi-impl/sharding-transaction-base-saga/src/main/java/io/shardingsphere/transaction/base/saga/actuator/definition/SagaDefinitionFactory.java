@@ -20,7 +20,7 @@ package io.shardingsphere.transaction.base.saga.actuator.definition;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.saga.config.SagaConfiguration;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -46,13 +46,13 @@ public final class SagaDefinitionFactory {
      *
      * @param recoveryPolicy recovery policy
      * @param configuration configuration
-     * @param transactionContext transaction context
+     * @param shardingSQLTransaction sharding SQL transaction
      * @return saga definition
      */
-    public static SagaDefinition newInstance(final String recoveryPolicy, final SagaConfiguration configuration, final TransactionContext transactionContext) {
+    public static SagaDefinition newInstance(final String recoveryPolicy, final SagaConfiguration configuration, final ShardingSQLTransaction shardingSQLTransaction) {
         Collection<SagaRequest> sagaRequests = new LinkedList<>();
         Collection<String> requestIds = new LinkedList<>();
-        for (LogicSQLTransaction each : transactionContext.getLogicSQLTransactions()) {
+        for (LogicSQLTransaction each : shardingSQLTransaction.getLogicSQLTransactions()) {
             requestIds = addLogicSQLTransactionRequest(new LinkedList<>(requestIds), sagaRequests, each, configuration);
         }
         if (RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY.equals(recoveryPolicy)) {

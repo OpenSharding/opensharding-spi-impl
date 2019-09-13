@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.hook;
 
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import org.apache.shardingsphere.core.metadata.table.TableMetas;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 public final class TransactionalSQLShardHookTest {
     
     @Mock
-    private TransactionContext sagaTransaction;
+    private ShardingSQLTransaction sagaTransaction;
     
     @Mock
     private SQLRouteResult sqlRouteResult;

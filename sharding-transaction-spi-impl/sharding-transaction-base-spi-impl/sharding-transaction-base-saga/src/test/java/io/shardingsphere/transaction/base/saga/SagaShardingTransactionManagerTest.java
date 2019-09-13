@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.saga;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import lombok.SneakyThrows;
 import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
@@ -63,7 +63,7 @@ public class SagaShardingTransactionManagerTest {
     private Connection connection;
     
     @Mock
-    private TransactionContext transactionContext;
+    private ShardingSQLTransaction shardingSQLTransaction;
     
     @Mock
     private SagaExecutionComponent sagaActuator;
@@ -97,7 +97,7 @@ public class SagaShardingTransactionManagerTest {
     @Test
     public void assertIsInTransaction() {
         assertFalse(transactionManager.isInTransaction());
-        TransactionContextHolder.set(new TransactionContext());
+        TransactionContextHolder.set(new ShardingSQLTransaction());
         assertTrue(transactionManager.isInTransaction());
     }
     
@@ -107,7 +107,7 @@ public class SagaShardingTransactionManagerTest {
         dataSourceMap.put("ds1", dataSource);
         setDataSourceMap(dataSourceMap);
         when(dataSource.getConnection()).thenReturn(connection);
-        TransactionContextHolder.set(new TransactionContext());
+        TransactionContextHolder.set(new ShardingSQLTransaction());
         Connection actual = transactionManager.getConnection("ds1");
         assertThat(actual, is(connection));
         assertThat(TransactionContextHolder.get().getCachedConnections().get("ds1"), is(connection));
@@ -116,38 +116,38 @@ public class SagaShardingTransactionManagerTest {
     @Test
     public void assertBegin() {
         transactionManager.begin();
-        TransactionContext expect = TransactionContextHolder.get();
+        ShardingSQLTransaction expect = TransactionContextHolder.get();
         assertNotNull(expect);
-        TransactionContext actual = (TransactionContext) ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
+        ShardingSQLTransaction actual = (ShardingSQLTransaction) ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
         assertThat(actual, is(expect));
     }
     
     @Test
     public void assertCommitContainsException() {
         setSagaActuator();
-        when(transactionContext.isContainsException()).thenReturn(true);
-        TransactionContextHolder.set(transactionContext);
+        when(shardingSQLTransaction.isContainsException()).thenReturn(true);
+        TransactionContextHolder.set(shardingSQLTransaction);
         transactionManager.commit();
-        verify(transactionContext).setOperationType(TransactionOperationType.COMMIT);
+        verify(shardingSQLTransaction).setOperationType(TransactionOperationType.COMMIT);
         verify(sagaActuator).run(anyString());
     }
     
     @Test
     public void assertCommitWithoutException() {
         setSagaActuator();
-        when(transactionContext.isContainsException()).thenReturn(false);
-        TransactionContextHolder.set(transactionContext);
+        when(shardingSQLTransaction.isContainsException()).thenReturn(false);
+        TransactionContextHolder.set(shardingSQLTransaction);
         transactionManager.commit();
-        verify(transactionContext, never()).setOperationType(TransactionOperationType.COMMIT);
+        verify(shardingSQLTransaction, never()).setOperationType(TransactionOperationType.COMMIT);
         verify(sagaActuator, never()).run(anyString());
     }
     
     @Test
     public void assertRollback() {
         setSagaActuator();
-        TransactionContextHolder.set(transactionContext);
+        TransactionContextHolder.set(shardingSQLTransaction);
         transactionManager.rollback();
-        verify(transactionContext).setOperationType(TransactionOperationType.ROLLBACK);
+        verify(shardingSQLTransaction).setOperationType(TransactionOperationType.ROLLBACK);
         verify(sagaActuator).run(anyString());
     }
     

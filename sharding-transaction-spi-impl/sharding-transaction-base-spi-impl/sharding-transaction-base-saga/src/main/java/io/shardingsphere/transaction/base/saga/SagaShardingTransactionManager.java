@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.saga;
 
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContextHolder;
 import io.shardingsphere.transaction.base.saga.actuator.SagaActuatorFactory;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
@@ -93,7 +93,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void begin() {
         if (!TransactionContextHolder.isInTransaction()) {
-            TransactionContextHolder.set(new TransactionContext());
+            TransactionContextHolder.set(new ShardingSQLTransaction());
             ShardingExecuteDataMap.getDataMap().put(SAGA_TRANSACTION_KEY, TransactionContextHolder.get());
         }
     }

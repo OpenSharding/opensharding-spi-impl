@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
 import org.apache.servicecomb.saga.core.TransportFailedException;
 import org.apache.shardingsphere.transaction.core.TransactionOperationType;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 public class SagaSQLTransportTest {
     
     @Mock
-    private TransactionContext transactionContext;
+    private ShardingSQLTransaction shardingSQLTransaction;
     
     @Mock
     private SQLTransaction sqlTransaction;
@@ -66,8 +66,8 @@ public class SagaSQLTransportTest {
     
     @Before
     public void setUp() throws SQLException {
-        sagaSQLTransport = new SagaSQLTransport(transactionContext);
-        when(transactionContext.getCachedConnections()).thenReturn(cachedConnections);
+        sagaSQLTransport = new SagaSQLTransport(shardingSQLTransaction);
+        when(shardingSQLTransaction.getCachedConnections()).thenReturn(cachedConnections);
         cachedConnections.put("ds1", connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
     }
@@ -77,22 +77,22 @@ public class SagaSQLTransportTest {
         try {
             sagaSQLTransport.with("ds1", SagaDefinitionFactory.ROLLBACK_TAG, Lists.<List<String>>newLinkedList());
         } catch (final TransportFailedException ex) {
-            verify(transactionContext).changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
+            verify(shardingSQLTransaction).changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
             throw ex;
         }
     }
     
     @Test
     public void assertWithBranchTransactionNotPresent() {
-        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.<SQLTransaction>absent());
+        when(shardingSQLTransaction.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.<SQLTransaction>absent());
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
-        verify(transactionContext).findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList());
+        verify(shardingSQLTransaction).findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList());
     }
     
     @Test
     public void assertWithExecuteStatusSuccess() throws SQLException {
         when(sqlTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.SUCCESS);
-        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
+        when(shardingSQLTransaction.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
         verify(connection, never()).prepareStatement("xxx");
     }
@@ -100,8 +100,8 @@ public class SagaSQLTransportTest {
     @Test
     public void assertWithExecuteStatusFailedOfRollback() throws SQLException {
         when(sqlTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.FAILURE);
-        when(transactionContext.getOperationType()).thenReturn(TransactionOperationType.ROLLBACK);
-        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
+        when(shardingSQLTransaction.getOperationType()).thenReturn(TransactionOperationType.ROLLBACK);
+        when(shardingSQLTransaction.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
         verify(connection, never()).prepareStatement("xxx");
     }
@@ -109,7 +109,7 @@ public class SagaSQLTransportTest {
     @Test
     public void assertWithExecuteSQL() throws SQLException {
         when(sqlTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.COMPENSATING);
-        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
+        when(shardingSQLTransaction.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
         verify(connection).prepareStatement("xxx");
         verify(preparedStatement).executeUpdate();
@@ -118,7 +118,7 @@ public class SagaSQLTransportTest {
     @Test
     public void assertWithExecuteBatchSQL() throws SQLException {
         when(sqlTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.COMPENSATING);
-        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
+        when(shardingSQLTransaction.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
         List<List<String>> parameters = Lists.newLinkedList();
         parameters.add(Arrays.asList("1", "2", "3"));
         sagaSQLTransport.with("ds1", "xxx", parameters);

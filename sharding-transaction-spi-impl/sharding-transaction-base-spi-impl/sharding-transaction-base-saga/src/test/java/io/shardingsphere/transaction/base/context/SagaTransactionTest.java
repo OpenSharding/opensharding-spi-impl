@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public final class SagaTransactionTest {
     
-    private TransactionContext sagaTransaction;
+    private ShardingSQLTransaction sagaTransaction;
 
     @Mock
     private ShardingOptimizedStatement optimizedStatement;
@@ -59,7 +59,7 @@ public final class SagaTransactionTest {
     
     @Before
     public void setUp() {
-        sagaTransaction = new TransactionContext();
+        sagaTransaction = new ShardingSQLTransaction();
         when(sqlRouteResult.getShardingStatement()).thenReturn(optimizedStatement);
         when(optimizedStatement.getSQLStatement()).thenReturn(sqlStatement);
         when(optimizedStatement.getTables()).thenReturn(tables);

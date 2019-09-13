@@ -24,28 +24,28 @@ package io.shardingsphere.transaction.base.context;
  */
 public class TransactionContextHolder {
     
-    private static final ThreadLocal<TransactionContext> TRANSACTION_CONTEXT = new ThreadLocal<>();
+    private static final ThreadLocal<ShardingSQLTransaction> TRANSACTION_CONTEXT = new ThreadLocal<>();
     
     /**
-     * Get transaction context of current thread.
+     * Get sharding SQL transaction of current thread.
      *
      * @return transaction context
      */
-    public static TransactionContext get() {
+    public static ShardingSQLTransaction get() {
         return TRANSACTION_CONTEXT.get();
     }
     
     /**
-     * Set transaction context.
+     * Set sharding sQL transaction.
      *
-     * @param transactionContext transaction context
+     * @param shardingSQLTransaction sharding SQL transaction
      */
-    public static void set(final TransactionContext transactionContext) {
-        TRANSACTION_CONTEXT.set(transactionContext);
+    public static void set(final ShardingSQLTransaction shardingSQLTransaction) {
+        TRANSACTION_CONTEXT.set(shardingSQLTransaction);
     }
     
     /**
-     * Clear transaction context.
+     * Clear sharding SQL transaction.
      */
     public static void clear() {
         TRANSACTION_CONTEXT.remove();

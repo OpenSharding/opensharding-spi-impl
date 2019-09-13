@@ -35,14 +35,14 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Transaction context.
+ * Sharding SQL transaction.
  *
  * @author yangyi
  * @author zhaojun
  */
 @RequiredArgsConstructor
 @Getter
-public final class TransactionContext {
+public final class ShardingSQLTransaction {
     
     private final String id = UUID.randomUUID().toString();
     
@@ -116,11 +116,11 @@ public final class TransactionContext {
      */
     public void changeAllLogicTransactionStatus(final ExecuteStatus executeStatus) {
         for (LogicSQLTransaction each : logicSQLTransactions) {
-            changeAllBranchTransactionStatus(each, executeStatus);
+            changeLogicSQLTransactionStatus(each, executeStatus);
         }
     }
     
-    private void changeAllBranchTransactionStatus(final LogicSQLTransaction logicSQLTransaction, final ExecuteStatus executeStatus) {
+    private void changeLogicSQLTransactionStatus(final LogicSQLTransaction logicSQLTransaction, final ExecuteStatus executeStatus) {
         for (SQLTransaction each : logicSQLTransaction.getSqlTransactions()) {
             each.setExecuteStatus(executeStatus);
         }
@@ -137,7 +137,7 @@ public final class TransactionContext {
     public Optional<SQLTransaction> findSQLTransaction(final String dataSourceName, final String sql, final List<List<String>> sagaParameters) {
         Optional<SQLTransaction> result = Optional.absent();
         for (LogicSQLTransaction each : logicSQLTransactions) {
-            result = doFindBranchTransaction(each, dataSourceName, sql, sagaParameters);
+            result = doFindSQLTransaction(each, dataSourceName, sql, sagaParameters);
             if (result.isPresent()) {
                 return result;
             }
@@ -145,8 +145,8 @@ public final class TransactionContext {
         return result;
     }
     
-    private Optional<SQLTransaction> doFindBranchTransaction(final LogicSQLTransaction logicSQLTransaction, final String dataSourceName,
-                                                             final String sql, final List<List<String>> sagaParameters) {
+    private Optional<SQLTransaction> doFindSQLTransaction(final LogicSQLTransaction logicSQLTransaction, final String dataSourceName,
+                                                          final String sql, final List<List<String>> sagaParameters) {
         for (SQLTransaction each : logicSQLTransaction.getSqlTransactions()) {
             if (dataSourceName.equals(each.getDataSourceName())) {
                 if (ExecuteStatus.COMPENSATING.equals(each.getExecuteStatus()) && sql.equals(each.getRevertSQLResult().getSql())

@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
-import io.shardingsphere.transaction.base.context.TransactionContext;
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.hook.revert.DMLSQLRevertEngine;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
@@ -46,7 +46,7 @@ import java.util.Map;
  */
 public final class SQLTransactionExecutionHook implements SQLExecutionHook {
     
-    private TransactionContext transactionContext;
+    private ShardingSQLTransaction shardingSQLTransaction;
     
     private SQLTransaction sqlTransaction;
     
@@ -55,13 +55,13 @@ public final class SQLTransactionExecutionHook implements SQLExecutionHook {
         if (!shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY)) {
             return;
         }
-        transactionContext = (TransactionContext) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
-        if (!transactionContext.getCurrentLogicSQLTransaction().isWritableTransaction()) {
+        shardingSQLTransaction = (ShardingSQLTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
+        if (!shardingSQLTransaction.getCurrentLogicSQLTransaction().isWritableTransaction()) {
             return;
         }
         sqlTransaction = new SQLTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
-        sqlTransaction.setRevertSQLResult(doSQLRevert(transactionContext.getCurrentLogicSQLTransaction(), routeUnit).orNull());
-        transactionContext.addSQLTransaction(sqlTransaction);
+        sqlTransaction.setRevertSQLResult(doSQLRevert(shardingSQLTransaction.getCurrentLogicSQLTransaction(), routeUnit).orNull());
+        shardingSQLTransaction.addSQLTransaction(sqlTransaction);
     }
     
     @Override
@@ -84,7 +84,7 @@ public final class SQLTransactionExecutionHook implements SQLExecutionHook {
     }
     
     private SQLRevertExecutorContext getSqlRevertExecutorContext(LogicSQLTransaction logicSQLTransaction, RouteUnit routeUnit) {
-        Connection connection = transactionContext.getCachedConnections().get(routeUnit.getDataSourceName());
+        Connection connection = shardingSQLTransaction.getCachedConnections().get(routeUnit.getDataSourceName());
         return new SQLRevertExecutorContext(logicSQLTransaction.getLogicSQL(), logicSQLTransaction.getSqlRouteResult(), routeUnit, logicSQLTransaction.getTableMetaData(), connection);
     }
     
