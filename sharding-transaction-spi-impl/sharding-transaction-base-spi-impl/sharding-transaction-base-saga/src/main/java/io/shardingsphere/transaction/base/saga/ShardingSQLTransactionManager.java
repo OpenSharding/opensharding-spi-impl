@@ -18,22 +18,36 @@
 package io.shardingsphere.transaction.base.saga;
 
 import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Sharding SQL transaction manager.
  *
  * @author zhaojun
  */
-public class ShardingSQLTransactionManager {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ShardingSQLTransactionManager {
+    
+    private static final ShardingSQLTransactionManager INSTANCE = new ShardingSQLTransactionManager();
     
     private static final ThreadLocal<ShardingSQLTransaction> CURRENT_TRANSACTION = new ThreadLocal<>();
+    
+    /**
+     * Get instance of Sharding SQL transaction manager.
+     *
+     * @return Sharding SQL transaction manager
+     */
+    public static ShardingSQLTransactionManager getInstance() {
+        return INSTANCE;
+    }
     
     /**
      * Get current sharding SQL transaction.
      *
      * @return transaction context
      */
-    public static ShardingSQLTransaction getCurrentTransaction() {
+    public ShardingSQLTransaction getCurrentTransaction() {
         return CURRENT_TRANSACTION.get();
     }
     
@@ -42,7 +56,7 @@ public class ShardingSQLTransactionManager {
      *
      * @param shardingSQLTransaction sharding SQL transaction
      */
-    public static void set(final ShardingSQLTransaction shardingSQLTransaction) {
+    public void set(final ShardingSQLTransaction shardingSQLTransaction) {
         CURRENT_TRANSACTION.set(shardingSQLTransaction);
     }
     
@@ -58,7 +72,7 @@ public class ShardingSQLTransactionManager {
      *
      * @return true or false
      */
-    public static boolean isInTransaction() {
+    public boolean isInTransaction() {
         return null != getCurrentTransaction();
     }
 }

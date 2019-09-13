@@ -29,17 +29,19 @@ import org.apache.shardingsphere.core.route.hook.RoutingHook;
  */
 public final class TransactionalSQLRoutingHook implements RoutingHook {
     
+    private final ShardingSQLTransactionManager shardingSQLTransactionManager = ShardingSQLTransactionManager.getInstance();
+    
     @Override
     public void start(final String sql) {
-        if (ShardingSQLTransactionManager.isInTransaction()) {
-            ShardingSQLTransactionManager.getCurrentTransaction().nextLogicSQLTransaction(sql);
+        if (shardingSQLTransactionManager.isInTransaction()) {
+            shardingSQLTransactionManager.getCurrentTransaction().nextLogicSQLTransaction(sql);
         }
     }
     
     @Override
     public void finishSuccess(final SQLRouteResult sqlRouteResult, final TableMetas tableMetas) {
-        if (ShardingSQLTransactionManager.isInTransaction()) {
-            ShardingSQLTransactionManager.getCurrentTransaction().initLogicSQLTransaction(sqlRouteResult, tableMetas);
+        if (shardingSQLTransactionManager.isInTransaction()) {
+            shardingSQLTransactionManager.getCurrentTransaction().initLogicSQLTransaction(sqlRouteResult, tableMetas);
         }
     }
     
