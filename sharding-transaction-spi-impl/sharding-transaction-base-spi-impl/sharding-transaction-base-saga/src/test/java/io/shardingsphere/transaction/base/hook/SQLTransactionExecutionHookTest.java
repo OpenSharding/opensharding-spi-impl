@@ -22,7 +22,7 @@ import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.hook.revert.utils.MockTestUtil;
-import io.shardingsphere.transaction.base.saga.SagaShardingTransactionManager;
+import io.shardingsphere.transaction.base.SagaShardingTransactionManager;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.core.metadata.table.TableMetaData;
 import org.apache.shardingsphere.core.optimize.sharding.statement.ShardingOptimizedStatement;

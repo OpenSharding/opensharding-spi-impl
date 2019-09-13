@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.hook;
 
-import io.shardingsphere.transaction.base.context.ShardingSQLTransactionHolder;
+import io.shardingsphere.transaction.base.saga.ShardingSQLTransactionManager;
 import org.apache.shardingsphere.core.metadata.table.TableMetas;
 import org.apache.shardingsphere.core.route.SQLRouteResult;
 import org.apache.shardingsphere.core.route.hook.RoutingHook;
@@ -31,15 +31,15 @@ public final class TransactionalSQLRoutingHook implements RoutingHook {
     
     @Override
     public void start(final String sql) {
-        if (ShardingSQLTransactionHolder.isInTransaction()) {
-            ShardingSQLTransactionHolder.get().nextLogicSQLTransaction(sql);
+        if (ShardingSQLTransactionManager.isInTransaction()) {
+            ShardingSQLTransactionManager.get().nextLogicSQLTransaction(sql);
         }
     }
     
     @Override
     public void finishSuccess(final SQLRouteResult sqlRouteResult, final TableMetas tableMetas) {
-        if (ShardingSQLTransactionHolder.isInTransaction()) {
-            ShardingSQLTransactionHolder.get().initLogicSQLTransaction(sqlRouteResult, tableMetas);
+        if (ShardingSQLTransactionManager.isInTransaction()) {
+            ShardingSQLTransactionManager.get().initLogicSQLTransaction(sqlRouteResult, tableMetas);
         }
     }
     

@@ -15,14 +15,16 @@
  * limitations under the License.
  */
 
-package io.shardingsphere.transaction.base.context;
+package io.shardingsphere.transaction.base.saga;
+
+import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 
 /**
- * Sharding SQL transaction holder.
+ * Sharding SQL transaction manager.
  *
  * @author zhaojun
  */
-public class ShardingSQLTransactionHolder {
+public class ShardingSQLTransactionManager {
     
     private static final ThreadLocal<ShardingSQLTransaction> CURRENT_TRANSACTION = new ThreadLocal<>();
     
