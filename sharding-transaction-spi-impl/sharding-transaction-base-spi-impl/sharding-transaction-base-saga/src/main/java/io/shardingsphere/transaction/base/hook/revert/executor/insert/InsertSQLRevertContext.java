@@ -58,17 +58,17 @@ public final class InsertSQLRevertContext implements SQLRevertContext {
     
     private void loadPrimaryKeyInsertValues(final String dataSourceName, final String actualTableName, final List<String> primaryKeys, final ShardingInsertOptimizedStatement insertOptimizedStatement) {
         Preconditions.checkNotNull(insertOptimizedStatement, "Could not found insert optimized statement. datasourceName:%s, actualTable:%s", dataSourceName, actualTableName);
-        for (Map<String, Object> each : getRoutedInsertValues(insertOptimizedStatement.getInsertValues(), new DataNode(dataSourceName, actualTableName))) {
+        for (Map<String, Object> each : getRoutedInsertValues(insertOptimizedStatement, new DataNode(dataSourceName, actualTableName))) {
             addPrimaryKeyColumnValues(each, primaryKeys);
         }
     }
     
-    private List<Map<String, Object>> getRoutedInsertValues(final List<InsertValue> insertValues, final DataNode dataNode) {
+    private List<Map<String, Object>> getRoutedInsertValues(final ShardingInsertOptimizedStatement insertOptimizedStatement, final DataNode dataNode) {
         List<Map<String, Object>> result = new LinkedList<>();
-        for (InsertValue each : insertValues) {
+        for (InsertValue each : insertOptimizedStatement.getInsertValues()) {
             // TODO could not handle sharding-master-slave datasource.
             if (isRoutedDataNode(each.getDataNodes(), dataNode)) {
-                result.add(getInsertValueMap(each));
+                result.add(getInsertValueMap(each, insertOptimizedStatement.getColumnNames()));
             }
         }
         return result;
@@ -83,9 +83,9 @@ public final class InsertSQLRevertContext implements SQLRevertContext {
         return false;
     }
     
-    private Map<String, Object> getInsertValueMap(final InsertValue insertValue) {
-        Map<String, Object> result = new HashMap<>(insertValue.getColumnNames().size(), 1);
-        Iterator<String> columnNamesIterator = insertValue.getColumnNames().iterator();
+    private Map<String, Object> getInsertValueMap(final InsertValue insertValue, final List<String> columnNames) {
+        Map<String, Object> result = new HashMap<>(columnNames.size(), 1);
+        Iterator<String> columnNamesIterator = columnNames.iterator();
         Iterator<Object> parametersIterator = insertValue.getParameters().iterator();
         for (ExpressionSegment each : insertValue.getValueExpressions()) {
             if (each instanceof ParameterMarkerExpressionSegment) {

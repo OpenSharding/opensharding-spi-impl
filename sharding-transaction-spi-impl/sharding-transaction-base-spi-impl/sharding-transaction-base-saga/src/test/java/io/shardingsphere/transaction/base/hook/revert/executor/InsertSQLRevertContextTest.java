@@ -60,13 +60,14 @@ public class InsertSQLRevertContextTest {
         dataSourceName = "ds_0";
         tableName = "t_order_0";
         shard = 10;
+        when(shardingInsertOptimizedStatement.getColumnNames()).thenReturn(mockColumnNames("order_id", "user_id", "status"));
         when(shardingInsertOptimizedStatement.getInsertValues()).thenReturn(mockInsertOptimizeResult("order_id", "user_id", "status"));
     }
     
     private List<InsertValue> mockInsertOptimizeResult(final String... columnNames) {
         List<InsertValue> result = new LinkedList<>();
         for (int i = 1; i <= shard; i++) {
-            InsertValue unit = new InsertValue(mockColumnNames(columnNames), mockExpressionSegment(columnNames.length), 0, mockParameters(columnNames.length), 0);
+            InsertValue unit = new InsertValue(mockExpressionSegment(columnNames.length), 0, mockParameters(columnNames.length), 0);
             unit.getDataNodes().add(new DataNode(dataSourceName, tableName));
             result.add(unit);
         }
