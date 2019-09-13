@@ -110,13 +110,13 @@ public class SagaShardingTransactionManagerTest {
         ShardingSQLTransactionManager.set(new ShardingSQLTransaction());
         Connection actual = transactionManager.getConnection("ds1");
         assertThat(actual, is(connection));
-        assertThat(ShardingSQLTransactionManager.get().getCachedConnections().get("ds1"), is(connection));
+        assertThat(ShardingSQLTransactionManager.getCurrentTransaction().getCachedConnections().get("ds1"), is(connection));
     }
     
     @Test
     public void assertBegin() {
         transactionManager.begin();
-        ShardingSQLTransaction expect = ShardingSQLTransactionManager.get();
+        ShardingSQLTransaction expect = ShardingSQLTransactionManager.getCurrentTransaction();
         assertNotNull(expect);
         ShardingSQLTransaction actual = (ShardingSQLTransaction) ShardingExecuteDataMap.getDataMap().get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
         assertThat(actual, is(expect));

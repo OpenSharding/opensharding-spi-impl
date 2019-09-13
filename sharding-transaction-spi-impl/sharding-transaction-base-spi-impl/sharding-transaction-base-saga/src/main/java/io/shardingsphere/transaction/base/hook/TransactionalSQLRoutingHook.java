@@ -32,14 +32,14 @@ public final class TransactionalSQLRoutingHook implements RoutingHook {
     @Override
     public void start(final String sql) {
         if (ShardingSQLTransactionManager.isInTransaction()) {
-            ShardingSQLTransactionManager.get().nextLogicSQLTransaction(sql);
+            ShardingSQLTransactionManager.getCurrentTransaction().nextLogicSQLTransaction(sql);
         }
     }
     
     @Override
     public void finishSuccess(final SQLRouteResult sqlRouteResult, final TableMetas tableMetas) {
         if (ShardingSQLTransactionManager.isInTransaction()) {
-            ShardingSQLTransactionManager.get().initLogicSQLTransaction(sqlRouteResult, tableMetas);
+            ShardingSQLTransactionManager.getCurrentTransaction().initLogicSQLTransaction(sqlRouteResult, tableMetas);
         }
     }
     

@@ -85,7 +85,7 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     public Connection getConnection(final String dataSourceName) throws SQLException {
         Connection result = dataSourceMap.get(dataSourceName).getConnection();
         if (isInTransaction()) {
-            ShardingSQLTransactionManager.get().getCachedConnections().put(dataSourceName, result);
+            ShardingSQLTransactionManager.getCurrentTransaction().getCachedConnections().put(dataSourceName, result);
         }
         return result;
     }
@@ -94,15 +94,15 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     public void begin() {
         if (!ShardingSQLTransactionManager.isInTransaction()) {
             ShardingSQLTransactionManager.set(new ShardingSQLTransaction());
-            ShardingExecuteDataMap.getDataMap().put(SAGA_TRANSACTION_KEY, ShardingSQLTransactionManager.get());
+            ShardingExecuteDataMap.getDataMap().put(SAGA_TRANSACTION_KEY, ShardingSQLTransactionManager.getCurrentTransaction());
         }
     }
     
     @Override
     public void commit() {
-        if (ShardingSQLTransactionManager.isInTransaction() && ShardingSQLTransactionManager.get().isContainsException()) {
-            ShardingSQLTransactionManager.get().setOperationType(TransactionOperationType.COMMIT);
-            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, ShardingSQLTransactionManager.get()).toJson());
+        if (ShardingSQLTransactionManager.isInTransaction() && ShardingSQLTransactionManager.getCurrentTransaction().isContainsException()) {
+            ShardingSQLTransactionManager.getCurrentTransaction().setOperationType(TransactionOperationType.COMMIT);
+            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, ShardingSQLTransactionManager.getCurrentTransaction()).toJson());
         }
         clearSagaTransaction();
     }
@@ -110,8 +110,8 @@ public final class SagaShardingTransactionManager implements ShardingTransaction
     @Override
     public void rollback() {
         if (ShardingSQLTransactionManager.isInTransaction()) {
-            ShardingSQLTransactionManager.get().setOperationType(TransactionOperationType.ROLLBACK);
-            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, ShardingSQLTransactionManager.get()).toJson());
+            ShardingSQLTransactionManager.getCurrentTransaction().setOperationType(TransactionOperationType.ROLLBACK);
+            sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, ShardingSQLTransactionManager.getCurrentTransaction()).toJson());
         }
         clearSagaTransaction();
     }

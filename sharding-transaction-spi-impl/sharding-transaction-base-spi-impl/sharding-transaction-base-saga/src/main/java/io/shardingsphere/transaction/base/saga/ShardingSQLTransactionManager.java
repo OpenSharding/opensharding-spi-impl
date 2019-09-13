@@ -29,11 +29,11 @@ public class ShardingSQLTransactionManager {
     private static final ThreadLocal<ShardingSQLTransaction> CURRENT_TRANSACTION = new ThreadLocal<>();
     
     /**
-     * Get sharding SQL transaction of current thread.
+     * Get current sharding SQL transaction.
      *
      * @return transaction context
      */
-    public static ShardingSQLTransaction get() {
+    public static ShardingSQLTransaction getCurrentTransaction() {
         return CURRENT_TRANSACTION.get();
     }
     
@@ -59,6 +59,6 @@ public class ShardingSQLTransactionManager {
      * @return true or false
      */
     public static boolean isInTransaction() {
-        return null != get();
+        return null != getCurrentTransaction();
     }
 }

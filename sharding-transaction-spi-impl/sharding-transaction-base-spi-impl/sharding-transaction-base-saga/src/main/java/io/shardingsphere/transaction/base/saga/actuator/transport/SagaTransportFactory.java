@@ -44,6 +44,6 @@ public final class SagaTransportFactory implements TransportFactory<SQLTransport
     
     @Override
     public SQLTransport getTransport() {
-        return new SagaSQLTransport(ShardingSQLTransactionManager.get());
+        return new SagaSQLTransport(ShardingSQLTransactionManager.getCurrentTransaction());
     }
 }
