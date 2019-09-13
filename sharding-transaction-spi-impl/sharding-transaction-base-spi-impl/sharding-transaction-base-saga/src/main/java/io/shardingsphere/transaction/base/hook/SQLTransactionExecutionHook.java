@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.base.hook;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.base.context.BranchTransaction;
+import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
@@ -39,16 +39,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Transactional SQL execution hook.
+ * SQL transaction execution hook.
  *
  * @author yangyi
  * @author zhaojun
  */
-public final class TransactionalSQLExecutionHook implements SQLExecutionHook {
+public final class SQLTransactionExecutionHook implements SQLExecutionHook {
     
     private TransactionContext transactionContext;
     
-    private BranchTransaction branchTransaction;
+    private SQLTransaction sqlTransaction;
     
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
@@ -59,22 +59,22 @@ public final class TransactionalSQLExecutionHook implements SQLExecutionHook {
         if (!transactionContext.getCurrentLogicSQLTransaction().isWritableTransaction()) {
             return;
         }
-        branchTransaction = new BranchTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
-        branchTransaction.setRevertSQLResult(doSQLRevert(transactionContext.getCurrentLogicSQLTransaction(), routeUnit).orNull());
-        transactionContext.addBranchTransaction(branchTransaction);
+        sqlTransaction = new SQLTransaction(routeUnit.getDataSourceName(), routeUnit.getSqlUnit().getSql(), splitParameters(routeUnit.getSqlUnit()), ExecuteStatus.EXECUTING);
+        sqlTransaction.setRevertSQLResult(doSQLRevert(transactionContext.getCurrentLogicSQLTransaction(), routeUnit).orNull());
+        transactionContext.addSQLTransaction(sqlTransaction);
     }
     
     @Override
     public void finishSuccess() {
-        if (null != branchTransaction) {
-            branchTransaction.setExecuteStatus(ExecuteStatus.SUCCESS);
+        if (null != sqlTransaction) {
+            sqlTransaction.setExecuteStatus(ExecuteStatus.SUCCESS);
         }
     }
     
     @Override
     public void finishFailure(final Exception cause) {
-        if (null != branchTransaction) {
-            branchTransaction.setExecuteStatus(ExecuteStatus.FAILURE);
+        if (null != sqlTransaction) {
+            sqlTransaction.setExecuteStatus(ExecuteStatus.FAILURE);
         }
     }
     

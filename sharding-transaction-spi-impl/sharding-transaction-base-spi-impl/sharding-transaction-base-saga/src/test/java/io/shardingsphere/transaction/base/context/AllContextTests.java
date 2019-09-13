@@ -23,7 +23,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        SagaBranchTransactionTest.class,
+        SQLTransactionTest.class,
         SagaTransactionTest.class
 })
 public class AllContextTests {

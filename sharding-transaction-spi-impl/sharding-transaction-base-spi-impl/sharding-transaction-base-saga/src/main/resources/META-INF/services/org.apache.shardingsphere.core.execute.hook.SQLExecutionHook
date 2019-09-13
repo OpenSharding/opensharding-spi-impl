@@ -1,1 +1,1 @@
-io.shardingsphere.transaction.base.hook.TransactionalSQLExecutionHook
+io.shardingsphere.transaction.base.hook.SQLTransactionExecutionHook

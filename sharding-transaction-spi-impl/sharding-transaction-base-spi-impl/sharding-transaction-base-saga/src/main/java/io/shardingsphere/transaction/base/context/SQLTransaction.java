@@ -27,16 +27,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Branch transaction.
+ * SQL transaction.
  *
  * @author yangyi
  */
 @RequiredArgsConstructor
 @Getter
 @Setter
-public final class BranchTransaction {
+public final class SQLTransaction {
     
-    private String branchId = UUID.randomUUID().toString().replaceAll("-", "");
+    private String sqlTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
     
     private final String dataSourceName;
     
@@ -48,7 +48,7 @@ public final class BranchTransaction {
     
     private RevertSQLResult revertSQLResult;
     
-    public BranchTransaction(final String dataSourceName, final String sql, final List<Collection<Object>> parameters, final ExecuteStatus executeStatus) {
+    public SQLTransaction(final String dataSourceName, final String sql, final List<Collection<Object>> parameters, final ExecuteStatus executeStatus) {
         this(dataSourceName, sql, parameters);
         this.executeStatus = executeStatus;
     }

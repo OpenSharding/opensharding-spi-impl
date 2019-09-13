@@ -50,7 +50,7 @@ public class LogicSQLTransaction {
     
     private TableMetaData tableMetaData;
     
-    private final Queue<BranchTransaction> branchTransactions = new ConcurrentLinkedQueue<>();
+    private final Queue<SQLTransaction> sqlTransactions = new ConcurrentLinkedQueue<>();
     
     public void doInit(final SQLRouteResult sqlRouteResult, final TableMetas tableMetas) {
         this.sqlRouteResult = sqlRouteResult;

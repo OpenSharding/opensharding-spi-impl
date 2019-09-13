@@ -19,7 +19,7 @@ package io.shardingsphere.transaction.base.saga.actuator.transport;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.base.context.BranchTransaction;
+import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
@@ -52,7 +52,7 @@ public class SagaSQLTransportTest {
     private TransactionContext transactionContext;
     
     @Mock
-    private BranchTransaction branchTransaction;
+    private SQLTransaction sqlTransaction;
     
     @Mock
     private Connection connection;
@@ -84,32 +84,32 @@ public class SagaSQLTransportTest {
     
     @Test
     public void assertWithBranchTransactionNotPresent() {
-        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.<BranchTransaction>absent());
+        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.<SQLTransaction>absent());
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
-        verify(transactionContext).findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList());
+        verify(transactionContext).findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList());
     }
     
     @Test
     public void assertWithExecuteStatusSuccess() throws SQLException {
-        when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.SUCCESS);
-        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
+        when(sqlTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.SUCCESS);
+        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
         verify(connection, never()).prepareStatement("xxx");
     }
     
     @Test
     public void assertWithExecuteStatusFailedOfRollback() throws SQLException {
-        when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.FAILURE);
+        when(sqlTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.FAILURE);
         when(transactionContext.getOperationType()).thenReturn(TransactionOperationType.ROLLBACK);
-        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
+        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
         verify(connection, never()).prepareStatement("xxx");
     }
     
     @Test
     public void assertWithExecuteSQL() throws SQLException {
-        when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.COMPENSATING);
-        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
+        when(sqlTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.COMPENSATING);
+        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
         sagaSQLTransport.with("ds1", "xxx", Lists.<List<String>>newLinkedList());
         verify(connection).prepareStatement("xxx");
         verify(preparedStatement).executeUpdate();
@@ -117,8 +117,8 @@ public class SagaSQLTransportTest {
     
     @Test
     public void assertWithExecuteBatchSQL() throws SQLException {
-        when(branchTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.COMPENSATING);
-        when(transactionContext.findBranchTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(branchTransaction));
+        when(sqlTransaction.getExecuteStatus()).thenReturn(ExecuteStatus.COMPENSATING);
+        when(transactionContext.findSQLTransaction(anyString(), anyString(), ArgumentMatchers.<List<String>>anyList())).thenReturn(Optional.of(sqlTransaction));
         List<List<String>> parameters = Lists.newLinkedList();
         parameters.add(Arrays.asList("1", "2", "3"));
         sagaSQLTransport.with("ds1", "xxx", parameters);

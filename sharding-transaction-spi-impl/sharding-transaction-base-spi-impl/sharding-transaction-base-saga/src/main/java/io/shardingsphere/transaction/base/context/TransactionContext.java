@@ -92,7 +92,7 @@ public final class TransactionContext {
     }
     
     private boolean isLogicSQLTransactionFailed(final LogicSQLTransaction logicSQLTransaction) {
-        for (BranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
+        for (SQLTransaction each : logicSQLTransaction.getSqlTransactions()) {
             if (ExecuteStatus.FAILURE.equals(each.getExecuteStatus())) {
                 return true;
             }
@@ -101,12 +101,12 @@ public final class TransactionContext {
     }
     
     /**
-     * Add new branch transaction to current logic SQL transaction.
+     * Add new SQL transaction to current logic SQL transaction.
      *
-     * @param branchTransaction branch transaction
+     * @param sqlTransaction branch transaction
      */
-    public void addBranchTransaction(final BranchTransaction branchTransaction) {
-        currentLogicSQLTransaction.getBranchTransactions().add(branchTransaction);
+    public void addSQLTransaction(final SQLTransaction sqlTransaction) {
+        currentLogicSQLTransaction.getSqlTransactions().add(sqlTransaction);
     }
     
     /**
@@ -121,21 +121,21 @@ public final class TransactionContext {
     }
     
     private void changeAllBranchTransactionStatus(final LogicSQLTransaction logicSQLTransaction, final ExecuteStatus executeStatus) {
-        for (BranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
+        for (SQLTransaction each : logicSQLTransaction.getSqlTransactions()) {
             each.setExecuteStatus(executeStatus);
         }
     }
     
     /**
-     * Find branch transaction.
+     * Find SQL transaction.
      *
      * @param dataSourceName data source name
      * @param sql SQL
      * @param sagaParameters saga parameters
      * @return saga branch transaction
      */
-    public Optional<BranchTransaction> findBranchTransaction(final String dataSourceName, final String sql, final List<List<String>> sagaParameters) {
-        Optional<BranchTransaction> result = Optional.absent();
+    public Optional<SQLTransaction> findSQLTransaction(final String dataSourceName, final String sql, final List<List<String>> sagaParameters) {
+        Optional<SQLTransaction> result = Optional.absent();
         for (LogicSQLTransaction each : logicSQLTransactions) {
             result = doFindBranchTransaction(each, dataSourceName, sql, sagaParameters);
             if (result.isPresent()) {
@@ -145,9 +145,9 @@ public final class TransactionContext {
         return result;
     }
     
-    private Optional<BranchTransaction> doFindBranchTransaction(final LogicSQLTransaction logicSQLTransaction, final String dataSourceName,
-                                                                final String sql, final List<List<String>> sagaParameters) {
-        for (BranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
+    private Optional<SQLTransaction> doFindBranchTransaction(final LogicSQLTransaction logicSQLTransaction, final String dataSourceName,
+                                                             final String sql, final List<List<String>> sagaParameters) {
+        for (SQLTransaction each : logicSQLTransaction.getSqlTransactions()) {
             if (dataSourceName.equals(each.getDataSourceName())) {
                 if (ExecuteStatus.COMPENSATING.equals(each.getExecuteStatus()) && sql.equals(each.getRevertSQLResult().getSql())
                     && judgeRevertParameters(sagaParameters, each.getRevertSQLResult().getParameters())) {

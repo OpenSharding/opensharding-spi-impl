@@ -18,7 +18,7 @@
 package io.shardingsphere.transaction.base.saga.actuator.definition;
 
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.base.context.BranchTransaction;
+import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.saga.config.SagaConfiguration;
@@ -64,17 +64,17 @@ public final class SagaDefinitionFactory {
     private static Collection<String> addLogicSQLTransactionRequest(final Collection<String> parentsIds, final Collection<SagaRequest> sagaRequests,
                                                                     final LogicSQLTransaction logicSQLTransaction, final SagaConfiguration configuration) {
         Collection<String> result = new LinkedList<>();
-        for (BranchTransaction each : logicSQLTransaction.getBranchTransactions()) {
+        for (SQLTransaction each : logicSQLTransaction.getSqlTransactions()) {
             sagaRequests.add(newSagaRequest(parentsIds, each, configuration));
-            result.add(each.getBranchId());
+            result.add(each.getSqlTransactionId());
         }
         return result;
     }
     
-    private static SagaRequest newSagaRequest(final Collection<String> parentsIds, final BranchTransaction branch, final SagaConfiguration configuration) {
-        SagaSQLUnit transaction = new SagaSQLUnit(branch.getSql(), branch.getParameters(), configuration.getTransactionMaxRetries());
-        SagaSQLUnit compensation = new SagaSQLUnit(branch.getRevertSQLResult().getSql(), branch.getRevertSQLResult().getParameters(), configuration.getCompensationMaxRetries());
-        return new SagaRequest(branch.getBranchId(), branch.getDataSourceName(), TYPE, transaction, compensation, parentsIds, configuration.getTransactionRetryDelayMilliseconds());
+    private static SagaRequest newSagaRequest(final Collection<String> parentsIds, final SQLTransaction sqlTransaction, final SagaConfiguration configuration) {
+        SagaSQLUnit transaction = new SagaSQLUnit(sqlTransaction.getSql(), sqlTransaction.getParameters(), configuration.getTransactionMaxRetries());
+        SagaSQLUnit compensation = new SagaSQLUnit(sqlTransaction.getRevertSQLResult().getSql(), sqlTransaction.getRevertSQLResult().getParameters(), configuration.getCompensationMaxRetries());
+        return new SagaRequest(sqlTransaction.getSqlTransactionId(), sqlTransaction.getDataSourceName(), TYPE, transaction, compensation, parentsIds, configuration.getTransactionRetryDelayMilliseconds());
     }
     
     private static SagaRequest newRollbackRequest(final Collection<String> parentsIds, final SagaConfiguration configuration) {

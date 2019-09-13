@@ -26,7 +26,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public final class SagaBranchTransactionTest {
+public final class SQLTransactionTest {
     
     private String dataSourceName = "dataSourceName";
     
@@ -34,9 +34,9 @@ public final class SagaBranchTransactionTest {
     
     @Test
     public void assertToString() {
-        BranchTransaction sagaBranchTransaction = new BranchTransaction(dataSourceName, sql, getStringParameterSets());
-        assertThat(new BranchTransaction(dataSourceName, sql, getStringParameterSets()).toString(), is(sagaBranchTransaction.toString()));
-        assertThat(new BranchTransaction(dataSourceName, sql, getMixedParameterSets()).toString(), is(sagaBranchTransaction.toString()));
+        SQLTransaction sqlTransaction = new SQLTransaction(dataSourceName, sql, getStringParameterSets());
+        assertThat(new SQLTransaction(dataSourceName, sql, getStringParameterSets()).toString(), is(sqlTransaction.toString()));
+        assertThat(new SQLTransaction(dataSourceName, sql, getMixedParameterSets()).toString(), is(sqlTransaction.toString()));
     }
     
     private List<Collection<Object>> getStringParameterSets() {

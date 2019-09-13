@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.hook;
 
-import io.shardingsphere.transaction.base.context.BranchTransaction;
+import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TransactionalSQLExecutionHookTest {
+public class SQLTransactionExecutionHookTest {
     
     @Mock
     private TransactionContext transactionContext;
@@ -63,11 +63,11 @@ public class TransactionalSQLExecutionHookTest {
     private LogicSQLTransaction logicSQLTransaction;
     
     @Mock
-    private BranchTransaction branchTransaction;
+    private SQLTransaction sqlTransaction;
     
     private Map<String, Object> shardingExecuteDataMap = new LinkedHashMap<>();
     
-    private TransactionalSQLExecutionHook sqlExecutionHook = new TransactionalSQLExecutionHook();
+    private SQLTransactionExecutionHook sqlExecutionHook = new SQLTransactionExecutionHook();
     
     private Map<String, Connection> cachedConnections = new HashMap<>();
     
@@ -91,39 +91,39 @@ public class TransactionalSQLExecutionHookTest {
         when(logicSQLTransaction.getSqlRouteResult()).thenReturn(MockTestUtil.mockSQLRouteResult(optimizedStatement, "ds", "t_order", "t_order_0"));
         RouteUnit routeUnit = MockTestUtil.mockRouteUnit("ds", "delete from t_order_0 where c1=? and c2=? and c3=?", Arrays.<Object>asList(1, 2, 3));
         sqlExecutionHook.start(routeUnit, dataSourceMetaData, true, shardingExecuteDataMap);
-        verify(transactionContext).addBranchTransaction(any(BranchTransaction.class));
+        verify(transactionContext).addSQLTransaction(any(SQLTransaction.class));
     }
     
     @Test
     public void assertStartWithoutTransaction() {
         sqlExecutionHook.start(mock(RouteUnit.class), dataSourceMetaData, true, shardingExecuteDataMap);
-        verify(transactionContext, never()).addBranchTransaction(any(BranchTransaction.class));
+        verify(transactionContext, never()).addSQLTransaction(any(SQLTransaction.class));
     }
     
     @Test
     public void assertStartIsNotDMLLogicSQL() {
         sqlExecutionHook.start(mock(RouteUnit.class), dataSourceMetaData, true, shardingExecuteDataMap);
-        verify(transactionContext, never()).addBranchTransaction(any(BranchTransaction.class));
+        verify(transactionContext, never()).addSQLTransaction(any(SQLTransaction.class));
     }
     
     @Test
     public void assertFinishSuccess() {
         setBranchTransaction();
         sqlExecutionHook.finishSuccess();
-        verify(branchTransaction).setExecuteStatus(ExecuteStatus.SUCCESS);
+        verify(sqlTransaction).setExecuteStatus(ExecuteStatus.SUCCESS);
     }
     
     @Test
     public void assertFinishFailure() {
         setBranchTransaction();
         sqlExecutionHook.finishFailure(mock(Exception.class));
-        verify(branchTransaction).setExecuteStatus(ExecuteStatus.FAILURE);
+        verify(sqlTransaction).setExecuteStatus(ExecuteStatus.FAILURE);
     }
     
     @SneakyThrows
     private void setBranchTransaction() {
-        Field field = sqlExecutionHook.getClass().getDeclaredField("branchTransaction");
+        Field field = sqlExecutionHook.getClass().getDeclaredField("sqlTransaction");
         field.setAccessible(true);
-        field.set(sqlExecutionHook, branchTransaction);
+        field.set(sqlExecutionHook, sqlTransaction);
     }
 }

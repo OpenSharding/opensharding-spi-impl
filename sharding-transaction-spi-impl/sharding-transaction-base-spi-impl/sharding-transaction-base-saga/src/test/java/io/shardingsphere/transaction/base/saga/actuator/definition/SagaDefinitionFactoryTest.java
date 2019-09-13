@@ -17,7 +17,7 @@
 
 package io.shardingsphere.transaction.base.saga.actuator.definition;
 
-import io.shardingsphere.transaction.base.context.BranchTransaction;
+import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
@@ -105,20 +105,20 @@ public class SagaDefinitionFactoryTest {
         List<LogicSQLTransaction> result = new LinkedList<>();
         for (int i = 0; i < logicSQLCount; i++) {
             LogicSQLTransaction logicSQLTransaction = mock(LogicSQLTransaction.class);
-            when(logicSQLTransaction.getBranchTransactions()).thenReturn(mockBranchTransactions(branchCount));
+            when(logicSQLTransaction.getSqlTransactions()).thenReturn(mockBranchTransactions(branchCount));
             result.add(logicSQLTransaction);
         }
         return result;
     }
     
-    private Queue<BranchTransaction> mockBranchTransactions(final int count) {
-        final Queue<BranchTransaction> result = new ConcurrentLinkedQueue<>();
+    private Queue<SQLTransaction> mockBranchTransactions(final int count) {
+        final Queue<SQLTransaction> result = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < count; i++) {
-            BranchTransaction branchTransaction = new BranchTransaction("ds", "tx-sql", mockParameters());
+            SQLTransaction sqlTransaction = new SQLTransaction("ds", "tx-sql", mockParameters());
             RevertSQLResult revertSQLResult = new RevertSQLResult("revert-sql");
             revertSQLResult.getParameters().addAll(mockParameters());
-            branchTransaction.setRevertSQLResult(revertSQLResult);
-            result.offer(branchTransaction);
+            sqlTransaction.setRevertSQLResult(revertSQLResult);
+            result.offer(sqlTransaction);
         }
         return result;
     }

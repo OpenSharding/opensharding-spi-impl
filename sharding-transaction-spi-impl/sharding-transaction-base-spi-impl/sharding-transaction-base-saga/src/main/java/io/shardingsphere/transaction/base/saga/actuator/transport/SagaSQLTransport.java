@@ -22,7 +22,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
-import io.shardingsphere.transaction.base.context.BranchTransaction;
+import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.TransactionContext;
 import lombok.RequiredArgsConstructor;
 import org.apache.servicecomb.saga.core.SagaResponse;
@@ -56,8 +56,8 @@ public final class SagaSQLTransport implements SQLTransport {
             transactionContext.changeAllLogicTransactionStatus(ExecuteStatus.COMPENSATING);
             throw new TransportFailedException("Forced Rollback tag has been checked, saga will rollback this transaction");
         }
-        Optional<BranchTransaction> branchTransaction = transactionContext.findBranchTransaction(datasourceName, sql, sagaParameters);
-        return branchTransaction.isPresent() && isExecuteSQL(branchTransaction.get().getExecuteStatus()) ? executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
+        Optional<SQLTransaction> sqlTransaction = transactionContext.findSQLTransaction(datasourceName, sql, sagaParameters);
+        return sqlTransaction.isPresent() && isExecuteSQL(sqlTransaction.get().getExecuteStatus()) ? executeSQL(datasourceName, sql, sagaParameters) : new JsonSuccessfulSagaResponse("{}");
     }
     
     private boolean isExecuteSQL(final ExecuteStatus executeStatus) {
