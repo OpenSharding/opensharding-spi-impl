@@ -18,20 +18,39 @@
 package io.shardingsphere.transaction.base.saga;
 
 import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import io.shardingsphere.transaction.base.saga.actuator.SagaActuatorFactory;
+import io.shardingsphere.transaction.base.saga.actuator.definition.SagaDefinitionFactory;
+import io.shardingsphere.transaction.base.saga.config.SagaConfiguration;
+import io.shardingsphere.transaction.base.saga.config.SagaConfigurationLoader;
+import io.shardingsphere.transaction.base.saga.persistence.SagaPersistenceLoader;
+import io.shardingsphere.transaction.base.utils.Constant;
+import org.apache.servicecomb.saga.core.PersistentStore;
+import org.apache.servicecomb.saga.core.RecoveryPolicy;
+import org.apache.servicecomb.saga.core.application.SagaExecutionComponent;
+import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
+import org.apache.shardingsphere.transaction.core.TransactionOperationType;
 
 /**
  * Sharding SQL transaction manager.
  *
  * @author zhaojun
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ShardingSQLTransactionManager {
     
     private static final ShardingSQLTransactionManager INSTANCE = new ShardingSQLTransactionManager();
     
     private static final ThreadLocal<ShardingSQLTransaction> CURRENT_TRANSACTION = new ThreadLocal<>();
+    
+    private SagaConfiguration sagaConfiguration;
+    
+    private SagaExecutionComponent sagaActuator;
+    
+    private ShardingSQLTransactionManager() {
+        sagaConfiguration = SagaConfigurationLoader.load();
+        PersistentStore sagaPersistence = SagaPersistenceLoader.load(sagaConfiguration.getSagaPersistenceConfiguration());
+        sagaActuator = SagaActuatorFactory.newInstance(sagaConfiguration, sagaPersistence);
+    }
+    
     
     /**
      * Get instance of Sharding SQL transaction manager.
@@ -52,19 +71,42 @@ public final class ShardingSQLTransactionManager {
     }
     
     /**
-     * Set sharding sQL transaction.
-     *
-     * @param shardingSQLTransaction sharding SQL transaction
+     * begin.
      */
-    public void set(final ShardingSQLTransaction shardingSQLTransaction) {
-        CURRENT_TRANSACTION.set(shardingSQLTransaction);
+    public void begin() {
+        if (!isInTransaction()) {
+            CURRENT_TRANSACTION.set(new ShardingSQLTransaction());
+            ShardingExecuteDataMap.getDataMap().put(Constant.SAGA_TRANSACTION_KEY, getCurrentTransaction());
+        }
     }
     
     /**
-     * Clear sharding SQL transaction.
+     * commit.
      */
-    public static void clear() {
-        CURRENT_TRANSACTION.remove();
+    public void commit() {
+        try {
+            if (isInTransaction() && getCurrentTransaction().isContainsException()) {
+                getCurrentTransaction().setOperationType(TransactionOperationType.COMMIT);
+                sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_FORWARD_RECOVERY_POLICY, sagaConfiguration, getCurrentTransaction()).toJson());
+            }
+        } finally {
+            clear();
+        }
+        
+    }
+    
+    /**
+     * rollback.
+     */
+    public void rollback() {
+        try {
+            if (isInTransaction()) {
+                getCurrentTransaction().setOperationType(TransactionOperationType.ROLLBACK);
+                sagaActuator.run(SagaDefinitionFactory.newInstance(RecoveryPolicy.SAGA_BACKWARD_RECOVERY_POLICY, sagaConfiguration, getCurrentTransaction()).toJson());
+            }
+        } finally {
+            clear();
+        }
     }
     
     /**
@@ -74,5 +116,13 @@ public final class ShardingSQLTransactionManager {
      */
     public boolean isInTransaction() {
         return null != getCurrentTransaction();
+    }
+    
+    /**
+     * clear.
+     */
+    public void clear() {
+        CURRENT_TRANSACTION.remove();
+        ShardingExecuteDataMap.getDataMap().remove(Constant.SAGA_TRANSACTION_KEY);
     }
 }

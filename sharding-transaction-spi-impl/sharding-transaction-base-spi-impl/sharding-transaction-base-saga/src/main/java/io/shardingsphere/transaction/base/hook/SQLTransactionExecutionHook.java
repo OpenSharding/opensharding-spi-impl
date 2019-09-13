@@ -19,15 +19,15 @@ package io.shardingsphere.transaction.base.hook;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.ExecuteStatus;
 import io.shardingsphere.transaction.base.context.LogicSQLTransaction;
+import io.shardingsphere.transaction.base.context.SQLTransaction;
 import io.shardingsphere.transaction.base.context.ShardingSQLTransaction;
 import io.shardingsphere.transaction.base.hook.revert.DMLSQLRevertEngine;
 import io.shardingsphere.transaction.base.hook.revert.RevertSQLResult;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorContext;
 import io.shardingsphere.transaction.base.hook.revert.executor.SQLRevertExecutorFactory;
-import io.shardingsphere.transaction.base.SagaShardingTransactionManager;
+import io.shardingsphere.transaction.base.utils.Constant;
 import org.apache.shardingsphere.core.execute.hook.SQLExecutionHook;
 import org.apache.shardingsphere.core.route.RouteUnit;
 import org.apache.shardingsphere.core.route.SQLUnit;
@@ -52,10 +52,10 @@ public final class SQLTransactionExecutionHook implements SQLExecutionHook {
     
     @Override
     public void start(final RouteUnit routeUnit, final DataSourceMetaData dataSourceMetaData, final boolean isTrunkThread, final Map<String, Object> shardingExecuteDataMap) {
-        if (!shardingExecuteDataMap.containsKey(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY)) {
+        if (!shardingExecuteDataMap.containsKey(Constant.SAGA_TRANSACTION_KEY)) {
             return;
         }
-        shardingSQLTransaction = (ShardingSQLTransaction) shardingExecuteDataMap.get(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY);
+        shardingSQLTransaction = (ShardingSQLTransaction) shardingExecuteDataMap.get(Constant.SAGA_TRANSACTION_KEY);
         if (!shardingSQLTransaction.getCurrentLogicSQLTransaction().isWritableTransaction()) {
             return;
         }

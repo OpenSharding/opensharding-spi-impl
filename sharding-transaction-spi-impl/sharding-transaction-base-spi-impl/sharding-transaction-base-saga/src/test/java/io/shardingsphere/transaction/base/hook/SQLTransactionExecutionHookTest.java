@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static io.shardingsphere.transaction.base.utils.Constant.SAGA_TRANSACTION_KEY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -83,7 +84,7 @@ public class SQLTransactionExecutionHookTest {
     @Test
     public void assertStartWithinTransaction() throws SQLException {
         when(logicSQLTransaction.isWritableTransaction()).thenReturn(true);
-        shardingExecuteDataMap.put(SagaShardingTransactionManager.SAGA_TRANSACTION_KEY, shardingSQLTransaction);
+        shardingExecuteDataMap.put(SAGA_TRANSACTION_KEY, shardingSQLTransaction);
         cachedConnections.put("ds", MockTestUtil.mockConnection());
         when(shardingSQLTransaction.getCachedConnections()).thenReturn(cachedConnections);
         SQLStatement sqlStatement = MockTestUtil.mockDeleteStatement("t_order");
