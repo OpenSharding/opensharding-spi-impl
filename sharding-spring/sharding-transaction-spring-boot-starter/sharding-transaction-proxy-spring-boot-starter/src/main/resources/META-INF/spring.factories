@@ -16,4 +16,4 @@
 #
 
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.shardingsphere.transaction.spring.boot.ShardingTransactionProxyConfiguration
+io.opensharding.transaction.spring.boot.ShardingTransactionProxyConfiguration

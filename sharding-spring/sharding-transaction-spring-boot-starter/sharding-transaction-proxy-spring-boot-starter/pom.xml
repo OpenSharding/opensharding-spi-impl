@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>sharding-transaction-spring-boot-starter</artifactId>
-        <groupId>io.shardingsphere</groupId>
+        <groupId>io.opensharding</groupId>
         <version>4.0.0-RC3-SNAPSHOT</version>
     </parent>
     <artifactId>sharding-transaction-proxy-spring-boot-starter</artifactId>
@@ -30,7 +30,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.shardingsphere</groupId>
+            <groupId>io.opensharding</groupId>
             <artifactId>sharding-transaction-proxy-spring</artifactId>
             <version>${project.version}</version>
         </dependency>

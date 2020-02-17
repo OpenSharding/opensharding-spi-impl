@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016-2018 shardingsphere.io.
   ~ <p>
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.shardingsphere</groupId>
+        <groupId>io.opensharding</groupId>
         <artifactId>shardingsphere-spi-impl</artifactId>
         <version>4.0.0-RC3-SNAPSHOT</version>
     </parent>
@@ -34,12 +33,12 @@
             <id>saga</id>
             <dependencies>
                 <dependency>
-                    <groupId>io.shardingsphere</groupId>
+                    <groupId>io.opensharding</groupId>
                     <artifactId>sharding-transaction-base-saga</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>
-                    <groupId>io.shardingsphere</groupId>
+                    <groupId>io.opensharding</groupId>
                     <artifactId>sharding-transaction-base-saga-persistence-jpa</artifactId>
                     <version>${project.version}</version>
                 </dependency>
@@ -49,7 +48,7 @@
             <id>bitronix</id>
             <dependencies>
                 <dependency>
-                    <groupId>io.shardingsphere</groupId>
+                    <groupId>io.opensharding</groupId>
                     <artifactId>sharding-transaction-xa-bitronix</artifactId>
                     <version>${project.version}</version>
                 </dependency>
@@ -59,7 +58,7 @@
             <id>narayana</id>
             <dependencies>
                 <dependency>
-                    <groupId>io.shardingsphere</groupId>
+                    <groupId>io.opensharding</groupId>
                     <artifactId>sharding-transaction-xa-narayana</artifactId>
                     <version>${project.version}</version>
                 </dependency>
@@ -69,7 +68,7 @@
             <id>etcd</id>
             <dependencies>
                 <dependency>
-                    <groupId>io.shardingsphere</groupId>
+                    <groupId>io.opensharding</groupId>
                     <artifactId>sharding-orchestration-reg-etcd</artifactId>
                     <version>${project.version}</version>
                 </dependency>
@@ -79,7 +78,7 @@
             <id>native-zk</id>
             <dependencies>
                 <dependency>
-                    <groupId>io.shardingsphere</groupId>
+                    <groupId>io.opensharding</groupId>
                     <artifactId>sharding-orchestration-reg-native-zookeeper</artifactId>
                     <version>${project.version}</version>
                 </dependency>

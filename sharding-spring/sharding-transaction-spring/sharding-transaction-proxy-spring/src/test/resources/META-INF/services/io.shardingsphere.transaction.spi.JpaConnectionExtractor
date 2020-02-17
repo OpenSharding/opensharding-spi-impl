@@ -1,1 +1,1 @@
-io.shardingsphere.transaction.fixture.MockJpaConnectionExtractor
+io.opensharding.transaction.fixture.MockJpaConnectionExtractor

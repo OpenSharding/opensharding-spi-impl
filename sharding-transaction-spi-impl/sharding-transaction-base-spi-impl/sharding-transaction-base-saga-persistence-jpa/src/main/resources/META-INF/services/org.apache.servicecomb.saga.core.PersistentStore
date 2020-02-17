@@ -1,1 +1,1 @@
-io.shardingsphere.transaction.base.saga.persistence.jpa.SagaPersistenceImpl
+io.opensharding.transaction.base.saga.persistence.jpa.SagaPersistenceImpl

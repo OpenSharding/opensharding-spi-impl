@@ -1,1 +1,1 @@
-io.shardingsphere.transaction.spring.boot.fixture.MockJpaConnectionExtractor
+io.opensharding.transaction.spring.boot.fixture.MockJpaConnectionExtractor

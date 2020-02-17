@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>sharding-transaction-spi-impl</artifactId>
-        <groupId>io.shardingsphere</groupId>
+        <groupId>io.opensharding</groupId>
         <version>4.0.0-RC3-SNAPSHOT</version>
     </parent>
     <artifactId>sharding-transaction-base-spi-impl</artifactId>
