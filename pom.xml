@@ -45,7 +45,7 @@
         <javax.transaction.version>1.1</javax.transaction.version>
         <servicecomb.saga.version>0.3.0</servicecomb.saga.version>
         
-        <zookeeper.version>3.4.6</zookeeper.version>
+        <zookeeper.version>3.4.14</zookeeper.version>
         <curator.version>2.10.0</curator.version>
     
         <springframework.version>[4.3.6.RELEASE,5.0.0.M1)</springframework.version>
