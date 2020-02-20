@@ -21,11 +21,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.opensharding</groupId>
-        <artifactId>shardingsphere-spi-impl</artifactId>
+        <artifactId>sharding-spi-impl</artifactId>
         <version>4.0.0-RC3-SNAPSHOT</version>
     </parent>
     
-    <artifactId>shardingsphere-distribution</artifactId>
+    <artifactId>sharding-distribution</artifactId>
     <name>${project.artifactId}</name>
     
     <profiles>
