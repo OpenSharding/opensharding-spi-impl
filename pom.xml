@@ -598,8 +598,8 @@
                             <ignoreMethodAnnotation>lombok.Generated</ignoreMethodAnnotation>
                         </ignoreMethodAnnotations>
                         <excludes>
-                            <exclude>io/shardingsphere/**/*Test.class</exclude>
-                            <exclude>io/shardingsphere/**/Test*.class</exclude>
+                            <exclude>io/sharding/**/*Test.class</exclude>
+                            <exclude>io/sharding/**/Test*.class</exclude>
                             <exclude>authpb/*.class</exclude>
                             <exclude>mvccpb/*.class</exclude>
                             <exclude>etcdserverpb/*.class</exclude>
@@ -677,8 +677,6 @@
         </repository>
     </repositories>
     
-    <url>https://shardingsphere.apache.org/</url>
-    <description>Distributed database middleware ecosphere</description>
     <licenses>
         <license>
             <name>Apache License 2.0</name>
@@ -688,9 +686,9 @@
     </licenses>
     
     <scm>
-        <connection>scm:https://github.com/sharding-sphere/sharding-spi-impl</connection>
-        <developerConnection>scm:https://github.com/sharding-sphere/sharding-spi-impl</developerConnection>
-        <url>https://github.com/sharding-sphere/sharding-spi-impl</url>
+        <connection>scm:https://github.com/OpenSharding/sharding-spi-impl</connection>
+        <developerConnection>scm:https://github.com/OpenSharding/sharding-spi-impl</developerConnection>
+        <url>https://github.com/OpenSharding/sharding-spi-impl</url>
     </scm>
     
     <distributionManagement>
