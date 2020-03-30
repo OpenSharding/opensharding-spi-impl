@@ -31,6 +31,5 @@
     
     <modules>
         <module>sharding-orchestration-reg-native-zookeeper</module>
-        <module>sharding-orchestration-reg-etcd</module>
     </modules>
 </project>
