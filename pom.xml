@@ -51,7 +51,7 @@
         <springframework.version>[4.3.6.RELEASE,5.0.0.M1)</springframework.version>
         <spring-boot.version>[1.5.0.RELEASE,2.0.0.M1)</spring-boot.version>
         <aspectjweaver.version>1.8.9</aspectjweaver.version>
-        <hibernate.version>5.3.7.Final</hibernate.version>
+        <hibernate.version>5.4.24.Final</hibernate.version>
         <jpa.version>2.2</jpa.version>
         
         <lombok.version>1.16.4</lombok.version>

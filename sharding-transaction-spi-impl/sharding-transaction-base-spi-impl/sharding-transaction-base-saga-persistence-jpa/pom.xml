@@ -29,7 +29,7 @@
     <version>4.0.0-RC3-SNAPSHOT</version>
     
     <properties>
-        <hibernate.version>5.4.0.Final</hibernate.version>
+        <hibernate.version>5.4.24.Final</hibernate.version>
         <hibernate-jpa-api.version>1.0.2.Final</hibernate-jpa-api.version>
     </properties>
     
